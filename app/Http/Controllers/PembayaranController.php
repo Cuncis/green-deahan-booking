@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PembayaranController extends Controller
 {
@@ -23,6 +24,22 @@ class PembayaranController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
+        // Deteksi gateway pengirim lalu verifikasi signature-nya SEBELUM
+        // memproses apapun. Xendit selalu kirim header x-callback-token;
+        // Midtrans selalu kirim signature_key di body, jadi keduanya tidak
+        // akan tumpang tindih satu sama lain.
+        if ($request->hasHeader('x-callback-token')) {
+            if (! $this->verifyXenditSignature($request)) {
+                return $this->tolakWebhook($request);
+            }
+        } elseif ($request->filled('signature_key')) {
+            if (! $this->verifyMidtransSignature($request)) {
+                return $this->tolakWebhook($request);
+            }
+        } else {
+            return $this->tolakWebhook($request);
+        }
+
         $data = $request->validate([
             'kode_transaksi_gateway' => ['required', 'string'],
             'kode_booking' => ['required', 'string'],
@@ -94,5 +111,55 @@ class PembayaranController extends Controller
             ->first();
 
         $slot?->update(['status' => 'kosong', 'hold_sampai' => null]);
+    }
+
+    /**
+     * Verifikasi signature Midtrans: SHA512(order_id + status_code +
+     * gross_amount + server_key) harus sama dengan signature_key yang
+     * dikirim. Dokumentasi resmi Midtrans: https://docs.midtrans.com.
+     */
+    private function verifyMidtransSignature(Request $request): bool
+    {
+        $serverKey = config('services.midtrans.server_key');
+
+        if (empty($serverKey)) {
+            return false;
+        }
+
+        $orderId = (string) $request->input('order_id');
+        $statusCode = (string) $request->input('status_code');
+        $grossAmount = (string) $request->input('gross_amount');
+        $signatureKey = (string) $request->input('signature_key');
+
+        if ($orderId === '' || $statusCode === '' || $grossAmount === '' || $signatureKey === '') {
+            return false;
+        }
+
+        $expected = hash('sha512', $orderId.$statusCode.$grossAmount.$serverKey);
+
+        return hash_equals($expected, $signatureKey);
+    }
+
+    /**
+     * Verifikasi signature Xendit: header x-callback-token harus sama
+     * dengan token verifikasi yang diset di dashboard Xendit.
+     */
+    private function verifyXenditSignature(Request $request): bool
+    {
+        $expectedToken = config('services.xendit.callback_token');
+        $token = (string) $request->header('x-callback-token');
+
+        if (empty($expectedToken) || $token === '') {
+            return false;
+        }
+
+        return hash_equals((string) $expectedToken, $token);
+    }
+
+    private function tolakWebhook(Request $request): JsonResponse
+    {
+        Log::warning('Webhook signature invalid', ['ip' => $request->ip()]);
+
+        return response()->json(['message' => 'Unauthorized'], 401);
     }
 }

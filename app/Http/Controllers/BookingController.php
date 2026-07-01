@@ -8,6 +8,7 @@ use App\Models\JadwalSlot;
 use App\Models\KodePromo;
 use App\Models\Lapangan;
 use App\Models\Membership;
+use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -115,19 +116,18 @@ class BookingController extends Controller
             'whatsapp' => ['required', 'string', 'max:20'],
             'kode_promo' => ['nullable', 'string'],
             'tipe_pembayaran' => ['required', 'in:manual,dp,lunas'],
+            'metode_pembayaran' => ['required_unless:tipe_pembayaran,manual', 'nullable', 'in:qris,va,ewallet'],
             'reminder_aktif' => ['sometimes', 'boolean'],
         ]);
 
-        return DB::transaction(function () use ($tenant, $data) {
+        $booking = DB::transaction(function () use ($tenant, $data) {
             $slot = JadwalSlot::where('tenant_id', $tenant->id)
                 ->where('id', $data['slot_id'])
                 ->lockForUpdate()
                 ->firstOrFail();
 
             if ($slot->status !== 'hold') {
-                return response()->json([
-                    'message' => 'Slot ini sudah tidak bisa dibooking.',
-                ], 409);
+                return null;
             }
 
             $customer = Customer::firstOrCreate(
@@ -162,7 +162,7 @@ class BookingController extends Controller
                 ? (int) round($totalSetelahDiskon * 0.5)
                 : $totalSetelahDiskon;
 
-            $booking = Booking::create([
+            return Booking::create([
                 'tenant_id' => $tenant->id,
                 'slot_id' => $slot->id,
                 'customer_id' => $customer->id,
@@ -175,11 +175,32 @@ class BookingController extends Controller
                 'status_booking' => 'menunggu',
                 'reminder_aktif' => $tenant->punyaFitur('reminder_otomatis') && ($data['reminder_aktif'] ?? false),
             ]);
-
-            return response()->json([
-                'message' => 'Booking berhasil dibuat.',
-                'data' => $booking,
-            ], 201);
         });
+
+        if (! $booking) {
+            return response()->json([
+                'message' => 'Slot ini sudah tidak bisa dibooking.',
+            ], 409);
+        }
+
+        $responseData = [
+            'message' => 'Booking berhasil dibuat.',
+            'data' => $booking,
+        ];
+
+        // Panggilan ke Midtrans sengaja di LUAR DB::transaction() di atas,
+        // supaya lock row jadwal_slot tidak ketahan selama menunggu network
+        // I/O ke gateway pembayaran.
+        if ($data['tipe_pembayaran'] !== 'manual') {
+            try {
+                $responseData['pembayaran'] = app(PaymentService::class)
+                    ->createTransaction($booking, $data['metode_pembayaran']);
+            } catch (\Throwable $e) {
+                report($e);
+                $responseData['pembayaran_error'] = 'Booking berhasil dibuat, tapi transaksi pembayaran online gagal dibuat. Hubungi admin untuk konfirmasi manual.';
+            }
+        }
+
+        return response()->json($responseData, 201);
     }
 }

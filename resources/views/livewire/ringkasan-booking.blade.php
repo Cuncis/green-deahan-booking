@@ -4,7 +4,7 @@
     @endif
 
     @if ($tenant->punyaFitur('pembayaran_online'))
-        <x-payment-methods />
+        <x-payment-methods :selected="$metodePembayaran" action="pilihMetodePembayaran" />
     @endif
 
     @if ($tenant->punyaFitur('dp_pembayaran'))

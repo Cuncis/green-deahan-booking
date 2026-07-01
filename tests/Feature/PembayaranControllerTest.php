@@ -54,11 +54,24 @@ class PembayaranControllerTest extends TestCase
         ];
     }
 
+    /**
+     * Lewat header x-callback-token Xendit, supaya test yang fokus ke
+     * logika bisnis (bukan ke verifikasi signature-nya sendiri) tidak
+     * perlu hitung hash SHA512 Midtrans satu-satu. Lihat WebhookSignatureTest
+     * untuk pengujian verifikasi signature-nya sendiri.
+     */
+    private function postWebhook(string $url, array $payload)
+    {
+        return $this->postJson($url, $payload, [
+            'x-callback-token' => 'test-xendit-callback-token',
+        ]);
+    }
+
     public function test_webhook_bisa_diakses_tanpa_tenant_terdaftar_di_domain(): void
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $response = $this->postJson(
+        $response = $this->postWebhook(
             'http://domain-tidak-terdaftar.test/api/webhook/pembayaran',
             $this->payloadWebhook($booking, 'sukses'),
         );
@@ -70,7 +83,7 @@ class PembayaranControllerTest extends TestCase
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $this->postJson('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'pending'));
+        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'pending'));
 
         $this->assertDatabaseHas('pembayaran', [
             'booking_id' => $booking->id,
@@ -84,7 +97,7 @@ class PembayaranControllerTest extends TestCase
 
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
+        $response = $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
 
         $response->assertOk();
         $this->assertSame('dikonfirmasi', $booking->fresh()->status_booking);
@@ -103,7 +116,7 @@ class PembayaranControllerTest extends TestCase
 
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $this->postJson('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
+        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
 
         Queue::assertPushed(KirimNotifikasiWhatsApp::class, function ($job) use ($booking) {
             return $job->booking->is($booking);
@@ -126,7 +139,7 @@ class PembayaranControllerTest extends TestCase
             'jam_mulai' => '18:00',
         ]);
 
-        $this->postJson('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
+        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
 
         $this->assertDatabaseHas('reminder_log', [
             'booking_id' => $booking->id,
@@ -146,7 +159,7 @@ class PembayaranControllerTest extends TestCase
 
         $booking = $this->buatBookingMenunggu($tenant);
 
-        $this->postJson('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
+        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
 
         $this->assertDatabaseCount('reminder_log', 0);
     }
@@ -155,7 +168,7 @@ class PembayaranControllerTest extends TestCase
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'gagal'));
+        $response = $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'gagal'));
 
         $response->assertOk();
         $this->assertSame('dibatalkan', $booking->fresh()->status_booking);
@@ -170,7 +183,7 @@ class PembayaranControllerTest extends TestCase
 
     public function test_webhook_kode_booking_tidak_ditemukan_mengembalikan_404(): void
     {
-        $response = $this->postJson('/api/webhook/pembayaran', [
+        $response = $this->postWebhook('/api/webhook/pembayaran', [
             'kode_transaksi_gateway' => 'TRX-X',
             'kode_booking' => 'TIDAK-ADA',
             'status' => 'sukses',

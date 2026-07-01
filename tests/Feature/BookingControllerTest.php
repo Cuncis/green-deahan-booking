@@ -10,12 +10,33 @@ use App\Models\Lapangan;
 use App\Models\Membership;
 use App\Models\Tenant;
 use App\Models\TenantFitur;
+use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class BookingControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * Semua test di sini bukan tentang integrasi Midtrans-nya sendiri (lihat
+     * PaymentServiceTest untuk itu), jadi chargeMidtrans() di-mock supaya
+     * tidak ada panggilan network sungguhan ke sandbox Midtrans tiap kali
+     * suite ini jalan.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->partialMock(PaymentService::class, function ($mock) {
+            $mock->shouldAllowMockingProtectedMethods()
+                ->shouldReceive('chargeMidtrans')->andReturn([
+                    'transaction_id' => 'fake-transaction-id',
+                    'actions' => [],
+                    'va_numbers' => [['bank' => 'bca', 'va_number' => '1234567890']],
+                ]);
+        });
+    }
 
     private function tenant(): Tenant
     {
@@ -110,6 +131,7 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
+            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertCreated();
@@ -140,6 +162,7 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
+            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertStatus(409);
@@ -177,6 +200,7 @@ class BookingControllerTest extends TestCase
             'whatsapp' => '081234567890',
             'kode_promo' => 'HEMAT10',
             'tipe_pembayaran' => 'lunas',
+            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertCreated();
@@ -216,6 +240,7 @@ class BookingControllerTest extends TestCase
             'whatsapp' => '081234567890',
             'kode_promo' => 'HEMAT10',
             'tipe_pembayaran' => 'lunas',
+            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertCreated();
@@ -242,6 +267,7 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'dp',
+            'metode_pembayaran' => 'va',
         ]);
 
         $response->assertCreated();
@@ -270,6 +296,7 @@ class BookingControllerTest extends TestCase
             'nama' => 'Nama Baru Diabaikan',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
+            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertCreated();
@@ -372,6 +399,7 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
+            'metode_pembayaran' => 'qris',
             'reminder_aktif' => true,
         ]);
 
@@ -399,6 +427,7 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
+            'metode_pembayaran' => 'qris',
             'reminder_aktif' => true,
         ]);
 

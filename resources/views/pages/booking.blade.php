@@ -92,12 +92,15 @@
                     harga: 0,
                     kodePromoAktif: null,
                     tipePembayaranAktif: '{{ $tenant->punyaFitur('dp_pembayaran') ? 'dp' : ($tenant->punyaFitur('pembayaran_online') ? 'lunas' : 'manual') }}',
+                    metodePembayaranAktif: 'qris',
                     diskonJumlah: 0,
                     totalBayar: 0,
                     nama: '',
                     whatsapp: '',
                     mengirim: false,
                     hasil: null,
+                    hasilPembayaran: null,
+                    hasilPembayaranError: null,
                     errorPesan: null,
                     lapanganIdAktif: {{ $lapanganAktif->id }},
                     lapanganNama: @js($lapanganAktif->nama),
@@ -177,6 +180,7 @@
                     },
                     onRingkasanBerubah(detail) {
                         this.tipePembayaranAktif = detail.tipePembayaran;
+                        this.metodePembayaranAktif = detail.metodePembayaran;
                         this.kodePromoAktif = detail.kodePromo;
                         this.diskonJumlah = detail.diskonJumlah;
                         this.totalBayar = detail.totalBayar;
@@ -209,6 +213,7 @@
                                 whatsapp: this.whatsapp,
                                 kode_promo: this.kodePromoAktif,
                                 tipe_pembayaran: this.tipePembayaranAktif,
+                                metode_pembayaran: this.tipePembayaranAktif === 'manual' ? null : this.metodePembayaranAktif,
                                 reminder_aktif: this.reminderAktif,
                             }),
                         })
@@ -219,6 +224,8 @@
                                 return;
                             }
                             this.hasil = data.data;
+                            this.hasilPembayaran = data.pembayaran || null;
+                            this.hasilPembayaranError = data.pembayaran_error || null;
                         })
                         .catch(() => {
                             this.errorPesan = 'Booking gagal dibuat, silakan coba lagi.';
@@ -323,11 +330,42 @@
                             <div class="flex justify-between py-0.5"><span>Kode</span><strong class="text-ink" x-text="hasil?.kode_booking"></strong></div>
                             <div class="flex justify-between py-0.5"><span>Total</span><strong class="text-ink" x-text="formatRupiah(hasil?.total_bayar)"></strong></div>
                         </div>
+
+                        <div x-show="hasilPembayaran" x-cloak class="rounded-lg border border-cream-deep p-3 text-left mb-4">
+                            <div class="text-xs font-bold uppercase tracking-wide text-green mb-2">Instruksi Pembayaran</div>
+
+                            <template x-if="hasilPembayaran?.instruksi?.tipe === 'qris'">
+                                <div class="text-center">
+                                    <img :src="hasilPembayaran.instruksi.qr_url" alt="QRIS" class="w-40 h-40 mx-auto rounded-lg border border-cream-deep" />
+                                    <p class="text-xs text-ink-soft mt-2">Scan QR ini pakai aplikasi e-wallet atau m-banking kamu.</p>
+                                </div>
+                            </template>
+
+                            <template x-if="hasilPembayaran?.instruksi?.tipe === 'va'">
+                                <div class="text-sm text-ink-mid space-y-1">
+                                    <div class="flex justify-between"><span>Bank</span><strong class="text-ink uppercase" x-text="hasilPembayaran.instruksi.bank"></strong></div>
+                                    <div class="flex justify-between"><span>Nomor VA</span><strong class="text-ink" x-text="hasilPembayaran.instruksi.nomor_va"></strong></div>
+                                    <p class="text-xs text-ink-soft mt-1">Transfer sesuai nomor virtual account di atas.</p>
+                                </div>
+                            </template>
+
+                            <template x-if="hasilPembayaran?.instruksi?.tipe === 'ewallet'">
+                                <div class="text-center">
+                                    <a :href="hasilPembayaran.instruksi.redirect_url" target="_blank" class="flex items-center justify-center gap-2 bg-green text-white rounded-lg py-2.5 font-bold text-sm">
+                                        Buka Aplikasi E-Wallet
+                                    </a>
+                                    <p class="text-xs text-ink-soft mt-2">Kalau tidak otomatis terbuka, scan QR dari aplikasi e-wallet kamu.</p>
+                                </div>
+                            </template>
+                        </div>
+
+                        <p class="text-sm text-danger mb-4" x-show="hasilPembayaranError" x-cloak x-text="hasilPembayaranError"></p>
+
                         <a :href="waLink" target="_blank" class="flex items-center justify-center gap-2 bg-green text-white rounded-lg py-3 font-bold text-sm mb-2">
                             <x-icon name="wa-chat" size="18" class="text-white" />
                             Buka Chat WhatsApp
                         </a>
-                        <button type="button" class="text-sm text-ink-soft underline" @click="hasil = null">Tutup</button>
+                        <button type="button" class="text-sm text-ink-soft underline" @click="hasil = null; hasilPembayaran = null; hasilPembayaranError = null;">Tutup</button>
                     </x-card>
                 </div>
             </div>

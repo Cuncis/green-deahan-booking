@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'midtrans' => [
+        'server_key' => env('MIDTRANS_SERVER_KEY'),
+    ],
+
+    'xendit' => [
+        'callback_token' => env('XENDIT_CALLBACK_TOKEN'),
+    ],
+
 ];

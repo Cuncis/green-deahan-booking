@@ -20,6 +20,8 @@ class RingkasanBooking extends Component
 
     public string $tipePembayaran = 'manual';
 
+    public string $metodePembayaran = 'qris';
+
     public function mount(int $lapanganId): void
     {
         $tenant = app('tenant');
@@ -94,6 +96,12 @@ class RingkasanBooking extends Component
         $this->kirimTotal();
     }
 
+    public function pilihMetodePembayaran(string $metode): void
+    {
+        $this->metodePembayaran = $metode;
+        $this->kirimTotal();
+    }
+
     private function kirimTotal(): void
     {
         $totalSetelahDiskon = max($this->harga - $this->diskonJumlah, 0);
@@ -104,6 +112,7 @@ class RingkasanBooking extends Component
         $this->dispatch(
             'ringkasan-berubah',
             tipePembayaran: $this->tipePembayaran,
+            metodePembayaran: $this->metodePembayaran,
             kodePromo: $this->promoValid ? strtoupper($this->kodePromo) : null,
             diskonJumlah: $this->diskonJumlah,
             totalBayar: $totalBayar,
