@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Premium — Green Deahan Sport</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:ital,wght@0,600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream:#F5F0E8; --cream-dark:#EDE5D5; --cream-deep:#E0D5C0;
+    --sand:#C9B99A; --brown:#7C5C3A; --green:#3A6B4A; --green-mid:#4E8B60; --green-pale:#D6EAD9;
+    --text-dark:#2A2018; --text-mid:#5C4A30; --text-soft:#8A7260;
+    --white:#FFFFFF; --red-soft:#C0392B; --red-pale:#F7DEDC;
+    --amber:#B8860B; --amber-pale:#FBF1D8; --gold:#C99A3A; --gold-pale:#F5E9D0;
+    --plum:#6B4A6B; --plum-pale:#E9DEE9;
+  }
+  body { font-family:'Plus Jakarta Sans', sans-serif; background:var(--cream); color:var(--text-dark); display:flex; min-height:100vh; }
+
+  .sidebar { width:230px; background:var(--white); border-right:1px solid var(--cream-deep); display:flex; flex-direction:column; flex-shrink:0; }
+  .sb-brand { padding:18px 20px; font-family:'Lora', serif; font-weight:600; color:var(--green); font-size:0.95rem; border-bottom:1px solid var(--cream-deep); }
+  .sb-brand .tag { display:block; margin-top:4px; background:linear-gradient(135deg,var(--plum),#8B6B8B); color:var(--white); font-size:0.6rem; font-weight:800; padding:2px 8px; border-radius:100px; width:fit-content; }
+  .sb-nav { padding:14px 12px; flex:1; }
+  .sb-section-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-soft); padding:10px 12px 4px; }
+  .sb-link { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:9px; font-size:0.83rem; color:var(--text-mid); text-decoration:none; margin-bottom:2px; cursor:pointer; }
+  .sb-link.active { background:var(--green-pale); color:var(--green); font-weight:700; }
+  .sb-link:hover:not(.active) { background:var(--cream); }
+  .sb-link svg { width:15px; height:15px; flex-shrink:0; }
+  .sb-foot { padding:14px 20px; border-top:1px solid var(--cream-deep); font-size:0.72rem; color:var(--text-soft); }
+  .priority-tag { display:flex; align-items:center; gap:5px; color:var(--gold); font-weight:700; margin-top:4px; }
+
+  .main { flex:1; padding:24px 30px; max-width:1320px; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; flex-wrap:wrap; gap:12px; }
+  .topbar h1 { font-family:'Lora', serif; font-size:1.4rem; font-weight:600; }
+  .topbar p { font-size:0.82rem; color:var(--text-soft); margin-top:2px; }
+
+  /* BRANCH FILTER (Premium: terpusat) */
+  .branch-filter { display:flex; gap:6px; flex-wrap:wrap; }
+  .branch-chip { padding:7px 14px; border-radius:100px; font-size:0.78rem; font-weight:600; color:var(--text-mid); border:1.5px solid var(--cream-deep); cursor:pointer; background:var(--white); }
+  .branch-chip.active { background:var(--green); border-color:var(--green); color:var(--white); }
+
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+  .stat-card { background:var(--white); border:1px solid var(--cream-deep); border-radius:14px; padding:17px 18px; }
+  .stat-label { font-size:0.74rem; color:var(--text-soft); margin-bottom:7px; }
+  .stat-value { font-family:'Lora', serif; font-size:1.5rem; font-weight:600; }
+  .stat-sub { font-size:0.72rem; margin-top:4px; }
+  .stat-sub.up { color:var(--green-mid); }
+
+  .panel { background:var(--white); border:1px solid var(--cream-deep); border-radius:14px; overflow:hidden; margin-bottom:20px; }
+  .panel-head { padding:15px 20px; border-bottom:1px solid var(--cream-dark); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+  .panel-head h2 { font-size:0.92rem; font-weight:700; }
+  .panel-body { padding:18px 20px; }
+
+  /* BRANCH COMPARISON TABLE (Premium feature) */
+  table { width:100%; border-collapse:collapse; }
+  thead th { text-align:left; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-soft); padding:9px 20px; background:var(--cream); font-weight:700; }
+  thead th.num { text-align:right; }
+  tbody td { padding:12px 20px; font-size:0.83rem; border-bottom:1px solid var(--cream); color:var(--text-mid); }
+  tbody td.num { text-align:right; font-weight:600; color:var(--text-dark); }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr:hover td { background:#FBF8F2; }
+  .branch-name-cell { display:flex; align-items:center; gap:8px; font-weight:700; color:var(--text-dark); }
+  .rank-badge { width:20px; height:20px; border-radius:50%; background:var(--green-pale); color:var(--green); font-size:0.7rem; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .rank-badge.top { background:var(--gold); color:var(--white); }
+  .trend-up { color:var(--green-mid); font-size:0.74rem; }
+  .trend-down { color:var(--red-soft); font-size:0.74rem; }
+
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+
+  /* STAFF MANAGEMENT (Premium feature) */
+  .staff-list { display:flex; flex-direction:column; gap:10px; }
+  .staff-item { display:flex; align-items:center; gap:12px; padding:11px 14px; background:var(--cream); border-radius:10px; }
+  .staff-avatar { width:34px; height:34px; border-radius:50%; background:var(--green-pale); color:var(--green); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0; }
+  .staff-info { flex:1; }
+  .staff-name { font-size:0.84rem; font-weight:700; color:var(--text-dark); }
+  .staff-branch { font-size:0.72rem; color:var(--text-soft); }
+  .role-badge { font-size:0.68rem; font-weight:700; padding:4px 9px; border-radius:100px; }
+  .role-badge.owner { background:var(--gold-pale); color:var(--gold); }
+  .role-badge.manager { background:var(--green-pale); color:var(--green); }
+  .role-badge.staff { background:var(--plum-pale); color:var(--plum); }
+  .btn-add { background:var(--green); color:var(--white); border:none; padding:8px 14px; border-radius:8px; font-size:0.78rem; font-weight:700; cursor:pointer; font-family:inherit; }
+
+  /* MEMBERSHIP TIER LIST */
+  .tier-list { display:flex; flex-direction:column; gap:10px; }
+  .tier-item { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border-radius:10px; border:1px solid var(--cream-deep); }
+  .tier-name { font-size:0.84rem; font-weight:700; display:flex; align-items:center; gap:8px; }
+  .tier-count { font-size:0.74rem; color:var(--text-soft); }
+  .tier-disc { font-size:0.8rem; font-weight:800; }
+  .tier-bronze { color:#A0703A; } .tier-silver { color:#8E8E8E; } .tier-gold { color:var(--gold); }
+
+  /* REMINDER LOG */
+  .reminder-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--cream); font-size:0.8rem; }
+  .reminder-row:last-child { border-bottom:none; }
+  .reminder-status { font-size:0.7rem; font-weight:700; padding:3px 9px; border-radius:100px; }
+  .reminder-status.sent { background:var(--green-pale); color:var(--green); }
+  .reminder-status.scheduled { background:var(--amber-pale); color:var(--amber); }
+
+  @media (max-width:1100px) { .stats { grid-template-columns:repeat(2,1fr); } .grid-2 { grid-template-columns:1fr; } }
+  @media (max-width:780px) { .sidebar { display:none; } .main { padding:18px; } }
+  @media (max-width:640px) {
+    .stats { grid-template-columns:1fr; } table { font-size:0.8rem; } thead { display:none; }
+    tbody tr { display:block; border-bottom:8px solid var(--cream); }
+    tbody td { display:flex; justify-content:space-between; padding:8px 16px; }
+    tbody td::before { content:attr(data-label); font-weight:700; color:var(--text-soft); font-size:0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-brand">🌿 Green Deahan <span class="tag">PREMIUM</span></div>
+  <nav class="sb-nav">
+    <a class="sb-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard Terpusat</a>
+    <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Semua Booking</a>
+    <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10c0-2.2 4-4 9-4s9 1.8 9 4"/><path d="M3 10v3c0 2.2 4 4 9 4s9-1.8 9-4v-3"/></svg>Lapangan (Unlimited)</a>
+    <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v16h16"/><path d="M7 14l3-4 3 2 4-6"/></svg>Analitik Antar Cabang</a>
+
+    <div class="sb-section-label">Pengelolaan</div>
+    <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3-6 7-6s7 2.7 7 6"/><circle cx="17" cy="8" r="2.5"/><path d="M16 14c2.5 0 5 1.5 5 4.5"/></svg>Staf & Operator</a>
+    <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 1-4.5 4.3 1 6.2L12 16l-5.5 3.5 1-6.2L3 9l6-1z"/></svg>Member & Loyalti</a>
+    <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>Reminder Otomatis</a>
+    <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10v4l3 1 2 4h2l-1.5-3.5L18 18V6L11.5 9.5 4 10z"/></svg>Kode Promo</a>
+
+    <div class="sb-section-label">Lainnya</div>
+    <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17.75l-6.16 3.24 1.18-6.88L2 9.24l6.92-1L12 2l3.08 6.24 6.92 1-5.02 4.87 1.18 6.88z"/></svg>Ulasan Pelanggan</a>
+    <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 015.8 1c0 2-3 2-3 4"/><circle cx="12" cy="17" r=".3"/></svg>Pelatihan & Video Tutorial</a>
+    <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>Pengaturan</a>
+  </nav>
+  <div class="sb-foot">
+    Paket: <strong style="color:var(--plum)">Premium</strong><br>
+    4 Cabang Aktif<br>
+    <div class="priority-tag">⚡ Support Prioritas</div>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <h1>Dashboard Terpusat 🏢</h1>
+      <p>Pantau semua cabang Green Deahan Sport dari satu tempat.</p>
+    </div>
+    <div class="branch-filter">
+      <div class="branch-chip active">Semua Cabang</div>
+      <div class="branch-chip">Kebayoran</div>
+      <div class="branch-chip">Bekasi</div>
+      <div class="branch-chip">Depok</div>
+      <div class="branch-chip">Tangerang</div>
+    </div>
+  </div>
+
+  <!-- COMBINED STATS (4 cabang) -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-label">💰 Pendapatan Gabungan (Bulan Ini)</div>
+      <div class="stat-value">Rp 84,2 jt</div>
+      <div class="stat-sub up">↑ 11% dari bulan lalu</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">📅 Total Booking Semua Cabang</div>
+      <div class="stat-value">612</div>
+      <div class="stat-sub up">↑ 8% dari bulan lalu</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">👑 Member Aktif</div>
+      <div class="stat-value">187</div>
+      <div class="stat-sub up">↑ 23 member baru</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🔔 Reminder Terkirim</div>
+      <div class="stat-value">534</div>
+      <div class="stat-sub" style="color:var(--text-soft)">98% tingkat keberhasilan</div>
+    </div>
+  </div>
+
+  <!-- BRANCH COMPARISON (Premium: analitik antar cabang) -->
+  <div class="panel">
+    <div class="panel-head"><h2>Perbandingan Performa Antar Cabang</h2></div>
+    <table>
+      <thead>
+        <tr><th>Cabang</th><th class="num">Booking</th><th class="num">Pendapatan</th><th class="num">Keterisian</th><th class="num">Rating</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-label="Cabang"><div class="branch-name-cell"><span class="rank-badge top">1</span>Kebayoran</div></td>
+          <td data-label="Booking" class="num">198 <span class="trend-up">↑12%</span></td>
+          <td data-label="Pendapatan" class="num">Rp 28,4 jt</td>
+          <td data-label="Keterisian" class="num">79%</td>
+          <td data-label="Rating" class="num">4.8 ⭐</td>
+        </tr>
+        <tr>
+          <td data-label="Cabang"><div class="branch-name-cell"><span class="rank-badge">2</span>Bekasi</div></td>
+          <td data-label="Booking" class="num">156 <span class="trend-up">↑5%</span></td>
+          <td data-label="Pendapatan" class="num">Rp 22,1 jt</td>
+          <td data-label="Keterisian" class="num">68%</td>
+          <td data-label="Rating" class="num">4.6 ⭐</td>
+        </tr>
+        <tr>
+          <td data-label="Cabang"><div class="branch-name-cell"><span class="rank-badge">3</span>Depok</div></td>
+          <td data-label="Booking" class="num">142 <span class="trend-down">↓3%</span></td>
+          <td data-label="Pendapatan" class="num">Rp 19,8 jt</td>
+          <td data-label="Keterisian" class="num">61%</td>
+          <td data-label="Rating" class="num">4.5 ⭐</td>
+        </tr>
+        <tr>
+          <td data-label="Cabang"><div class="branch-name-cell"><span class="rank-badge">4</span>Tangerang</div></td>
+          <td data-label="Booking" class="num">116 <span class="trend-up">↑18%</span></td>
+          <td data-label="Pendapatan" class="num">Rp 13,9 jt</td>
+          <td data-label="Keterisian" class="num">54%</td>
+          <td data-label="Rating" class="num">4.6 ⭐</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2">
+    <!-- STAFF MANAGEMENT -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Staf & Operator</h2>
+        <button class="btn-add">+ Tambah Staf</button>
+      </div>
+      <div class="panel-body">
+        <div class="staff-list">
+          <div class="staff-item">
+            <div class="staff-avatar">AS</div>
+            <div class="staff-info"><div class="staff-name">Agus Setiawan</div><div class="staff-branch">Akses semua cabang</div></div>
+            <span class="role-badge owner">Owner</span>
+          </div>
+          <div class="staff-item">
+            <div class="staff-avatar">DP</div>
+            <div class="staff-info"><div class="staff-name">Dewi Puspita</div><div class="staff-branch">Cabang Kebayoran</div></div>
+            <span class="role-badge manager">Manager</span>
+          </div>
+          <div class="staff-item">
+            <div class="staff-avatar">RF</div>
+            <div class="staff-info"><div class="staff-name">Rio Firmansyah</div><div class="staff-branch">Cabang Bekasi</div></div>
+            <span class="role-badge staff">Staf</span>
+          </div>
+          <div class="staff-item">
+            <div class="staff-avatar">NH</div>
+            <div class="staff-info"><div class="staff-name">Nadia Hartono</div><div class="staff-branch">Cabang Depok</div></div>
+            <span class="role-badge staff">Staf</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMBERSHIP TIERS -->
+    <div class="panel">
+      <div class="panel-head"><h2>Tingkat Membership</h2></div>
+      <div class="panel-body">
+        <div class="tier-list">
+          <div class="tier-item">
+            <div><div class="tier-name">🥉 Bronze</div><div class="tier-count">98 member</div></div>
+            <span class="tier-disc tier-bronze">-5%</span>
+          </div>
+          <div class="tier-item">
+            <div><div class="tier-name">🥈 Silver</div><div class="tier-count">61 member</div></div>
+            <span class="tier-disc tier-silver">-10%</span>
+          </div>
+          <div class="tier-item">
+            <div><div class="tier-name">🥇 Gold</div><div class="tier-count">28 member</div></div>
+            <span class="tier-disc tier-gold">-15%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REMINDER LOG -->
+  <div class="panel">
+    <div class="panel-head"><h2>Log Reminder Otomatis</h2></div>
+    <div class="panel-body">
+      <div class="reminder-row"><span>Budi Santoso — Futsal A, hari ini 19:00</span><span class="reminder-status sent">Terkirim</span></div>
+      <div class="reminder-row"><span>Rina Wijaya — Badminton 2, hari ini 20:00</span><span class="reminder-status sent">Terkirim</span></div>
+      <div class="reminder-row"><span>Komunitas FC Senayan — Futsal B, besok 19:00</span><span class="reminder-status scheduled">Terjadwal</span></div>
+      <div class="reminder-row"><span>Sarah Amelia — Futsal A Kebayoran, besok 18:00</span><span class="reminder-status scheduled">Terjadwal</span></div>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

@@ -2,18 +2,24 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Models\Lapangan;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/', function (Request $request) {
     $tenant = app('tenant');
 
-    $lapangan = Lapangan::where('tenant_id', $tenant->id)
+    $lapangan = Lapangan::with('cabang')
+        ->where('tenant_id', $tenant->id)
         ->where('status_aktif', true)
         ->get();
+
+    $lapanganAktif = $lapangan->firstWhere('id', (int) $request->query('lapangan'))
+        ?? $lapangan->first();
 
     return view('pages.booking', [
         'tenant' => $tenant,
         'lapangan' => $lapangan,
+        'lapanganAktif' => $lapanganAktif,
     ]);
 })->name('booking.index');
 

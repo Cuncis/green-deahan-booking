@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Deahan Sport — Booking Lapangan Futsal</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #F5F0E8;
+    --cream-dark: #EDE5D5;
+    --cream-deep: #E0D5C0;
+    --sand: #C9B99A;
+    --brown: #7C5C3A;
+    --brown-light: #A07850;
+    --green: #3A6B4A;
+    --green-mid: #4E8B60;
+    --green-pale: #D6EAD9;
+    --text-dark: #2A2018;
+    --text-mid: #5C4A30;
+    --text-soft: #8A7260;
+    --white: #FFFFFF;
+    --red-soft: #C0392B;
+    --amber: #B8860B;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    line-height: 1.6;
+  }
+
+  /* ───── NAV ───── */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(245,240,232,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--cream-deep);
+    padding: 0 20px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { font-family: 'Lora', serif; font-weight: 600; color: var(--green); font-size: 1.05rem; }
+  .wa-link {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--green); color: var(--white);
+    padding: 9px 16px; border-radius: 8px;
+    font-size: 0.82rem; font-weight: 600; text-decoration: none;
+  }
+
+  /* ───── HERO / INFO LAPANGAN ───── */
+  .hero {
+    max-width: 1000px; margin: 0 auto; padding: 32px 20px 0;
+  }
+  .hero-img {
+    width: 100%; height: 240px; border-radius: 16px; overflow: hidden;
+    background: linear-gradient(135deg, var(--green-pale), var(--cream-deep));
+    display: flex; align-items: center; justify-content: center;
+    position: relative; margin-bottom: 20px;
+  }
+  .hero-img svg { width: 90px; height: 90px; opacity: 0.5; }
+  .field-name { font-family: 'Lora', serif; font-size: 1.6rem; font-weight: 600; margin-bottom: 6px; }
+  .field-meta { display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.85rem; color: var(--text-mid); margin-bottom: 4px; }
+  .field-meta span { display: flex; align-items: center; gap: 6px; }
+  .field-price { font-size: 1.1rem; font-weight: 700; color: var(--green); margin-top: 6px; }
+  .field-price small { font-weight: 400; color: var(--text-soft); font-size: 0.8rem; }
+
+  /* ───── LAYOUT ───── */
+  .layout {
+    max-width: 1000px; margin: 24px auto 60px; padding: 0 20px;
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px;
+    align-items: start;
+  }
+
+  .panel {
+    background: var(--white); border: 1px solid var(--cream-deep);
+    border-radius: 16px; padding: 22px;
+  }
+  .panel-title {
+    font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--green); margin-bottom: 16px;
+  }
+
+  /* ───── DATE PICKER ───── */
+  .date-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 20px; }
+  .date-chip {
+    flex: 0 0 auto; width: 56px; padding: 8px 0; text-align: center;
+    border: 1.5px solid var(--cream-deep); border-radius: 10px; cursor: pointer;
+    font-size: 0.75rem; color: var(--text-mid); transition: all 0.15s;
+  }
+  .date-chip .d { font-size: 0.65rem; color: var(--text-soft); text-transform: uppercase; }
+  .date-chip .n { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); }
+  .date-chip.active { background: var(--green); border-color: var(--green); }
+  .date-chip.active .d, .date-chip.active .n { color: var(--white); }
+
+  /* ───── SLOT GRID ───── */
+  .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .slot {
+    border: 1.5px solid var(--cream-deep); border-radius: 10px;
+    padding: 11px 8px; text-align: center; cursor: pointer;
+    font-size: 0.82rem; font-weight: 600; color: var(--text-mid);
+    transition: all 0.15s; position: relative;
+  }
+  .slot:hover:not(.booked) { border-color: var(--green); background: var(--green-pale); }
+  .slot.selected { background: var(--green); border-color: var(--green); color: var(--white); }
+  .slot.booked {
+    background: var(--cream-dark); color: var(--cream-deep); cursor: not-allowed;
+    text-decoration: line-through;
+  }
+  .slot .price { display: block; font-size: 0.68rem; font-weight: 400; margin-top: 2px; opacity: 0.8; }
+
+  .legend { display: flex; gap: 18px; margin-top: 16px; font-size: 0.76rem; color: var(--text-soft); }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+  .dot.open { background: var(--white); border: 1.5px solid var(--cream-deep); }
+  .dot.sel { background: var(--green); }
+  .dot.full { background: var(--cream-deep); }
+
+  /* ───── SUMMARY / FORM ───── */
+  .summary-row {
+    display: flex; justify-content: space-between; padding: 9px 0;
+    border-bottom: 1px dashed var(--cream-deep); font-size: 0.85rem;
+  }
+  .summary-row:last-of-type { border-bottom: none; }
+  .summary-row span:first-child { color: var(--text-soft); }
+  .summary-row span:last-child { font-weight: 600; }
+  .summary-total {
+    display: flex; justify-content: space-between; margin-top: 12px;
+    padding-top: 12px; border-top: 1.5px solid var(--cream-deep);
+    font-size: 1rem; font-weight: 700; color: var(--green);
+  }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-mid); margin-bottom: 6px; }
+  .field input {
+    width: 100%; padding: 10px 12px; border: 1.5px solid var(--cream-deep);
+    border-radius: 9px; font-size: 0.88rem; font-family: inherit; color: var(--text-dark);
+    background: var(--cream);
+  }
+  .field input:focus { outline: none; border-color: var(--green); background: var(--white); }
+
+  .btn-book {
+    width: 100%; padding: 14px; margin-top: 6px;
+    background: var(--green); color: var(--white); border: none;
+    border-radius: 10px; font-size: 0.95rem; font-weight: 700;
+    font-family: inherit; cursor: pointer; transition: background 0.15s;
+  }
+  .btn-book:hover { background: var(--green-mid); }
+  .btn-book:disabled { background: var(--cream-deep); color: var(--text-soft); cursor: not-allowed; }
+
+  .hold-note {
+    margin-top: 10px; font-size: 0.74rem; color: var(--amber);
+    display: flex; align-items: center; gap: 6px; justify-content: center;
+  }
+
+  /* ───── CONFIRMATION MODAL ───── */
+  .overlay {
+    display: none; position: fixed; inset: 0; background: rgba(42,32,24,0.5);
+    z-index: 100; align-items: center; justify-content: center; padding: 20px;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: var(--white); border-radius: 18px; padding: 32px 28px;
+    max-width: 360px; width: 100%; text-align: center;
+  }
+  .modal-icon {
+    width: 56px; height: 56px; border-radius: 50%; background: var(--green-pale);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
+  }
+  .modal h3 { font-family: 'Lora', serif; font-size: 1.25rem; margin-bottom: 8px; color: var(--text-dark); }
+  .modal p { font-size: 0.86rem; color: var(--text-mid); margin-bottom: 18px; }
+  .modal .booking-id {
+    background: var(--cream); border-radius: 8px; padding: 10px;
+    font-size: 0.78rem; color: var(--text-soft); margin-bottom: 18px;
+  }
+  .modal .booking-id strong { color: var(--text-dark); }
+  .modal-wa {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--green); color: var(--white); text-decoration: none;
+    padding: 12px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; margin-bottom: 10px;
+  }
+  .modal-close {
+    display: block; text-align: center; font-size: 0.82rem; color: var(--text-soft);
+    text-decoration: underline; cursor: pointer; background: none; border: none; font-family: inherit; width: 100%;
+  }
+
+  footer {
+    text-align: center; padding: 24px 20px; font-size: 0.76rem; color: var(--text-soft);
+    border-top: 1px solid var(--cream-deep);
+  }
+  footer strong { color: var(--green); }
+
+  @media (max-width: 720px) {
+    .layout { grid-template-columns: 1fr; }
+    .slot-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">🌿 Green Deahan Sport</div>
+  <a href="https://wa.me/6281357570064" class="wa-link">💬 Hubungi Kami</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-img">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#3A6B4A" stroke-width="1.4"><path d="M3 10c0-2.2 4-4 9-4s9 1.8 9 4"/><path d="M3 10v3c0 2.2 4 4 9 4s9-1.8 9-4v-3"/><ellipse cx="12" cy="13" rx="4.5" ry="2"/></svg>
+  </div>
+  <div class="field-name">Lapangan Futsal Green Deahan</div>
+  <div class="field-meta">
+    <span>📍 Jl. Raya Olahraga No. 12, Jakarta Selatan</span>
+    <span>🕐 Buka 08.00 — 24.00 WIB</span>
+  </div>
+  <div class="field-price">Rp 150.000 <small>/ jam (harga dapat berbeda di jam sibuk)</small></div>
+</div>
+
+<div class="layout">
+
+  <!-- LEFT: Calendar + Slots -->
+  <div class="panel">
+    <div class="panel-title">Pilih Tanggal</div>
+    <div class="date-scroll" id="dateScroll">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="panel-title">Pilih Jam</div>
+    <div class="slot-grid" id="slotGrid">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="legend">
+      <span><i class="dot open"></i> Tersedia</span>
+      <span><i class="dot sel"></i> Dipilih</span>
+      <span><i class="dot full"></i> Sudah dibooking</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: Summary + Form -->
+  <div class="panel">
+    <div class="panel-title">Ringkasan Booking</div>
+    <div class="summary-row"><span>Lapangan</span><span>Futsal Green Deahan</span></div>
+    <div class="summary-row"><span>Tanggal</span><span id="sumDate">—</span></div>
+    <div class="summary-row"><span>Jam</span><span id="sumTime">—</span></div>
+    <div class="summary-total"><span>Total</span><span id="sumTotal">Rp 0</span></div>
+
+    <div style="margin-top:20px;">
+      <div class="field">
+        <label>Nama Lengkap</label>
+        <input type="text" id="custName" placeholder="Masukkan nama kamu">
+      </div>
+      <div class="field">
+        <label>Nomor WhatsApp</label>
+        <input type="tel" id="custPhone" placeholder="08xxxxxxxxxx">
+      </div>
+    </div>
+
+    <button class="btn-book" id="btnBook" disabled>Pilih jam terlebih dahulu</button>
+    <div class="hold-note">⏱️ Slot ditahan 10 menit setelah dipilih</div>
+  </div>
+</div>
+
+<footer>
+  <strong>Green Deahan Sport</strong> · Berpengalaman sejak 2010 · 0813-5757-0064 · greendeahan.com
+</footer>
+
+<!-- CONFIRMATION MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3A6B4A" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <h3>Booking Berhasil!</h3>
+    <p>Konfirmasi sudah dikirim ke WhatsApp kamu. Tunjukkan ini saat datang ke lapangan.</p>
+    <div class="booking-id">
+      Kode Booking: <strong id="modalCode">GDS-000000</strong><br>
+      <span id="modalDetail"></span>
+    </div>
+    <a href="#" id="modalWaLink" class="modal-wa" target="_blank">💬 Buka Chat WhatsApp</a>
+    <button class="modal-close" id="modalClose">Tutup</button>
+  </div>
+</div>
+
+<script>
+  // ───── DUMMY DATA SETUP ─────
+  const HARGA_PER_JAM = 150000;
+  const ADMIN_WA = "6281357570064";
+
+  // Generate 7 hari ke depan
+  const days = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
+  const today = new Date();
+  let selectedDateIndex = 0;
+  let selectedSlot = null;
+
+  const dateScroll = document.getElementById("dateScroll");
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const chip = document.createElement("div");
+    chip.className = "date-chip" + (i === 0 ? " active" : "");
+    chip.innerHTML = `<div class="d">${days[d.getDay()]}</div><div class="n">${d.getDate()}</div>`;
+    chip.onclick = () => selectDate(i, chip);
+    dateScroll.appendChild(chip);
+  }
+
+  function selectDate(i, chip) {
+    document.querySelectorAll(".date-chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    selectedDateIndex = i;
+    selectedSlot = null;
+    renderSlots();
+    updateSummary();
+  }
+
+  // Dummy: jam 08:00 - 23:00, beberapa sudah "booked" (acak per tanggal biar terasa nyata)
+  function getSlotsForDate(dateIndex) {
+    const hours = [];
+    for (let h = 8; h <= 23; h++) hours.push(h);
+    // simulasi slot yang sudah dibooking (beda tiap tanggal)
+    const bookedSets = [
+      [10,11,19,20], [9,18,19,20,21], [19,20], [11,12,17,18,19],
+      [19,20,21,22], [9,10,19,20,21,22], [10,18,19]
+    ];
+    const booked = bookedSets[dateIndex % bookedSets.length];
+    return hours.map(h => ({ hour: h, booked: booked.includes(h) }));
+  }
+
+  function renderSlots() {
+    const grid = document.getElementById("slotGrid");
+    grid.innerHTML = "";
+    const slots = getSlotsForDate(selectedDateIndex);
+    slots.forEach(s => {
+      const el = document.createElement("div");
+      const label = `${String(s.hour).padStart(2,"0")}:00`;
+      el.className = "slot" + (s.booked ? " booked" : "");
+      el.innerHTML = `${label}<span class="price">${s.booked ? "Penuh" : "Rp " + (HARGA_PER_JAM/1000) + "rb"}</span>`;
+      if (!s.booked) {
+        el.onclick = () => selectSlot(s.hour, el);
+      }
+      grid.appendChild(el);
+    });
+  }
+
+  function selectSlot(hour, el) {
+    document.querySelectorAll(".slot").forEach(s => s.classList.remove("selected"));
+    el.classList.add("selected");
+    selectedSlot = hour;
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const d = new Date(today);
+    d.setDate(today.getDate() + selectedDateIndex);
+    const dateStr = d.toLocaleDateString("id-ID", { weekday: 'long', day: 'numeric', month: 'long' });
+
+    document.getElementById("sumDate").textContent = dateStr;
+    document.getElementById("sumTime").textContent = selectedSlot !== null
+      ? `${String(selectedSlot).padStart(2,"0")}:00 - ${String(selectedSlot+1).padStart(2,"0")}:00` : "—";
+    document.getElementById("sumTotal").textContent = selectedSlot !== null
+      ? "Rp " + HARGA_PER_JAM.toLocaleString("id-ID") : "Rp 0";
+
+    const btn = document.getElementById("btnBook");
+    if (selectedSlot !== null) {
+      btn.disabled = false;
+      btn.textContent = "Booking Sekarang";
+    } else {
+      btn.disabled = true;
+      btn.textContent = "Pilih jam terlebih dahulu";
+    }
+  }
+
+  document.getElementById("btnBook").addEventListener("click", () => {
+    const name = document.getElementById("custName").value.trim();
+    const phone = document.getElementById("custPhone").value.trim();
+    if (!name || !phone) {
+      alert("Mohon isi nama dan nomor WhatsApp terlebih dahulu.");
+      return;
+    }
+    if (selectedSlot === null) return;
+
+    const d = new Date(today);
+    d.setDate(today.getDate() + selectedDateIndex);
+    const dateStr = d.toLocaleDateString("id-ID", { weekday: 'long', day: 'numeric', month: 'long' });
+    const timeStr = `${String(selectedSlot).padStart(2,"0")}:00 - ${String(selectedSlot+1).padStart(2,"0")}:00`;
+    const code = "GDS-" + Math.floor(100000 + Math.random()*900000);
+
+    document.getElementById("modalCode").textContent = code;
+    document.getElementById("modalDetail").textContent = `${dateStr}, pukul ${timeStr}`;
+
+    // Simulasi pesan WhatsApp otomatis (di real app, ini dikirim via WA Business API dari server)
+    const waMsg = encodeURIComponent(
+      `Halo ${name}, booking kamu di Green Deahan Sport sudah dikonfirmasi.\n\nKode: ${code}\nLapangan: Futsal Green Deahan\nTanggal: ${dateStr}\nJam: ${timeStr}\nTotal: Rp ${HARGA_PER_JAM.toLocaleString("id-ID")}\n\nSampai jumpa di lapangan! 🙌`
+    );
+    document.getElementById("modalWaLink").href = `https://wa.me/${ADMIN_WA}?text=${waMsg}`;
+
+    document.getElementById("overlay").classList.add("show");
+
+    // Tandai slot ini jadi booked di tampilan (simulasi update real-time)
+    document.querySelectorAll(".slot.selected")[0]?.classList.add("booked");
+  });
+
+  document.getElementById("modalClose").addEventListener("click", () => {
+    document.getElementById("overlay").classList.remove("show");
+    selectedSlot = null;
+    renderSlots();
+    updateSummary();
+    document.getElementById("custName").value = "";
+    document.getElementById("custPhone").value = "";
+  });
+
+  // Init
+  renderSlots();
+  updateSummary();
+</script>
+</body>
+</html>

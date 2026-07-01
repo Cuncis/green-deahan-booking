@@ -36,6 +36,85 @@ class HalamanWebTest extends TestCase
         $response->assertSee('Lapangan A');
     }
 
+    public function test_halaman_booking_menampilkan_pesan_kosong_kalau_belum_ada_lapangan(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('Belum ada lapangan tersedia untuk booking saat ini.');
+    }
+
+    public function test_halaman_booking_bisa_pindah_lapangan_lewat_query_string(): void
+    {
+        $tenant = $this->tenant();
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        $lapanganA = Lapangan::factory()->create([
+            'tenant_id' => $tenant->id,
+            'cabang_id' => $cabang->id,
+            'nama' => 'Lapangan A',
+        ]);
+        $lapanganB = Lapangan::factory()->create([
+            'tenant_id' => $tenant->id,
+            'cabang_id' => $cabang->id,
+            'nama' => 'Lapangan B',
+        ]);
+
+        $response = $this->get('/?lapangan='.$lapanganB->id);
+
+        $response->assertOk();
+        $response->assertSee('Lapangan B');
+    }
+
+    public function test_halaman_booking_menampilkan_input_promo_hanya_kalau_fitur_aktif(): void
+    {
+        $tenant = $this->tenant();
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('basic'),
+        ));
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertDontSee('Kode promo, misal SEPI20');
+    }
+
+    public function test_halaman_booking_menampilkan_input_promo_kalau_fitur_kode_promo_aktif(): void
+    {
+        $tenant = $this->tenant();
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('pro'),
+        ));
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('Kode promo, misal SEPI20');
+    }
+
+    public function test_halaman_booking_tidak_mengandung_emoji_mentah(): void
+    {
+        $tenant = $this->tenant();
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertDontSee('🌿')
+            ->assertDontSee('💬')
+            ->assertDontSee('📍')
+            ->assertDontSee('⭐')
+            ->assertDontSee('🔥');
+    }
+
     public function test_admin_dashboard_mengarahkan_guest_ke_login(): void
     {
         $response = $this->get('/admin');
