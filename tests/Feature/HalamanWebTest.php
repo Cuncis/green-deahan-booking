@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Cabang;
 use App\Models\Lapangan;
+use App\Models\Staf;
 use App\Models\Tenant;
 use App\Models\TenantFitur;
 use App\Models\User;
@@ -17,6 +18,20 @@ class HalamanWebTest extends TestCase
     private function tenant(): Tenant
     {
         return Tenant::where('domain', 'localhost')->firstOrFail();
+    }
+
+    private function staf(Tenant $tenant): User
+    {
+        $user = User::factory()->create();
+
+        Staf::create([
+            'tenant_id' => $tenant->id,
+            'user_id' => $user->id,
+            'role' => 'owner',
+            'status_aktif' => true,
+        ]);
+
+        return $user;
     }
 
     public function test_halaman_booking_menampilkan_lapangan_aktif_milik_tenant(): void
@@ -200,7 +215,8 @@ class HalamanWebTest extends TestCase
 
     public function test_admin_dashboard_bisa_diakses_user_yang_sudah_login(): void
     {
-        $user = User::factory()->create();
+        $tenant = $this->tenant();
+        $user = $this->staf($tenant);
 
         $response = $this->actingAs($user)->get('/admin');
 
@@ -210,7 +226,7 @@ class HalamanWebTest extends TestCase
     public function test_admin_laporan_forbidden_kalau_fitur_laporan_pendapatan_tidak_aktif(): void
     {
         $tenant = $this->tenant();
-        $user = User::factory()->create();
+        $user = $this->staf($tenant);
 
         TenantFitur::create(array_merge(
             ['tenant_id' => $tenant->id],
@@ -225,7 +241,7 @@ class HalamanWebTest extends TestCase
     public function test_admin_laporan_bisa_diakses_kalau_fitur_laporan_pendapatan_aktif(): void
     {
         $tenant = $this->tenant();
-        $user = User::factory()->create();
+        $user = $this->staf($tenant);
 
         TenantFitur::create(array_merge(
             ['tenant_id' => $tenant->id],

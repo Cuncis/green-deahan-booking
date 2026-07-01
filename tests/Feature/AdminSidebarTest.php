@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Staf;
 use App\Models\Tenant;
 use App\Models\TenantFitur;
 use App\Models\User;
@@ -17,9 +18,23 @@ class AdminSidebarTest extends TestCase
         return Tenant::where('domain', 'localhost')->firstOrFail();
     }
 
-    private function kunjungiDashboard()
+    private function staf(Tenant $tenant): User
     {
         $user = User::factory()->create();
+
+        Staf::create([
+            'tenant_id' => $tenant->id,
+            'user_id' => $user->id,
+            'role' => 'owner',
+            'status_aktif' => true,
+        ]);
+
+        return $user;
+    }
+
+    private function kunjungiDashboard()
+    {
+        $user = $this->staf($this->tenant());
 
         return $this->actingAs($user)->get('/admin');
     }
@@ -135,11 +150,30 @@ class AdminSidebarTest extends TestCase
 
     public function test_halaman_placeholder_booking_lapangan_jadwal_pengaturan_bisa_diakses(): void
     {
-        $user = User::factory()->create();
+        $user = $this->staf($this->tenant());
 
         $this->actingAs($user)->get('/admin/booking')->assertOk()->assertSee('Semua Booking');
         $this->actingAs($user)->get('/admin/lapangan')->assertOk()->assertSee('Lapangan Saya');
         $this->actingAs($user)->get('/admin/jadwal')->assertOk()->assertSee('Jadwal');
         $this->actingAs($user)->get('/admin/pengaturan')->assertOk()->assertSee('Pengaturan');
+    }
+
+    public function test_user_yang_bukan_staf_tenant_ini_ditolak_403(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/admin');
+
+        $response->assertForbidden();
+    }
+
+    public function test_staf_tenant_lain_tidak_bisa_akses_dashboard_tenant_ini(): void
+    {
+        $tenantLain = Tenant::factory()->create(['domain' => 'tenant-lain.test']);
+        $user = $this->staf($tenantLain);
+
+        $response = $this->actingAs($user)->get('/admin');
+
+        $response->assertForbidden();
     }
 }

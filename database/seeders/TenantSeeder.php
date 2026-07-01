@@ -46,6 +46,7 @@ class TenantSeeder extends Seeder
     private function buatTenantBasic(): void
     {
         $tenant = $this->buatTenant('basic.localhost', 'Lapangan Sederhana', 'basic');
+        $this->buatOwnerStaf($tenant, 'owner@basic.localhost', 'Owner Basic');
 
         $cabang = Cabang::factory()->create([
             'tenant_id' => $tenant->id,
@@ -74,6 +75,7 @@ class TenantSeeder extends Seeder
     private function buatTenantPro(): void
     {
         $tenant = $this->buatTenant('pro.localhost', 'Arena Sport Pro', 'pro');
+        $this->buatOwnerStaf($tenant, 'owner@pro.localhost', 'Owner Pro');
 
         $cabang = Cabang::factory()->create([
             'tenant_id' => $tenant->id,
@@ -189,38 +191,10 @@ class TenantSeeder extends Seeder
         ]);
 
         // Staf: 1 owner, 1 manager per cabang (Jakarta & Bekasi), 1 staff.
-        // email_verified_at diisi langsung supaya akun ini bisa lolos
-        // middleware 'verified' tanpa perlu klik link verifikasi email.
-        $owner = User::updateOrCreate(
-            ['email' => 'owner@premium.localhost'],
-            ['name' => 'Owner Premium', 'password' => bcrypt('password'), 'email_verified_at' => now()],
-        );
-        $managerJakarta = User::updateOrCreate(
-            ['email' => 'manager.jakarta@premium.localhost'],
-            ['name' => 'Manager Cabang Jakarta', 'password' => bcrypt('password'), 'email_verified_at' => now()],
-        );
-        $managerBekasi = User::updateOrCreate(
-            ['email' => 'manager.bekasi@premium.localhost'],
-            ['name' => 'Manager Cabang Bekasi', 'password' => bcrypt('password'), 'email_verified_at' => now()],
-        );
-        $staff = User::updateOrCreate(
-            ['email' => 'staff@premium.localhost'],
-            ['name' => 'Staff Lapangan', 'password' => bcrypt('password'), 'email_verified_at' => now()],
-        );
-
-        foreach ([
-            [$owner, 'owner'],
-            [$managerJakarta, 'manager'],
-            [$managerBekasi, 'manager'],
-            [$staff, 'staff'],
-        ] as [$user, $role]) {
-            Staf::create([
-                'tenant_id' => $tenant->id,
-                'user_id' => $user->id,
-                'role' => $role,
-                'status_aktif' => true,
-            ]);
-        }
+        $this->buatStaf($tenant, 'owner@premium.localhost', 'Owner Premium', 'owner');
+        $this->buatStaf($tenant, 'manager.jakarta@premium.localhost', 'Manager Cabang Jakarta', 'manager');
+        $this->buatStaf($tenant, 'manager.bekasi@premium.localhost', 'Manager Cabang Bekasi', 'manager');
+        $this->buatStaf($tenant, 'staff@premium.localhost', 'Staff Lapangan', 'staff');
 
         // 11 booking biasa, tersebar di 4 lapangan, 3 di antaranya milik member.
         $daftarLapangan = [$lapanganJakartaFutsal, $lapanganJakartaBadminton, $lapanganBekasiFutsal, $lapanganBekasiTennis];
@@ -307,6 +281,34 @@ class TenantSeeder extends Seeder
         return Customer::firstOrCreate(
             ['no_telepon' => '081'.$kodePaket.sprintf('%07d', $this->customerCounter)],
             ['nama' => $nama],
+        );
+    }
+
+    /**
+     * Staf dengan role owner, dipakai supaya setiap tenant demo punya
+     * minimal satu akun yang bisa login ke dashboard admin-nya sendiri
+     * (perlu ada baris staf yang cocok, dicek middleware CheckTenantStaf).
+     */
+    private function buatOwnerStaf(Tenant $tenant, string $email, string $nama): Staf
+    {
+        return $this->buatStaf($tenant, $email, $nama, 'owner');
+    }
+
+    /**
+     * Buat user (kalau belum ada) sekaligus baris staf yang menghubungkannya
+     * ke tenant ini. email_verified_at diisi langsung supaya akun demo ini
+     * bisa lolos middleware 'verified' tanpa perlu klik link verifikasi.
+     */
+    private function buatStaf(Tenant $tenant, string $email, string $nama, string $role): Staf
+    {
+        $user = User::updateOrCreate(
+            ['email' => $email],
+            ['name' => $nama, 'password' => bcrypt('password'), 'email_verified_at' => now()],
+        );
+
+        return Staf::updateOrCreate(
+            ['tenant_id' => $tenant->id, 'user_id' => $user->id],
+            ['role' => $role, 'status_aktif' => true],
         );
     }
 

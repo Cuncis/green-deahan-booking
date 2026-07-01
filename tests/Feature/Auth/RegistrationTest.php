@@ -5,18 +5,24 @@ namespace Tests\Feature\Auth;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Registrasi publik dimatikan (lihat routes/auth.php): siapapun bisa
+ * mendaftar lalu mengakses dashboard admin tenant manapun kalau dibiarkan
+ * terbuka. Staf tenant sekarang hanya dibuat lewat undangan, lihat
+ * InvitationAcceptTest.
+ */
 class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_registration_screen_can_be_rendered(): void
+    public function test_registration_screen_tidak_lagi_tersedia(): void
     {
         $response = $this->get('/register');
 
-        $response->assertStatus(200);
+        $response->assertNotFound();
     }
 
-    public function test_new_users_can_register(): void
+    public function test_register_endpoint_tidak_lagi_bisa_dipakai(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -25,7 +31,8 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertNotFound();
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
     }
 }

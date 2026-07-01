@@ -64,6 +64,11 @@ class Tenant extends Model
         return $this->hasMany(Booking::class);
     }
 
+    public function staf(): HasMany
+    {
+        return $this->hasMany(Staf::class);
+    }
+
     public function punyaFitur(string $namaFitur): bool
     {
         return (bool) ($this->fitur?->{$namaFitur} ?? false);
