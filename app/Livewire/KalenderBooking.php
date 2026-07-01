@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Models\Cabang;
 use App\Models\JadwalSlot;
+use App\Models\Lapangan;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -10,6 +12,8 @@ use Livewire\Component;
 class KalenderBooking extends Component
 {
     public int $lapanganId;
+
+    public ?int $selectedCabang = null;
 
     public string $selectedDate;
 
@@ -27,6 +31,54 @@ class KalenderBooking extends Component
     {
         $this->lapanganId = $lapanganId;
         $this->selectedDate = now()->toDateString();
+
+        if (app('tenant')->punyaFitur('multi_cabang')) {
+            $this->selectedCabang = Lapangan::where('tenant_id', app('tenant')->id)
+                ->find($lapanganId)?->cabang_id;
+        }
+    }
+
+    /**
+     * Ganti cabang aktif lalu pindah ke lapangan pertama milik cabang itu,
+     * supaya field tabs langsung menampilkan lapangan cabang yang dipilih.
+     */
+    public function pilihCabang(int $cabangId): void
+    {
+        $tenant = app('tenant');
+        $this->selectedCabang = $cabangId;
+
+        $lapanganBaru = Lapangan::where('tenant_id', $tenant->id)
+            ->where('cabang_id', $cabangId)
+            ->where('status_aktif', true)
+            ->first();
+
+        if ($lapanganBaru) {
+            $this->pilihLapangan($lapanganBaru->id);
+        }
+    }
+
+    public function pilihLapangan(int $lapanganId): void
+    {
+        $tenant = app('tenant');
+
+        $lapangan = Lapangan::where('tenant_id', $tenant->id)->findOrFail($lapanganId);
+
+        $this->lapanganId = $lapangan->id;
+        $this->selectedSlot = null;
+        $this->pesanError = null;
+        $this->updateSummary();
+
+        $this->dispatch(
+            'lapangan-dipilih',
+            lapanganId: $lapangan->id,
+            nama: $lapangan->nama,
+            jenisOlahraga: $lapangan->jenis_olahraga,
+            hargaPerJam: $lapangan->harga_per_jam,
+            cabangNama: $lapangan->cabang->nama_cabang,
+            cabangAlamat: $lapangan->cabang->alamat,
+            jamBuka: $lapangan->cabang->jam_buka,
+            jamTutup: $lapangan->cabang->jam_tutup,
+        );
     }
 
     public function pilihTanggal(string $tanggal): void
@@ -108,9 +160,22 @@ class KalenderBooking extends Component
 
     public function render()
     {
+        $tenant = app('tenant');
+        $punyaMultiCabang = $tenant->punyaFitur('multi_cabang');
+
         return view('livewire.kalender-booking', [
             'tanggalPilihan' => collect(range(0, 6))->map(fn (int $i) => now()->addDays($i)),
             'slotTersedia' => $this->ambilSlot(),
+            'punyaMultiCabang' => $punyaMultiCabang,
+            'daftarCabang' => $punyaMultiCabang
+                ? Cabang::where('tenant_id', $tenant->id)->where('status_aktif', true)->get()
+                : collect(),
+            'daftarLapangan' => $punyaMultiCabang
+                ? Lapangan::where('tenant_id', $tenant->id)
+                    ->where('status_aktif', true)
+                    ->when($this->selectedCabang, fn ($q) => $q->where('cabang_id', $this->selectedCabang))
+                    ->get()
+                : collect(),
         ]);
     }
 }

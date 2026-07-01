@@ -43,6 +43,30 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
             'tenant' => $tenant,
         ]);
     })->name('laporan');
+
+    Route::get('/booking', fn () => view('pages.admin.placeholder', [
+        'tenant' => app('tenant'),
+        'judul' => 'Semua Booking',
+        'deskripsi' => 'Daftar lengkap booking akan tampil di sini.',
+    ]))->name('booking');
+
+    Route::get('/lapangan', fn () => view('pages.admin.placeholder', [
+        'tenant' => app('tenant'),
+        'judul' => 'Lapangan Saya',
+        'deskripsi' => 'Kelola lapangan yang kamu miliki di sini.',
+    ]))->name('lapangan');
+
+    Route::get('/jadwal', fn () => view('pages.admin.placeholder', [
+        'tenant' => app('tenant'),
+        'judul' => 'Jadwal',
+        'deskripsi' => 'Atur jadwal dan slot main di sini.',
+    ]))->name('jadwal');
+
+    Route::get('/pengaturan', fn () => view('pages.admin.placeholder', [
+        'tenant' => app('tenant'),
+        'judul' => 'Pengaturan',
+        'deskripsi' => 'Atur profil bisnis dan preferensi tenant di sini.',
+    ]))->name('pengaturan');
 });
 
 Route::middleware('auth')->group(function () {

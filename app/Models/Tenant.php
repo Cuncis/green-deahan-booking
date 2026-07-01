@@ -21,6 +21,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'warna_aksen',
     'whatsapp_admin',
     'email_admin',
+    'bank_nama',
+    'bank_no_rekening',
+    'bank_pemilik_rekening',
 ])]
 class Tenant extends Model
 {

@@ -34,55 +34,51 @@
         </nav>
 
         @if ($lapanganAktif)
-            @php
-                $iconLapangan = match (true) {
-                    str_contains(strtolower($lapanganAktif->jenis_olahraga), 'futsal') => 'futsal-goal',
-                    str_contains(strtolower($lapanganAktif->jenis_olahraga), 'padel') => 'padel-racket',
-                    str_contains(strtolower($lapanganAktif->jenis_olahraga), 'badminton') => 'shuttlecock',
-                    str_contains(strtolower($lapanganAktif->jenis_olahraga), 'tennis') => 'tennis-racket',
-                    default => 'futsal-goal',
-                };
-            @endphp
-
-            <div class="max-w-4xl mx-auto px-5 pt-6 flex gap-2 overflow-x-auto">
-                @foreach ($lapangan as $item)
-                    <a href="{{ route('booking.index', ['lapangan' => $item->id]) }}"
-                       wire:navigate
-                       class="flex-none inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold whitespace-nowrap transition-colors {{ $item->id === $lapanganAktif->id ? 'border-green bg-green-pale text-green' : 'border-cream-deep bg-white text-ink-mid' }}">
-                        {{ $item->nama }}
-                    </a>
-                @endforeach
-            </div>
+            @if (! $tenant->punyaFitur('multi_cabang'))
+                <div class="max-w-4xl mx-auto px-5 pt-6 flex gap-2 overflow-x-auto">
+                    @foreach ($lapangan as $item)
+                        <a href="{{ route('booking.index', ['lapangan' => $item->id]) }}"
+                           wire:navigate
+                           class="flex-none inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold whitespace-nowrap transition-colors {{ $item->id === $lapanganAktif->id ? 'border-green bg-green-pale text-green' : 'border-cream-deep bg-white text-ink-mid' }}">
+                            {{ $item->nama }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
 
             <div class="max-w-4xl mx-auto px-5 pt-4">
                 <div class="w-full h-56 rounded-card bg-gradient-to-br from-green-pale to-cream-deep flex items-center justify-center mb-4">
-                    <x-icon :name="$iconLapangan" size="84" class="text-green opacity-50" />
+                    <div x-show="iconLapangan === 'futsal-goal'" x-cloak><x-icon name="futsal-goal" size="84" class="text-green opacity-50" /></div>
+                    <div x-show="iconLapangan === 'padel-racket'" x-cloak><x-icon name="padel-racket" size="84" class="text-green opacity-50" /></div>
+                    <div x-show="iconLapangan === 'shuttlecock'" x-cloak><x-icon name="shuttlecock" size="84" class="text-green opacity-50" /></div>
+                    <div x-show="iconLapangan === 'tennis-racket'" x-cloak><x-icon name="tennis-racket" size="84" class="text-green opacity-50" /></div>
                 </div>
 
-                <h1 class="font-display text-2xl font-semibold text-ink mb-1">{{ $lapanganAktif->nama }}</h1>
+                <h1 class="font-display text-2xl font-semibold text-ink mb-1" x-text="lapanganNama">{{ $lapanganAktif->nama }}</h1>
 
-                <div class="flex flex-wrap gap-4 text-sm text-ink-mid mb-2">
-                    @if ($lapanganAktif->cabang)
-                        <span class="inline-flex items-center gap-1.5">
-                            <x-icon name="location-pin" size="16" />
-                            {{ $lapanganAktif->cabang->alamat }}
-                        </span>
-                        <span class="inline-flex items-center gap-1.5">
-                            <x-icon name="clock" size="16" />
-                            Buka {{ substr($lapanganAktif->cabang->jam_buka, 0, 5) }} sampai {{ substr($lapanganAktif->cabang->jam_tutup, 0, 5) }} WIB
-                        </span>
-                    @endif
+                <div class="flex flex-wrap gap-4 text-sm text-ink-mid mb-2" x-show="cabangAlamat" x-cloak>
+                    <span class="inline-flex items-center gap-1.5">
+                        <x-icon name="location-pin" size="16" />
+                        <span x-text="cabangAlamat"></span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <x-icon name="clock" size="16" />
+                        <span>Buka <span x-text="jamBuka"></span> sampai <span x-text="jamTutup"></span> WIB</span>
+                    </span>
                 </div>
 
                 <div class="text-lg font-bold text-green">
-                    Rp{{ number_format($lapanganAktif->harga_per_jam, 0, ',', '.') }}
+                    <span x-text="formatRupiah(lapanganHarga)"></span>
                     <span class="text-xs font-normal text-ink-soft">per jam</span>
                 </div>
 
                 @if ($tenant->punyaFitur('sistem_membership'))
-                    <div class="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-gold">
+                    <div class="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-gold" x-show="member" x-cloak>
                         <x-icon name="crown" size="14" class="text-gold" />
-                        Member dapat harga dan promo khusus
+                        <span>
+                            Member <span x-text="member?.tier"></span>, harga khusus kamu
+                            <span x-text="formatRupiah(member?.harga_member)"></span> per jam
+                        </span>
                     </div>
                 @endif
             </div>
@@ -102,6 +98,70 @@
                     mengirim: false,
                     hasil: null,
                     errorPesan: null,
+                    lapanganIdAktif: {{ $lapanganAktif->id }},
+                    lapanganNama: @js($lapanganAktif->nama),
+                    lapanganJenis: @js($lapanganAktif->jenis_olahraga),
+                    lapanganHarga: {{ $lapanganAktif->harga_per_jam }},
+                    cabangAlamat: @js($lapanganAktif->cabang?->alamat ?? ''),
+                    jamBuka: @js($lapanganAktif->cabang ? substr($lapanganAktif->cabang->jam_buka, 0, 5) : ''),
+                    jamTutup: @js($lapanganAktif->cabang ? substr($lapanganAktif->cabang->jam_tutup, 0, 5) : ''),
+                    member: null,
+                    memberTimer: null,
+                    reminderAktif: true,
+                    init() {
+                        this.$watch('whatsapp', (value) => {
+                            clearTimeout(this.memberTimer);
+                            const digits = (value || '').replace(/\D/g, '');
+                            if (digits.length < 10) {
+                                this.member = null;
+                                return;
+                            }
+                            this.memberTimer = setTimeout(() => this.cekMembership(digits), 600);
+                        });
+                    },
+                    cekMembership(noTelepon) {
+                        fetch('{{ route('booking.cek_membership') }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                            body: JSON.stringify({ no_telepon: noTelepon, lapangan_id: this.lapanganIdAktif }),
+                        })
+                        .then((res) => res.json())
+                        .then((json) => { this.member = json.data; })
+                        .catch(() => { this.member = null; });
+                    },
+                    get iconLapangan() {
+                        const jenis = (this.lapanganJenis || '').toLowerCase();
+                        if (jenis.includes('padel')) return 'padel-racket';
+                        if (jenis.includes('badminton')) return 'shuttlecock';
+                        if (jenis.includes('tennis')) return 'tennis-racket';
+                        return 'futsal-goal';
+                    },
+                    get linkTransferManual() {
+                        const admin = '{{ $tenant->whatsapp_admin ? preg_replace('/[^0-9]/', '', $tenant->whatsapp_admin) : '' }}';
+                        const pesan = 'Halo, saya mau konfirmasi booking di {{ $tenant->nama_bisnis }}.\n\n'
+                            + 'Lapangan: ' + this.lapanganNama + '\n'
+                            + 'Tanggal: ' + this.tanggalLabel + '\n'
+                            + 'Jam: ' + this.jamLabel + '\n'
+                            + 'Nama: ' + this.nama + '\n'
+                            + 'Total Bayar: ' + this.formatRupiah(this.totalBayar) + '\n\n'
+                            + 'Berikut saya lampirkan bukti transfer manualnya.';
+                        return 'https://wa.me/' + admin + '?text=' + encodeURIComponent(pesan);
+                    },
+                    onLapanganDipilih(detail) {
+                        this.lapanganIdAktif = detail.lapanganId;
+                        this.lapanganNama = detail.nama;
+                        this.lapanganJenis = detail.jenisOlahraga;
+                        this.lapanganHarga = detail.hargaPerJam;
+                        this.cabangAlamat = detail.cabangAlamat;
+                        this.jamBuka = detail.jamBuka.substring(0, 5);
+                        this.jamTutup = detail.jamTutup.substring(0, 5);
+                        this.slot = null;
+                        this.tanggal = null;
+                        this.jamMulai = null;
+                        this.jamSelesai = null;
+                        this.harga = 0;
+                        this.member = null;
+                    },
                     onSlotDipilih(detail) {
                         this.slot = detail.slotId;
                         this.tanggal = detail.tanggal;
@@ -141,6 +201,7 @@
                                 whatsapp: this.whatsapp,
                                 kode_promo: this.kodePromo || null,
                                 tipe_pembayaran: this.tipePembayaran,
+                                reminder_aktif: this.reminderAktif,
                             }),
                         })
                         .then(async (res) => {
@@ -164,6 +225,7 @@
                     },
                 }"
                 x-on:slot-dipilih.window="onSlotDipilih($event.detail)"
+                x-on:lapangan-dipilih.window="onLapanganDipilih($event.detail)"
                 class="max-w-4xl mx-auto px-5 py-6 grid gap-5 items-start lg:grid-cols-[1.4fr_1fr]"
             >
                 <x-card>
@@ -175,7 +237,7 @@
 
                     <div class="flex justify-between py-2 border-b border-dashed border-cream-deep text-sm">
                         <span class="text-ink-soft">Lapangan</span>
-                        <span class="font-semibold">{{ $lapanganAktif->nama }}</span>
+                        <span class="font-semibold" x-text="lapanganNama"></span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-dashed border-cream-deep text-sm">
                         <span class="text-ink-soft">Tanggal</span>
@@ -221,10 +283,30 @@
                         </div>
                     @endif
 
+                    @if (! $tenant->punyaFitur('pembayaran_online'))
+                        <x-manual-transfer-info :tenant="$tenant" />
+                    @endif
+
                     <div class="mt-5 space-y-3.5">
                         <x-input label="Nama Lengkap" name="nama" placeholder="Masukkan nama kamu" x-model="nama" />
                         <x-input label="Nomor WhatsApp" name="whatsapp" type="tel" placeholder="08xxxxxxxxxx" x-model="whatsapp" />
                     </div>
+
+                    @if ($tenant->punyaFitur('reminder_otomatis'))
+                        <div class="flex items-center justify-between gap-3 mt-4 rounded-lg border border-cream-deep px-3 py-2.5">
+                            <span class="text-sm text-ink-mid">Kirim pengingat WhatsApp 2 jam sebelum jadwal main</span>
+                            <button
+                                type="button"
+                                role="switch"
+                                :aria-checked="reminderAktif.toString()"
+                                @click="reminderAktif = !reminderAktif"
+                                :class="reminderAktif ? 'bg-green' : 'bg-cream-deep'"
+                                class="relative inline-flex h-6 w-11 flex-none items-center rounded-full transition-colors"
+                            >
+                                <span :class="reminderAktif ? 'translate-x-5' : 'translate-x-1'" class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
+                            </button>
+                        </div>
+                    @endif
 
                     <p class="text-sm text-danger mt-3" x-show="errorPesan" x-text="errorPesan" x-cloak></p>
 

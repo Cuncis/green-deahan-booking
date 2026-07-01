@@ -7,6 +7,7 @@ use App\Models\Cabang;
 use App\Models\JadwalSlot;
 use App\Models\Lapangan;
 use App\Models\Tenant;
+use App\Models\TenantFitur;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -146,5 +147,59 @@ class KalenderBookingTest extends TestCase
         $component = Livewire::test(KalenderBooking::class, ['lapanganId' => $lapangan->id]);
 
         $component->assertSee(substr($slotSendiri->jam_mulai, 0, 5));
+    }
+
+    public function test_dropdown_cabang_tampil_kalau_fitur_multi_cabang_aktif(): void
+    {
+        $tenant = $this->tenant();
+        app()->instance('tenant', $tenant);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('premium'),
+        ));
+
+        $cabangA = Cabang::factory()->create(['tenant_id' => $tenant->id, 'nama_cabang' => 'Cabang A']);
+        $cabangB = Cabang::factory()->create(['tenant_id' => $tenant->id, 'nama_cabang' => 'Cabang B']);
+        $lapangan = Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabangA->id]);
+        Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabangB->id]);
+
+        Livewire::test(KalenderBooking::class, ['lapanganId' => $lapangan->id])
+            ->assertSet('selectedCabang', $cabangA->id)
+            ->assertSee('Cabang A')
+            ->assertSee('Cabang B');
+    }
+
+    public function test_dropdown_cabang_tidak_tampil_kalau_fitur_tidak_aktif(): void
+    {
+        $tenant = $this->tenant();
+        app()->instance('tenant', $tenant);
+        $lapangan = $this->buatLapangan($tenant);
+
+        Livewire::test(KalenderBooking::class, ['lapanganId' => $lapangan->id])
+            ->assertSet('selectedCabang', null)
+            ->assertDontSee('Pilih Cabang');
+    }
+
+    public function test_pilih_cabang_memindahkan_lapangan_ke_cabang_lain_dan_dispatch_event(): void
+    {
+        $tenant = $this->tenant();
+        app()->instance('tenant', $tenant);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('premium'),
+        ));
+
+        $cabangA = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        $cabangB = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        $lapanganA = Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabangA->id]);
+        $lapanganB = Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabangB->id]);
+
+        Livewire::test(KalenderBooking::class, ['lapanganId' => $lapanganA->id])
+            ->call('pilihCabang', $cabangB->id)
+            ->assertSet('selectedCabang', $cabangB->id)
+            ->assertSet('lapanganId', $lapanganB->id)
+            ->assertDispatched('lapangan-dipilih');
     }
 }

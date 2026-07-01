@@ -1,4 +1,35 @@
 <div>
+    @if ($punyaMultiCabang)
+        <div class="mb-4">
+            <label for="selectedCabang" class="text-xs font-bold uppercase tracking-wide text-green mb-2 block">Pilih Cabang</label>
+            <select
+                id="selectedCabang"
+                wire:change="pilihCabang($event.target.value)"
+                class="w-full rounded-lg border border-cream-deep bg-white px-3 py-2.5 text-sm text-ink-mid focus:border-green focus:outline-none focus:ring-1 focus:ring-green"
+            >
+                @foreach ($daftarCabang as $cabang)
+                    <option value="{{ $cabang->id }}" @selected($cabang->id === $selectedCabang)>{{ $cabang->nama_cabang }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="text-xs font-bold uppercase tracking-wide text-green mb-3">Pilih Lapangan</div>
+        <div class="flex gap-2 overflow-x-auto pb-1 mb-5">
+            @forelse ($daftarLapangan as $item)
+                <button
+                    type="button"
+                    wire:click="pilihLapangan({{ $item->id }})"
+                    wire:key="lapangan-{{ $item->id }}"
+                    class="flex-none px-4 py-2.5 rounded-xl border text-sm font-semibold whitespace-nowrap transition-colors {{ $item->id === $lapanganId ? 'border-green bg-green-pale text-green' : 'border-cream-deep bg-white text-ink-mid' }}"
+                >
+                    {{ $item->nama }}
+                </button>
+            @empty
+                <p class="text-sm text-ink-soft">Belum ada lapangan di cabang ini.</p>
+            @endforelse
+        </div>
+    @endif
+
     <div class="text-xs font-bold uppercase tracking-wide text-green mb-4">Pilih Tanggal</div>
 
     <div class="flex gap-2 overflow-x-auto pb-1 mb-5">

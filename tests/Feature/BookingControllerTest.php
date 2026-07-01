@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\JadwalSlot;
 use App\Models\KodePromo;
 use App\Models\Lapangan;
+use App\Models\Membership;
 use App\Models\Tenant;
 use App\Models\TenantFitur;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -274,5 +275,137 @@ class BookingControllerTest extends TestCase
         $response->assertCreated();
         $this->assertDatabaseCount('customers', 1);
         $response->assertJsonPath('data.customer_id', $customer->id);
+    }
+
+    public function test_cek_membership_mengembalikan_tier_dan_harga_member_kalau_customer_member(): void
+    {
+        $tenant = $this->tenant();
+        $lapangan = $this->buatLapangan($tenant);
+        $lapangan->update(['harga_per_jam' => 100000]);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('premium'),
+        ));
+
+        $customer = Customer::factory()->create(['no_telepon' => '081234567890']);
+        Membership::factory()->create([
+            'tenant_id' => $tenant->id,
+            'customer_id' => $customer->id,
+            'tier' => 'gold',
+        ]);
+
+        $response = $this->postJson('/api/booking/cek-membership', [
+            'no_telepon' => '081234567890',
+            'lapangan_id' => $lapangan->id,
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.tier', 'Gold');
+        $response->assertJsonPath('data.harga_member', 85000);
+    }
+
+    public function test_cek_membership_mengembalikan_null_kalau_customer_bukan_member(): void
+    {
+        $tenant = $this->tenant();
+        $lapangan = $this->buatLapangan($tenant);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('premium'),
+        ));
+
+        $response = $this->postJson('/api/booking/cek-membership', [
+            'no_telepon' => '089900001111',
+            'lapangan_id' => $lapangan->id,
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data', null);
+    }
+
+    public function test_cek_membership_mengembalikan_null_kalau_fitur_sistem_membership_tidak_aktif(): void
+    {
+        $tenant = $this->tenant();
+        $lapangan = $this->buatLapangan($tenant);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('pro'),
+        ));
+
+        $customer = Customer::factory()->create(['no_telepon' => '081234567890']);
+        Membership::factory()->create([
+            'tenant_id' => $tenant->id,
+            'customer_id' => $customer->id,
+            'tier' => 'gold',
+        ]);
+
+        $response = $this->postJson('/api/booking/cek-membership', [
+            'no_telepon' => '081234567890',
+            'lapangan_id' => $lapangan->id,
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data', null);
+    }
+
+    public function test_buat_booking_menyimpan_reminder_aktif_kalau_fitur_aktif_dan_dipilih(): void
+    {
+        $tenant = $this->tenant();
+        $lapangan = $this->buatLapangan($tenant);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('premium'),
+        ));
+
+        $slot = JadwalSlot::factory()->create([
+            'tenant_id' => $tenant->id,
+            'lapangan_id' => $lapangan->id,
+            'status' => 'hold',
+            'hold_sampai' => now()->addMinutes(10),
+        ]);
+
+        $response = $this->postJson('/api/booking', [
+            'slot_id' => $slot->id,
+            'nama' => 'Budi',
+            'whatsapp' => '081234567890',
+            'tipe_pembayaran' => 'lunas',
+            'reminder_aktif' => true,
+        ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('booking', [
+            'id' => $response->json('data.id'),
+            'reminder_aktif' => true,
+        ]);
+    }
+
+    public function test_buat_booking_mengabaikan_reminder_aktif_kalau_fitur_tidak_aktif(): void
+    {
+        $tenant = $this->tenant();
+        $lapangan = $this->buatLapangan($tenant);
+
+        $slot = JadwalSlot::factory()->create([
+            'tenant_id' => $tenant->id,
+            'lapangan_id' => $lapangan->id,
+            'status' => 'hold',
+            'hold_sampai' => now()->addMinutes(10),
+        ]);
+
+        $response = $this->postJson('/api/booking', [
+            'slot_id' => $slot->id,
+            'nama' => 'Budi',
+            'whatsapp' => '081234567890',
+            'tipe_pembayaran' => 'lunas',
+            'reminder_aktif' => true,
+        ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('booking', [
+            'id' => $response->json('data.id'),
+            'reminder_aktif' => false,
+        ]);
     }
 }

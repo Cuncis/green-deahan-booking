@@ -115,6 +115,82 @@ class HalamanWebTest extends TestCase
             ->assertDontSee('🔥');
     }
 
+    public function test_halaman_booking_menampilkan_transfer_manual_kalau_pembayaran_online_tidak_aktif(): void
+    {
+        $tenant = $this->tenant();
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('basic'),
+        ));
+
+        $tenant->update([
+            'bank_nama' => 'Bank Sinarmas',
+            'bank_no_rekening' => '1234567890',
+            'bank_pemilik_rekening' => 'PT Green Deahan',
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('Transfer Manual');
+        $response->assertSee('Konfirmasi via WhatsApp');
+        $response->assertSee('Bank Sinarmas');
+    }
+
+    public function test_halaman_booking_tidak_menampilkan_transfer_manual_kalau_pembayaran_online_aktif(): void
+    {
+        $tenant = $this->tenant();
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('pro'),
+        ));
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertDontSee('Transfer Manual');
+    }
+
+    public function test_halaman_booking_menampilkan_toggle_reminder_kalau_fitur_aktif(): void
+    {
+        $tenant = $this->tenant();
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('premium'),
+        ));
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('Kirim pengingat WhatsApp 2 jam sebelum jadwal main');
+    }
+
+    public function test_halaman_booking_tidak_menampilkan_toggle_reminder_kalau_fitur_tidak_aktif(): void
+    {
+        $tenant = $this->tenant();
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('pro'),
+        ));
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertDontSee('Kirim pengingat WhatsApp 2 jam sebelum jadwal main');
+    }
+
     public function test_admin_dashboard_mengarahkan_guest_ke_login(): void
     {
         $response = $this->get('/admin');

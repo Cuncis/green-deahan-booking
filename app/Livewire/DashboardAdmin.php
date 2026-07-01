@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Models\Booking;
 use App\Models\Cabang;
 use App\Models\JadwalSlot;
+use App\Models\Membership;
+use App\Models\ReminderLog;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 
@@ -76,30 +78,119 @@ class DashboardAdmin extends Component
     }
 
     /**
-     * Pendapatan 7 hari terakhir dari booking yang sudah dikonfirmasi/selesai,
-     * dikelompokkan per tanggal booking dibuat.
+     * Jumlah slot yang sudah dibooking, dikelompokkan per jam mulai,
+     * untuk melihat jam berapa yang paling ramai.
      *
-     * @return array<string, int>
+     * @return array<int, int>
      */
-    public function pendapatanMingguan(): array
+    public function jamRamai(): array
     {
-        $mulai = now()->subDays(6)->startOfDay();
-
-        $terkumpul = $this->queryBooking()
-            ->whereIn('status_booking', ['dikonfirmasi', 'selesai'])
-            ->where('created_at', '>=', $mulai)
+        $perJam = JadwalSlot::where('tenant_id', app('tenant')->id)
+            ->when($this->cabangId, fn ($q) => $q->whereHas('lapangan', fn ($q2) => $q2->where('cabang_id', $this->cabangId)))
+            ->where('status', 'booked')
             ->get()
-            ->groupBy(fn (Booking $booking) => $booking->created_at->toDateString())
-            ->map(fn ($group) => $group->sum('total_bayar'));
+            ->groupBy(fn (JadwalSlot $slot) => (int) substr($slot->jam_mulai, 0, 2));
 
         $hasil = [];
 
-        for ($i = 6; $i >= 0; $i--) {
-            $tanggal = now()->subDays($i)->toDateString();
-            $hasil[$tanggal] = (int) ($terkumpul[$tanggal] ?? 0);
+        for ($jam = 0; $jam < 24; $jam++) {
+            $hasil[$jam] = $perJam->has($jam) ? $perJam->get($jam)->count() : 0;
         }
 
         return $hasil;
+    }
+
+    /**
+     * Jumlah member dan persen diskon untuk tiap tier membership.
+     *
+     * @return array<int, array{tier: string, label: string, jumlah: int, persen: int}>
+     */
+    public function ringkasanMembership(): array
+    {
+        $tenant = app('tenant');
+
+        return collect(['bronze', 'silver', 'gold'])->map(fn (string $tier) => [
+            'tier' => $tier,
+            'label' => ucfirst($tier),
+            'jumlah' => Membership::where('tenant_id', $tenant->id)->where('tier', $tier)->count(),
+            'persen' => Membership::persenDiskonUntukTier($tier),
+        ])->all();
+    }
+
+    /**
+     * Gabungan booking yang reminder-nya masih terjadwal (belum ada log
+     * kirim) dengan reminder yang sudah tercatat di reminder_log. Selama
+     * belum ada integrasi WhatsApp Business API, "terjadwal" berarti admin
+     * masih perlu mengirim manual, lihat references/notifikasi-whatsapp.md.
+     *
+     * @return Collection<int, array{nama: string, waktu: string, status: string}>
+     */
+    public function daftarReminder(): Collection
+    {
+        $tenant = app('tenant');
+
+        $terjadwal = Booking::where('tenant_id', $tenant->id)
+            ->where('reminder_aktif', true)
+            ->where('status_booking', '!=', 'dibatalkan')
+            ->whereDoesntHave('reminderLogs')
+            ->whereHas('slot', fn ($q) => $q->where('tanggal', '>=', now()->toDateString()))
+            ->with(['slot.lapangan', 'customer'])
+            ->get()
+            ->map(fn (Booking $booking) => [
+                'nama' => $booking->customer->nama,
+                'waktu' => $booking->slot->tanggal->format('d/m/Y').', '.substr($booking->slot->jam_mulai, 0, 5),
+                'status' => 'terjadwal',
+            ]);
+
+        $terkirim = ReminderLog::where('tenant_id', $tenant->id)
+            ->with(['booking.customer', 'booking.slot'])
+            ->latest('waktu_kirim')
+            ->take(10)
+            ->get()
+            ->map(fn (ReminderLog $log) => [
+                'nama' => $log->booking->customer->nama,
+                'waktu' => $log->booking->slot->tanggal->format('d/m/Y').', '.substr($log->booking->slot->jam_mulai, 0, 5),
+                'status' => $log->status,
+            ]);
+
+        return $terjadwal->concat($terkirim)->take(15);
+    }
+
+    /**
+     * Ranking cabang berdasarkan pendapatan, untuk melihat cabang mana
+     * yang paling produktif.
+     *
+     * @return Collection<int, array{cabang: Cabang, totalBooking: int, pendapatan: int, keterisian: int}>
+     */
+    public function perbandinganCabang(): Collection
+    {
+        $tenant = app('tenant');
+
+        return Cabang::where('tenant_id', $tenant->id)->get()
+            ->map(function (Cabang $cabang) use ($tenant) {
+                $bookingQuery = Booking::where('tenant_id', $tenant->id)
+                    ->whereHas('slot.lapangan', fn ($q) => $q->where('cabang_id', $cabang->id))
+                    ->where('status_booking', '!=', 'dibatalkan');
+
+                $slotQuery = JadwalSlot::where('tenant_id', $tenant->id)
+                    ->whereHas('lapangan', fn ($q) => $q->where('cabang_id', $cabang->id))
+                    ->whereBetween('tanggal', [
+                        now()->startOfWeek()->toDateString(),
+                        now()->endOfWeek()->toDateString(),
+                    ]);
+
+                $totalSlot = (clone $slotQuery)->count();
+                $terisi = (clone $slotQuery)->where('status', 'booked')->count();
+
+                return [
+                    'cabang' => $cabang,
+                    'totalBooking' => (clone $bookingQuery)->count(),
+                    'pendapatan' => (clone $bookingQuery)->whereIn('status_booking', ['dikonfirmasi', 'selesai'])->sum('total_bayar'),
+                    'keterisian' => $totalSlot > 0 ? (int) round($terisi / $totalSlot * 100) : 0,
+                ];
+            })
+            ->sortByDesc('pendapatan')
+            ->values();
     }
 
     /**
@@ -124,15 +215,20 @@ class DashboardAdmin extends Component
     public function render()
     {
         $tenant = app('tenant');
+        $statistikLengkap = $tenant->punyaFitur('laporan_pendapatan');
 
         return view('livewire.dashboard-admin', [
+            'tenant' => $tenant,
             'bookingHariIni' => $this->bookingHariIni(),
             'menungguKonfirmasi' => $this->menungguKonfirmasi(),
-            'bookingMingguIni' => $this->bookingMingguIni(),
-            'tingkatKeterisian' => $this->tingkatKeterisian(),
+            'bookingMingguIni' => $statistikLengkap ? $this->bookingMingguIni() : null,
+            'tingkatKeterisian' => $statistikLengkap ? $this->tingkatKeterisian() : null,
             'bookingTerbaru' => $this->bookingTerbaru(),
-            'pendapatanMingguan' => $tenant->punyaFitur('laporan_pendapatan') ? $this->pendapatanMingguan() : [],
+            'jamRamai' => $statistikLengkap ? $this->jamRamai() : [],
             'daftarCabang' => $tenant->punyaFitur('multi_cabang') ? $this->daftarCabang() : collect(),
+            'ringkasanMembership' => $tenant->punyaFitur('sistem_membership') ? $this->ringkasanMembership() : [],
+            'daftarReminder' => $tenant->punyaFitur('reminder_otomatis') ? $this->daftarReminder() : collect(),
+            'perbandinganCabang' => $tenant->punyaFitur('analitik_lanjutan') ? $this->perbandinganCabang() : collect(),
         ]);
     }
 }

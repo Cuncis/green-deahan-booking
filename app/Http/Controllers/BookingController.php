@@ -6,6 +6,8 @@ use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\JadwalSlot;
 use App\Models\KodePromo;
+use App\Models\Lapangan;
+use App\Models\Membership;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -64,6 +66,43 @@ class BookingController extends Controller
     }
 
     /**
+     * Cek status membership customer berdasarkan nomor WhatsApp, untuk banner
+     * harga member di halaman booking. Hanya berguna kalau fitur sistem_membership aktif.
+     */
+    public function cekMembership(Request $request): JsonResponse
+    {
+        $tenant = app('tenant');
+
+        $data = $request->validate([
+            'no_telepon' => ['required', 'string'],
+            'lapangan_id' => ['required', 'integer'],
+        ]);
+
+        if (! $tenant->punyaFitur('sistem_membership')) {
+            return response()->json(['data' => null]);
+        }
+
+        $customer = Customer::where('no_telepon', $data['no_telepon'])->first();
+
+        $membership = $customer
+            ? Membership::where('tenant_id', $tenant->id)->where('customer_id', $customer->id)->first()
+            : null;
+
+        if (! $membership) {
+            return response()->json(['data' => null]);
+        }
+
+        $lapangan = Lapangan::where('tenant_id', $tenant->id)->findOrFail($data['lapangan_id']);
+
+        return response()->json([
+            'data' => [
+                'tier' => ucfirst($membership->tier),
+                'harga_member' => $membership->hargaMember($lapangan->harga_per_jam),
+            ],
+        ]);
+    }
+
+    /**
      * Buat booking dari slot yang sudah di-hold.
      */
     public function buatBooking(Request $request): JsonResponse
@@ -76,6 +115,7 @@ class BookingController extends Controller
             'whatsapp' => ['required', 'string', 'max:20'],
             'kode_promo' => ['nullable', 'string'],
             'tipe_pembayaran' => ['required', 'in:manual,dp,lunas'],
+            'reminder_aktif' => ['sometimes', 'boolean'],
         ]);
 
         return DB::transaction(function () use ($tenant, $data) {
@@ -133,6 +173,7 @@ class BookingController extends Controller
                 'total_bayar' => $totalBayar,
                 'tipe_pembayaran' => $data['tipe_pembayaran'],
                 'status_booking' => 'menunggu',
+                'reminder_aktif' => $tenant->punyaFitur('reminder_otomatis') && ($data['reminder_aktif'] ?? false),
             ]);
 
             return response()->json([

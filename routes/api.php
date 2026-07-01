@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(IdentifikasiTenant::class)->group(function () {
     Route::get('/booking/lapangan/{lapanganId}/slot', [BookingController::class, 'lihatSlot'])->name('booking.lihat_slot');
     Route::post('/booking/slot/{slotId}/hold', [BookingController::class, 'holdSlot'])->name('booking.hold_slot');
+    Route::post('/booking/cek-membership', [BookingController::class, 'cekMembership'])->name('booking.cek_membership');
     Route::post('/booking', [BookingController::class, 'buatBooking'])->name('booking.buat');
 });
 

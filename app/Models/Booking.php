@@ -25,6 +25,7 @@ use Illuminate\Support\Str;
     'total_bayar',
     'tipe_pembayaran',
     'status_booking',
+    'reminder_aktif',
     'recurring_group_id',
     'recurring_ke',
 ])]
@@ -44,6 +45,7 @@ class Booking extends Model
             'harga_normal' => 'integer',
             'diskon_jumlah' => 'integer',
             'total_bayar' => 'integer',
+            'reminder_aktif' => 'boolean',
             'recurring_ke' => 'integer',
         ];
     }
@@ -76,6 +78,11 @@ class Booking extends Model
     public function pembayaran(): HasMany
     {
         return $this->hasMany(Pembayaran::class);
+    }
+
+    public function reminderLogs(): HasMany
+    {
+        return $this->hasMany(ReminderLog::class);
     }
 
     public static function generateKodeBooking(): string
