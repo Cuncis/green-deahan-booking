@@ -54,7 +54,11 @@
                 <tbody>
                     @forelse ($tenants as $tenant)
                         <tr class="border-b border-cream last:border-0">
-                            <td class="px-5 py-3 font-bold text-ink">{{ $tenant->nama_bisnis }}</td>
+                            <td class="px-5 py-3 font-bold text-ink">
+                                <a href="{{ route('superadmin.tenants.show', $tenant) }}" class="hover:underline">
+                                    {{ $tenant->nama_bisnis }}
+                                </a>
+                            </td>
                             <td class="px-5 py-3 text-ink-mid">{{ $tenant->domain }}</td>
                             <td class="px-5 py-3"><x-paket-badge :paket="$tenant->paket" /></td>
                             <td class="px-5 py-3">
@@ -66,6 +70,11 @@
                             <td class="px-5 py-3 text-ink-mid">{{ $tenant->bookings_count }}</td>
                             <td class="px-5 py-3">
                                 <div class="flex flex-wrap gap-1.5">
+                                    <a href="{{ route('superadmin.tenants.show', $tenant) }}"
+                                       class="inline-flex items-center justify-center rounded-lg font-sans font-semibold text-xs px-2.5 py-1.5 transition-colors border-2 border-sand text-ink-mid hover:border-brown-light">
+                                        Detail
+                                    </a>
+
                                     @if ($tenant->status_aktif)
                                         <form method="POST" action="{{ route('superadmin.tenants.deactivate', $tenant) }}">
                                             @csrf

@@ -16,8 +16,17 @@ class IdentifikasiTenant
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $tenant = Tenant::where('domain', $request->getHost())
-            ->where('status_aktif', true)
+        $host = $request->getHost();
+
+        // domain/custom_domain harus dikelompokkan dalam satu closure supaya
+        // tidak kena jebakan urutan operator SQL: where(A)->orWhere(B)->where(C)
+        // tanpa closure akan jadi "A OR (B AND C)", bukan "(A OR B) AND C" yang
+        // dimaksud (status_aktif=false bisa lolos lewat kondisi domain saja).
+        $tenant = Tenant::where('status_aktif', true)
+            ->where(function ($query) use ($host) {
+                $query->where('domain', $host)
+                    ->orWhere('custom_domain', $host);
+            })
             ->with('fitur')
             ->first();
 

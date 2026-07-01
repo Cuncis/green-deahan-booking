@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Fillable([
     'nama_bisnis',
     'domain',
+    'custom_domain',
     'paket',
     'status_aktif',
     'tanggal_mulai',

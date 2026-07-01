@@ -10,6 +10,8 @@ use App\Models\Tenant;
 use App\Models\TenantInvitation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -266,5 +268,149 @@ class SuperadminControllerTest extends TestCase
         $this->actingAs($user)->get(route('superadmin.tenants.create'))->assertForbidden();
         $this->actingAs($user)->post(route('superadmin.tenants.store'), [])->assertForbidden();
         $this->actingAs($user)->post(route('superadmin.tenants.activate', $tenant))->assertForbidden();
+    }
+
+    public function test_show_menampilkan_domain_default_dan_status_belum_dikonfigurasi(): void
+    {
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['paket' => 'pro', 'custom_domain' => null]);
+
+        $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.show', $tenant));
+
+        $response->assertOk();
+        $response->assertSee($tenant->domain);
+        $response->assertSee('Belum dikonfigurasi');
+        $response->assertDontSee('💬');
+    }
+
+    public function test_show_untuk_paket_basic_menampilkan_pesan_upgrade_bukan_form(): void
+    {
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['paket' => 'basic']);
+
+        $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.show', $tenant));
+
+        $response->assertOk();
+        $response->assertSee('Custom domain hanya tersedia untuk paket Pro dan Premium');
+        $response->assertDontSee('name="custom_domain"', false);
+    }
+
+    public function test_show_status_aktif_kalau_domain_bisa_dijangkau(): void
+    {
+        Http::fake(['https://sudah-hidup.com' => Http::response('ok', 200)]);
+
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['paket' => 'pro', 'custom_domain' => 'sudah-hidup.com']);
+
+        $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.show', $tenant));
+
+        $response->assertOk();
+        $response->assertSeeInOrder(['Status Verifikasi', 'Aktif']);
+        $response->assertSee('sudo certbot --nginx -d sudah-hidup.com', false);
+    }
+
+    public function test_show_status_ssl_pending_kalau_domain_belum_bisa_dijangkau(): void
+    {
+        Http::fake(function () {
+            throw new ConnectionException('Connection refused');
+        });
+
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['paket' => 'pro', 'custom_domain' => 'belum-hidup.com']);
+
+        $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.show', $tenant));
+
+        $response->assertOk();
+        $response->assertSee('SSL Pending');
+    }
+
+    public function test_set_custom_domain_berhasil_untuk_paket_pro(): void
+    {
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['paket' => 'pro', 'custom_domain' => null]);
+
+        $response = $this->actingAs($superadmin)->post(route('superadmin.tenants.custom-domain.store', $tenant), [
+            'custom_domain' => 'Klien-Sendiri.com',
+        ]);
+
+        $response->assertRedirect(route('superadmin.tenants.show', $tenant));
+        $response->assertSessionHas('success');
+        $this->assertSame('klien-sendiri.com', $tenant->fresh()->custom_domain);
+    }
+
+    public function test_set_custom_domain_ditolak_untuk_paket_basic(): void
+    {
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['paket' => 'basic', 'custom_domain' => null]);
+
+        $response = $this->actingAs($superadmin)->post(route('superadmin.tenants.custom-domain.store', $tenant), [
+            'custom_domain' => 'klien-sendiri.com',
+        ]);
+
+        $response->assertSessionHas('error');
+        $this->assertNull($tenant->fresh()->custom_domain);
+    }
+
+    public function test_set_custom_domain_ditolak_kalau_format_tidak_valid(): void
+    {
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['paket' => 'pro']);
+
+        $response = $this->actingAs($superadmin)->post(route('superadmin.tenants.custom-domain.store', $tenant), [
+            'custom_domain' => 'ini bukan domain!!',
+        ]);
+
+        $response->assertSessionHasErrors('custom_domain');
+        $this->assertNull($tenant->fresh()->custom_domain);
+    }
+
+    public function test_set_custom_domain_ditolak_kalau_subdomain_greendeahan(): void
+    {
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['paket' => 'premium']);
+
+        $response = $this->actingAs($superadmin)->post(route('superadmin.tenants.custom-domain.store', $tenant), [
+            'custom_domain' => 'apapun.greendeahan.com',
+        ]);
+
+        $response->assertSessionHasErrors('custom_domain');
+        $this->assertNull($tenant->fresh()->custom_domain);
+    }
+
+    public function test_set_custom_domain_ditolak_kalau_sudah_dipakai_tenant_lain(): void
+    {
+        $superadmin = $this->superadmin();
+        Tenant::factory()->create(['custom_domain' => 'sudah-dipakai.com']);
+        $tenant = Tenant::factory()->create(['paket' => 'pro', 'custom_domain' => null]);
+
+        $response = $this->actingAs($superadmin)->post(route('superadmin.tenants.custom-domain.store', $tenant), [
+            'custom_domain' => 'sudah-dipakai.com',
+        ]);
+
+        $response->assertSessionHasErrors('custom_domain');
+        $this->assertNull($tenant->fresh()->custom_domain);
+    }
+
+    public function test_set_custom_domain_boleh_dipakai_ulang_oleh_tenant_yang_sama(): void
+    {
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['paket' => 'pro', 'custom_domain' => 'punya-sendiri.com']);
+
+        $response = $this->actingAs($superadmin)->post(route('superadmin.tenants.custom-domain.store', $tenant), [
+            'custom_domain' => 'punya-sendiri.com',
+        ]);
+
+        $response->assertSessionDoesntHaveErrors('custom_domain');
+    }
+
+    public function test_remove_custom_domain_mengosongkan_kolomnya(): void
+    {
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['paket' => 'pro', 'custom_domain' => 'mau-dihapus.com']);
+
+        $response = $this->actingAs($superadmin)->delete(route('superadmin.tenants.custom-domain.destroy', $tenant));
+
+        $response->assertRedirect(route('superadmin.tenants.show', $tenant));
+        $this->assertNull($tenant->fresh()->custom_domain);
     }
 }
