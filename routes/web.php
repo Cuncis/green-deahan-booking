@@ -1,15 +1,43 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Models\Lapangan;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    $tenant = app('tenant');
+
+    $lapangan = Lapangan::where('tenant_id', $tenant->id)
+        ->where('status_aktif', true)
+        ->get();
+
+    return view('pages.booking', [
+        'tenant' => $tenant,
+        'lapangan' => $lapangan,
+    ]);
+})->name('booking.index');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', function () {
+        return view('pages.admin.dashboard', [
+            'tenant' => app('tenant'),
+        ]);
+    })->name('dashboard');
+
+    Route::get('/laporan', function () {
+        $tenant = app('tenant');
+
+        abort_unless($tenant->punyaFitur('laporan_pendapatan'), 403, 'Fitur laporan pendapatan tidak tersedia untuk paket Anda.');
+
+        return view('pages.admin.laporan', [
+            'tenant' => $tenant,
+        ]);
+    })->name('laporan');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
