@@ -59,7 +59,9 @@
     @endif
 
     @if ($tenant->punyaFitur('kode_promo'))
-        <livewire:kode-promo-manager />
+        <div id="kode-promo">
+            <livewire:kode-promo-manager />
+        </div>
     @endif
 
     <x-card class="mb-6 !p-0 overflow-hidden">

@@ -90,9 +90,10 @@
                     jamMulai: null,
                     jamSelesai: null,
                     harga: 0,
-                    kodePromo: '',
-                    promoDiterapkan: false,
-                    tipePembayaran: '{{ $tenant->punyaFitur('dp_pembayaran') ? 'dp' : ($tenant->punyaFitur('pembayaran_online') ? 'lunas' : 'manual') }}',
+                    kodePromoAktif: null,
+                    tipePembayaranAktif: '{{ $tenant->punyaFitur('dp_pembayaran') ? 'dp' : ($tenant->punyaFitur('pembayaran_online') ? 'lunas' : 'manual') }}',
+                    diskonJumlah: 0,
+                    totalBayar: 0,
                     nama: '',
                     whatsapp: '',
                     mengirim: false,
@@ -160,6 +161,9 @@
                         this.jamMulai = null;
                         this.jamSelesai = null;
                         this.harga = 0;
+                        this.totalBayar = 0;
+                        this.diskonJumlah = 0;
+                        this.kodePromoAktif = null;
                         this.member = null;
                     },
                     onSlotDipilih(detail) {
@@ -168,7 +172,14 @@
                         this.jamMulai = detail.jamMulai;
                         this.jamSelesai = detail.jamSelesai;
                         this.harga = detail.harga;
+                        this.totalBayar = detail.harga;
                         this.errorPesan = null;
+                    },
+                    onRingkasanBerubah(detail) {
+                        this.tipePembayaranAktif = detail.tipePembayaran;
+                        this.kodePromoAktif = detail.kodePromo;
+                        this.diskonJumlah = detail.diskonJumlah;
+                        this.totalBayar = detail.totalBayar;
                     },
                     get tanggalLabel() {
                         if (!this.tanggal) return 'Belum dipilih';
@@ -178,9 +189,6 @@
                     get jamLabel() {
                         if (!this.jamMulai) return 'Belum dipilih';
                         return this.jamMulai.substring(0, 5) + ' sampai ' + this.jamSelesai.substring(0, 5);
-                    },
-                    get totalBayar() {
-                        return this.tipePembayaran === 'dp' ? Math.round(this.harga / 2) : this.harga;
                     },
                     formatRupiah(v) {
                         return 'Rp' + Math.round(v || 0).toLocaleString('id-ID');
@@ -199,8 +207,8 @@
                                 slot_id: this.slot,
                                 nama: this.nama,
                                 whatsapp: this.whatsapp,
-                                kode_promo: this.kodePromo || null,
-                                tipe_pembayaran: this.tipePembayaran,
+                                kode_promo: this.kodePromoAktif,
+                                tipe_pembayaran: this.tipePembayaranAktif,
                                 reminder_aktif: this.reminderAktif,
                             }),
                         })
@@ -226,6 +234,7 @@
                 }"
                 x-on:slot-dipilih.window="onSlotDipilih($event.detail)"
                 x-on:lapangan-dipilih.window="onLapanganDipilih($event.detail)"
+                x-on:ringkasan-berubah.window="onRingkasanBerubah($event.detail)"
                 class="max-w-4xl mx-auto px-5 py-6 grid gap-5 items-start lg:grid-cols-[1.4fr_1fr]"
             >
                 <x-card>
@@ -248,44 +257,19 @@
                         <span class="font-semibold" x-text="jamLabel"></span>
                     </div>
 
+                    <div class="flex justify-between py-1 text-sm text-green" x-show="diskonJumlah > 0" x-cloak>
+                        <span>Diskon <span x-text="kodePromoAktif"></span></span>
+                        <span x-text="'-' + formatRupiah(diskonJumlah)"></span>
+                    </div>
+
                     <div class="flex justify-between mt-3 pt-3 border-t-2 border-cream-deep text-base font-bold text-green">
                         <span>Total Bayar</span>
                         <span x-text="formatRupiah(totalBayar)"></span>
                     </div>
 
-                    @if ($tenant->punyaFitur('kode_promo'))
-                        <div class="flex gap-2 mt-4">
-                            <div class="flex-1">
-                                <x-input name="kode_promo" placeholder="Kode promo, misal SEPI20" x-model="kodePromo" />
-                            </div>
-                            <x-button type="button" variant="secondary" @click="promoDiterapkan = true">Pakai</x-button>
-                        </div>
-                        <p class="text-xs text-ink-soft mt-1" x-show="promoDiterapkan" x-cloak>
-                            Kode promo akan dicek ulang saat booking diproses.
-                        </p>
-                    @endif
-
-                    @if ($tenant->punyaFitur('dp_pembayaran'))
-                        <div class="text-xs font-bold uppercase tracking-wide text-green mt-5 mb-3">Pilihan Bayar</div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" @click="tipePembayaran = 'dp'"
-                                :class="tipePembayaran === 'dp' ? 'border-green bg-green-pale text-green' : 'border-cream-deep text-ink-mid'"
-                                class="rounded-lg border px-3 py-2.5 text-center text-sm font-semibold transition-colors">
-                                Bayar DP 50%
-                                <span class="block text-xs font-normal opacity-80 mt-0.5" x-text="formatRupiah(Math.round(harga / 2))"></span>
-                            </button>
-                            <button type="button" @click="tipePembayaran = 'lunas'"
-                                :class="tipePembayaran === 'lunas' ? 'border-green bg-green-pale text-green' : 'border-cream-deep text-ink-mid'"
-                                class="rounded-lg border px-3 py-2.5 text-center text-sm font-semibold transition-colors">
-                                Bayar Lunas
-                                <span class="block text-xs font-normal opacity-80 mt-0.5">Langsung beres</span>
-                            </button>
-                        </div>
-                    @endif
-
-                    @if (! $tenant->punyaFitur('pembayaran_online'))
-                        <x-manual-transfer-info :tenant="$tenant" />
-                    @endif
+                    <div class="mt-4">
+                        <livewire:ringkasan-booking :lapangan-id="$lapanganAktif->id" :key="'ringkasan-'.$lapanganAktif->id" />
+                    </div>
 
                     <div class="mt-5 space-y-3.5">
                         <x-input label="Nama Lengkap" name="nama" placeholder="Masukkan nama kamu" x-model="nama" />
