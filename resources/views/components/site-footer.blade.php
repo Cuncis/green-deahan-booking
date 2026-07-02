@@ -65,6 +65,7 @@
                 <li><a href="/" class="transition-colors hover:text-white">Beranda</a></li>
                 <li><a href="/galeri" class="transition-colors hover:text-white">Galeri Proyek</a></li>
                 <li><a href="/blog" class="transition-colors hover:text-white">Blog & Tips</a></li>
+                <li><a href="/harga" class="transition-colors hover:text-white">Website Booking</a></li>
                 <li><a href="/#layanan" class="transition-colors hover:text-white">Layanan</a></li>
                 <li><a href="/kontak" class="transition-colors hover:text-white">Kontak Kami</a></li>
             </ul>

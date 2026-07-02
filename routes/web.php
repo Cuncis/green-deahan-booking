@@ -33,6 +33,12 @@ $situsKorporat = function () {
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
     Route::get('/kontak', fn () => view('pages.kontak'))->name('kontak');
+
+    // Paket berlangganan situs booking, cross-sell dari layanan konstruksi
+    // lapangan ke produk SaaS booking. CTA per paket mengarah ke /daftar
+    // (TenantRegistrationController), yang sengaja TIDAK dibatasi domain
+    // supaya tetap bisa dibuka langsung dari luar situs korporat.
+    Route::get('/harga', fn () => view('pages.pricing'))->name('pricing');
 };
 
 Route::withoutMiddleware(IdentifikasiTenant::class)->domain('greendeahan.com')->group($situsKorporat);
@@ -77,11 +83,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/invite/{token}', [InvitationController::class, 'acceptInvite'])->name('invite.accept');
 });
 
-// Halaman pricing dan pendaftaran tenant baru diakses dari domain utama
-// platform (misalnya greendeahan.com), bukan domain tenant manapun, jadi
-// sengaja dikeluarkan dari IdentifikasiTenant sama seperti rute superadmin.
+// Halaman pendaftaran tenant baru diakses dari domain utama platform,
+// bukan domain tenant manapun, jadi sengaja dikeluarkan dari
+// IdentifikasiTenant sama seperti rute superadmin. Sengaja TIDAK dibatasi
+// domain() (beda dari $situsKorporat) supaya link "Pilih Paket" tetap
+// bisa dibuka langsung dari mana saja, bukan cuma dari greendeahan.com.
 Route::withoutMiddleware(IdentifikasiTenant::class)->group(function () {
-    Route::get('/harga', fn () => view('pages.pricing'))->name('pricing');
     Route::get('/daftar', [TenantRegistrationController::class, 'show'])->name('daftar.show');
     Route::post('/daftar', [TenantRegistrationController::class, 'store'])->name('daftar.store');
 });

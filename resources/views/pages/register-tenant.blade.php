@@ -15,7 +15,7 @@
 
         <nav class="sticky top-0 z-40 flex items-center justify-between h-16 px-5 border-b border-cream-deep bg-cream/95 backdrop-blur">
             <div class="font-display font-semibold text-green">Green Deahan Sport</div>
-            <a href="{{ route('pricing') }}" class="text-sm text-ink-mid hover:text-brown">Lihat Harga</a>
+            <a href="/harga" class="text-sm text-ink-mid hover:text-brown">Lihat Harga</a>
         </nav>
 
         <div class="max-w-xl mx-auto px-5 py-12">

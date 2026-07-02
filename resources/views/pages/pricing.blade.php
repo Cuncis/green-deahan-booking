@@ -1,90 +1,209 @@
+@php
+    $paketList = [
+        [
+            'key' => 'basic',
+            'nama' => 'Basic',
+            'tagline' => 'Untuk lapangan tunggal yang baru mulai online.',
+            'harga' => 'Rp1,5jt',
+            'satuan' => '/tahun, nempel domain kami',
+            'featured' => false,
+        ],
+        [
+            'key' => 'pro',
+            'nama' => 'Pro',
+            'tagline' => 'Untuk lapangan yang serius cari pelanggan dan untung.',
+            'harga' => 'Rp2,5jt',
+            'satuan' => '/tahun, domain dan hosting sendiri',
+            'featured' => true,
+        ],
+        [
+            'key' => 'premium',
+            'nama' => 'Premium',
+            'tagline' => 'Untuk multi-lapangan / cabang dengan fitur lengkap.',
+            'harga' => 'Rp4,5jt',
+            'satuan' => '/tahun, full custom dan prioritas',
+            'featured' => false,
+        ],
+    ];
+
+    $sections = [
+        'Fitur Inti Booking' => [
+            ['Jadwal lapangan real-time', 'yes', 'yes', 'yes'],
+            ['Booking mandiri 24 jam', 'yes', 'yes', 'yes'],
+            ['Anti double-booking otomatis', 'yes', 'yes', 'yes'],
+            ['Konfirmasi otomatis (WA/email)', 'yes', 'yes', 'yes'],
+            ['Tampilan mobile-friendly', 'yes', 'yes', 'yes'],
+            ['Info lapangan (foto, peta, harga)', 'yes', 'yes', 'yes'],
+        ],
+        'Pembayaran & Pengelolaan' => [
+            ['Pembayaran online (QRIS, transfer, e-wallet)', 'no', 'yes', 'yes'],
+            ['Pilihan DP atau bayar penuh', 'no', 'yes', 'yes'],
+            ['Dashboard pemilik', 'Dasar', 'yes', 'Lengkap'],
+            ['Laporan pendapatan & jam ramai', 'no', 'yes', 'yes'],
+            ['Notifikasi tiap ada booking', 'yes', 'yes', 'yes'],
+            ['Kelola banyak lapangan', '1 lapangan', '3 lapangan', 'Unlimited'],
+        ],
+        'Fitur Premium' => [
+            ['Membership & pelanggan langganan', 'no', 'no', 'yes'],
+            ['Kode promo & diskon', 'no', 'yes', 'yes'],
+            ['Booking berulang (jadwal rutin)', 'no', 'yes', 'yes'],
+            ['Rating & ulasan pelanggan', 'no', 'yes', 'yes'],
+            ['Reminder otomatis sebelum main', 'no', 'no', 'yes'],
+            ['Domain & branding sendiri', 'no', 'yes', 'yes'],
+            ['Multi-cabang', 'no', 'no', 'yes'],
+        ],
+        'Layanan & Support' => [
+            ['Setup awal oleh tim kami', 'yes', 'yes', 'yes'],
+            ['Support 1 tahun', 'Email', 'WA + Email', 'Prioritas'],
+            ['Pelatihan penggunaan', 'no', 'Online', 'Online + Video'],
+            ['Update fitur gratis', 'no', 'yes', 'yes'],
+        ],
+    ];
+
+    $addons = [
+        ['Domain custom (.com) per tahun', 'Rp250rb'],
+        ['Tambahan lapangan (di luar paket)', 'Rp200rb/lapangan'],
+        ['Desain logo & branding', 'Rp500rb'],
+        ['Integrasi WhatsApp Business', 'Rp350rb'],
+        ['Foto profesional lapangan', 'Rp500rb'],
+        ['Setup Google Maps & SEO dasar', 'Rp400rb'],
+    ];
+@endphp
 <!DOCTYPE html>
 <html lang="id">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Harga, Green Deahan Sport</title>
+        <title>Paket Website Booking Lapangan, Green Deahan Sport</title>
 
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased bg-cream text-ink">
+    <body class="bg-[#f7f5f2] font-marketing text-stone-900 antialiased">
 
-        <nav class="sticky top-0 z-40 flex items-center justify-between h-16 px-5 border-b border-cream-deep bg-cream/95 backdrop-blur">
-            <div class="font-display font-semibold text-green">Green Deahan Sport</div>
-            <a href="{{ route('daftar.show') }}" class="inline-flex items-center gap-2 bg-green text-white px-4 py-2 rounded-lg text-sm font-semibold">
-                Daftarkan Bisnis
-            </a>
-        </nav>
+        <x-site-nav :nav-links="[
+            ['label' => 'Beranda', 'href' => '/'],
+            ['label' => 'Galeri', 'href' => '/galeri'],
+            ['label' => 'Blog', 'href' => '/blog'],
+            ['label' => 'Website Booking', 'href' => '/harga'],
+            ['label' => 'Kontak', 'href' => '/kontak'],
+        ]" />
 
-        <div class="max-w-5xl mx-auto px-5 py-12">
-            <div class="text-center mb-10">
-                <h1 class="font-display text-3xl md:text-4xl font-semibold text-ink mb-3">Pilih Paket untuk Bisnismu</h1>
-                <p class="text-sm text-ink-mid max-w-xl mx-auto">
-                    Sistem booking lapangan olahraga lengkap, mulai dari booking online sampai laporan pendapatan.
-                    Upgrade paket kapan saja lewat tim kami.
+        <div class="mx-auto max-w-5xl px-5 pb-16 pt-28">
+            <div class="mb-10 text-center">
+                <span class="mb-4 inline-block rounded-full bg-brand-100 px-3 py-1.5 text-xs font-bold tracking-wide text-brand">Pilihan Paket</span>
+                <h1 class="font-marketing-display mb-3 text-3xl font-black text-stone-900 md:text-4xl">Paket Website Booking Lapangan</h1>
+                <p class="mx-auto max-w-xl text-sm text-stone-500">
+                    Punya lapangan? Kelola booking-nya lewat website sendiri. Pilih paket sesuai kebutuhan dan skala bisnismu, semua paket sudah termasuk setup dan support 1 tahun.
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <x-card class="flex flex-col">
-                    <div class="text-xs font-bold uppercase tracking-wide text-ink-soft mb-2">Basic</div>
-                    <div class="font-display text-2xl font-semibold text-ink mb-1">Rp150.000<span class="text-sm font-sans text-ink-soft">/bulan</span></div>
-                    <p class="text-xs text-ink-soft mb-5">Cocok untuk 1 lapangan yang baru mulai jualan online.</p>
+            <!-- Pricing cards -->
+            <div class="mb-12 grid grid-cols-1 gap-5 md:grid-cols-3">
+                @foreach ($paketList as $paket)
+                    <div class="relative flex flex-col rounded-2xl border bg-white p-6 {{ $paket['featured'] ? 'border-2 border-brand shadow-xl shadow-brand-dark/10' : 'border-stone-200' }}">
+                        @if ($paket['featured'])
+                            <span class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-4 py-1 text-[0.65rem] font-extrabold uppercase tracking-wide text-white">Paling Populer</span>
+                        @endif
 
-                    <ul class="space-y-2.5 text-sm text-ink-mid mb-6 flex-1">
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Booking online</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Notifikasi WhatsApp</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> 1 lapangan</li>
-                    </ul>
+                        <div class="mb-2 text-xs font-bold uppercase tracking-wide text-stone-400">{{ $paket['nama'] }}</div>
+                        <p class="mb-4 min-h-[38px] text-xs text-stone-500">{{ $paket['tagline'] }}</p>
+                        <div class="font-marketing-display text-3xl font-black text-brand">{{ $paket['harga'] }}</div>
+                        <p class="mb-5 text-xs text-stone-400">{{ $paket['satuan'] }}</p>
 
-                    <a href="{{ route('daftar.show', ['paket' => 'basic']) }}" class="inline-flex items-center justify-center rounded-lg font-sans font-semibold text-sm px-5 py-2.5 border-2 border-sand text-ink-mid hover:border-brown-light hover:text-brown transition-colors">
-                        Mulai Sekarang
-                    </a>
-                </x-card>
+                        <a
+                            href="/daftar?paket={{ $paket['key'] }}"
+                            class="mt-auto rounded-xl px-5 py-3 text-center text-sm font-bold transition-colors {{ $paket['featured'] ? 'bg-brand text-white hover:bg-brand-dark' : 'border-2 border-stone-200 text-stone-600 hover:border-brand hover:text-brand' }}"
+                        >
+                            Pilih {{ $paket['nama'] }}
+                        </a>
+                    </div>
+                @endforeach
+            </div>
 
-                <x-card class="flex flex-col border-2 !border-gold relative">
-                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[0.62rem] font-extrabold uppercase tracking-wide px-3 py-1 rounded-full bg-gold text-white">Paling Laris</span>
-                    <div class="text-xs font-bold uppercase tracking-wide text-gold mb-2">Pro</div>
-                    <div class="font-display text-2xl font-semibold text-ink mb-1">Rp350.000<span class="text-sm font-sans text-ink-soft">/bulan</span></div>
-                    <p class="text-xs text-ink-soft mb-5">Untuk bisnis yang sudah jalan dan mau kelola promo, DP, dan laporan.</p>
+            <!-- Comparison table -->
+            <div class="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[560px] border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-brand text-white">
+                                <th class="w-2/5 px-6 py-4 text-left text-xs font-bold">Fitur</th>
+                                <th class="px-3 py-4 text-center text-xs font-bold">Basic</th>
+                                <th class="bg-brand-dark px-3 py-4 text-center text-xs font-bold">
+                                    Pro
+                                    <span class="mt-0.5 block text-[0.62rem] font-semibold opacity-85">Populer</span>
+                                </th>
+                                <th class="px-3 py-4 text-center text-xs font-bold">Premium</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($sections as $judulSeksi => $baris)
+                                <tr class="bg-[#f7f5f2]">
+                                    <td colspan="4" class="px-6 py-2.5 text-xs font-bold uppercase tracking-wide text-brand">{{ $judulSeksi }}</td>
+                                </tr>
+                                @foreach ($baris as [$fitur, $basic, $pro, $premium])
+                                    <tr class="border-b border-stone-100 hover:bg-[#fbf8f2]">
+                                        <td class="px-6 py-3 font-medium text-stone-600">{{ $fitur }}</td>
+                                        <td class="px-3 py-3 text-center">
+                                            @if ($basic === 'yes')
+                                                <x-icon name="check-circle" size="17" class="mx-auto text-brand" />
+                                            @elseif ($basic === 'no')
+                                                <span class="text-stone-300">&minus;</span>
+                                            @else
+                                                <span class="text-xs font-semibold text-brown">{{ $basic }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="bg-brand-50/60 px-3 py-3 text-center">
+                                            @if ($pro === 'yes')
+                                                <x-icon name="check-circle" size="17" class="mx-auto text-brand" />
+                                            @elseif ($pro === 'no')
+                                                <span class="text-stone-300">&minus;</span>
+                                            @else
+                                                <span class="text-xs font-semibold text-brown">{{ $pro }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-3 py-3 text-center">
+                                            @if ($premium === 'yes')
+                                                <x-icon name="check-circle" size="17" class="mx-auto text-brand" />
+                                            @elseif ($premium === 'no')
+                                                <span class="text-stone-300">&minus;</span>
+                                            @else
+                                                <span class="text-xs font-semibold text-brown">{{ $premium }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    <ul class="space-y-2.5 text-sm text-ink-mid mb-6 flex-1">
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Semua fitur Basic</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Pembayaran online (QRIS/VA/E-wallet)</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> DP pembayaran</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Kode promo & booking berulang</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Laporan pendapatan</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Sampai 3 lapangan</li>
-                    </ul>
+            <div class="mt-8 rounded-r-xl border-l-4 border-brand bg-brand-100 px-6 py-5 text-sm text-stone-800">
+                <strong class="text-brand">Keterangan:</strong> tanda centang berarti tersedia, tanda minus berarti tidak termasuk, teks berarti tersedia dengan batasan tertentu.
+                Semua harga adalah <strong>estimasi per tahun</strong> dan bisa disesuaikan. Setelah tahun pertama, ada biaya perpanjangan tahunan yang lebih ringan untuk hosting, domain, dan maintenance.
+            </div>
 
-                    <a href="{{ route('daftar.show', ['paket' => 'pro']) }}" class="inline-flex items-center justify-center rounded-lg font-sans font-semibold text-sm px-5 py-2.5 bg-gold text-white hover:bg-gold/90 transition-colors">
-                        Mulai Sekarang
-                    </a>
-                </x-card>
+            <!-- Add-ons -->
+            <div class="mt-6 rounded-2xl border border-dashed border-stone-300 bg-white p-6">
+                <h3 class="font-marketing-display mb-4 text-base font-black text-stone-900">Tambahan Opsional (Add-on)</h3>
+                <div class="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
+                    @foreach ($addons as [$label, $harga])
+                        <div class="flex items-center justify-between border-b border-stone-100 py-1.5 text-sm">
+                            <span class="text-stone-600">{{ $label }}</span>
+                            <span class="font-bold text-brand">{{ $harga }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
 
-                <x-card class="flex flex-col">
-                    <div class="text-xs font-bold uppercase tracking-wide text-plum mb-2">Premium</div>
-                    <div class="font-display text-2xl font-semibold text-ink mb-1">Rp750.000<span class="text-sm font-sans text-ink-soft">/bulan</span></div>
-                    <p class="text-xs text-ink-soft mb-5">Untuk bisnis multi cabang dengan tim dan member tetap.</p>
-
-                    <ul class="space-y-2.5 text-sm text-ink-mid mb-6 flex-1">
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Semua fitur Pro</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Multi cabang tanpa batas</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Sistem membership</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Reminder otomatis</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Manajemen staf</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Analitik lanjutan antar cabang</li>
-                        <li class="flex items-center gap-2"><x-icon name="check-circle" size="16" class="text-green" /> Lapangan tanpa batas</li>
-                    </ul>
-
-                    <a href="{{ route('daftar.show', ['paket' => 'premium']) }}" class="inline-flex items-center justify-center rounded-lg font-sans font-semibold text-sm px-5 py-2.5 bg-plum text-white hover:bg-plum/90 transition-colors">
-                        Mulai Sekarang
-                    </a>
-                </x-card>
+            <div class="mt-10 text-center text-xs text-stone-400">
+                <strong class="text-brand">Green Deahan Sport</strong>, berpengalaman sejak 2010, 0813-5757-0064, greendeahan.com
             </div>
         </div>
+
+        <x-site-footer />
     </body>
 </html>
