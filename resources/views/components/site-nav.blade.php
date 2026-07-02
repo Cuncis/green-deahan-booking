@@ -2,7 +2,7 @@
     ['label' => 'Beranda', 'href' => '/'],
     ['label' => 'Galeri', 'href' => '/galeri'],
     ['label' => 'Blog', 'href' => '/blog'],
-    ['label' => 'Kontak', 'href' => '#kontak'],
+    ['label' => 'Kontak', 'href' => '/kontak'],
 ]])
 
 @php

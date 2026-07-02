@@ -32,6 +32,7 @@ $situsKorporat = function () {
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+    Route::get('/kontak', fn () => view('pages.kontak'))->name('kontak');
 };
 
 Route::withoutMiddleware(IdentifikasiTenant::class)->domain('greendeahan.com')->group($situsKorporat);

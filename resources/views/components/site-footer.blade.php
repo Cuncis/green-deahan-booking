@@ -66,7 +66,7 @@
                 <li><a href="/galeri" class="transition-colors hover:text-white">Galeri Proyek</a></li>
                 <li><a href="/blog" class="transition-colors hover:text-white">Blog & Tips</a></li>
                 <li><a href="/#layanan" class="transition-colors hover:text-white">Layanan</a></li>
-                <li><a href="#kontak" class="transition-colors hover:text-white">Kontak Kami</a></li>
+                <li><a href="/kontak" class="transition-colors hover:text-white">Kontak Kami</a></li>
             </ul>
         </div>
     </div>

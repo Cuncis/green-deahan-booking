@@ -205,7 +205,7 @@
                         Konsultasi Gratis
                     </a>
                     <a
-                        href="#kontak"
+                        href="/kontak"
                         class="whitespace-nowrap rounded-xl border-2 border-white px-7 py-3.5 text-center text-sm font-bold text-white transition-colors hover:bg-white/10"
                     >
                         Hubungi Kami

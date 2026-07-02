@@ -26,7 +26,7 @@
             ['label' => 'Beranda', 'href' => '/'],
             ['label' => 'Galeri', 'href' => '/galeri'],
             ['label' => 'Blog', 'href' => '/blog'],
-            ['label' => 'Kontak', 'href' => '#kontak'],
+            ['label' => 'Kontak', 'href' => '/kontak'],
         ]" />
 
         <article class="mx-auto max-w-3xl px-6 pb-16 pt-28">

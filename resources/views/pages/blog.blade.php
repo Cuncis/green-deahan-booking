@@ -22,14 +22,14 @@
     <body
         class="bg-[#f7f5f2] font-marketing text-stone-900 antialiased"
         x-data="blogApp()"
-        x-init="initReveal(); $watch('filteredPosts', () => $nextTick(() => initReveal()))"
+        x-init="$nextTick(() => initReveal()); $watch('filteredPosts', () => $nextTick(() => initReveal()))"
     >
 
         <x-site-nav :nav-links="[
             ['label' => 'Beranda', 'href' => '/'],
             ['label' => 'Galeri', 'href' => '/galeri'],
             ['label' => 'Blog', 'href' => '/blog'],
-            ['label' => 'Kontak', 'href' => '#kontak'],
+            ['label' => 'Kontak', 'href' => '/kontak'],
         ]" />
 
         <!-- Page Hero -->
