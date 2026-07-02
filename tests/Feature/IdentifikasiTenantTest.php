@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -112,5 +113,37 @@ class IdentifikasiTenantTest extends TestCase
         $response = $this->get('http://klien-off-sendiri.com/');
 
         $response->assertNotFound();
+    }
+
+    /**
+     * Regresi: /login dulu ikut tunduk ke IdentifikasiTenant, jadi 404 kalau
+     * diakses dari domain yang bukan domain tenant manapun. Ini mengunci
+     * superadmin sendiri karena dia memang tidak terikat tenant apapun,
+     * lihat routes/auth.php.
+     */
+    public function test_login_bisa_diakses_dari_host_yang_bukan_tenant_manapun(): void
+    {
+        $response = $this->get('http://platform-tanpa-tenant.test/login');
+
+        $response->assertOk();
+    }
+
+    public function test_superadmin_bisa_login_dari_domain_yang_bukan_tenant_manapun(): void
+    {
+        $superadmin = User::factory()->create(['email' => 'super@platform.test']);
+        $superadmin->is_superadmin = true;
+        $superadmin->password = 'password-aman';
+        $superadmin->save();
+
+        $unauth = $this->get('http://platform-tanpa-tenant.test/superadmin');
+        $unauth->assertRedirect('http://platform-tanpa-tenant.test/login');
+
+        $response = $this->post('http://platform-tanpa-tenant.test/login', [
+            'email' => 'super@platform.test',
+            'password' => 'password-aman',
+        ]);
+
+        $response->assertRedirect('http://platform-tanpa-tenant.test/superadmin');
+        $this->assertAuthenticatedAs($superadmin);
     }
 }
