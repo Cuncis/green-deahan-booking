@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\BookingAdminController;
+use App\Http\Controllers\Admin\JadwalAdminController;
+use App\Http\Controllers\Admin\LapanganAdminController;
+use App\Http\Controllers\Admin\SettingsAdminController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\SuperadminController;
@@ -74,32 +77,22 @@ Route::middleware(['auth', 'verified', 'check.tenant.staf'])->prefix('admin')->n
         ]);
     })->name('laporan');
 
-    Route::get('/booking', fn () => view('pages.admin.placeholder', [
-        'tenant' => app('tenant'),
-        'judul' => 'Semua Booking',
-        'deskripsi' => 'Daftar lengkap booking akan tampil di sini.',
-    ]))->name('booking');
-
+    Route::get('/booking', [BookingAdminController::class, 'index'])->name('booking');
+    Route::get('/booking/export', [BookingAdminController::class, 'export'])->name('booking.export');
     Route::post('/booking/{booking}/confirm', [BookingAdminController::class, 'confirm'])->name('booking.confirm');
     Route::post('/booking/{booking}/cancel', [BookingAdminController::class, 'cancel'])->name('booking.cancel');
 
-    Route::get('/lapangan', fn () => view('pages.admin.placeholder', [
-        'tenant' => app('tenant'),
-        'judul' => 'Lapangan Saya',
-        'deskripsi' => 'Kelola lapangan yang kamu miliki di sini.',
-    ]))->name('lapangan');
+    Route::get('/lapangan', [LapanganAdminController::class, 'index'])->name('lapangan');
+    Route::get('/lapangan/tambah', [LapanganAdminController::class, 'create'])->name('lapangan.create');
+    Route::post('/lapangan', [LapanganAdminController::class, 'store'])->name('lapangan.store');
+    Route::get('/lapangan/{lapangan}/edit', [LapanganAdminController::class, 'edit'])->name('lapangan.edit');
+    Route::put('/lapangan/{lapangan}', [LapanganAdminController::class, 'update'])->name('lapangan.update');
+    Route::delete('/lapangan/{lapangan}', [LapanganAdminController::class, 'destroy'])->name('lapangan.destroy');
 
-    Route::get('/jadwal', fn () => view('pages.admin.placeholder', [
-        'tenant' => app('tenant'),
-        'judul' => 'Jadwal',
-        'deskripsi' => 'Atur jadwal dan slot main di sini.',
-    ]))->name('jadwal');
+    Route::get('/jadwal', [JadwalAdminController::class, 'index'])->name('jadwal');
 
-    Route::get('/pengaturan', fn () => view('pages.admin.placeholder', [
-        'tenant' => app('tenant'),
-        'judul' => 'Pengaturan',
-        'deskripsi' => 'Atur profil bisnis dan preferensi tenant di sini.',
-    ]))->name('pengaturan');
+    Route::get('/pengaturan', [SettingsAdminController::class, 'show'])->name('pengaturan');
+    Route::put('/pengaturan', [SettingsAdminController::class, 'update'])->name('pengaturan.update');
 });
 
 Route::middleware('auth')->group(function () {

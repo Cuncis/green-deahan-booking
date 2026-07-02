@@ -205,4 +205,72 @@ class BookingAdminControllerTest extends TestCase
         $response->assertNotFound();
         $this->assertSame('menunggu', $bookingTenantLain->fresh()->status_booking);
     }
+
+    public function test_admin_bisa_lihat_daftar_booking(): void
+    {
+        $tenant = $this->tenant();
+        $user = $this->staf($tenant);
+        $this->buatBooking($tenant);
+        $this->buatBooking($tenant);
+
+        $response = $this->actingAs($user)->get(route('admin.booking'));
+
+        $response->assertOk();
+        $response->assertViewIs('pages.admin.bookings.index');
+        $response->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 2);
+    }
+
+    public function test_daftar_booking_tidak_menampilkan_booking_tenant_lain(): void
+    {
+        $tenant = $this->tenant();
+        $tenantLain = Tenant::factory()->create(['domain' => 'tenant-lain.test']);
+        $user = $this->staf($tenant);
+        $this->buatBooking($tenant);
+        $this->buatBooking($tenantLain);
+
+        $response = $this->actingAs($user)->get(route('admin.booking'));
+
+        $response->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 1);
+    }
+
+    public function test_daftar_booking_bisa_difilter_status(): void
+    {
+        $tenant = $this->tenant();
+        $user = $this->staf($tenant);
+        $this->buatBooking($tenant, [], ['status_booking' => 'menunggu']);
+        $this->buatBooking($tenant, [], ['status_booking' => 'dibatalkan']);
+
+        $response = $this->actingAs($user)->get(route('admin.booking', ['status' => 'dibatalkan']));
+
+        $response->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 1
+            && $bookings->first()->status_booking === 'dibatalkan');
+    }
+
+    public function test_daftar_booking_bisa_dicari_lewat_kode_booking(): void
+    {
+        $tenant = $this->tenant();
+        $user = $this->staf($tenant);
+        $booking = $this->buatBooking($tenant);
+        $this->buatBooking($tenant);
+
+        $response = $this->actingAs($user)->get(route('admin.booking', ['cari' => $booking->kode_booking]));
+
+        $response->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 1
+            && $bookings->first()->is($booking));
+    }
+
+    public function test_admin_bisa_export_booking_ke_csv(): void
+    {
+        $tenant = $this->tenant();
+        $user = $this->staf($tenant);
+        $booking = $this->buatBooking($tenant);
+
+        $response = $this->actingAs($user)->get(route('admin.booking.export'));
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'text/csv; charset=UTF-8');
+
+        $isi = $response->streamedContent();
+        $this->assertStringContainsString($booking->kode_booking, $isi);
+    }
 }
