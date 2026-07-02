@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BookingAdminController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\SuperadminController;
@@ -78,6 +79,9 @@ Route::middleware(['auth', 'verified', 'check.tenant.staf'])->prefix('admin')->n
         'judul' => 'Semua Booking',
         'deskripsi' => 'Daftar lengkap booking akan tampil di sini.',
     ]))->name('booking');
+
+    Route::post('/booking/{booking}/confirm', [BookingAdminController::class, 'confirm'])->name('booking.confirm');
+    Route::post('/booking/{booking}/cancel', [BookingAdminController::class, 'cancel'])->name('booking.cancel');
 
     Route::get('/lapangan', fn () => view('pages.admin.placeholder', [
         'tenant' => app('tenant'),

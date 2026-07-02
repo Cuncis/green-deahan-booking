@@ -25,6 +25,7 @@ use Illuminate\Support\Str;
     'total_bayar',
     'tipe_pembayaran',
     'status_booking',
+    'alasan_pembatalan',
     'reminder_aktif',
     'recurring_group_id',
     'recurring_ke',

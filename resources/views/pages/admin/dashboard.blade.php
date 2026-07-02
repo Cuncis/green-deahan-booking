@@ -22,6 +22,18 @@
                 <p class="text-sm text-ink-soft mt-0.5">Ringkasan booking dan performa {{ $tenant->nama_bisnis }}.</p>
             </div>
 
+            @if (session('success'))
+                <div class="mb-5 rounded-lg border border-green/30 bg-green-pale px-4 py-3 text-sm text-green">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mb-5 rounded-lg border border-danger/30 bg-danger-pale px-4 py-3 text-sm text-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <livewire:dashboard-admin />
         </main>
 

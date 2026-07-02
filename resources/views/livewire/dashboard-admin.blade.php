@@ -100,12 +100,66 @@
                             <td class="px-5 py-3"><x-badge :type="$tipeBadge">{{ ucfirst($booking->status_booking) }}</x-badge></td>
                             <td class="px-5 py-3">Rp{{ number_format($booking->total_bayar, 0, ',', '.') }}</td>
                             <td class="px-5 py-3">
-                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $booking->customer->no_telepon) }}"
-                                   target="_blank"
-                                   class="inline-flex items-center gap-1.5 bg-green text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold">
-                                    <x-icon name="wa-chat" size="14" class="text-white" />
-                                    Chat
-                                </a>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $booking->customer->no_telepon) }}"
+                                       target="_blank"
+                                       class="inline-flex items-center gap-1.5 bg-green text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold">
+                                        <x-icon name="wa-chat" size="14" class="text-white" />
+                                        Chat
+                                    </a>
+
+                                    @if (in_array($booking->status_booking, ['menunggu', 'dikonfirmasi'], true))
+                                        <div x-data="{ batalkanTerbuka: false }" class="flex flex-wrap items-center gap-1.5">
+                                            @if ($booking->status_booking === 'menunggu')
+                                                <form method="POST" action="{{ route('admin.booking.confirm', $booking) }}">
+                                                    @csrf
+                                                    <x-button type="submit" class="!px-2.5 !py-1.5 !text-xs">Konfirmasi</x-button>
+                                                </form>
+                                            @endif
+
+                                            <x-button
+                                                type="button"
+                                                variant="danger"
+                                                class="!px-2.5 !py-1.5 !text-xs"
+                                                x-on:click="batalkanTerbuka = true"
+                                            >Batalkan</x-button>
+
+                                            <div
+                                                x-show="batalkanTerbuka"
+                                                x-cloak
+                                                class="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-5"
+                                            >
+                                                <x-card class="max-w-sm w-full" x-on:click.outside="batalkanTerbuka = false">
+                                                    <div class="font-display text-lg font-semibold text-ink mb-2">Batalkan Booking</div>
+                                                    <p class="text-sm text-ink-mid mb-3">
+                                                        Booking {{ $booking->kode_booking }} akan dibatalkan, slot akan kembali kosong.
+                                                    </p>
+                                                    <form method="POST" action="{{ route('admin.booking.cancel', $booking) }}">
+                                                        @csrf
+                                                        <label class="block text-xs font-bold uppercase tracking-wide text-ink-soft mb-1">
+                                                            Alasan pembatalan (opsional)
+                                                        </label>
+                                                        <textarea
+                                                            name="alasan"
+                                                            rows="3"
+                                                            class="w-full rounded-lg border border-cream-deep bg-cream px-3 py-2 text-sm text-ink mb-3"
+                                                            placeholder="Misal, customer minta ganti jadwal"
+                                                        ></textarea>
+                                                        <div class="flex gap-2">
+                                                            <x-button type="submit" variant="danger" class="flex-1 justify-center">Ya, Batalkan</x-button>
+                                                            <x-button
+                                                                type="button"
+                                                                variant="secondary"
+                                                                class="flex-1 justify-center"
+                                                                x-on:click="batalkanTerbuka = false"
+                                                            >Tutup</x-button>
+                                                        </div>
+                                                    </form>
+                                                </x-card>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

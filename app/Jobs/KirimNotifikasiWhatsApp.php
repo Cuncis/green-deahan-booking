@@ -13,8 +13,10 @@ class KirimNotifikasiWhatsApp implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param  'dikonfirmasi'|'dibatalkan'  $tipe
      */
-    public function __construct(public Booking $booking)
+    public function __construct(public Booking $booking, public string $tipe = 'dikonfirmasi')
     {
         //
     }
@@ -27,7 +29,11 @@ class KirimNotifikasiWhatsApp implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info('Notifikasi WhatsApp booking dikonfirmasi (API belum terpasang)', [
+        $pesan = $this->tipe === 'dibatalkan'
+            ? 'Notifikasi WhatsApp booking dibatalkan (API belum terpasang)'
+            : 'Notifikasi WhatsApp booking dikonfirmasi (API belum terpasang)';
+
+        Log::info($pesan, [
             'booking_id' => $this->booking->id,
             'kode_booking' => $this->booking->kode_booking,
         ]);
