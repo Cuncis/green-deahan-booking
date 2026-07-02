@@ -39,6 +39,22 @@
                     <x-icon name="user-group" size="16" />
                     Tambah Tenant
                 </a>
+
+                <div class="pt-3 mt-3 border-t border-white/15">
+                    <div class="px-3 pb-1.5 text-[0.62rem] font-extrabold uppercase tracking-wide text-white/40">Situs Korporat</div>
+
+                    <a href="{{ route('superadmin.galeri') }}"
+                       class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm {{ $activePage === 'galeri' ? 'bg-white/15 text-white font-bold' : 'text-white/75 hover:bg-white/10 hover:text-white' }}">
+                        <x-icon name="stadium" size="16" />
+                        Galeri
+                    </a>
+
+                    <a href="{{ route('superadmin.artikel') }}"
+                       class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm {{ $activePage === 'artikel' ? 'bg-white/15 text-white font-bold' : 'text-white/75 hover:bg-white/10 hover:text-white' }}">
+                        <x-icon name="newspaper" size="16" />
+                        Blog
+                    </a>
+                </div>
             </nav>
 
             <div class="px-5 py-3.5 border-t border-white/15">

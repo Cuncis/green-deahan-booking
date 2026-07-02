@@ -5,13 +5,49 @@ use App\Http\Controllers\Admin\JadwalAdminController;
 use App\Http\Controllers\Admin\LapanganAdminController;
 use App\Http\Controllers\Admin\SettingsAdminController;
 use App\Http\Controllers\Auth\InvitationController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\GaleriController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Superadmin\ArtikelAdminController;
+use App\Http\Controllers\Superadmin\GaleriAdminController;
 use App\Http\Controllers\Superadmin\SuperadminController;
 use App\Http\Controllers\TenantRegistrationController;
 use App\Http\Middleware\IdentifikasiTenant;
 use App\Models\Lapangan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// Situs korporat platform (greendeahan.com), bukan booking tenant manapun.
+// Harus didaftarkan SEBELUM rute '/' generik di bawah dan dibatasi lewat
+// domain() supaya subdomain tenant (xxx.greendeahan.com) dan custom domain
+// klien tetap jatuh ke rute booking seperti biasa, cuma domain utama
+// platform yang dialihkan ke sini. Dikecualikan dari IdentifikasiTenant
+// karena greendeahan.com sendiri bukan tenant (sama seperti /harga, /daftar).
+// Semua halaman situs korporat yang sudah dipindah dari
+// green-deahan-wpnuxt (Nuxt) didaftarkan di closure ini per domain. Konten
+// galeri & blog dikelola lewat /superadmin, lihat Superadmin\GaleriAdminController
+// dan Superadmin\ArtikelAdminController.
+$situsKorporat = function () {
+    Route::get('/', fn () => view('pages.home'))->name('home');
+    Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
+    Route::get('/blog', [BlogController::class, 'index'])->name('blog');
+    Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+};
+
+Route::withoutMiddleware(IdentifikasiTenant::class)->domain('greendeahan.com')->group($situsKorporat);
+Route::withoutMiddleware(IdentifikasiTenant::class)->domain('www.greendeahan.com')->name('www.')->group($situsKorporat);
+
+// Preview situs korporat lokal tanpa mengganggu tenant 'localhost' yang
+// sudah dipakai TestCase & seeder untuk uji coba booking (lihat
+// tests/TestCase.php). *.localhost otomatis resolve ke 127.0.0.1 di browser
+// modern (RFC 6761), jadi tidak perlu edit /etc/hosts. Hanya terdaftar di
+// lingkungan local, tidak akan pernah ada di production.
+if (app()->environment('local')) {
+    Route::withoutMiddleware(IdentifikasiTenant::class)
+        ->domain('greendeahan.localhost')
+        ->name('local.')
+        ->group($situsKorporat);
+}
 
 Route::get('/', function (Request $request) {
     $tenant = app('tenant');
@@ -68,6 +104,22 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
         Route::get('/tenants/{tenant}', [SuperadminController::class, 'show'])->name('tenants.show');
         Route::post('/tenants/{tenant}/custom-domain', [SuperadminController::class, 'setCustomDomain'])->name('tenants.custom-domain.store');
         Route::delete('/tenants/{tenant}/custom-domain', [SuperadminController::class, 'removeCustomDomain'])->name('tenants.custom-domain.destroy');
+
+        // Konten situs korporat (/galeri, /blog di domain greendeahan.com),
+        // bukan data tenant, lihat GaleriAdminController & ArtikelAdminController.
+        Route::get('/galeri', [GaleriAdminController::class, 'index'])->name('galeri');
+        Route::get('/galeri/tambah', [GaleriAdminController::class, 'create'])->name('galeri.create');
+        Route::post('/galeri', [GaleriAdminController::class, 'store'])->name('galeri.store');
+        Route::get('/galeri/{galeri}/edit', [GaleriAdminController::class, 'edit'])->name('galeri.edit');
+        Route::put('/galeri/{galeri}', [GaleriAdminController::class, 'update'])->name('galeri.update');
+        Route::delete('/galeri/{galeri}', [GaleriAdminController::class, 'destroy'])->name('galeri.destroy');
+
+        Route::get('/artikel', [ArtikelAdminController::class, 'index'])->name('artikel');
+        Route::get('/artikel/tulis', [ArtikelAdminController::class, 'create'])->name('artikel.create');
+        Route::post('/artikel', [ArtikelAdminController::class, 'store'])->name('artikel.store');
+        Route::get('/artikel/{artikel}/edit', [ArtikelAdminController::class, 'edit'])->name('artikel.edit');
+        Route::put('/artikel/{artikel}', [ArtikelAdminController::class, 'update'])->name('artikel.update');
+        Route::delete('/artikel/{artikel}', [ArtikelAdminController::class, 'destroy'])->name('artikel.destroy');
     });
 
 Route::middleware(['auth', 'verified', 'check.tenant.staf'])->prefix('admin')->name('admin.')->group(function () {
