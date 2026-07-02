@@ -41,6 +41,37 @@ php artisan boost:install
 
 Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
+## Deployment: Queue Worker & Scheduler (Supervisor)
+
+Green Deahan Sport butuh dua proses background yang harus selalu jalan di server production:
+
+- **Queue worker**, memproses job seperti `KirimNotifikasiWhatsApp` lewat `queue:work`.
+- **Scheduler**, menjalankan `booking:lepas-slot-kadaluarsa` tiap menit (lihat `references/anti-double-booking.md`) lewat `schedule:work`.
+
+Konfigurasi [Supervisor](http://supervisord.org/) untuk keduanya sudah disiapkan di `scripts/supervisor/laravel.conf`. Cara pasang di server (Ubuntu/Debian):
+
+```bash
+# 1. Install Supervisor kalau belum ada
+sudo apt-get update && sudo apt-get install -y supervisor
+
+# 2. Salin config ke folder Supervisor, sesuaikan path /var/www/green-deahan-booking
+#    di dalam file kalau lokasi deploy-mu berbeda
+sudo cp scripts/supervisor/laravel.conf /etc/supervisor/conf.d/green-deahan-booking.conf
+
+# 3. Baca ulang config dan jalankan program-nya
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start green-deahan-queue:*
+sudo supervisorctl start green-deahan-scheduler:*
+
+# 4. Cek statusnya
+sudo supervisorctl status
+```
+
+Setelah dipasang, Supervisor otomatis merestart kedua proses ini kalau crash atau server reboot (`autostart=true`, `autorestart=true`). Log masing-masing proses ada di `storage/logs/queue-worker.log` dan `storage/logs/scheduler.log`.
+
+Kalau ganti kode, jangan lupa `sudo supervisorctl restart green-deahan-queue:*` supaya worker pakai kode terbaru (worker PHP yang sudah jalan tidak otomatis reload class yang berubah).
+
 ## Contributing
 
 Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
