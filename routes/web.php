@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\SettingsAdminController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\SuperadminController;
+use App\Http\Controllers\TenantRegistrationController;
 use App\Http\Middleware\IdentifikasiTenant;
 use App\Models\Lapangan;
 use Illuminate\Http\Request;
@@ -37,6 +38,15 @@ Route::get('/dashboard', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/invite/{token}', [InvitationController::class, 'showInvite'])->name('invite.show');
     Route::post('/invite/{token}', [InvitationController::class, 'acceptInvite'])->name('invite.accept');
+});
+
+// Halaman pricing dan pendaftaran tenant baru diakses dari domain utama
+// platform (misalnya greendeahan.com), bukan domain tenant manapun, jadi
+// sengaja dikeluarkan dari IdentifikasiTenant sama seperti rute superadmin.
+Route::withoutMiddleware(IdentifikasiTenant::class)->group(function () {
+    Route::get('/harga', fn () => view('pages.pricing'))->name('pricing');
+    Route::get('/daftar', [TenantRegistrationController::class, 'show'])->name('daftar.show');
+    Route::post('/daftar', [TenantRegistrationController::class, 'store'])->name('daftar.store');
 });
 
 // Superadmin platform: independen dari tenant manapun, jadi sengaja

@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Platform Admin Email
+    |--------------------------------------------------------------------------
+    |
+    | Email penerima notifikasi internal platform, misalnya saat ada bisnis
+    | baru mendaftar jadi tenant lewat TenantRegistrationController.
+    |
+    */
+
+    'admin_email' => env('ADMIN_EMAIL', 'admin@greendeahan.com'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
