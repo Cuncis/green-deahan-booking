@@ -18,7 +18,22 @@
             <a href="/harga" class="text-sm text-ink-mid hover:text-brown">Lihat Harga</a>
         </nav>
 
-        <div class="max-w-xl mx-auto px-5 py-12">
+        <div
+            class="max-w-xl mx-auto px-5 py-12"
+            x-data="{
+                paket: @js(old('paket', $paketTerpilih)),
+                customDomain: @js(old('custom_domain_diminta', '')),
+                hargaPaket: { basic: 1500000, pro: 2500000, premium: 4500000 },
+                hargaAddonDomain: 250000,
+                get bisaCustomDomain() { return this.paket !== 'basic' },
+                get totalHarga() {
+                    let total = this.hargaPaket[this.paket] ?? 0;
+                    if (this.bisaCustomDomain && this.customDomain.trim()) { total += this.hargaAddonDomain; }
+                    return total;
+                },
+                formatRupiah(angka) { return 'Rp' + angka.toLocaleString('id-ID'); },
+            }"
+        >
             <div class="mb-6">
                 <h1 class="font-display text-2xl font-semibold text-ink mb-1">Daftarkan Bisnismu</h1>
                 <p class="text-sm text-ink-soft">Isi data di bawah, tim kami akan menghubungimu untuk aktivasi dalam 1x24 jam.</p>
@@ -53,7 +68,7 @@
                             />
                             <span class="pr-4 text-sm text-ink-soft whitespace-nowrap">.greendeahan.com</span>
                         </div>
-                        <p class="text-xs text-ink-soft mt-1">Huruf kecil, angka, dan tanda hubung saja, minimal 3 karakter.</p>
+                        <p class="text-xs text-ink-soft mt-1">Huruf kecil, angka, dan tanda hubung saja, minimal 3 karakter. Ini alamat default kamu, aktif segera setelah disetujui.</p>
                     </div>
 
                     <x-input label="Nama PIC (Penanggung Jawab)" name="nama_pic" value="{{ old('nama_pic') }}" required />
@@ -62,11 +77,40 @@
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wide text-ink-soft mb-1">Paket</label>
-                        <select name="paket" class="w-full rounded-lg border border-cream-deep bg-cream px-4 py-2.5 text-sm text-ink focus:border-green focus:outline-none focus:ring-1 focus:ring-green">
-                            @foreach (['basic' => 'Basic, Rp150.000/bulan', 'pro' => 'Pro, Rp350.000/bulan', 'premium' => 'Premium, Rp750.000/bulan'] as $value => $label)
+                        <select name="paket" x-model="paket" class="w-full rounded-lg border border-cream-deep bg-cream px-4 py-2.5 text-sm text-ink focus:border-green focus:outline-none focus:ring-1 focus:ring-green">
+                            @foreach (['basic' => 'Basic, Rp1,5jt/tahun', 'pro' => 'Pro, Rp2,5jt/tahun', 'premium' => 'Premium, Rp4,5jt/tahun'] as $value => $label)
                                 <option value="{{ $value }}" @selected(old('paket', $paketTerpilih) === $value)>{{ $label }}</option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div x-show="bisaCustomDomain" x-cloak>
+                        <label class="block text-xs font-bold uppercase tracking-wide text-ink-soft mb-1" for="custom_domain_diminta">
+                            Custom Domain (opsional, +Rp250.000/tahun)
+                        </label>
+                        <input
+                            id="custom_domain_diminta"
+                            type="text"
+                            name="custom_domain_diminta"
+                            x-model="customDomain"
+                            placeholder="namabisnis.com"
+                            class="w-full rounded-lg border border-cream-deep bg-cream px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-green focus:outline-none focus:ring-1 focus:ring-green"
+                        />
+                        <p class="text-xs text-ink-soft mt-1">
+                            Kosongkan kalau cukup pakai subdomain di atas. Kalau diisi, tim kami akan hubungi kamu untuk verifikasi kepemilikan domain sebelum diaktifkan.
+                        </p>
+                        @error('custom_domain_diminta')
+                            <p class="text-xs text-danger mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div x-show="! bisaCustomDomain" class="rounded-lg border border-gold/30 bg-gold/10 px-4 py-3 text-xs text-ink-mid">
+                        Custom domain hanya tersedia untuk paket Pro dan Premium. Pilih salah satu paket itu kalau kamu mau pakai domain sendiri.
+                    </div>
+
+                    <div class="rounded-lg border border-cream-deep bg-cream px-4 py-3 flex items-center justify-between">
+                        <span class="text-sm text-ink-mid">Estimasi Total</span>
+                        <span class="font-display text-lg font-semibold text-green" x-text="formatRupiah(totalHarga) + '/tahun'"></span>
                     </div>
 
                     <x-button type="submit" class="w-full justify-center">Daftar Sekarang</x-button>

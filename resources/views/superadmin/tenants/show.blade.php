@@ -33,6 +33,13 @@
             <span class="font-semibold text-ink">{{ $tenant->domain }}</span>
         </div>
 
+        @if ($tenant->custom_domain_diminta && ! $tenant->custom_domain)
+            <div class="rounded-lg border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-ink mb-3">
+                Pelanggan meminta custom domain <strong>{{ $tenant->custom_domain_diminta }}</strong> saat mendaftar (+Rp250.000/tahun).
+                Verifikasi kepemilikan domainnya dulu sebelum disimpan di bawah.
+            </div>
+        @endif
+
         @if ($tenant->paket === 'basic')
             <div class="rounded-lg border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-ink">
                 Custom domain hanya tersedia untuk paket Pro dan Premium. Upgrade paket tenant ini dulu untuk bisa memakai domain sendiri.
@@ -46,7 +53,7 @@
             <form method="POST" action="{{ route('superadmin.tenants.custom-domain.store', $tenant) }}" class="flex gap-2">
                 @csrf
                 <div class="flex-1">
-                    <x-input name="custom_domain" placeholder="namadomain.com" :value="old('custom_domain', $tenant->custom_domain)" />
+                    <x-input name="custom_domain" placeholder="namadomain.com" :value="old('custom_domain', $tenant->custom_domain ?? $tenant->custom_domain_diminta)" />
                 </div>
                 <x-button type="submit">Simpan Domain</x-button>
             </form>

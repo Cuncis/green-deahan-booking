@@ -132,4 +132,74 @@ class TenantRegistrationControllerTest extends TestCase
 
         $response->assertNotFound();
     }
+
+    public function test_pendaftaran_pro_bisa_minta_custom_domain(): void
+    {
+        Mail::fake();
+
+        $response = $this->post(route('daftar.store'), $this->dataPendaftaran([
+            'paket' => 'pro',
+            'custom_domain_diminta' => 'arenabarusport.com',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('arenabarusport.com');
+
+        $tenant = Tenant::where('domain', 'arena-baru-sport.greendeahan.com')->firstOrFail();
+        $this->assertSame('arenabarusport.com', $tenant->custom_domain_diminta);
+        $this->assertNull($tenant->custom_domain);
+    }
+
+    public function test_pendaftaran_basic_tidak_bisa_minta_custom_domain(): void
+    {
+        $response = $this->post(route('daftar.store'), $this->dataPendaftaran([
+            'paket' => 'basic',
+            'custom_domain_diminta' => 'arenabarusport.com',
+        ]));
+
+        $response->assertSessionHasErrors('custom_domain_diminta');
+        $this->assertDatabaseMissing('tenants', ['domain' => 'arena-baru-sport.greendeahan.com']);
+    }
+
+    public function test_pendaftaran_gagal_kalau_custom_domain_diminta_format_tidak_valid(): void
+    {
+        $response = $this->post(route('daftar.store'), $this->dataPendaftaran([
+            'paket' => 'pro',
+            'custom_domain_diminta' => 'bukan domain valid!!',
+        ]));
+
+        $response->assertSessionHasErrors('custom_domain_diminta');
+    }
+
+    public function test_pendaftaran_gagal_kalau_custom_domain_diminta_sudah_dipakai(): void
+    {
+        Tenant::factory()->create(['custom_domain' => 'sudahdipakai.com']);
+
+        $response = $this->post(route('daftar.store'), $this->dataPendaftaran([
+            'paket' => 'pro',
+            'custom_domain_diminta' => 'sudahdipakai.com',
+        ]));
+
+        $response->assertSessionHasErrors('custom_domain_diminta');
+    }
+
+    public function test_pendaftaran_gagal_kalau_custom_domain_diminta_adalah_subdomain_greendeahan(): void
+    {
+        $response = $this->post(route('daftar.store'), $this->dataPendaftaran([
+            'paket' => 'pro',
+            'custom_domain_diminta' => 'lain.greendeahan.com',
+        ]));
+
+        $response->assertSessionHasErrors('custom_domain_diminta');
+    }
+
+    public function test_custom_domain_diminta_opsional_untuk_paket_pro(): void
+    {
+        Mail::fake();
+
+        $response = $this->post(route('daftar.store'), $this->dataPendaftaran(['paket' => 'pro']));
+
+        $response->assertOk();
+        $response->assertSessionHasNoErrors();
+    }
 }

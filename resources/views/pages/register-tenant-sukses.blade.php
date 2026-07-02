@@ -26,6 +26,13 @@
                 di {{ $tenant->domain }}.
             </p>
 
+            @if ($tenant->custom_domain_diminta)
+                <div class="mb-6 rounded-lg border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-ink text-left">
+                    Kamu juga meminta custom domain <strong>{{ $tenant->custom_domain_diminta }}</strong>.
+                    Tim kami akan hubungi kamu untuk verifikasi kepemilikan domain sebelum diaktifkan.
+                </div>
+            @endif
+
             <a href="/harga" class="inline-flex items-center justify-center rounded-lg font-sans font-semibold text-sm px-5 py-2.5 border-2 border-sand text-ink-mid hover:border-brown-light hover:text-brown transition-colors">
                 Kembali ke Halaman Harga
             </a>

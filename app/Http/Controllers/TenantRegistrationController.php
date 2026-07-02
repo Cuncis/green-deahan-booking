@@ -34,13 +34,47 @@ class TenantRegistrationController extends Controller
             'email_pic' => ['required', 'email', 'max:255', 'unique:users,email'],
             'whatsapp_pic' => ['required', 'string', 'max:20'],
             'paket' => ['required', 'in:basic,pro,premium'],
+            'custom_domain_diminta' => [
+                'nullable', 'string', 'max:150',
+                function ($attribute, $value, $fail) use ($request) {
+                    if (! $value) {
+                        return;
+                    }
+
+                    if ($request->input('paket') === 'basic') {
+                        $fail('Custom domain hanya tersedia untuk paket Pro dan Premium, tambah Rp250.000/tahun.');
+
+                        return;
+                    }
+
+                    $domain = strtolower(trim($value));
+
+                    if (filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false) {
+                        $fail('Format custom domain tidak valid.');
+
+                        return;
+                    }
+
+                    if ($domain === 'greendeahan.com' || str_ends_with($domain, '.greendeahan.com')) {
+                        $fail('Custom domain tidak boleh berupa subdomain greendeahan.com.');
+
+                        return;
+                    }
+
+                    if (Tenant::where('custom_domain', $domain)->orWhere('custom_domain_diminta', $domain)->exists()) {
+                        $fail('Custom domain ini sudah dipakai atau sedang diminta tenant lain.');
+                    }
+                },
+            ],
         ]);
 
         $domain = $data['subdomain'].'.greendeahan.com';
+        $customDomainDiminta = $data['custom_domain_diminta'] ?? null;
 
         $tenant = Tenant::create([
             'nama_bisnis' => $data['nama_bisnis'],
             'domain' => $domain,
+            'custom_domain_diminta' => $customDomainDiminta ? strtolower(trim($customDomainDiminta)) : null,
             'paket' => $data['paket'],
             'status_aktif' => false,
             'whatsapp_admin' => $data['whatsapp_pic'],
@@ -82,16 +116,28 @@ class TenantRegistrationController extends Controller
             return;
         }
 
+        $baris = [
+            'Ada pendaftar tenant baru.',
+            '',
+            "Nama Bisnis: {$tenant->nama_bisnis}",
+            "Domain: {$tenant->domain}",
+            "Paket: {$tenant->paket}",
+            "PIC: {$namaPic}",
+            "Email PIC: {$tenant->email_admin}",
+            "WhatsApp PIC: {$tenant->whatsapp_admin}",
+        ];
+
+        if ($tenant->custom_domain_diminta) {
+            $baris[] = '';
+            $baris[] = "Custom domain diminta: {$tenant->custom_domain_diminta} (+Rp250.000/tahun, belum dikonfigurasi, tinjau lewat panel superadmin)";
+        }
+
+        $baris[] = '';
+        $baris[] = "Konfirmasi pembayaran lalu aktifkan lewat: php artisan tenant:activate {$subdomain}";
+
         try {
             Mail::raw(
-                "Ada pendaftar tenant baru.\n\n".
-                "Nama Bisnis: {$tenant->nama_bisnis}\n".
-                "Domain: {$tenant->domain}\n".
-                "Paket: {$tenant->paket}\n".
-                "PIC: {$namaPic}\n".
-                "Email PIC: {$tenant->email_admin}\n".
-                "WhatsApp PIC: {$tenant->whatsapp_admin}\n\n".
-                "Konfirmasi pembayaran lalu aktifkan lewat: php artisan tenant:activate {$subdomain}",
+                implode("\n", $baris),
                 function ($message) use ($adminEmail, $tenant) {
                     $message->to($adminEmail)
                         ->subject("Pendaftar Baru, {$tenant->nama_bisnis}");

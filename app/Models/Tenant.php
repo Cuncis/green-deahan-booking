@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'nama_bisnis',
     'domain',
     'custom_domain',
+    'custom_domain_diminta',
     'paket',
     'status_aktif',
     'tanggal_mulai',

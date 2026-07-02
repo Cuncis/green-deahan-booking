@@ -283,6 +283,22 @@ class SuperadminControllerTest extends TestCase
         $response->assertDontSee('💬');
     }
 
+    public function test_show_menampilkan_dan_prefill_custom_domain_yang_diminta_saat_daftar(): void
+    {
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create([
+            'paket' => 'pro',
+            'custom_domain' => null,
+            'custom_domain_diminta' => 'diminta-pelanggan.com',
+        ]);
+
+        $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.show', $tenant));
+
+        $response->assertOk();
+        $response->assertSee('diminta-pelanggan.com');
+        $response->assertSee('value="diminta-pelanggan.com"', false);
+    }
+
     public function test_show_untuk_paket_basic_menampilkan_pesan_upgrade_bukan_form(): void
     {
         $superadmin = $this->superadmin();
