@@ -104,6 +104,21 @@ class InvitationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_undangan_yang_sudah_kadaluarsa_tidak_bisa_dipakai(): void
+    {
+        $invitation = TenantInvitation::factory()->kadaluarsa()->create(['tenant_id' => $this->tenant()->id]);
+
+        $response = $this->post('/invite/'.$invitation->token, [
+            'name' => 'Calon Staf',
+            'password' => 'password-aman',
+            'password_confirmation' => 'password-aman',
+        ]);
+
+        $response->assertNotFound();
+        $this->assertGuest();
+        $this->assertDatabaseCount('users', 0);
+    }
+
     public function test_terima_undangan_untuk_email_yang_sudah_punya_akun_menambahkan_staf_ke_akun_lama(): void
     {
         $tenant = $this->tenant();

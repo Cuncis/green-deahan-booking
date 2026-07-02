@@ -115,4 +115,21 @@ class TenantRegistrationControllerTest extends TestCase
         $this->assertDatabaseHas('cabang', ['nama_cabang' => 'Cabang Utama']);
         $this->assertNotNull(Cabang::whereHas('tenant', fn ($q) => $q->where('domain', 'dari-host-asing.greendeahan.com'))->first());
     }
+
+    /**
+     * Tenant hasil pendaftaran mandiri berstatus nonaktif sampai admin
+     * konfirmasi pembayaran manual (lihat TenantRegistrationController@store
+     * dan php artisan tenant:activate), jadi domain-nya sendiri harus belum
+     * bisa diakses sama sekali (IdentifikasiTenant menolak tenant nonaktif).
+     */
+    public function test_tenant_baru_status_nonaktif_tidak_bisa_diakses(): void
+    {
+        Mail::fake();
+
+        $this->post(route('daftar.store'), $this->dataPendaftaran());
+
+        $response = $this->get('http://arena-baru-sport.greendeahan.com/');
+
+        $response->assertNotFound();
+    }
 }

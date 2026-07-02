@@ -223,6 +223,31 @@ class HalamanWebTest extends TestCase
         $response->assertOk();
     }
 
+    /**
+     * Beda dengan test guest di atas: ini user yang SUDAH login tapi tidak
+     * punya baris staf sama sekali di tenant manapun. Middleware 'auth' saja
+     * lolos, tapi CheckTenantStaf (references/multi-tenant.md) harus
+     * menolaknya dengan 403, bukan malah bisa lihat dashboard tenant orang.
+     */
+    public function test_user_tanpa_staf_record_tidak_bisa_akses_admin(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/admin');
+
+        $response->assertForbidden();
+    }
+
+    public function test_user_dengan_staf_record_bisa_akses_admin_tenant_sendiri(): void
+    {
+        $tenant = $this->tenant();
+        $user = $this->staf($tenant);
+
+        $response = $this->actingAs($user)->get('/admin');
+
+        $response->assertOk();
+    }
+
     public function test_admin_laporan_forbidden_kalau_fitur_laporan_pendapatan_tidak_aktif(): void
     {
         $tenant = $this->tenant();
