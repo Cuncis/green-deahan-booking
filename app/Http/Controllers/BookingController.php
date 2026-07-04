@@ -136,8 +136,8 @@ class BookingController extends Controller
             'nama' => ['required', 'string', 'max:255'],
             'whatsapp' => ['required', 'string', 'max:20'],
             'kode_promo' => ['nullable', 'string'],
-            'tipe_pembayaran' => ['required', 'in:manual,dp,lunas'],
-            'metode_pembayaran' => ['required_unless:tipe_pembayaran,manual', 'nullable', 'in:qris,va,ewallet'],
+            'tipe_pembayaran' => ['required', 'in:dp,lunas'],
+            'metode_pembayaran' => ['required', 'in:qris,va,ewallet'],
             'reminder_aktif' => ['sometimes', 'boolean'],
         ]);
 
@@ -212,14 +212,12 @@ class BookingController extends Controller
         // Panggilan ke Midtrans sengaja di LUAR DB::transaction() di atas,
         // supaya lock row jadwal_slot tidak ketahan selama menunggu network
         // I/O ke gateway pembayaran.
-        if ($data['tipe_pembayaran'] !== 'manual') {
-            try {
-                $responseData['pembayaran'] = app(PaymentService::class)
-                    ->createTransaction($booking, $data['metode_pembayaran']);
-            } catch (\Throwable $e) {
-                report($e);
-                $responseData['pembayaran_error'] = 'Booking berhasil dibuat, tapi transaksi pembayaran online gagal dibuat. Hubungi admin untuk konfirmasi manual.';
-            }
+        try {
+            $responseData['pembayaran'] = app(PaymentService::class)
+                ->createTransaction($booking, $data['metode_pembayaran']);
+        } catch (\Throwable $e) {
+            report($e);
+            $responseData['pembayaran_error'] = 'Booking berhasil dibuat, tapi transaksi pembayaran online gagal dibuat. Hubungi admin untuk bantuan.';
         }
 
         return response()->json($responseData, 201);

@@ -18,7 +18,7 @@ class RingkasanBooking extends Component
 
     public int $diskonJumlah = 0;
 
-    public string $tipePembayaran = 'manual';
+    public string $tipePembayaran = 'lunas';
 
     public string $metodePembayaran = 'qris';
 
@@ -27,9 +27,7 @@ class RingkasanBooking extends Component
         $tenant = app('tenant');
 
         $this->lapanganId = $lapanganId;
-        $this->tipePembayaran = $tenant->punyaFitur('dp_pembayaran')
-            ? 'dp'
-            : ($tenant->punyaFitur('pembayaran_online') ? 'lunas' : 'manual');
+        $this->tipePembayaran = $tenant->punyaFitur('dp_pembayaran') ? 'dp' : 'lunas';
     }
 
     #[On('slot-dipilih')]

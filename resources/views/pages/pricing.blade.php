@@ -36,7 +36,7 @@
             ['Info lapangan (foto, peta, harga)', 'yes', 'yes', 'yes'],
         ],
         'Pembayaran & Pengelolaan' => [
-            ['Pembayaran online (QRIS, transfer, e-wallet)', 'no', 'yes', 'yes'],
+            ['Pembayaran online (QRIS, VA, e-wallet)', 'yes', 'yes', 'yes'],
             ['Pilihan DP atau bayar penuh', 'no', 'yes', 'yes'],
             ['Dashboard pemilik', 'Dasar', 'yes', 'Lengkap'],
             ['Laporan pendapatan & jam ramai', 'no', 'yes', 'yes'],

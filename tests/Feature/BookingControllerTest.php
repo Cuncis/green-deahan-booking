@@ -147,6 +147,35 @@ class BookingControllerTest extends TestCase
         ]);
     }
 
+    public function test_buat_booking_online_tidak_mengubah_hold_slot(): void
+    {
+        $tenant = $this->tenant();
+        $lapangan = $this->buatLapangan($tenant);
+
+        $holdSampaiAwal = now()->addMinutes(10);
+        $slot = JadwalSlot::factory()->create([
+            'tenant_id' => $tenant->id,
+            'lapangan_id' => $lapangan->id,
+            'status' => 'hold',
+            'hold_sampai' => $holdSampaiAwal,
+            'harga' => 100000,
+        ]);
+
+        $response = $this->postJson('/api/booking', [
+            'slot_id' => $slot->id,
+            'nama' => 'Budi',
+            'whatsapp' => '081234567890',
+            'tipe_pembayaran' => 'lunas',
+            'metode_pembayaran' => 'qris',
+        ]);
+
+        $response->assertCreated();
+        $this->assertSame(
+            $holdSampaiAwal->format('Y-m-d H:i:s'),
+            $slot->fresh()->hold_sampai->format('Y-m-d H:i:s'),
+        );
+    }
+
     public function test_buat_booking_gagal_409_kalau_slot_bukan_hold(): void
     {
         $tenant = $this->tenant();

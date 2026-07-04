@@ -44,7 +44,7 @@ class PembayaranController extends Controller
             'kode_transaksi_gateway' => ['required', 'string'],
             'kode_booking' => ['required', 'string'],
             'status' => ['required', 'in:sukses,gagal,pending'],
-            'metode' => ['required', 'in:qris,ewallet,va,manual'],
+            'metode' => ['required', 'in:qris,ewallet,va'],
             'jumlah' => ['required', 'integer'],
         ]);
 

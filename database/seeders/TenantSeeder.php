@@ -67,7 +67,7 @@ class TenantSeeder extends Seeder
                 tenant: $tenant,
                 lapangan: $lapangan,
                 statusBooking: $status,
-                tipePembayaran: 'manual',
+                tipePembayaran: 'lunas',
             );
         }
     }

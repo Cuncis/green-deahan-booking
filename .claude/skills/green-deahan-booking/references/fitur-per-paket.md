@@ -4,16 +4,18 @@ Satu codebase melayani tiga tingkat paket. Fitur mana yang aktif untuk satu tena
 
 ## Aturan Inti
 
-**Sebelum render fitur apapun yang bukan fitur dasar (booking online, notifikasi WA), selalu cek dulu lewat `$tenant->punyaFitur('nama_fitur')`.**
+**Sebelum render fitur apapun yang bukan fitur dasar (booking online, notifikasi WA, pembayaran online), selalu cek dulu lewat `$tenant->punyaFitur('nama_fitur')`.**
+
+Project ini tidak punya opsi transfer manual sama sekali. Semua tenant, termasuk Basic, bayar online lewat Midtrans (QRIS/VA/E-wallet). Yang membedakan Basic dari Pro/Premium untuk urusan pembayaran hanya `dp_pembayaran` (opsi bayar DP 50%, Basic selalu bayar lunas).
 
 ```php
 // di Controller atau Livewire component
 $tenant = app('tenant');
 
-if ($tenant->punyaFitur('pembayaran_online')) {
-    // tampilkan pilihan metode bayar QRIS/VA/E-wallet
+if ($tenant->punyaFitur('dp_pembayaran')) {
+    // tampilkan pilihan DP 50% atau bayar lunas
 } else {
-    // tampilkan instruksi transfer manual
+    // langsung bayar lunas, tidak ada pilihan DP
 }
 ```
 
@@ -30,8 +32,8 @@ if ($tenant->punyaFitur('pembayaran_online')) {
 |---|---|---|---|---|
 | `booking_online` | ✓ | ✓ | ✓ | Fitur dasar, selalu true |
 | `notifikasi_whatsapp` | ✓ | ✓ | ✓ | Fitur dasar, selalu true |
-| `pembayaran_online` | tidak | ya | ya | QRIS/E-wallet/VA via Midtrans/Xendit |
-| `dp_pembayaran` | tidak | ya | ya | Pilihan bayar DP 50% atau lunas |
+| `pembayaran_online` | ✓ | ✓ | ✓ | Fitur dasar, selalu true. QRIS/E-wallet/VA via Midtrans, tidak ada opsi transfer manual |
+| `dp_pembayaran` | tidak | ya | ya | Pilihan bayar DP 50% atau lunas. Basic selalu bayar lunas |
 | `kode_promo` | tidak | ya | ya | Kode diskon |
 | `booking_berulang` | tidak | ya | ya | Booking rutin mingguan |
 | `rating_ulasan` | tidak | ya | ya | Review dari customer |

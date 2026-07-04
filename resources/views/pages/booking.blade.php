@@ -91,7 +91,7 @@
                     jamSelesai: null,
                     harga: 0,
                     kodePromoAktif: null,
-                    tipePembayaranAktif: '{{ $tenant->punyaFitur('dp_pembayaran') ? 'dp' : ($tenant->punyaFitur('pembayaran_online') ? 'lunas' : 'manual') }}',
+                    tipePembayaranAktif: '{{ $tenant->punyaFitur('dp_pembayaran') ? 'dp' : 'lunas' }}',
                     metodePembayaranAktif: 'qris',
                     diskonJumlah: 0,
                     totalBayar: 0,
@@ -142,17 +142,6 @@
                         if (jenis.includes('badminton')) return 'shuttlecock';
                         if (jenis.includes('tennis')) return 'tennis-racket';
                         return 'futsal-goal';
-                    },
-                    get linkTransferManual() {
-                        const admin = '{{ $tenant->whatsapp_admin ? preg_replace('/[^0-9]/', '', $tenant->whatsapp_admin) : '' }}';
-                        const pesan = 'Halo, saya mau konfirmasi booking di {{ $tenant->nama_bisnis }}.\n\n'
-                            + 'Lapangan: ' + this.lapanganNama + '\n'
-                            + 'Tanggal: ' + this.tanggalLabel + '\n'
-                            + 'Jam: ' + this.jamLabel + '\n'
-                            + 'Nama: ' + this.nama + '\n'
-                            + 'Total Bayar: ' + this.formatRupiah(this.totalBayar) + '\n\n'
-                            + 'Berikut saya lampirkan bukti transfer manualnya.';
-                        return 'https://wa.me/' + admin + '?text=' + encodeURIComponent(pesan);
                     },
                     onLapanganDipilih(detail) {
                         this.lapanganIdAktif = detail.lapanganId;
@@ -216,7 +205,7 @@
                                 whatsapp: this.whatsapp,
                                 kode_promo: this.kodePromoAktif,
                                 tipe_pembayaran: this.tipePembayaranAktif,
-                                metode_pembayaran: this.tipePembayaranAktif === 'manual' ? null : this.metodePembayaranAktif,
+                                metode_pembayaran: this.metodePembayaranAktif,
                                 reminder_aktif: this.reminderAktif,
                             }),
                         })
@@ -230,9 +219,7 @@
                             this.hasilPembayaran = data.pembayaran || null;
                             this.hasilPembayaranError = data.pembayaran_error || null;
                             this.statusBooking = 'menunggu';
-                            if (this.hasilPembayaran) {
-                                this.mulaiPollingStatus();
-                            }
+                            this.mulaiPollingStatus();
                         })
                         .catch(() => {
                             this.errorPesan = 'Booking gagal dibuat, silakan coba lagi.';
@@ -241,10 +228,11 @@
                     },
                     mulaiPollingStatus() {
                         this.hentikanPolling();
-                        // Sesuai lama hold slot (10 menit), lihat KalenderBooking::pilihSlot().
-                        // Setelah itu webhook gateway dianggap tidak akan datang lagi untuk
-                        // booking ini kalau belum juga terkonfirmasi.
-                        this.pollingSisa = 150;
+                        // Selaras dengan hold 10 menit dari KalenderBooking::pilihSlot(). Gateway
+                        // Midtrans konfirmasi dalam hitungan detik lewat webhook, jadi tidak perlu
+                        // polling lebih lama dari jendela hold itu.
+                        const intervalMs = 4000;
+                        this.pollingSisa = Math.floor((10 * 60 * 1000) / intervalMs);
                         this.pollingTimer = setInterval(() => {
                             this.pollingSisa -= 1;
                             if (this.pollingSisa <= 0) {
@@ -262,7 +250,7 @@
                                     }
                                 })
                                 .catch(() => {});
-                        }, 4000);
+                        }, intervalMs);
                     },
                     hentikanPolling() {
                         if (this.pollingTimer) {

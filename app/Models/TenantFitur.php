@@ -61,7 +61,7 @@ class TenantFitur extends Model
             'basic' => [
                 'booking_online' => true,
                 'notifikasi_whatsapp' => true,
-                'pembayaran_online' => false,
+                'pembayaran_online' => true,
                 'dp_pembayaran' => false,
                 'kode_promo' => false,
                 'booking_berulang' => false,

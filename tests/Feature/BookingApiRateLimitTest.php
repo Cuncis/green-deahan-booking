@@ -84,7 +84,8 @@ class BookingApiRateLimitTest extends TestCase
             'slot_id' => $slot->id,
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
-            'tipe_pembayaran' => 'manual',
+            'tipe_pembayaran' => 'lunas',
+            'metode_pembayaran' => 'qris',
         ];
 
         for ($i = 0; $i < 5; $i++) {

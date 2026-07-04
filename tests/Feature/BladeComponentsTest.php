@@ -131,24 +131,6 @@ class BladeComponentsTest extends TestCase
         $view->assertSee('height: 20px', false);
     }
 
-    public function test_manual_transfer_info_menampilkan_info_rekening_dan_tombol_whatsapp(): void
-    {
-        $tenant = new Tenant([
-            'bank_nama' => 'Bank Sinarmas',
-            'bank_no_rekening' => '1234567890',
-            'bank_pemilik_rekening' => 'PT Green Deahan',
-        ]);
-
-        $view = $this->blade('<x-manual-transfer-info :tenant="$tenant" />', ['tenant' => $tenant]);
-
-        $view->assertSee('Bank Sinarmas');
-        $view->assertSee('1234567890');
-        $view->assertSee('PT Green Deahan');
-        $view->assertSee('Konfirmasi via WhatsApp');
-        $view->assertSee('<svg', false);
-        $view->assertDontSee('💬');
-    }
-
     public function test_promo_input_default_netral_tanpa_status(): void
     {
         $view = $this->blade('<x-promo-input />');

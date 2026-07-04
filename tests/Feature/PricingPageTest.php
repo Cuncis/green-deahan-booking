@@ -43,7 +43,7 @@ class PricingPageTest extends TestCase
         $response->assertSee('Basic');
         $response->assertSee('Pro');
         $response->assertSee('Premium');
-        $response->assertSee('Pembayaran online (QRIS, transfer, e-wallet)');
+        $response->assertSee('Pembayaran online (QRIS, VA, e-wallet)');
         $response->assertSee('Tambahan Opsional (Add-on)');
     }
 
