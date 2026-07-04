@@ -1,54 +1,103 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Green Deahan Sport, Booking System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi Laravel multi-tenant untuk bisnis booking lapangan olahraga (futsal, padel, badminton, tennis, mini soccer). Satu codebase melayani banyak klien (tenant), masing-masing dengan subdomain atau custom domain sendiri, dan tiga tingkat paket berlangganan: **Basic**, **Pro**, **Premium**.
 
-## About Laravel
+Repo ini privat dan hanya untuk internal tim Green Deahan.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Backend:** Laravel 13, PHP 8.4, MySQL
+- **Frontend:** Blade + Livewire 4 (komponen interaktif seperti kalender dan slot booking) + Alpine.js (interaksi ringan tanpa round-trip server)
+- **Styling:** Tailwind CSS murni, tanpa DaisyUI/Bootstrap/UI kit lain. Semua komponen dibangun custom dari design token brand.
+- **Pembayaran:** Midtrans (`midtrans/midtrans-php`)
+- **Notifikasi:** WhatsApp lewat link `wa.me` (lihat `app/Jobs/KirimNotifikasiWhatsApp.php`)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Konvensi lengkap penamaan, arsitektur multi-tenant, anti double-booking, fitur per paket, dan design token ada di `.claude/skills/green-deahan-booking/`. Ini sumber kebenaran untuk konvensi project, wajib dibaca sebelum menyentuh area terkait.
 
-## Learning Laravel
+## Arsitektur Multi-Tenant
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Setiap request masuk lewat middleware `App\Http\Middleware\IdentifikasiTenant`, yang mencocokkan hostname request ke kolom `domain` atau `custom_domain` di tabel `tenants`. Tenant yang cocok (dan aktif) di-bind ke `app('tenant')` untuk dipakai di seluruh controller/view request itu.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Rute yang **bukan** milik tenant manapun (situs korporat di `greendeahan.com`, halaman pendaftaran `/daftar`, dan `/superadmin`) sengaja dikecualikan dari middleware ini lewat `withoutMiddleware(IdentifikasiTenant::class)`, lihat `routes/web.php`.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+Setiap query yang menyentuh data milik tenant **wajib** difilter `tenant_id`. Detail dan contoh ada di `.claude/skills/green-deahan-booking/references/multi-tenant.md`.
 
-## Agentic Development
+## Fitur per Paket
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Fitur yang aktif untuk satu tenant disimpan di tabel `tenant_fitur`, bukan di-hardcode. Cek fitur lewat `$tenant->punyaFitur('nama_fitur')` sebelum merender apapun yang bukan fitur dasar (booking online, notifikasi WA). Preset fitur per paket ada di `App\Models\TenantFitur::presetUntukPaket()`.
+
+Daftar fitur lengkap dan paket pemiliknya ada di `.claude/skills/green-deahan-booking/references/fitur-per-paket.md`.
+
+## Anti Double-Booking
+
+Operasi yang mengubah status `jadwal_slot` wajib pakai `DB::transaction()` + `lockForUpdate()` supaya dua customer tidak bisa mengambil slot yang sama secara bersamaan. Slot yang di-hold tapi tidak diselesaikan pembayarannya otomatis dilepas lewat scheduled command `booking:lepas-slot-kadaluarsa` (jalan tiap menit).
+
+Detail mekanisme ada di `.claude/skills/green-deahan-booking/references/anti-double-booking.md`.
+
+## Setup Lokal
 
 ```bash
-composer require laravel/boost --dev
+composer install
+npm install
 
-php artisan boost:install
+cp .env.example .env
+php artisan key:generate
+
+php artisan migrate --seed
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Atau pakai script bawaan:
 
-## Deployment: Queue Worker & Scheduler (Supervisor)
+```bash
+composer run setup
+```
 
-Green Deahan Sport butuh dua proses background yang harus selalu jalan di server production:
+Jalankan server dev (Laravel, queue listener, log viewer Pail, dan Vite sekaligus):
+
+```bash
+composer run dev
+```
+
+Domain tenant lokal pakai `*.localhost` (auto-resolve ke `127.0.0.1` di browser modern, tidak perlu edit `/etc/hosts`). Situs korporat lokal ada di `greendeahan.localhost`.
+
+## Perintah Artisan Kustom
+
+| Perintah | Fungsi |
+|---|---|
+| `tenant:list` | Tampilkan tabel semua tenant terdaftar |
+| `tenant:activate {tenant}` | Aktifkan tenant (perpanjang masa aktif), opsional ganti paket |
+| `tenant:deactivate {tenant}` | Nonaktifkan tenant |
+| `tenant:invite {tenant}` | Buat link undangan untuk staf tenant |
+| `booking:lepas-slot-kadaluarsa` | Lepas slot hold yang sudah lewat batas waktu, jalan tiap menit lewat scheduler |
+
+## Testing
+
+```bash
+php artisan test --compact
+```
+
+Semua perubahan wajib disertai test (feature test lebih diutamakan daripada unit test). Filter test tertentu:
+
+```bash
+php artisan test --compact --filter=namaTest
+```
+
+## Code Style
+
+```bash
+vendor/bin/pint --dirty --format agent
+```
+
+Jalankan sebelum commit kalau ada file PHP yang diubah.
+
+## Deployment (Production)
+
+Server production menjalankan dua proses background lewat [Supervisor](http://supervisord.org/), konfigurasi ada di `scripts/supervisor/laravel.conf`:
 
 - **Queue worker**, memproses job seperti `KirimNotifikasiWhatsApp` lewat `queue:work`.
-- **Scheduler**, menjalankan `booking:lepas-slot-kadaluarsa` tiap menit (lihat `references/anti-double-booking.md`) lewat `schedule:work`.
+- **Scheduler**, menjalankan `booking:lepas-slot-kadaluarsa` tiap menit lewat `schedule:work`.
 
-Konfigurasi [Supervisor](http://supervisord.org/) untuk keduanya sudah disiapkan di `scripts/supervisor/laravel.conf`. Cara pasang di server (Ubuntu/Debian):
+Cara pasang di server (Ubuntu/Debian):
 
 ```bash
 # 1. Install Supervisor kalau belum ada
@@ -72,18 +121,23 @@ Setelah dipasang, Supervisor otomatis merestart kedua proses ini kalau crash ata
 
 Kalau ganti kode, jangan lupa `sudo supervisorctl restart green-deahan-queue:*` supaya worker pakai kode terbaru (worker PHP yang sudah jalan tidak otomatis reload class yang berubah).
 
-## Contributing
+### Ownership Git di Server
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Kalau `git pull` di server gagal dengan error `detected dubious ownership in repository`, jalankan sekali (sebagai user yang menjalankan deploy script):
 
-## Code of Conduct
+```bash
+git config --global --add safe.directory /var/www/green-deahan-booking
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Environment Production
 
-## Security Vulnerabilities
+- `MAIL_MAILER` wajib diganti dari `log` ke driver SMTP asli. Email verifikasi (`MustVerifyEmail`) tidak akan pernah terkirim selama masih `log`, jadi staf tenant tidak akan bisa lolos halaman verify-email.
+- `ADMIN_EMAIL` menerima notifikasi internal platform (misalnya pendaftar tenant baru lewat `/daftar`).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Struktur Project
 
-## License
+Ikuti struktur direktori Laravel standar. Panduan penempatan file spesifik project ada di `.claude/skills/green-deahan-booking/references/struktur-project.md`. Jangan bikin folder dasar baru tanpa persetujuan.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## AI Coding Agent
+
+Project ini dikembangkan bareng Claude Code / Laravel Boost. Konvensi wajib untuk agent ada di `CLAUDE.md` dan skill `.claude/skills/green-deahan-booking/`, termasuk aturan multi-tenant, anti double-booking, larangan DaisyUI, aturan icon SVG, dan larangan tanda strip panjang di teks.
