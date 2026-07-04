@@ -34,28 +34,30 @@
     </div>
 
     @if ($tenant->punyaFitur('laporan_pendapatan'))
-        <livewire:revenue-chart :cabang-id="$cabangId" wire:key="revenue-chart-{{ $cabangId }}" />
+        <div id="laporan-pendapatan">
+            <livewire:revenue-chart :cabang-id="$cabangId" wire:key="revenue-chart-{{ $cabangId }}" />
 
-        @php $maxJamRamai = max(array_merge(array_values($jamRamai), [1])); @endphp
-        <x-card class="mb-6">
-            <div class="text-xs font-bold uppercase tracking-wide text-green mb-4">Jam Ramai</div>
-            <div class="flex gap-1">
-                @foreach ($jamRamai as $jam => $jumlah)
-                    @php $intensitas = $jumlah > 0 ? max($jumlah / $maxJamRamai, 0.12) : 0.05; @endphp
-                    <div class="flex-1 flex flex-col items-center gap-1" wire:key="jam-{{ $jam }}">
-                        <div
-                            class="w-full h-8 rounded"
-                            style="background-color: rgba(58, 107, 74, {{ $intensitas }})"
-                            title="Jam {{ str_pad((string) $jam, 2, '0', STR_PAD_LEFT) }}.00, {{ $jumlah }} booking"
-                        ></div>
-                        @if ($jam % 3 === 0)
-                            <span class="text-[0.6rem] text-ink-soft">{{ str_pad((string) $jam, 2, '0', STR_PAD_LEFT) }}</span>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-            <p class="text-xs text-ink-soft mt-3">Semakin gelap warnanya, semakin ramai jam tersebut dibooking.</p>
-        </x-card>
+            @php $maxJamRamai = max(array_merge(array_values($jamRamai), [1])); @endphp
+            <x-card class="mb-6">
+                <div class="text-xs font-bold uppercase tracking-wide text-green mb-4">Jam Ramai</div>
+                <div class="flex gap-1">
+                    @foreach ($jamRamai as $jam => $jumlah)
+                        @php $intensitas = $jumlah > 0 ? max($jumlah / $maxJamRamai, 0.12) : 0.05; @endphp
+                        <div class="flex-1 flex flex-col items-center gap-1" wire:key="jam-{{ $jam }}">
+                            <div
+                                class="w-full h-8 rounded"
+                                style="background-color: rgba(58, 107, 74, {{ $intensitas }})"
+                                title="Jam {{ str_pad((string) $jam, 2, '0', STR_PAD_LEFT) }}.00, {{ $jumlah }} booking"
+                            ></div>
+                            @if ($jam % 3 === 0)
+                                <span class="text-[0.6rem] text-ink-soft">{{ str_pad((string) $jam, 2, '0', STR_PAD_LEFT) }}</span>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                <p class="text-xs text-ink-soft mt-3">Semakin gelap warnanya, semakin ramai jam tersebut dibooking.</p>
+            </x-card>
+        </div>
     @endif
 
     @if ($tenant->punyaFitur('kode_promo'))

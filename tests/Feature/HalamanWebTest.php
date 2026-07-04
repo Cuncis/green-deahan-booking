@@ -247,34 +247,4 @@ class HalamanWebTest extends TestCase
 
         $response->assertOk();
     }
-
-    public function test_admin_laporan_forbidden_kalau_fitur_laporan_pendapatan_tidak_aktif(): void
-    {
-        $tenant = $this->tenant();
-        $user = $this->staf($tenant);
-
-        TenantFitur::create(array_merge(
-            ['tenant_id' => $tenant->id],
-            TenantFitur::presetUntukPaket('basic'),
-        ));
-
-        $response = $this->actingAs($user)->get('/admin/laporan');
-
-        $response->assertForbidden();
-    }
-
-    public function test_admin_laporan_bisa_diakses_kalau_fitur_laporan_pendapatan_aktif(): void
-    {
-        $tenant = $this->tenant();
-        $user = $this->staf($tenant);
-
-        TenantFitur::create(array_merge(
-            ['tenant_id' => $tenant->id],
-            TenantFitur::presetUntukPaket('pro'),
-        ));
-
-        $response = $this->actingAs($user)->get('/admin/laporan');
-
-        $response->assertOk();
-    }
 }

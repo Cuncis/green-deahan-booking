@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Booking;
 use App\Models\Cabang;
 use App\Models\Customer;
 use App\Models\JadwalSlot;
@@ -302,6 +303,39 @@ class BookingControllerTest extends TestCase
         $response->assertCreated();
         $this->assertDatabaseCount('customers', 1);
         $response->assertJsonPath('data.customer_id', $customer->id);
+    }
+
+    public function test_cek_status_booking_mengembalikan_status_booking_saat_ini(): void
+    {
+        $tenant = $this->tenant();
+        $lapangan = $this->buatLapangan($tenant);
+
+        $slot = JadwalSlot::factory()->create([
+            'tenant_id' => $tenant->id,
+            'lapangan_id' => $lapangan->id,
+            'status' => 'booked',
+        ]);
+
+        $booking = Booking::factory()->create([
+            'tenant_id' => $tenant->id,
+            'slot_id' => $slot->id,
+            'kode_booking' => 'BK260101TEST',
+            'status_booking' => 'dikonfirmasi',
+        ]);
+
+        $response = $this->getJson("/api/booking/{$booking->kode_booking}/status");
+
+        $response->assertOk();
+        $response->assertJsonPath('data.status_booking', 'dikonfirmasi');
+    }
+
+    public function test_cek_status_booking_404_kalau_kode_booking_tidak_ditemukan(): void
+    {
+        $this->tenant();
+
+        $response = $this->getJson('/api/booking/KODE-TIDAK-ADA/status');
+
+        $response->assertNotFound();
     }
 
     public function test_cek_membership_mengembalikan_tier_dan_harga_member_kalau_customer_member(): void

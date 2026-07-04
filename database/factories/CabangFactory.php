@@ -25,8 +25,8 @@ class CabangFactory extends Factory
             'kota' => fake()->city(),
             'lat' => fake()->latitude(),
             'lng' => fake()->longitude(),
-            'jam_buka' => '08:00',
-            'jam_tutup' => '22:00',
+            'jam_buka' => '07:00',
+            'jam_tutup' => '21:00',
             'status_aktif' => true,
         ];
     }

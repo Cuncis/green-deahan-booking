@@ -67,6 +67,27 @@ class BookingController extends Controller
     }
 
     /**
+     * Dipoll dari browser setelah booking dibuat, supaya modal instruksi
+     * pembayaran bisa otomatis update begitu webhook Midtrans/Xendit
+     * mengonfirmasi status_booking (lihat PembayaranController::webhook()).
+     * Tidak ada cara lain browser tahu webhook sudah diproses selain polling.
+     */
+    public function cekStatusBooking(Request $request, string $kodeBooking): JsonResponse
+    {
+        $tenant = app('tenant');
+
+        $booking = Booking::where('tenant_id', $tenant->id)
+            ->where('kode_booking', $kodeBooking)
+            ->firstOrFail();
+
+        return response()->json([
+            'data' => [
+                'status_booking' => $booking->status_booking,
+            ],
+        ]);
+    }
+
+    /**
      * Cek status membership customer berdasarkan nomor WhatsApp, untuk banner
      * harga member di halaman booking. Hanya berguna kalau fitur sistem_membership aktif.
      */

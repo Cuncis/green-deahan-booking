@@ -91,8 +91,8 @@ class TenantRegistrationController extends Controller
             'nama_cabang' => 'Cabang Utama',
             'alamat' => 'Alamat belum diisi',
             'kota' => 'Kota belum diisi',
-            'jam_buka' => '08:00',
-            'jam_tutup' => '22:00',
+            'jam_buka' => '07:00',
+            'jam_tutup' => '21:00',
             'status_aktif' => true,
         ]);
 

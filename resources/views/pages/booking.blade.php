@@ -8,7 +8,7 @@
 
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite('resources/css/app.css')
         @livewireStyles
     </head>
     <body class="font-sans antialiased bg-cream text-ink">
@@ -101,6 +101,9 @@
                     hasil: null,
                     hasilPembayaran: null,
                     hasilPembayaranError: null,
+                    statusBooking: 'menunggu',
+                    pollingTimer: null,
+                    pollingSisa: 0,
                     errorPesan: null,
                     lapanganIdAktif: {{ $lapanganAktif->id }},
                     lapanganNama: @js($lapanganAktif->nama),
@@ -226,11 +229,53 @@
                             this.hasil = data.data;
                             this.hasilPembayaran = data.pembayaran || null;
                             this.hasilPembayaranError = data.pembayaran_error || null;
+                            this.statusBooking = 'menunggu';
+                            if (this.hasilPembayaran) {
+                                this.mulaiPollingStatus();
+                            }
                         })
                         .catch(() => {
                             this.errorPesan = 'Booking gagal dibuat, silakan coba lagi.';
                         })
                         .finally(() => { this.mengirim = false; });
+                    },
+                    mulaiPollingStatus() {
+                        this.hentikanPolling();
+                        // Sesuai lama hold slot (10 menit), lihat KalenderBooking::pilihSlot().
+                        // Setelah itu webhook gateway dianggap tidak akan datang lagi untuk
+                        // booking ini kalau belum juga terkonfirmasi.
+                        this.pollingSisa = 150;
+                        this.pollingTimer = setInterval(() => {
+                            this.pollingSisa -= 1;
+                            if (this.pollingSisa <= 0) {
+                                this.hentikanPolling();
+                                return;
+                            }
+                            const url = '{{ route('booking.status', ['kodeBooking' => '__KODE__']) }}'.replace('__KODE__', this.hasil.kode_booking);
+                            fetch(url, { headers: { 'Accept': 'application/json' } })
+                                .then((res) => res.json())
+                                .then((json) => {
+                                    const status = json.data?.status_booking;
+                                    if (status && status !== 'menunggu') {
+                                        this.statusBooking = status;
+                                        this.hentikanPolling();
+                                    }
+                                })
+                                .catch(() => {});
+                        }, 4000);
+                    },
+                    hentikanPolling() {
+                        if (this.pollingTimer) {
+                            clearInterval(this.pollingTimer);
+                            this.pollingTimer = null;
+                        }
+                    },
+                    tutupModal() {
+                        this.hentikanPolling();
+                        this.hasil = null;
+                        this.hasilPembayaran = null;
+                        this.hasilPembayaranError = null;
+                        this.statusBooking = 'menunggu';
                     },
                     get waLink() {
                         if (!this.hasil) return '#';
@@ -321,18 +366,37 @@
 
                 <div x-show="hasil" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-5">
                     <x-card class="max-w-sm w-full text-center">
-                        <div class="w-14 h-14 rounded-full bg-green-pale flex items-center justify-center mx-auto mb-4">
-                            <x-icon name="check-circle" size="28" class="text-green" />
+                        <div
+                            class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+                            :class="statusBooking === 'dibatalkan' ? 'bg-danger-pale' : 'bg-green-pale'"
+                        >
+                            <x-icon name="warning" size="28" class="text-danger" x-show="statusBooking === 'dibatalkan'" x-cloak />
+                            <x-icon name="check-circle" size="28" class="text-green" x-show="statusBooking !== 'dibatalkan'" />
                         </div>
-                        <h3 class="font-display text-xl font-semibold text-ink mb-2">Booking Berhasil Dibuat</h3>
-                        <p class="text-sm text-ink-mid mb-4">Slot kamu sudah diamankan. Lanjutkan pembayaran supaya booking dikonfirmasi.</p>
+
+                        <h3 class="font-display text-xl font-semibold text-ink mb-2" x-text="
+                            statusBooking === 'dikonfirmasi' ? 'Pembayaran Diterima' :
+                            (statusBooking === 'dibatalkan' ? 'Pembayaran Dibatalkan' : 'Booking Berhasil Dibuat')
+                        "></h3>
+                        <p class="text-sm text-ink-mid mb-4" x-text="
+                            statusBooking === 'dikonfirmasi' ? 'Terima kasih, pembayaran kamu sudah kami terima dan booking sudah dikonfirmasi.' :
+                            (statusBooking === 'dibatalkan' ? 'Pembayaran tidak berhasil diproses, slot sudah dilepas kembali. Silakan booking ulang atau hubungi admin.' :
+                            'Slot kamu sudah diamankan. Lanjutkan pembayaran supaya booking dikonfirmasi.')
+                        "></p>
+
                         <div class="bg-cream rounded-lg p-3 text-sm text-ink-soft text-left mb-4">
                             <div class="flex justify-between py-0.5"><span>Kode</span><strong class="text-ink" x-text="hasil?.kode_booking"></strong></div>
                             <div class="flex justify-between py-0.5"><span>Total</span><strong class="text-ink" x-text="formatRupiah(hasil?.total_bayar)"></strong></div>
                         </div>
 
-                        <div x-show="hasilPembayaran" x-cloak class="rounded-lg border border-cream-deep p-3 text-left mb-4">
-                            <div class="text-xs font-bold uppercase tracking-wide text-green mb-2">Instruksi Pembayaran</div>
+                        <div x-show="hasilPembayaran && statusBooking === 'menunggu'" x-cloak class="rounded-lg border border-cream-deep p-3 text-left mb-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold uppercase tracking-wide text-green">Instruksi Pembayaran</span>
+                                <span class="inline-flex items-center gap-1 text-xs text-ink-soft">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber animate-pulse"></span>
+                                    Menunggu pembayaran
+                                </span>
+                            </div>
 
                             <template x-if="hasilPembayaran?.instruksi?.tipe === 'qris'">
                                 <div class="text-center">
@@ -361,11 +425,16 @@
 
                         <p class="text-sm text-danger mb-4" x-show="hasilPembayaranError" x-cloak x-text="hasilPembayaranError"></p>
 
-                        <a :href="waLink" target="_blank" class="flex items-center justify-center gap-2 bg-green text-white rounded-lg py-3 font-bold text-sm mb-2">
+                        <a
+                            x-show="statusBooking !== 'dikonfirmasi'"
+                            :href="waLink"
+                            target="_blank"
+                            class="flex items-center justify-center gap-2 bg-green text-white rounded-lg py-3 font-bold text-sm mb-2"
+                        >
                             <x-icon name="wa-chat" size="18" class="text-white" />
                             Buka Chat WhatsApp
                         </a>
-                        <button type="button" class="text-sm text-ink-soft underline" @click="hasil = null; hasilPembayaran = null; hasilPembayaranError = null;">Tutup</button>
+                        <button type="button" class="text-sm text-ink-soft underline" @click="tutupModal()">Tutup</button>
                     </x-card>
                 </div>
             </div>

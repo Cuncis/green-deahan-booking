@@ -42,6 +42,18 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Nama rute dashboard tujuan setelah login/verifikasi/konfirmasi password.
+     * Dipakai bareng oleh alur auth staf tenant DAN superadmin (routes/auth.php),
+     * jadi tujuannya beda tergantung siapa yang login: superadmin ke
+     * /superadmin (independen dari tenant manapun), staf tenant ke /admin
+     * dashboard tenant yang sedang diakses.
+     */
+    public function rutePascaLogin(): string
+    {
+        return $this->isSuperadmin() ? 'superadmin.dashboard' : 'admin.dashboard';
+    }
+
+    /**
      * Tenant tempat user ini jadi staf (owner/manager/staff). Superadmin
      * tidak punya baris staf sama sekali, jadi relasi ini akan selalu
      * kosong untuk mereka, sesuai tujuan: superadmin independen dari tenant.

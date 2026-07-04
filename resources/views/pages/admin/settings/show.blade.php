@@ -9,7 +9,7 @@
 
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite('resources/css/app.css')
         @livewireStyles
     </head>
     <body class="font-sans antialiased bg-cream text-ink flex min-h-screen">
@@ -17,6 +17,8 @@
         <x-admin-sidebar :tenant="$tenant" />
 
         <main class="flex-1 px-6 md:px-8 py-6 max-w-3xl">
+            <x-admin-topbar />
+
             <div class="mb-6">
                 <h1 class="font-display text-xl font-semibold text-ink">Pengaturan</h1>
                 <p class="text-sm text-ink-soft mt-0.5">Atur profil bisnis dan preferensi {{ $tenant->nama_bisnis }}.</p>
@@ -136,14 +138,14 @@
                                 label="Jam Buka"
                                 name="jam_buka"
                                 type="time"
-                                value="{{ old('jam_buka', $cabangDefault ? substr($cabangDefault->jam_buka, 0, 5) : '08:00') }}"
+                                value="{{ old('jam_buka', $cabangDefault ? substr($cabangDefault->jam_buka, 0, 5) : '07:00') }}"
                                 required
                             />
                             <x-input
                                 label="Jam Tutup"
                                 name="jam_tutup"
                                 type="time"
-                                value="{{ old('jam_tutup', $cabangDefault ? substr($cabangDefault->jam_tutup, 0, 5) : '22:00') }}"
+                                value="{{ old('jam_tutup', $cabangDefault ? substr($cabangDefault->jam_tutup, 0, 5) : '21:00') }}"
                                 required
                             />
                         </div>

@@ -45,7 +45,13 @@ class SettingsAdminController extends Controller
         if ($request->hasFile('logo')) {
             $this->hapusFileLama($tenant->logo_url);
             $path = $request->file('logo')->store('logo', 'public');
-            $tenant->update(['logo_url' => Storage::disk('public')->url($path)]);
+
+            // Sengaja pakai asset() (resolve dari host request saat ini), BUKAN
+            // Storage::disk('public')->url() yang selalu balik ke APP_URL statis.
+            // Tenant diakses dari macam-macam domain (subdomain, custom domain),
+            // jadi URL logo yang di-hardcode ke satu domain akan rusak/404 di
+            // domain tenant manapun selain APP_URL itu sendiri.
+            $tenant->update(['logo_url' => asset('storage/'.$path)]);
         }
 
         if ($tenant->punyaFitur('multi_cabang')) {

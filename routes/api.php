@@ -16,6 +16,9 @@ Route::middleware(IdentifikasiTenant::class)->group(function () {
     Route::post('/booking', [BookingController::class, 'buatBooking'])
         ->middleware('throttle:booking-store')
         ->name('booking.buat');
+    Route::get('/booking/{kodeBooking}/status', [BookingController::class, 'cekStatusBooking'])
+        ->middleware('throttle:booking-slot')
+        ->name('booking.status');
 });
 
 // Dipanggil server payment gateway (Midtrans/Xendit), bukan browser customer,

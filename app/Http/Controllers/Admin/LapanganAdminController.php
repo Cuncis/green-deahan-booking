@@ -164,11 +164,18 @@ class LapanganAdminController extends Controller
         return Cabang::where('tenant_id', $tenant->id)->value('id');
     }
 
+    /**
+     * Sengaja pakai asset() (resolve dari host request saat ini), BUKAN
+     * Storage::disk('public')->url() yang selalu balik ke APP_URL statis.
+     * Tenant diakses dari macam-macam domain (subdomain, custom domain),
+     * jadi URL foto yang di-hardcode ke satu domain akan rusak/404 di
+     * domain tenant manapun selain APP_URL itu sendiri.
+     */
     private function simpanFoto(Request $request): string
     {
         $path = $request->file('foto')->store('lapangan', 'public');
 
-        return Storage::disk('public')->url($path);
+        return asset('storage/'.$path);
     }
 
     private function hapusFotoLama(?string $fotoUrl): void

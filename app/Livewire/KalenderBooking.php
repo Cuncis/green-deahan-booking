@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Models\Cabang;
 use App\Models\JadwalSlot;
 use App\Models\Lapangan;
+use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -96,10 +98,27 @@ class KalenderBooking extends Component
      */
     public function pilihSlot(int $slotId): void
     {
+        if ($slotId === $this->selectedSlot) {
+            return;
+        }
+
         $tenant = app('tenant');
         $this->pesanError = null;
+        $slotSebelumnya = $this->selectedSlot;
 
-        $slotTerpilih = DB::transaction(function () use ($tenant, $slotId) {
+        $slotTerpilih = DB::transaction(function () use ($tenant, $slotId, $slotSebelumnya) {
+            // Lepas hold slot yang tadinya dipilih customer ini, supaya kalau dia
+            // ganti pikiran pilih jam lain, slot lama langsung kosong lagi buat
+            // customer lain, bukan tersandera diam-diam sampai 10 menit habis.
+            if ($slotSebelumnya) {
+                JadwalSlot::where('tenant_id', $tenant->id)
+                    ->where('id', $slotSebelumnya)
+                    ->where('status', 'hold')
+                    ->lockForUpdate()
+                    ->first()
+                    ?->update(['status' => 'kosong', 'hold_sampai' => null]);
+            }
+
             $slot = JadwalSlot::where('tenant_id', $tenant->id)
                 ->where('id', $slotId)
                 ->lockForUpdate()
@@ -151,11 +170,67 @@ class KalenderBooking extends Component
 
     public function ambilSlot(): Collection
     {
-        return JadwalSlot::where('tenant_id', app('tenant')->id)
+        $tenant = app('tenant');
+
+        $this->pastikanSlotDefaultAda($tenant->id, $this->lapanganId, $this->selectedDate);
+
+        return JadwalSlot::where('tenant_id', $tenant->id)
             ->where('lapangan_id', $this->lapanganId)
             ->whereDate('tanggal', $this->selectedDate)
             ->orderBy('jam_mulai')
             ->get();
+    }
+
+    /**
+     * Supaya customer tidak pernah lihat "belum ada jadwal" di tanggal
+     * manapun, slot jam operasional (jam buka/tutup cabang, interval 1 jam)
+     * dibuat otomatis begitu ada yang pertama kali buka tanggal itu, tanpa
+     * admin harus generate manual dulu lewat halaman Jadwal. Admin tetap
+     * bisa kustomisasi jam operasional lewat /admin/pengaturan (jam_buka/
+     * jam_tutup per cabang) dan harga/nonaktifkan slot tertentu lewat
+     * halaman Jadwal setelah slot ini muncul.
+     */
+    private function pastikanSlotDefaultAda(int $tenantId, int $lapanganId, string $tanggal): void
+    {
+        $sudahAda = JadwalSlot::where('tenant_id', $tenantId)
+            ->where('lapangan_id', $lapanganId)
+            ->whereDate('tanggal', $tanggal)
+            ->exists();
+
+        if ($sudahAda) {
+            return;
+        }
+
+        $lapangan = Lapangan::where('tenant_id', $tenantId)->with('cabang')->find($lapanganId);
+
+        if (! $lapangan) {
+            return;
+        }
+
+        $jamMulai = Carbon::parse($lapangan->cabang->jam_buka);
+        $jamTutup = Carbon::parse($lapangan->cabang->jam_tutup);
+
+        while ($jamMulai->copy()->addHour()->lessThanOrEqualTo($jamTutup)) {
+            $jamSelesaiSlot = $jamMulai->copy()->addHour();
+
+            try {
+                JadwalSlot::create([
+                    'tenant_id' => $tenantId,
+                    'lapangan_id' => $lapangan->id,
+                    'tanggal' => $tanggal,
+                    'jam_mulai' => $jamMulai->format('H:i'),
+                    'jam_selesai' => $jamSelesaiSlot->format('H:i'),
+                    'harga' => $lapangan->harga_per_jam,
+                    'status' => 'kosong',
+                ]);
+            } catch (QueryException $e) {
+                if ($e->getCode() !== '23000') {
+                    throw $e;
+                }
+            }
+
+            $jamMulai = $jamSelesaiSlot;
+        }
     }
 
     public function render()

@@ -90,6 +90,33 @@ class LapanganAdminControllerTest extends TestCase
         $this->assertNotNull($lapangan->foto_url);
     }
 
+    /**
+     * Tenant diakses dari macam-macam domain (subdomain, custom domain), jadi
+     * foto_url yang dihasilkan wajib pakai host request saat ini, bukan
+     * APP_URL statis, kalau tidak URL foto akan 404 di domain tenant manapun
+     * selain APP_URL itu sendiri.
+     */
+    public function test_foto_lapangan_pakai_domain_tenant_saat_ini_bukan_app_url_statis(): void
+    {
+        Storage::fake('public');
+
+        $tenant = Tenant::factory()->create(['domain' => 'demo-tenant.test', 'status_aktif' => true]);
+        $user = $this->staf($tenant);
+        Cabang::factory()->create(['tenant_id' => $tenant->id]);
+
+        $response = $this->actingAs($user)->post('http://demo-tenant.test'.route('admin.lapangan.store', [], false), [
+            'nama' => 'Lapangan Domain Test',
+            'jenis_olahraga' => 'futsal',
+            'harga_per_jam' => 100000,
+            'foto' => UploadedFile::fake()->image('lapangan.jpg'),
+        ]);
+
+        $response->assertRedirect();
+
+        $lapangan = Lapangan::where('tenant_id', $tenant->id)->where('nama', 'Lapangan Domain Test')->firstOrFail();
+        $this->assertStringStartsWith('http://demo-tenant.test/storage/lapangan/', $lapangan->foto_url);
+    }
+
     public function test_tambah_lapangan_ditolak_kalau_sudah_capai_batas_paket(): void
     {
         $tenant = $this->tenant();

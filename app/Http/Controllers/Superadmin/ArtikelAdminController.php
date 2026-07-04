@@ -112,11 +112,18 @@ class ArtikelAdminController extends Controller
         return $slug;
     }
 
+    /**
+     * Sengaja pakai asset() (resolve dari host request saat ini), BUKAN
+     * Storage::disk('public')->url() yang selalu balik ke APP_URL statis
+     * dan bikin URL foto rusak/404 di domain manapun selain APP_URL itu
+     * sendiri (situs korporat greendeahan.com bisa diakses dari beberapa
+     * domain, lihat routes/web.php).
+     */
     private function simpanFoto(Request $request): string
     {
         $path = $request->file('foto')->store('artikel', 'public');
 
-        return Storage::disk('public')->url($path);
+        return asset('storage/'.$path);
     }
 
     private function hapusFotoLama(?string $fotoUrl): void

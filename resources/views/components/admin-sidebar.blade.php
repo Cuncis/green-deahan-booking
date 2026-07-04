@@ -61,8 +61,8 @@ $isAktif = function (string $key, ?string $routeName = null) use ($activePage) {
         </a>
 
         @if ($tenant->punyaFitur('laporan_pendapatan'))
-            <a href="{{ route('admin.laporan') }}"
-               class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm {{ $isAktif('laporan', 'admin.laporan') ? 'bg-green-pale text-green font-bold' : 'text-ink-mid hover:bg-cream' }}">
+            <a href="{{ route('admin.dashboard') }}#laporan-pendapatan"
+               class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm {{ $isAktif('laporan') ? 'bg-green-pale text-green font-bold' : 'text-ink-mid hover:bg-cream' }}">
                 <x-icon name="chart-trend" size="16" />
                 Laporan Pendapatan
             </a>

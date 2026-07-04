@@ -58,14 +58,17 @@
 
     <div class="grid grid-cols-3 gap-2.5">
         @forelse ($slotTersedia as $slot)
-            @php $tersedia = $slot->status === 'kosong'; @endphp
+            @php
+                $dipilih = $selectedSlot === $slot->id;
+                $tersedia = $slot->status === 'kosong';
+            @endphp
             <button
                 type="button"
                 @if ($tersedia) wire:click="pilihSlot({{ $slot->id }})" @else disabled @endif
                 wire:key="slot-{{ $slot->id }}"
                 wire:loading.attr="disabled"
                 class="rounded-lg border px-2 py-2.5 text-center text-sm font-semibold transition-colors
-                    {{ $selectedSlot === $slot->id
+                    {{ $dipilih
                         ? 'bg-green border-green text-white'
                         : ($tersedia
                             ? 'bg-white border-cream-deep text-ink-mid hover:border-green hover:bg-green-pale'
@@ -73,7 +76,7 @@
             >
                 {{ substr($slot->jam_mulai, 0, 5) }}
                 <span class="block text-xs font-normal opacity-85 mt-0.5">
-                    {{ $tersedia ? 'Rp'.number_format($slot->harga, 0, ',', '.') : 'Tidak tersedia' }}
+                    {{ $dipilih ? 'Dipilih' : ($tersedia ? 'Rp'.number_format($slot->harga, 0, ',', '.') : 'Tidak tersedia') }}
                 </span>
             </button>
         @empty

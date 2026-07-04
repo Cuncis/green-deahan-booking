@@ -74,10 +74,6 @@ Route::get('/', function (Request $request) {
     ]);
 })->name('booking.index');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('guest')->group(function () {
     Route::get('/invite/{token}', [InvitationController::class, 'showInvite'])->name('invite.show');
     Route::post('/invite/{token}', [InvitationController::class, 'acceptInvite'])->name('invite.accept');
@@ -136,16 +132,6 @@ Route::middleware(['auth', 'verified', 'check.tenant.staf'])->prefix('admin')->n
             'tenant' => app('tenant'),
         ]);
     })->name('dashboard');
-
-    Route::get('/laporan', function () {
-        $tenant = app('tenant');
-
-        abort_unless($tenant->punyaFitur('laporan_pendapatan'), 403, 'Fitur laporan pendapatan tidak tersedia untuk paket Anda.');
-
-        return view('pages.admin.laporan', [
-            'tenant' => $tenant,
-        ]);
-    })->name('laporan');
 
     Route::get('/booking', [BookingAdminController::class, 'index'])->name('booking');
     Route::get('/booking/export', [BookingAdminController::class, 'export'])->name('booking.export');
