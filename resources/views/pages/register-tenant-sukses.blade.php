@@ -13,7 +13,13 @@
     <body class="font-sans antialiased bg-cream text-ink">
 
         <nav class="sticky top-0 z-40 flex items-center h-16 px-5 border-b border-cream-deep bg-cream/95 backdrop-blur">
-            <div class="font-display font-semibold text-green">Green Deahan Sport</div>
+            <a href="/">
+                <img
+                    src="https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/full-logo-02.png"
+                    alt="Green Deahan Sport"
+                    class="h-9 w-auto object-contain"
+                />
+            </a>
         </nav>
 
         <div class="max-w-md mx-auto px-5 py-16 text-center">
