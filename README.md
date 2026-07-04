@@ -92,6 +92,26 @@ Jalankan sebelum commit kalau ada file PHP yang diubah.
 
 ## Deployment (Production)
 
+### Deploy Update Terbaru
+
+Setiap kali ada perubahan yang perlu dinaikkan ke production, jalankan `./deploy.sh` di server (lihat bagian "Ownership Git di Server" di bawah kalau kena error dubious ownership). Kalau belum ada `deploy.sh` atau mau jalankan manual:
+
+```bash
+cd /var/www/green-deahan-booking
+git pull origin main
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+npm ci && npm run build
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+sudo supervisorctl restart green-deahan-queue:* green-deahan-scheduler:*
+```
+
+`migrate --force` wajib dijalankan tiap deploy yang bawa migration baru, Laravel menolak jalan migrate di production tanpa flag ini. Kalau migration itu mengubah kolom/tabel (drop column, ubah enum, dst), backup database dulu sebelum `migrate --force` (`mysqldump`), karena migration seperti itu susah di-rollback bersih kalau sudah ada data baru masuk setelah deploy.
+
+**Catatan untuk rilis "hapus transfer manual" (Juli 2026):** rilis ini mengubah metode bayar tenant Basic dari transfer manual jadi Midtrans (QRIS/VA/e-wallet), termasuk migration yang memperketat enum `booking.tipe_pembayaran`/`pembayaran.metode` dan drop kolom `bank_nama`/`bank_no_rekening`/`bank_pemilik_rekening` dari `tenants`. Kalau ada tenant Basic yang sudah aktif pakai transfer manual, beri tahu mereka dulu sebelum deploy karena tampilan checkout customer mereka berubah begitu deploy ini naik (langsung tampil QRIS/VA/e-wallet, bukan info rekening lagi).
+
 Server production menjalankan dua proses background lewat [Supervisor](http://supervisord.org/), konfigurasi ada di `scripts/supervisor/laravel.conf`:
 
 - **Queue worker**, memproses job seperti `KirimNotifikasiWhatsApp` lewat `queue:work`.
