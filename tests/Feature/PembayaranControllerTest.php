@@ -67,6 +67,30 @@ class PembayaranControllerTest extends TestCase
         ]);
     }
 
+    /**
+     * Payload notifikasi ASLI Midtrans (order_id, transaction_status,
+     * payment_type, gross_amount, transaction_id), beda dari payloadWebhook()
+     * di atas yang skema internal (dipakai lewat jalur Xendit). Lihat
+     * PembayaranController::parseMidtransPayload().
+     */
+    private function payloadMidtransAsli(Booking $booking, array $override = []): array
+    {
+        $orderId = $booking->kode_booking;
+        $statusCode = '200';
+        $grossAmount = (string) $booking->total_bayar;
+        $signatureKey = hash('sha512', $orderId.$statusCode.$grossAmount.config('services.midtrans.server_key'));
+
+        return array_merge([
+            'order_id' => $orderId,
+            'status_code' => $statusCode,
+            'gross_amount' => $grossAmount,
+            'signature_key' => $signatureKey,
+            'transaction_status' => 'settlement',
+            'payment_type' => 'qris',
+            'transaction_id' => 'TRX-'.$booking->id,
+        ], $override);
+    }
+
     public function test_webhook_bisa_diakses_tanpa_tenant_terdaftar_di_domain(): void
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
@@ -192,5 +216,84 @@ class PembayaranControllerTest extends TestCase
         ]);
 
         $response->assertNotFound();
+    }
+
+    /**
+     * Pengujian jalur Midtrans asli (bukan skema internal lewat Xendit di
+     * atas), memastikan parseMidtransPayload() memetakan transaction_status
+     * dan payment_type sungguhan dari Midtrans dengan benar. Ini kasus yang
+     * sebelumnya bikin booking tidak pernah terkonfirmasi di production
+     * (webhook asli Midtrans ditolak validate() karena nama field beda).
+     */
+    public function test_webhook_midtrans_settlement_mengonfirmasi_booking(): void
+    {
+        Queue::fake();
+
+        $booking = $this->buatBookingMenunggu($this->tenant());
+
+        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadMidtransAsli($booking, [
+            'transaction_status' => 'settlement',
+            'payment_type' => 'qris',
+        ]));
+
+        $response->assertOk();
+        $this->assertSame('dikonfirmasi', $booking->fresh()->status_booking);
+        $this->assertSame('booked', $booking->fresh()->slot->status);
+        $this->assertDatabaseHas('pembayaran', [
+            'booking_id' => $booking->id,
+            'status' => 'sukses',
+            'metode' => 'qris',
+            'kode_transaksi_gateway' => 'TRX-'.$booking->id,
+        ]);
+    }
+
+    public function test_webhook_midtrans_pending_menyimpan_status_pending_tanpa_konfirmasi(): void
+    {
+        $booking = $this->buatBookingMenunggu($this->tenant());
+
+        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadMidtransAsli($booking, [
+            'transaction_status' => 'pending',
+            'payment_type' => 'bank_transfer',
+        ]));
+
+        $response->assertOk();
+        $this->assertSame('menunggu', $booking->fresh()->status_booking);
+        $this->assertDatabaseHas('pembayaran', [
+            'booking_id' => $booking->id,
+            'status' => 'pending',
+            'metode' => 'va',
+        ]);
+    }
+
+    public function test_webhook_midtrans_expire_membatalkan_booking_dan_melepas_slot(): void
+    {
+        $booking = $this->buatBookingMenunggu($this->tenant());
+
+        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadMidtransAsli($booking, [
+            'transaction_status' => 'expire',
+            'payment_type' => 'gopay',
+        ]));
+
+        $response->assertOk();
+        $this->assertSame('dibatalkan', $booking->fresh()->status_booking);
+        $this->assertSame('kosong', $booking->fresh()->slot->status);
+        $this->assertDatabaseHas('pembayaran', [
+            'booking_id' => $booking->id,
+            'status' => 'gagal',
+            'metode' => 'ewallet',
+        ]);
+    }
+
+    public function test_webhook_midtrans_ditolak_kalau_transaction_status_belum_dikenal(): void
+    {
+        $booking = $this->buatBookingMenunggu($this->tenant());
+
+        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadMidtransAsli($booking, [
+            'transaction_status' => 'authorize',
+        ]));
+
+        $response->assertStatus(401);
+        $this->assertSame('menunggu', $booking->fresh()->status_booking);
+        $this->assertDatabaseMissing('pembayaran', ['booking_id' => $booking->id]);
     }
 }

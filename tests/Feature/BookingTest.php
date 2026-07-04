@@ -84,15 +84,15 @@ class BookingTest extends TestCase
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $response = $this->postJson('/api/webhook/pembayaran', array_merge(
-            $this->payloadInternal($booking),
-            [
-                'order_id' => 'ORDER-'.$booking->id,
-                'status_code' => '200',
-                'gross_amount' => (string) $booking->total_bayar,
-                'signature_key' => 'signature-ngasal-bukan-hasil-hash',
-            ],
-        ));
+        $response = $this->postJson('/api/webhook/pembayaran', [
+            'order_id' => $booking->kode_booking,
+            'status_code' => '200',
+            'gross_amount' => (string) $booking->total_bayar,
+            'signature_key' => 'signature-ngasal-bukan-hasil-hash',
+            'transaction_status' => 'settlement',
+            'payment_type' => 'qris',
+            'transaction_id' => 'TRX-'.$booking->id,
+        ]);
 
         $response->assertStatus(401);
         $this->assertSame('menunggu', $booking->fresh()->status_booking);
@@ -102,20 +102,20 @@ class BookingTest extends TestCase
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $orderId = 'ORDER-'.$booking->id;
+        $orderId = $booking->kode_booking;
         $statusCode = '200';
         $grossAmount = (string) $booking->total_bayar;
         $signatureKey = hash('sha512', $orderId.$statusCode.$grossAmount.config('services.midtrans.server_key'));
 
-        $response = $this->postJson('/api/webhook/pembayaran', array_merge(
-            $this->payloadInternal($booking),
-            [
-                'order_id' => $orderId,
-                'status_code' => $statusCode,
-                'gross_amount' => $grossAmount,
-                'signature_key' => $signatureKey,
-            ],
-        ));
+        $response = $this->postJson('/api/webhook/pembayaran', [
+            'order_id' => $orderId,
+            'status_code' => $statusCode,
+            'gross_amount' => $grossAmount,
+            'signature_key' => $signatureKey,
+            'transaction_status' => 'settlement',
+            'payment_type' => 'qris',
+            'transaction_id' => 'TRX-'.$booking->id,
+        ]);
 
         $response->assertOk();
         $this->assertSame('dikonfirmasi', $booking->fresh()->status_booking);

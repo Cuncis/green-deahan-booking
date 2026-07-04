@@ -32,21 +32,31 @@ class PembayaranController extends Controller
             if (! $this->verifyXenditSignature($request)) {
                 return $this->tolakWebhook($request);
             }
+
+            // Xendit belum benar-benar terintegrasi (belum ada service yang
+            // membuat invoice Xendit sungguhan), jadi bentuk payload asli
+            // Xendit belum diketahui. Skema sederhana ini dipakai sementara
+            // sampai integrasinya benar-benar dibangun.
+            $data = $request->validate([
+                'kode_transaksi_gateway' => ['required', 'string'],
+                'kode_booking' => ['required', 'string'],
+                'status' => ['required', 'in:sukses,gagal,pending'],
+                'metode' => ['required', 'in:qris,ewallet,va'],
+                'jumlah' => ['required', 'integer'],
+            ]);
         } elseif ($request->filled('signature_key')) {
             if (! $this->verifyMidtransSignature($request)) {
+                return $this->tolakWebhook($request);
+            }
+
+            $data = $this->parseMidtransPayload($request);
+
+            if (! $data) {
                 return $this->tolakWebhook($request);
             }
         } else {
             return $this->tolakWebhook($request);
         }
-
-        $data = $request->validate([
-            'kode_transaksi_gateway' => ['required', 'string'],
-            'kode_booking' => ['required', 'string'],
-            'status' => ['required', 'in:sukses,gagal,pending'],
-            'metode' => ['required', 'in:qris,ewallet,va'],
-            'jumlah' => ['required', 'integer'],
-        ]);
 
         return DB::transaction(function () use ($data) {
             $booking = Booking::withoutGlobalScopes()
@@ -111,6 +121,49 @@ class PembayaranController extends Controller
             ->first();
 
         $slot?->update(['status' => 'kosong', 'hold_sampai' => null]);
+    }
+
+    /**
+     * Terjemahkan notifikasi asli Midtrans (order_id, transaction_status,
+     * payment_type, gross_amount, transaction_id, dst, lihat
+     * https://docs.midtrans.com/reference/http-notification) ke skema
+     * internal yang dipakai konfirmasiBooking()/batalkanBooking() di atas.
+     * Return null kalau transaction_status atau payment_type belum pernah
+     * dipetakan (bukan berarti invalid, tapi lebih aman ditolak daripada
+     * salah proses).
+     *
+     * @return array{kode_booking: string, status: string, metode: string, jumlah: int, kode_transaksi_gateway: string}|null
+     */
+    private function parseMidtransPayload(Request $request): ?array
+    {
+        $status = match ((string) $request->input('transaction_status')) {
+            'capture', 'settlement' => 'sukses',
+            'pending' => 'pending',
+            'deny', 'cancel', 'expire', 'failure' => 'gagal',
+            default => null,
+        };
+
+        $metode = match ((string) $request->input('payment_type')) {
+            'qris' => 'qris',
+            'gopay', 'shopeepay' => 'ewallet',
+            'bank_transfer', 'echannel', 'permata_va', 'other_va' => 'va',
+            default => null,
+        };
+
+        $kodeBooking = (string) $request->input('order_id');
+        $grossAmount = $request->input('gross_amount');
+
+        if ($status === null || $metode === null || $kodeBooking === '' || $grossAmount === null) {
+            return null;
+        }
+
+        return [
+            'kode_booking' => $kodeBooking,
+            'status' => $status,
+            'metode' => $metode,
+            'jumlah' => (int) round((float) $grossAmount),
+            'kode_transaksi_gateway' => (string) $request->input('transaction_id'),
+        ];
     }
 
     /**

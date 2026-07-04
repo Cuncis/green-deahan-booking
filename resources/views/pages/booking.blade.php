@@ -92,14 +92,12 @@
                     harga: 0,
                     kodePromoAktif: null,
                     tipePembayaranAktif: '{{ $tenant->punyaFitur('dp_pembayaran') ? 'dp' : 'lunas' }}',
-                    metodePembayaranAktif: 'qris',
                     diskonJumlah: 0,
                     totalBayar: 0,
                     nama: '',
                     whatsapp: '',
                     mengirim: false,
                     hasil: null,
-                    hasilPembayaran: null,
                     hasilPembayaranError: null,
                     statusBooking: 'menunggu',
                     pollingTimer: null,
@@ -125,6 +123,21 @@
                             }
                             this.memberTimer = setTimeout(() => this.cekMembership(digits), 600);
                         });
+
+                        // Customer kembali dari halaman pembayaran Midtrans (Snap
+                        // callbacks.finish, lihat PaymentService::buildParams()), buka lagi
+                        // modal status dan lanjut polling, bukan dibiarkan begitu saja.
+                        const params = new URLSearchParams(window.location.search);
+                        const kodeBooking = params.get('kode_booking');
+                        if (kodeBooking) {
+                            this.hasil = { kode_booking: kodeBooking, total_bayar: null };
+                            this.statusBooking = 'menunggu';
+                            this.mulaiPollingStatus();
+
+                            params.delete('kode_booking');
+                            const sisaQuery = params.toString();
+                            window.history.replaceState({}, '', window.location.pathname + (sisaQuery ? '?' + sisaQuery : ''));
+                        }
                     },
                     cekMembership(noTelepon) {
                         fetch('{{ route('booking.cek_membership') }}', {
@@ -172,7 +185,6 @@
                     },
                     onRingkasanBerubah(detail) {
                         this.tipePembayaranAktif = detail.tipePembayaran;
-                        this.metodePembayaranAktif = detail.metodePembayaran;
                         this.kodePromoAktif = detail.kodePromo;
                         this.diskonJumlah = detail.diskonJumlah;
                         this.totalBayar = detail.totalBayar;
@@ -196,6 +208,7 @@
                         }
                         this.mengirim = true;
                         this.errorPesan = null;
+                        let akanRedirect = false;
                         fetch('{{ route('booking.buat') }}', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -205,7 +218,6 @@
                                 whatsapp: this.whatsapp,
                                 kode_promo: this.kodePromoAktif,
                                 tipe_pembayaran: this.tipePembayaranAktif,
-                                metode_pembayaran: this.metodePembayaranAktif,
                                 reminder_aktif: this.reminderAktif,
                             }),
                         })
@@ -215,16 +227,32 @@
                                 this.errorPesan = data.message || 'Booking gagal dibuat, silakan coba lagi.';
                                 return;
                             }
+
+                            const redirectUrl = data.pembayaran?.redirect_url;
+                            if (redirectUrl) {
+                                // Langsung pindah ke halaman pembayaran Midtrans, tidak perlu
+                                // buka modal apapun di sini dulu. Modal statusnya baru muncul
+                                // nanti kalau customer sudah kembali dari Midtrans (lihat init()).
+                                akanRedirect = true;
+                                window.location.href = redirectUrl;
+                                return;
+                            }
+
+                            // Snap gagal dibuat (lihat pembayaran_error), tidak ada halaman
+                            // Midtrans untuk diarahkan, jadi tampilkan kartu status di sini
+                            // supaya customer tidak bingung booking-nya hilang begitu saja.
                             this.hasil = data.data;
-                            this.hasilPembayaran = data.pembayaran || null;
-                            this.hasilPembayaranError = data.pembayaran_error || null;
                             this.statusBooking = 'menunggu';
-                            this.mulaiPollingStatus();
+                            this.hasilPembayaranError = data.pembayaran_error || 'Booking berhasil dibuat, tapi transaksi pembayaran gagal dibuat. Hubungi admin untuk bantuan.';
                         })
                         .catch(() => {
                             this.errorPesan = 'Booking gagal dibuat, silakan coba lagi.';
                         })
-                        .finally(() => { this.mengirim = false; });
+                        .finally(() => {
+                            if (! akanRedirect) {
+                                this.mengirim = false;
+                            }
+                        });
                     },
                     mulaiPollingStatus() {
                         this.hentikanPolling();
@@ -233,24 +261,31 @@
                         // polling lebih lama dari jendela hold itu.
                         const intervalMs = 4000;
                         this.pollingSisa = Math.floor((10 * 60 * 1000) / intervalMs);
+                        this.cekStatusSekali();
                         this.pollingTimer = setInterval(() => {
                             this.pollingSisa -= 1;
                             if (this.pollingSisa <= 0) {
                                 this.hentikanPolling();
                                 return;
                             }
-                            const url = '{{ route('booking.status', ['kodeBooking' => '__KODE__']) }}'.replace('__KODE__', this.hasil.kode_booking);
-                            fetch(url, { headers: { 'Accept': 'application/json' } })
-                                .then((res) => res.json())
-                                .then((json) => {
-                                    const status = json.data?.status_booking;
-                                    if (status && status !== 'menunggu') {
-                                        this.statusBooking = status;
-                                        this.hentikanPolling();
-                                    }
-                                })
-                                .catch(() => {});
+                            this.cekStatusSekali();
                         }, intervalMs);
+                    },
+                    cekStatusSekali() {
+                        const url = '{{ route('booking.status', ['kodeBooking' => '__KODE__']) }}'.replace('__KODE__', this.hasil.kode_booking);
+                        fetch(url, { headers: { 'Accept': 'application/json' } })
+                            .then((res) => res.json())
+                            .then((json) => {
+                                if (!json.data || !this.hasil) {
+                                    return;
+                                }
+                                this.hasil.total_bayar = json.data.total_bayar;
+                                if (json.data.status_booking && json.data.status_booking !== 'menunggu') {
+                                    this.statusBooking = json.data.status_booking;
+                                    this.hentikanPolling();
+                                }
+                            })
+                            .catch(() => {});
                     },
                     hentikanPolling() {
                         if (this.pollingTimer) {
@@ -261,7 +296,6 @@
                     tutupModal() {
                         this.hentikanPolling();
                         this.hasil = null;
-                        this.hasilPembayaran = null;
                         this.hasilPembayaranError = null;
                         this.statusBooking = 'menunggu';
                     },
@@ -369,46 +403,17 @@
                         <p class="text-sm text-ink-mid mb-4" x-text="
                             statusBooking === 'dikonfirmasi' ? 'Terima kasih, pembayaran kamu sudah kami terima dan booking sudah dikonfirmasi.' :
                             (statusBooking === 'dibatalkan' ? 'Pembayaran tidak berhasil diproses, slot sudah dilepas kembali. Silakan booking ulang atau hubungi admin.' :
-                            'Slot kamu sudah diamankan. Lanjutkan pembayaran supaya booking dikonfirmasi.')
+                            'Slot kamu sudah diamankan. Kami sedang menunggu konfirmasi pembayaran dari Midtrans.')
                         "></p>
 
                         <div class="bg-cream rounded-lg p-3 text-sm text-ink-soft text-left mb-4">
                             <div class="flex justify-between py-0.5"><span>Kode</span><strong class="text-ink" x-text="hasil?.kode_booking"></strong></div>
-                            <div class="flex justify-between py-0.5"><span>Total</span><strong class="text-ink" x-text="formatRupiah(hasil?.total_bayar)"></strong></div>
+                            <div class="flex justify-between py-0.5" x-show="hasil?.total_bayar" x-cloak><span>Total</span><strong class="text-ink" x-text="formatRupiah(hasil?.total_bayar)"></strong></div>
                         </div>
 
-                        <div x-show="hasilPembayaran && statusBooking === 'menunggu'" x-cloak class="rounded-lg border border-cream-deep p-3 text-left mb-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-bold uppercase tracking-wide text-green">Instruksi Pembayaran</span>
-                                <span class="inline-flex items-center gap-1 text-xs text-ink-soft">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-amber animate-pulse"></span>
-                                    Menunggu pembayaran
-                                </span>
-                            </div>
-
-                            <template x-if="hasilPembayaran?.instruksi?.tipe === 'qris'">
-                                <div class="text-center">
-                                    <img :src="hasilPembayaran.instruksi.qr_url" alt="QRIS" class="w-40 h-40 mx-auto rounded-lg border border-cream-deep" />
-                                    <p class="text-xs text-ink-soft mt-2">Scan QR ini pakai aplikasi e-wallet atau m-banking kamu.</p>
-                                </div>
-                            </template>
-
-                            <template x-if="hasilPembayaran?.instruksi?.tipe === 'va'">
-                                <div class="text-sm text-ink-mid space-y-1">
-                                    <div class="flex justify-between"><span>Bank</span><strong class="text-ink uppercase" x-text="hasilPembayaran.instruksi.bank"></strong></div>
-                                    <div class="flex justify-between"><span>Nomor VA</span><strong class="text-ink" x-text="hasilPembayaran.instruksi.nomor_va"></strong></div>
-                                    <p class="text-xs text-ink-soft mt-1">Transfer sesuai nomor virtual account di atas.</p>
-                                </div>
-                            </template>
-
-                            <template x-if="hasilPembayaran?.instruksi?.tipe === 'ewallet'">
-                                <div class="text-center">
-                                    <a :href="hasilPembayaran.instruksi.redirect_url" target="_blank" class="flex items-center justify-center gap-2 bg-green text-white rounded-lg py-2.5 font-bold text-sm">
-                                        Buka Aplikasi E-Wallet
-                                    </a>
-                                    <p class="text-xs text-ink-soft mt-2">Kalau tidak otomatis terbuka, scan QR dari aplikasi e-wallet kamu.</p>
-                                </div>
-                            </template>
+                        <div x-show="statusBooking === 'menunggu'" x-cloak class="flex items-center justify-center gap-2 rounded-lg border border-cream-deep px-3 py-2.5 text-xs text-ink-soft mb-4">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber animate-pulse"></span>
+                            Menunggu konfirmasi pembayaran dari Midtrans
                         </div>
 
                         <p class="text-sm text-danger mb-4" x-show="hasilPembayaranError" x-cloak x-text="hasilPembayaranError"></p>

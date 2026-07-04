@@ -94,16 +94,35 @@ class WebhookSignatureTest extends TestCase
         $this->assertSame('dikonfirmasi', $booking->fresh()->status_booking);
     }
 
+    /**
+     * Payload di sini bentuknya notifikasi ASLI Midtrans (order_id,
+     * transaction_status, payment_type, gross_amount, transaction_id), bukan
+     * skema internal kode_booking/status/metode. Lihat
+     * PembayaranController::parseMidtransPayload().
+     */
+    private function payloadMidtransAsli(Booking $booking, array $override = []): array
+    {
+        $orderId = $booking->kode_booking;
+        $statusCode = '200';
+        $grossAmount = (string) $booking->total_bayar;
+        $signatureKey = hash('sha512', $orderId.$statusCode.$grossAmount.config('services.midtrans.server_key'));
+
+        return array_merge([
+            'order_id' => $orderId,
+            'status_code' => $statusCode,
+            'gross_amount' => $grossAmount,
+            'signature_key' => $signatureKey,
+            'transaction_status' => 'settlement',
+            'payment_type' => 'qris',
+            'transaction_id' => 'TRX-'.$booking->id,
+        ], $override);
+    }
+
     public function test_webhook_midtrans_ditolak_dengan_signature_key_salah(): void
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $payload = array_merge($this->payloadDasar($booking), [
-            'order_id' => $booking->kode_booking,
-            'status_code' => '200',
-            'gross_amount' => (string) $booking->total_bayar,
-            'signature_key' => 'hash-ngasal-yang-salah',
-        ]);
+        $payload = $this->payloadMidtransAsli($booking, ['signature_key' => 'hash-ngasal-yang-salah']);
 
         $response = $this->postJson('/api/webhook/pembayaran', $payload);
 
@@ -115,21 +134,10 @@ class WebhookSignatureTest extends TestCase
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $orderId = $booking->kode_booking;
-        $statusCode = '200';
-        $grossAmount = (string) $booking->total_bayar;
-        $signatureKey = hash('sha512', $orderId.$statusCode.$grossAmount.config('services.midtrans.server_key'));
-
-        $payload = array_merge($this->payloadDasar($booking), [
-            'order_id' => $orderId,
-            'status_code' => $statusCode,
-            'gross_amount' => $grossAmount,
-            'signature_key' => $signatureKey,
-        ]);
-
-        $response = $this->postJson('/api/webhook/pembayaran', $payload);
+        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadMidtransAsli($booking));
 
         $response->assertOk();
         $this->assertDatabaseHas('pembayaran', ['booking_id' => $booking->id, 'status' => 'sukses']);
+        $this->assertSame('dikonfirmasi', $booking->fresh()->status_booking);
     }
 }

@@ -83,6 +83,7 @@ class BookingController extends Controller
         return response()->json([
             'data' => [
                 'status_booking' => $booking->status_booking,
+                'total_bayar' => $booking->total_bayar,
             ],
         ]);
     }
@@ -137,11 +138,12 @@ class BookingController extends Controller
             'whatsapp' => ['required', 'string', 'max:20'],
             'kode_promo' => ['nullable', 'string'],
             'tipe_pembayaran' => ['required', 'in:dp,lunas'],
-            'metode_pembayaran' => ['required', 'in:qris,va,ewallet'],
             'reminder_aktif' => ['sometimes', 'boolean'],
         ]);
 
-        $booking = DB::transaction(function () use ($tenant, $data) {
+        $lapanganId = null;
+
+        $booking = DB::transaction(function () use ($tenant, $data, &$lapanganId) {
             $slot = JadwalSlot::where('tenant_id', $tenant->id)
                 ->where('id', $data['slot_id'])
                 ->lockForUpdate()
@@ -150,6 +152,8 @@ class BookingController extends Controller
             if ($slot->status !== 'hold') {
                 return null;
             }
+
+            $lapanganId = $slot->lapangan_id;
 
             $customer = Customer::firstOrCreate(
                 ['no_telepon' => $data['whatsapp']],
@@ -213,8 +217,17 @@ class BookingController extends Controller
         // supaya lock row jadwal_slot tidak ketahan selama menunggu network
         // I/O ke gateway pembayaran.
         try {
+            // Customer diarahkan kembali ke halaman booking lapangan ini
+            // (dengan kode_booking di query string) setelah selesai di
+            // halaman Snap, supaya halaman booking bisa buka lagi modal
+            // status dan lanjut polling (lihat booking.blade.php).
+            $finishRedirectUrl = route('booking.index', [
+                'lapangan' => $lapanganId,
+                'kode_booking' => $booking->kode_booking,
+            ]);
+
             $responseData['pembayaran'] = app(PaymentService::class)
-                ->createTransaction($booking, $data['metode_pembayaran']);
+                ->createTransaction($booking, $finishRedirectUrl);
         } catch (\Throwable $e) {
             report($e);
             $responseData['pembayaran_error'] = 'Booking berhasil dibuat, tapi transaksi pembayaran online gagal dibuat. Hubungi admin untuk bantuan.';

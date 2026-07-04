@@ -166,17 +166,6 @@ class BladeComponentsTest extends TestCase
         $view->assertSee('wire:click="terapkanDiskon"', false);
     }
 
-    public function test_payment_methods_menampilkan_tiga_pilihan_dengan_svg(): void
-    {
-        $view = $this->blade('<x-payment-methods />');
-
-        $view->assertSee('QRIS');
-        $view->assertSee('E-Wallet');
-        $view->assertSee('Transfer VA');
-        $view->assertSeeInOrder(['<svg', '<svg', '<svg']);
-        $view->assertDontSee('💳');
-    }
-
     public function test_payment_option_toggle_menampilkan_jumlah_dp_dan_lunas(): void
     {
         $view = $this->blade('<x-payment-option-toggle :harga="100000" tipe-pembayaran="dp" />');

@@ -21,9 +21,9 @@ class BookingControllerTest extends TestCase
 
     /**
      * Semua test di sini bukan tentang integrasi Midtrans-nya sendiri (lihat
-     * PaymentServiceTest untuk itu), jadi chargeMidtrans() di-mock supaya
-     * tidak ada panggilan network sungguhan ke sandbox Midtrans tiap kali
-     * suite ini jalan.
+     * PaymentServiceTest untuk itu), jadi createSnapTransaction() di-mock
+     * supaya tidak ada panggilan network sungguhan ke sandbox Midtrans tiap
+     * kali suite ini jalan.
      */
     protected function setUp(): void
     {
@@ -31,10 +31,9 @@ class BookingControllerTest extends TestCase
 
         $this->partialMock(PaymentService::class, function ($mock) {
             $mock->shouldAllowMockingProtectedMethods()
-                ->shouldReceive('chargeMidtrans')->andReturn([
-                    'transaction_id' => 'fake-transaction-id',
-                    'actions' => [],
-                    'va_numbers' => [['bank' => 'bca', 'va_number' => '1234567890']],
+                ->shouldReceive('createSnapTransaction')->andReturn([
+                    'token' => 'fake-snap-token',
+                    'redirect_url' => 'https://app.sandbox.midtrans.com/snap/v4/redirection/fake-snap-token',
                 ]);
         });
     }
@@ -132,7 +131,6 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
-            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertCreated();
@@ -140,6 +138,7 @@ class BookingControllerTest extends TestCase
         $response->assertJsonPath('data.diskon_jumlah', 0);
         $response->assertJsonPath('data.total_bayar', 100000);
         $response->assertJsonPath('data.status_booking', 'menunggu');
+        $response->assertJsonPath('pembayaran.redirect_url', 'https://app.sandbox.midtrans.com/snap/v4/redirection/fake-snap-token');
 
         $this->assertDatabaseHas('customers', [
             'no_telepon' => '081234567890',
@@ -166,7 +165,6 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
-            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertCreated();
@@ -192,7 +190,6 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
-            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertStatus(409);
@@ -230,7 +227,6 @@ class BookingControllerTest extends TestCase
             'whatsapp' => '081234567890',
             'kode_promo' => 'HEMAT10',
             'tipe_pembayaran' => 'lunas',
-            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertCreated();
@@ -270,7 +266,6 @@ class BookingControllerTest extends TestCase
             'whatsapp' => '081234567890',
             'kode_promo' => 'HEMAT10',
             'tipe_pembayaran' => 'lunas',
-            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertCreated();
@@ -297,7 +292,6 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'dp',
-            'metode_pembayaran' => 'va',
         ]);
 
         $response->assertCreated();
@@ -326,7 +320,6 @@ class BookingControllerTest extends TestCase
             'nama' => 'Nama Baru Diabaikan',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
-            'metode_pembayaran' => 'qris',
         ]);
 
         $response->assertCreated();
@@ -350,12 +343,14 @@ class BookingControllerTest extends TestCase
             'slot_id' => $slot->id,
             'kode_booking' => 'BK260101TEST',
             'status_booking' => 'dikonfirmasi',
+            'total_bayar' => 120000,
         ]);
 
         $response = $this->getJson("/api/booking/{$booking->kode_booking}/status");
 
         $response->assertOk();
         $response->assertJsonPath('data.status_booking', 'dikonfirmasi');
+        $response->assertJsonPath('data.total_bayar', 120000);
     }
 
     public function test_cek_status_booking_404_kalau_kode_booking_tidak_ditemukan(): void
@@ -462,7 +457,6 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
-            'metode_pembayaran' => 'qris',
             'reminder_aktif' => true,
         ]);
 
@@ -490,7 +484,6 @@ class BookingControllerTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
-            'metode_pembayaran' => 'qris',
             'reminder_aktif' => true,
         ]);
 

@@ -3,20 +3,17 @@
 namespace App\Services;
 
 use App\Models\Booking;
-use App\Models\Pembayaran;
-use InvalidArgumentException;
 use Midtrans\Config;
-use Midtrans\CoreApi;
+use Midtrans\Snap;
 
 /**
- * Integrasi Midtrans Core API (bukan Snap) supaya bisa langsung dapat
- * instruksi bayar (QR string, nomor VA, link redirect e-wallet) tanpa
- * customer diarahkan ke halaman pembayaran Midtrans.
+ * Integrasi Midtrans Snap (bukan Core API), customer diarahkan ke halaman
+ * pembayaran hosted Midtrans dan bebas pilih metode apapun yang aktif di
+ * dashboard merchant (QRIS/VA/e-wallet/dst), bukan metode yang sudah
+ * ditentukan lebih dulu dari sisi kita.
  */
 class PaymentService
 {
-    private const METODE_VALID = ['qris', 'va', 'ewallet'];
-
     public function __construct()
     {
         $this->setupMidtrans();
@@ -32,46 +29,32 @@ class PaymentService
     }
 
     /**
-     * Buat transaksi di Midtrans untuk satu booking, simpan hasilnya ke
-     * tabel pembayaran, lalu kembalikan instruksi yang siap ditampilkan
-     * ke customer (beda bentuk instruksi tergantung metode-nya).
+     * Buat transaksi Snap untuk satu booking. Pembayaran::create() sengaja
+     * TIDAK dipanggil di sini (beda dari integrasi Core API sebelumnya)
+     * karena metode pembayaran yang sebenarnya dipakai baru diketahui
+     * setelah customer memilihnya sendiri di halaman Midtrans, baris
+     * pembayaran baru dibuat oleh PembayaranController::webhook().
      *
-     * @return array{metode: string, kode_transaksi_gateway: ?string, instruksi: array<string, mixed>}
+     * @return array{redirect_url: ?string}
      */
-    public function createTransaction(Booking $booking, string $metode): array
+    public function createTransaction(Booking $booking, string $finishRedirectUrl): array
     {
-        if (! in_array($metode, self::METODE_VALID, true)) {
-            throw new InvalidArgumentException("Metode pembayaran \"{$metode}\" tidak dikenal.");
-        }
-
-        $response = $this->chargeMidtrans($this->buildParams($booking, $metode));
-
-        Pembayaran::create([
-            'tenant_id' => $booking->tenant_id,
-            'booking_id' => $booking->id,
-            'metode' => $metode,
-            'jumlah' => $booking->total_bayar,
-            'status' => 'pending',
-            'kode_transaksi_gateway' => $response['transaction_id'] ?? $booking->kode_booking,
-            'raw_response_gateway' => $response,
-        ]);
+        $response = $this->createSnapTransaction($this->buildParams($booking, $finishRedirectUrl));
 
         return [
-            'metode' => $metode,
-            'kode_transaksi_gateway' => $response['transaction_id'] ?? null,
-            'instruksi' => $this->ekstrakInstruksi($metode, $response),
+            'redirect_url' => $response['redirect_url'] ?? null,
         ];
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function buildParams(Booking $booking, string $metode): array
+    private function buildParams(Booking $booking, string $finishRedirectUrl): array
     {
         $customer = $booking->customer;
         $lapangan = $booking->slot->lapangan;
 
-        $params = [
+        return [
             'transaction_details' => [
                 'order_id' => $booking->kode_booking,
                 'gross_amount' => $booking->total_bayar,
@@ -87,77 +70,25 @@ class PaymentService
                 'email' => $customer->email ?: 'customer@greendeahan.com',
                 'phone' => $customer->no_telepon,
             ],
-        ];
-
-        return array_merge($params, $this->paramsUntukMetode($metode));
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function paramsUntukMetode(string $metode): array
-    {
-        return match ($metode) {
-            'qris' => ['payment_type' => 'qris'],
-            'va' => [
-                'payment_type' => 'bank_transfer',
-                'bank_transfer' => ['bank' => 'bca'],
+            'callbacks' => [
+                'finish' => $finishRedirectUrl,
             ],
-            'ewallet' => ['payment_type' => 'gopay'],
-        };
+        ];
     }
 
     /**
      * Panggilan sesungguhnya ke Midtrans, sengaja dipisah dari
      * createTransaction() supaya bisa di-partial-mock di test. SDK ini
      * pakai curl mentah (bukan Laravel Http client), jadi Http::fake()
-     * tidak akan bisa mencegat panggilan ke CoreApi::charge().
+     * tidak akan bisa mencegat panggilan ke Snap::createTransaction().
      *
      * @param  array<string, mixed>  $params
      * @return array<string, mixed>
      */
-    protected function chargeMidtrans(array $params): array
+    protected function createSnapTransaction(array $params): array
     {
-        $response = CoreApi::charge($params);
+        $response = Snap::createTransaction($params);
 
         return json_decode(json_encode($response), true) ?? [];
-    }
-
-    /**
-     * @param  array<string, mixed>  $response
-     * @return array<string, mixed>
-     */
-    private function ekstrakInstruksi(string $metode, array $response): array
-    {
-        return match ($metode) {
-            'qris' => [
-                'tipe' => 'qris',
-                'qr_url' => $this->cariActionUrl($response, 'generate-qr-code'),
-            ],
-            'va' => [
-                'tipe' => 'va',
-                'bank' => $response['va_numbers'][0]['bank'] ?? null,
-                'nomor_va' => $response['va_numbers'][0]['va_number'] ?? null,
-            ],
-            'ewallet' => [
-                'tipe' => 'ewallet',
-                'redirect_url' => $this->cariActionUrl($response, 'deeplink-redirect'),
-                'qr_url' => $this->cariActionUrl($response, 'generate-qr-code'),
-            ],
-        };
-    }
-
-    /**
-     * @param  array<string, mixed>  $response
-     */
-    private function cariActionUrl(array $response, string $nama): ?string
-    {
-        foreach ($response['actions'] ?? [] as $action) {
-            if (($action['name'] ?? null) === $nama) {
-                return $action['url'] ?? null;
-            }
-        }
-
-        return null;
     }
 }

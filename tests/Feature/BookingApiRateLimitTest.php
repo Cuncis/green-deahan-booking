@@ -85,7 +85,6 @@ class BookingApiRateLimitTest extends TestCase
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
-            'metode_pembayaran' => 'qris',
         ];
 
         for ($i = 0; $i < 5; $i++) {
