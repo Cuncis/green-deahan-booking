@@ -39,6 +39,7 @@
             <livewire:dashboard-admin />
         </main>
 
+        <x-wa-popup-script />
         @livewireScripts
     </body>
 </html>

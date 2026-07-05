@@ -142,7 +142,7 @@
                                     <td class="px-5 py-3">
                                         <div class="flex flex-wrap items-center gap-1.5">
                                             <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $booking->customer->no_telepon) }}"
-                                               target="_blank"
+                                               onclick="bukaChatWhatsApp(this.href); return false;"
                                                class="inline-flex items-center gap-1.5 bg-green text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold">
                                                 <x-icon name="wa-chat" size="14" class="text-white" />
                                                 Chat
@@ -217,6 +217,7 @@
             </x-card>
         </main>
 
+        <x-wa-popup-script />
         @livewireScripts
     </body>
 </html>

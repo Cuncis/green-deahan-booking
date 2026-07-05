@@ -25,7 +25,7 @@
 
             @if ($tenant->whatsapp_admin)
                 <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $tenant->whatsapp_admin) }}"
-                   target="_blank"
+                   onclick="bukaChatWhatsApp(this.href); return false;"
                    class="inline-flex items-center gap-2 bg-green text-white px-4 py-2 rounded-lg text-sm font-semibold">
                     <x-icon name="wa-chat" size="16" class="text-white" />
                     Hubungi Kami
@@ -421,7 +421,7 @@
                         <a
                             x-show="statusBooking !== 'dikonfirmasi'"
                             :href="waLink"
-                            target="_blank"
+                            @click.prevent="bukaChatWhatsApp(waLink)"
                             class="flex items-center justify-center gap-2 bg-green text-white rounded-lg py-3 font-bold text-sm mb-2"
                         >
                             <x-icon name="wa-chat" size="18" class="text-white" />
@@ -444,6 +444,7 @@
             @endif
         </footer>
 
+        <x-wa-popup-script />
         @livewireScripts
     </body>
 </html>
