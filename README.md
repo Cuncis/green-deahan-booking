@@ -105,41 +105,35 @@ npm ci && npm run build
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-sudo supervisorctl restart green-deahan-queue:* green-deahan-scheduler:*
+sudo systemctl reload php8.4-fpm.service
 ```
 
 `migrate --force` wajib dijalankan tiap deploy yang bawa migration baru, Laravel menolak jalan migrate di production tanpa flag ini. Kalau migration itu mengubah kolom/tabel (drop column, ubah enum, dst), backup database dulu sebelum `migrate --force` (`mysqldump`), karena migration seperti itu susah di-rollback bersih kalau sudah ada data baru masuk setelah deploy.
 
 **Catatan untuk rilis "hapus transfer manual" (Juli 2026):** rilis ini mengubah metode bayar tenant Basic dari transfer manual jadi Midtrans (QRIS/VA/e-wallet), termasuk migration yang memperketat enum `booking.tipe_pembayaran`/`pembayaran.metode` dan drop kolom `bank_nama`/`bank_no_rekening`/`bank_pemilik_rekening` dari `tenants`. Kalau ada tenant Basic yang sudah aktif pakai transfer manual, beri tahu mereka dulu sebelum deploy karena tampilan checkout customer mereka berubah begitu deploy ini naik (langsung tampil QRIS/VA/e-wallet, bukan info rekening lagi).
 
-Server production menjalankan dua proses background lewat [Supervisor](http://supervisord.org/), konfigurasi ada di `scripts/supervisor/laravel.conf`:
+Server production menjalankan dua tugas background lewat **cron** (bukan Supervisor, tidak ada proses panjang yang perlu di-restart tiap deploy), konfigurasi ada di `scripts/cron/green-deahan-booking`:
 
-- **Queue worker**, memproses job seperti `KirimNotifikasiWhatsApp` lewat `queue:work`.
-- **Scheduler**, menjalankan `booking:lepas-slot-kadaluarsa` tiap menit lewat `schedule:work`.
+- **Queue worker**, tiap menit cron panggil `queue:work --stop-when-empty` untuk proses job seperti `KirimNotifikasiWhatsApp` yang ada di antrian, lalu keluar sendiri begitu antrian kosong.
+- **Scheduler**, tiap menit cron panggil `schedule:run`, yang menjalankan tugas terjadwal mana saja yang memang jatuh tempo di menit itu: `booking:lepas-slot-kadaluarsa` (tiap menit), `tenant:kirim-tagihan-perpanjangan` dan `tenant:nonaktifkan-tenant-kadaluarsa` (harian).
+
+Karena keduanya dipanggil ulang dari nol tiap menit oleh cron, kode terbaru otomatis kepakai tiap kali jalan, tidak ada proses lama yang perlu di-restart manual setelah deploy.
 
 Cara pasang di server (Ubuntu/Debian):
 
 ```bash
-# 1. Install Supervisor kalau belum ada
-sudo apt-get update && sudo apt-get install -y supervisor
+# Salin file cron ke /etc/cron.d, sesuaikan path /var/www/green-deahan-booking
+# di dalam file kalau lokasi deploy-mu berbeda. Cron otomatis baca ulang
+# /etc/cron.d tiap file berubah, tidak perlu perintah "reread"/"update" seperti
+# Supervisor.
+sudo cp scripts/cron/green-deahan-booking /etc/cron.d/green-deahan-booking
+sudo chmod 644 /etc/cron.d/green-deahan-booking
 
-# 2. Salin config ke folder Supervisor, sesuaikan path /var/www/green-deahan-booking
-#    di dalam file kalau lokasi deploy-mu berbeda
-sudo cp scripts/supervisor/laravel.conf /etc/supervisor/conf.d/green-deahan-booking.conf
-
-# 3. Baca ulang config dan jalankan program-nya
-sudo supervisorctl reread
-sudo supervisorctl update
-sudo supervisorctl start green-deahan-queue:*
-sudo supervisorctl start green-deahan-scheduler:*
-
-# 4. Cek statusnya
-sudo supervisorctl status
+# Cek jadwalnya sudah terbaca
+sudo crontab -l -u www-data 2>/dev/null; cat /etc/cron.d/green-deahan-booking
 ```
 
-Setelah dipasang, Supervisor otomatis merestart kedua proses ini kalau crash atau server reboot (`autostart=true`, `autorestart=true`). Log masing-masing proses ada di `storage/logs/queue-worker.log` dan `storage/logs/scheduler.log`.
-
-Kalau ganti kode, jangan lupa `sudo supervisorctl restart green-deahan-queue:* green-deahan-scheduler:*` supaya worker DAN scheduler pakai kode terbaru (proses PHP yang sudah jalan tidak otomatis reload class yang berubah, jadi command terjadwal baru seperti `tenant:kirim-tagihan-perpanjangan` juga tidak akan kepakai kalau schedule:work yang lama masih jalan). `deploy.sh` di root project sudah menjalankan ini otomatis tiap deploy.
+Log queue worker ada di `storage/logs/queue-worker.log`. Scheduler tidak punya log terpisah, masing-masing command yang dijalankannya sudah `Log::info()`/`Log::warning()` sendiri (lihat `storage/logs/laravel.log`).
 
 ### Ownership Git di Server
 

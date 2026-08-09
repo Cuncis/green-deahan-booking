@@ -1,0 +1,14 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Scheduler: menjalankan semua Schedule::command(...) di routes/console.php
+# (booking:lepas-slot-kadaluarsa tiap menit, tenant:kirim-tagihan-perpanjangan
+# & tenant:nonaktifkan-tenant-kadaluarsa harian). schedule:run cuma proses
+# tugas yang memang jatuh tempo di menit itu, aman dipanggil tiap menit.
+* * * * * www-data cd /var/www/green-deahan-booking && php artisan schedule:run >> /dev/null 2>&1
+
+# Queue worker: --stop-when-empty bikin proses keluar begitu antrian kosong
+# (job seperti KirimNotifikasiWhatsApp), cron panggil lagi menit berikutnya.
+# --max-time=55 jaga-jaga supaya proses ini selesai sebelum cron tick
+# berikutnya mulai, mengurangi risiko dua proses jalan bersamaan.
+* * * * * www-data cd /var/www/green-deahan-booking && php artisan queue:work database --stop-when-empty --tries=3 --max-time=55 >> storage/logs/queue-worker.log 2>&1
