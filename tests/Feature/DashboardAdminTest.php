@@ -354,6 +354,101 @@ class DashboardAdminTest extends TestCase
             });
     }
 
+    public function test_reminder_yang_sudah_lewat_waktu_kirim_tampil_perlu_dikirim(): void
+    {
+        $tenant = $this->tenant();
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('premium'),
+        ));
+
+        $booking = $this->buatBooking($tenant, [], ['reminder_aktif' => true]);
+        $log = ReminderLog::factory()->create([
+            'tenant_id' => $tenant->id,
+            'booking_id' => $booking->id,
+            'status' => 'menunggu',
+            'waktu_kirim' => now()->subMinutes(10),
+            'pesan' => 'Reminder: jadwal main kamu kurang dari 2 jam lagi.',
+        ]);
+
+        Livewire::test(DashboardAdmin::class)
+            ->assertSee('Perlu Dikirim')
+            ->assertViewHas('daftarReminder', function ($daftar) use ($log) {
+                $perluDikirim = collect($daftar)->firstWhere('status', 'perlu_dikirim');
+
+                return $perluDikirim
+                    && $perluDikirim['id'] === $log->id
+                    && $perluDikirim['no_telepon'] === $log->booking->customer->no_telepon
+                    && $perluDikirim['pesan'] === $log->pesan;
+            });
+    }
+
+    public function test_reminder_yang_belum_waktunya_tampil_terjadwal_bukan_perlu_dikirim(): void
+    {
+        $tenant = $this->tenant();
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('premium'),
+        ));
+
+        $booking = $this->buatBooking($tenant, [], ['reminder_aktif' => true]);
+        ReminderLog::factory()->create([
+            'tenant_id' => $tenant->id,
+            'booking_id' => $booking->id,
+            'status' => 'menunggu',
+            'waktu_kirim' => now()->addHours(3),
+        ]);
+
+        Livewire::test(DashboardAdmin::class)
+            ->assertViewHas('daftarReminder', function ($daftar) {
+                $statusList = collect($daftar)->pluck('status');
+
+                return ! $statusList->contains('perlu_dikirim');
+            });
+    }
+
+    public function test_tandai_terkirim_mengubah_status_reminder_log(): void
+    {
+        $tenant = $this->tenant();
+
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('premium'),
+        ));
+
+        $booking = $this->buatBooking($tenant, [], ['reminder_aktif' => true]);
+        $log = ReminderLog::factory()->create([
+            'tenant_id' => $tenant->id,
+            'booking_id' => $booking->id,
+            'status' => 'menunggu',
+            'waktu_kirim' => now()->subMinutes(5),
+        ]);
+
+        Livewire::test(DashboardAdmin::class)->call('tandaiTerkirim', $log->id);
+
+        $this->assertSame('terkirim', $log->fresh()->status);
+    }
+
+    public function test_tandai_terkirim_tidak_bisa_untuk_reminder_tenant_lain(): void
+    {
+        $this->tenant();
+
+        $tenantLain = Tenant::factory()->create();
+        $bookingLain = $this->buatBooking($tenantLain, [], ['reminder_aktif' => true]);
+        $logLain = ReminderLog::factory()->create([
+            'tenant_id' => $tenantLain->id,
+            'booking_id' => $bookingLain->id,
+            'status' => 'menunggu',
+            'waktu_kirim' => now()->subMinutes(5),
+        ]);
+
+        Livewire::test(DashboardAdmin::class)->call('tandaiTerkirim', $logLain->id);
+
+        $this->assertSame('menunggu', $logLain->fresh()->status);
+    }
+
     public function test_perbandingan_cabang_meranking_berdasarkan_pendapatan(): void
     {
         $tenant = $this->tenant();

@@ -152,6 +152,7 @@ class PembayaranControllerTest extends TestCase
 
         $this->assertDatabaseHas('reminder_log', [
             'booking_id' => $booking->id,
+            'status' => 'menunggu',
         ]);
     }
 

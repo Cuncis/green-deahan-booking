@@ -98,6 +98,7 @@ class BookingAdminControllerTest extends TestCase
         $this->assertDatabaseHas('reminder_log', [
             'tenant_id' => $tenant->id,
             'booking_id' => $booking->id,
+            'status' => 'menunggu',
         ]);
     }
 

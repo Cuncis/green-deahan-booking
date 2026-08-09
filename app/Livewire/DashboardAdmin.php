@@ -118,18 +118,23 @@ class DashboardAdmin extends Component
     }
 
     /**
-     * Gabungan booking yang reminder-nya masih terjadwal (belum ada log
-     * kirim) dengan reminder yang sudah tercatat di reminder_log. Selama
-     * belum ada integrasi WhatsApp Business API, "terjadwal" berarti admin
-     * masih perlu mengirim manual, lihat references/notifikasi-whatsapp.md.
+     * Gabungan booking yang reminder-nya masih terjadwal (belum ada baris
+     * reminder_log sama sekali, mis. data demo yang dibuat langsung lewat
+     * factory) dengan reminder yang sudah tercatat di reminder_log,
+     * dikelompokkan berdasar status sebenarnya: perlu_dikirim (menunggu
+     * dan waktu_kirim sudah lewat, staf perlu klik kirim sekarang),
+     * terjadwal (menunggu tapi belum waktunya), terkirim/gagal (sudah
+     * diproses). Selama belum ada integrasi WhatsApp Business API,
+     * "perlu_dikirim" berarti admin masih perlu mengirim manual lewat
+     * tombol di widget ini, lihat references/notifikasi-whatsapp.md.
      *
-     * @return Collection<int, array{nama: string, waktu: string, status: string}>
+     * @return Collection<int, array{id: ?int, nama: string, no_telepon: ?string, lapangan: string, waktu: string, pesan: ?string, status: string}>
      */
     public function daftarReminder(): Collection
     {
         $tenant = app('tenant');
 
-        $terjadwal = Booking::where('tenant_id', $tenant->id)
+        $terjadwalBelumAdaLog = Booking::where('tenant_id', $tenant->id)
             ->where('reminder_aktif', true)
             ->where('status_booking', '!=', 'dibatalkan')
             ->whereDoesntHave('reminderLogs')
@@ -137,23 +142,78 @@ class DashboardAdmin extends Component
             ->with(['slot.lapangan', 'customer'])
             ->get()
             ->map(fn (Booking $booking) => [
+                'id' => null,
                 'nama' => $booking->customer->nama,
+                'no_telepon' => $booking->customer->no_telepon,
+                'lapangan' => $booking->slot->lapangan->nama,
                 'waktu' => $booking->slot->tanggal->format('d/m/Y').', '.substr($booking->slot->jam_mulai, 0, 5),
+                'pesan' => null,
                 'status' => 'terjadwal',
             ]);
 
-        $terkirim = ReminderLog::where('tenant_id', $tenant->id)
-            ->with(['booking.customer', 'booking.slot'])
-            ->latest('waktu_kirim')
+        $baseLogQuery = fn () => ReminderLog::where('tenant_id', $tenant->id)
+            ->with(['booking.customer', 'booking.slot.lapangan']);
+
+        $perluDikirim = $baseLogQuery()
+            ->where('status', 'menunggu')
+            ->where('waktu_kirim', '<=', now())
+            ->orderBy('waktu_kirim')
+            ->get()
+            ->map(fn (ReminderLog $log) => $this->formatReminderLog($log, 'perlu_dikirim'));
+
+        $terjadwalDenganLog = $baseLogQuery()
+            ->where('status', 'menunggu')
+            ->where('waktu_kirim', '>', now())
+            ->orderBy('waktu_kirim')
             ->take(10)
             ->get()
-            ->map(fn (ReminderLog $log) => [
-                'nama' => $log->booking->customer->nama,
-                'waktu' => $log->booking->slot->tanggal->format('d/m/Y').', '.substr($log->booking->slot->jam_mulai, 0, 5),
-                'status' => $log->status,
-            ]);
+            ->map(fn (ReminderLog $log) => $this->formatReminderLog($log, 'terjadwal'));
 
-        return $terjadwal->concat($terkirim)->take(15);
+        $terkirim = $baseLogQuery()
+            ->whereIn('status', ['terkirim', 'gagal'])
+            ->latest('updated_at')
+            ->take(10)
+            ->get()
+            ->map(fn (ReminderLog $log) => $this->formatReminderLog($log, $log->status));
+
+        return $perluDikirim
+            ->concat($terjadwalBelumAdaLog)
+            ->concat($terjadwalDenganLog)
+            ->concat($terkirim)
+            ->take(20);
+    }
+
+    /**
+     * @return array{id: int, nama: string, no_telepon: ?string, lapangan: string, waktu: string, pesan: string, status: string}
+     */
+    private function formatReminderLog(ReminderLog $log, string $status): array
+    {
+        return [
+            'id' => $log->id,
+            'nama' => $log->booking->customer->nama,
+            'no_telepon' => $log->booking->customer->no_telepon,
+            'lapangan' => $log->booking->slot->lapangan->nama,
+            'waktu' => $log->booking->slot->tanggal->format('d/m/Y').', '.substr($log->booking->slot->jam_mulai, 0, 5),
+            'pesan' => $log->pesan,
+            'status' => $status,
+        ];
+    }
+
+    /**
+     * Tandai satu reminder sudah dikirim manual lewat tombol "Kirim
+     * Sekarang" di widget (lihat dashboard-admin.blade.php), dipanggil
+     * bareng window.bukaChatWhatsApp() lewat x-on:click supaya satu klik
+     * langsung buka chat WhatsApp DAN tandai terkirim. Guard
+     * status='menunggu' bikin ini aman diklik dua kali (tidak menimpa baris
+     * yang sudah terkirim/gagal), dan tenant_id eksplisit (bukan cuma
+     * andalkan global scope) sesuai references/multi-tenant.md.
+     */
+    public function tandaiTerkirim(int $reminderLogId): void
+    {
+        ReminderLog::where('tenant_id', app('tenant')->id)
+            ->where('id', $reminderLogId)
+            ->where('status', 'menunggu')
+            ->update(['status' => 'terkirim']);
     }
 
     /**

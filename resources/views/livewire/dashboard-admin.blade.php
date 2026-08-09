@@ -240,31 +240,55 @@
                 <div class="text-xs font-bold uppercase tracking-wide text-green">Reminder Otomatis</div>
             </div>
             <div class="overflow-x-auto">
+                @php
+                    $statusBadge = [
+                        'perlu_dikirim' => 'pending',
+                        'terjadwal' => 'info',
+                        'terkirim' => 'confirmed',
+                        'gagal' => 'cancelled',
+                    ];
+                    $statusLabel = [
+                        'perlu_dikirim' => 'Perlu Dikirim',
+                        'terjadwal' => 'Terjadwal',
+                        'terkirim' => 'Terkirim',
+                        'gagal' => 'Gagal',
+                    ];
+                @endphp
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="bg-cream text-left text-[0.7rem] uppercase tracking-wide text-ink-soft">
                             <th class="px-5 py-2.5 font-bold">Customer</th>
-                            <th class="px-5 py-2.5 font-bold">Jadwal</th>
+                            <th class="px-5 py-2.5 font-bold">Lapangan &amp; Jadwal</th>
                             <th class="px-5 py-2.5 font-bold">Status</th>
+                            <th class="px-5 py-2.5 font-bold">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($daftarReminder as $index => $reminder)
-                            @php
-                                $tipeBadge = match ($reminder['status']) {
-                                    'terkirim' => 'confirmed',
-                                    'gagal' => 'cancelled',
-                                    default => 'pending',
-                                };
-                            @endphp
                             <tr wire:key="reminder-{{ $index }}" class="border-b border-cream last:border-0">
                                 <td class="px-5 py-3">{{ $reminder['nama'] }}</td>
-                                <td class="px-5 py-3">{{ $reminder['waktu'] }}</td>
-                                <td class="px-5 py-3"><x-badge :type="$tipeBadge">{{ ucfirst($reminder['status']) }}</x-badge></td>
+                                <td class="px-5 py-3">{{ $reminder['lapangan'] }}, {{ $reminder['waktu'] }}</td>
+                                <td class="px-5 py-3">
+                                    <x-badge :type="$statusBadge[$reminder['status']] ?? 'info'">
+                                        {{ $statusLabel[$reminder['status']] ?? ucfirst($reminder['status']) }}
+                                    </x-badge>
+                                </td>
+                                <td class="px-5 py-3">
+                                    @if ($reminder['status'] === 'perlu_dikirim')
+                                        <a
+                                            href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $reminder['no_telepon']) }}?text={{ urlencode($reminder['pesan']) }}"
+                                            x-on:click.prevent="bukaChatWhatsApp($el.href); $wire.tandaiTerkirim({{ $reminder['id'] }})"
+                                            class="inline-flex items-center gap-1.5 bg-green text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold"
+                                        >
+                                            <x-icon name="wa-chat" size="14" class="text-white" />
+                                            Kirim Sekarang
+                                        </a>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="px-5 py-6 text-center text-ink-soft">Belum ada reminder.</td>
+                                <td colspan="4" class="px-5 py-6 text-center text-ink-soft">Belum ada reminder.</td>
                             </tr>
                         @endforelse
                     </tbody>
