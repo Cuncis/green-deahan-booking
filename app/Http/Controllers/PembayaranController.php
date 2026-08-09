@@ -8,6 +8,8 @@ use App\Models\JadwalSlot;
 use App\Models\Pembayaran;
 use App\Models\ReminderLog;
 use App\Models\Tenant;
+use App\Models\TenantInvitation;
+use App\Services\TenantActivationService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +18,8 @@ use Illuminate\Support\Facades\Log;
 
 class PembayaranController extends Controller
 {
+    public function __construct(private readonly TenantActivationService $tenantActivationService) {}
+
     /**
      * Endpoint webhook dari Mayar. Tidak lewat middleware IdentifikasiTenant
      * karena yang memanggil adalah server Mayar, bukan browser customer,
@@ -34,9 +38,13 @@ class PembayaranController extends Controller
             return $this->tolakWebhook($request);
         }
 
+        if ($data['tipe'] === 'langganan_tenant') {
+            return $this->prosesWebhookLangganan($data);
+        }
+
         return DB::transaction(function () use ($data) {
             $booking = Booking::withoutGlobalScopes()
-                ->where('kode_booking', $data['kode_booking'])
+                ->where('kode_booking', $data['kode'])
                 ->lockForUpdate()
                 ->firstOrFail();
 
@@ -101,6 +109,35 @@ class PembayaranController extends Controller
     }
 
     /**
+     * Aktivasi tenant otomatis begitu invoice langganan dibayar (lihat
+     * PaymentService::createLanggananTransaction()), pengganti aktivasi
+     * manual lewat `php artisan tenant:activate`. dibayar_at dicek SETELAH
+     * lockForUpdate() (bukan sebelumnya) supaya webhook yang dikirim ulang
+     * oleh Mayar tidak memperpanjang tanggal_berakhir dua kali, lihat
+     * references/anti-double-booking.md untuk pola lock-lalu-cek yang sama.
+     */
+    private function prosesWebhookLangganan(array $data): JsonResponse
+    {
+        return DB::transaction(function () use ($data) {
+            $tenant = Tenant::where('kode_pendaftaran', $data['kode'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($tenant->dibayar_at === null && $data['status'] === 'sukses') {
+                $tenant = $this->tenantActivationService->aktifkan($tenant);
+                $tenant->update(['dibayar_at' => now()]);
+
+                if ($tenant->email_admin) {
+                    $invitation = TenantInvitation::buatUntuk($tenant, $tenant->email_admin);
+                    $invitation->kirimEmail();
+                }
+            }
+
+            return response()->json(['message' => 'Webhook diterima.']);
+        });
+    }
+
+    /**
      * Terjemahkan notifikasi Mayar ke skema internal yang dipakai
      * konfirmasiBooking()/batalkanBooking() di atas. Return null kalau
      * status atau metode pembayaran belum pernah dipetakan (bukan berarti
@@ -112,13 +149,29 @@ class PembayaranController extends Controller
      * (unpaid/paid/expired, lihat https://docs.mayar.id/api-reference/invoice/detail)
      * ditambah variasi yang dipakai contoh notifikasi payment.received
      * (SUCCESS). Kalau di sandbox nanti ternyata field/nilai aslinya beda,
-     * raw_response_gateway di baris pembayaran menyimpan payload mentahnya
-     * untuk debugging, tinggal tambah pemetaannya di sini.
+     * raw_response_gateway/tenant di baris terkait menyimpan payload
+     * mentahnya untuk debugging, tinggal tambah pemetaannya di sini.
      *
-     * @return array{kode_booking: string, status: string, metode: string, jumlah: int, kode_transaksi_gateway: string, raw: array<string, mixed>}|null
+     * extraData.tipe membedakan invoice booking (dibuat
+     * PaymentService::buildParams()) dari invoice langganan tenant (dibuat
+     * PaymentService::buildParamsLangganan()), default ke 'booking' untuk
+     * invoice lama yang dibuat sebelum field ini ada. metode pembayaran
+     * cuma relevan untuk booking (disimpan di Pembayaran::metode), jadi
+     * TIDAK digatekan untuk tipe langganan_tenant supaya webhook
+     * pembayaran tenant tidak ditolak gara-gara Mayar kirim paymentMethod
+     * yang belum ada di pemetaan booking (mis. transfer bank biasa/kartu
+     * kredit yang tidak relevan buat booking tapi valid buat langganan).
+     *
+     * @return array{tipe: string, kode: string, status: string, metode: ?string, jumlah: int, kode_transaksi_gateway: string, raw: array<string, mixed>}|null
      */
     private function parseMayarPayload(Request $request): ?array
     {
+        $tipe = (string) $request->input('data.extraData.tipe', 'booking');
+
+        if (! in_array($tipe, ['booking', 'langganan_tenant'], true)) {
+            return null;
+        }
+
         $status = match (strtoupper((string) $request->input('data.status'))) {
             'PAID', 'SUCCESS', 'SETTLED' => 'sukses',
             'EXPIRED', 'FAILED', 'CANCELLED', 'CANCELED' => 'gagal',
@@ -133,15 +186,20 @@ class PembayaranController extends Controller
             default => null,
         };
 
-        $kodeBooking = (string) $request->input('data.extraData.noCustomer');
+        $kode = (string) $request->input('data.extraData.noCustomer');
         $jumlah = $request->input('data.amount');
 
-        if ($status === null || $metode === null || $kodeBooking === '' || $jumlah === null) {
+        if ($status === null || $kode === '' || $jumlah === null) {
+            return null;
+        }
+
+        if ($tipe === 'booking' && $metode === null) {
             return null;
         }
 
         return [
-            'kode_booking' => $kodeBooking,
+            'tipe' => $tipe,
+            'kode' => $kode,
             'status' => $status,
             'metode' => $metode,
             'jumlah' => (int) round((float) $jumlah),

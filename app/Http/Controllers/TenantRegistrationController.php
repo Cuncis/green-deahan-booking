@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Cabang;
 use App\Models\Tenant;
 use App\Models\TenantFitur;
+use App\Services\PaymentService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
@@ -15,10 +17,28 @@ class TenantRegistrationController extends Controller
     {
         return view('pages.register-tenant', [
             'paketTerpilih' => $request->query('paket', 'basic'),
+            'hargaPaket' => Tenant::HARGA_PAKET,
+            'hargaAddonDomain' => Tenant::HARGA_ADDON_CUSTOM_DOMAIN,
         ]);
     }
 
-    public function store(Request $request): View
+    /**
+     * Halaman yang dilihat customer setelah kembali dari Mayar (lihat
+     * redirectUrl di PaymentService::createLanggananTransaction()).
+     * Aktivasi sesungguhnya terjadi lewat webhook
+     * (PembayaranController::prosesWebhookLangganan()), yang bisa datang
+     * beberapa saat SETELAH browser kembali ke halaman ini, jadi view-nya
+     * WAJIB baca status tenant yang sebenarnya (dibayar_at/status_aktif),
+     * tidak boleh asal anggap sudah aktif cuma karena sampai di halaman ini.
+     */
+    public function sukses(Request $request): View
+    {
+        $tenant = Tenant::where('kode_pendaftaran', $request->query('kode_pendaftaran'))->firstOrFail();
+
+        return view('pages.register-tenant-sukses', ['tenant' => $tenant]);
+    }
+
+    public function store(Request $request): View|RedirectResponse
     {
         $data = $request->validate([
             'nama_bisnis' => ['required', 'string', 'max:150'],
@@ -74,6 +94,7 @@ class TenantRegistrationController extends Controller
         $tenant = Tenant::create([
             'nama_bisnis' => $data['nama_bisnis'],
             'domain' => $domain,
+            'kode_pendaftaran' => Tenant::generateKodePendaftaran(),
             'custom_domain_diminta' => $customDomainDiminta ? strtolower(trim($customDomainDiminta)) : null,
             'paket' => $data['paket'],
             'status_aktif' => false,
@@ -98,15 +119,36 @@ class TenantRegistrationController extends Controller
 
         $this->kirimNotifikasiPendaftaran($tenant, $data['nama_pic'], $data['subdomain']);
 
+        $jumlah = Tenant::hitungHargaLangganan($data['paket'], (bool) $tenant->custom_domain_diminta);
+
+        // Panggilan ke Mayar sengaja setelah semua insert di atas selesai,
+        // supaya tenant/fitur/cabang tetap tersimpan walau pembuatan invoice
+        // gagal (fallback di bawah), sama seperti pola di
+        // BookingController::buatBooking().
+        try {
+            $finishRedirectUrl = route('daftar.sukses', ['kode_pendaftaran' => $tenant->kode_pendaftaran]);
+
+            $response = app(PaymentService::class)->createLanggananTransaction($tenant, $jumlah, $finishRedirectUrl);
+
+            if ($response['redirect_url']) {
+                return redirect($response['redirect_url']);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         return view('pages.register-tenant-sukses', [
             'tenant' => $tenant,
+            'pembayaranError' => 'Pendaftaran kamu tersimpan, tapi link pembayaran online gagal dibuat. Tim kami sudah diberi tahu dan akan segera menghubungimu.',
         ]);
     }
 
     /**
-     * Kirim email ke admin platform kalau ada pendaftar baru. Best-effort
-     * saja (sama seperti SuperadminController::kirimEmailUndangan()),
-     * kegagalan kirim email tidak boleh menggagalkan pendaftaran tenant.
+     * Kirim email ke admin platform kalau ada pendaftar baru. Informasional
+     * saja, TIDAK memblokir apapun, tenant otomatis aktif begitu invoice
+     * Mayar dibayar (lihat PembayaranController::prosesWebhookLangganan()).
+     * Best-effort, kegagalan kirim email tidak boleh menggagalkan
+     * pendaftaran tenant.
      */
     private function kirimNotifikasiPendaftaran(Tenant $tenant, string $namaPic, string $subdomain): void
     {
@@ -133,7 +175,8 @@ class TenantRegistrationController extends Controller
         }
 
         $baris[] = '';
-        $baris[] = "Konfirmasi pembayaran lalu aktifkan lewat: php artisan tenant:activate {$subdomain}";
+        $baris[] = "Tenant ini otomatis aktif begitu pembayaran Mayar diterima (kode: {$tenant->kode_pendaftaran}).";
+        $baris[] = "Kalau perlu override manual (komplimenter, diskon, dst): php artisan tenant:activate {$subdomain}";
 
         try {
             Mail::raw(

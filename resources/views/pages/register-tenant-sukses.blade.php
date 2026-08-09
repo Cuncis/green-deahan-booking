@@ -24,13 +24,26 @@
 
         <div class="max-w-md mx-auto px-5 py-16 text-center">
             <div class="flex justify-center mb-4">
-                <x-icon name="check-circle" size="48" class="text-green" />
+                <x-icon name="{{ isset($pembayaranError) ? 'warning' : 'check-circle' }}" size="48" class="{{ isset($pembayaranError) ? 'text-danger' : 'text-green' }}" />
             </div>
-            <h1 class="font-display text-2xl font-semibold text-ink mb-2">Pendaftaran Diterima</h1>
-            <p class="text-sm text-ink-mid mb-6">
-                Kami akan menghubungi kamu dalam 1x24 jam untuk aktivasi "{{ $tenant->nama_bisnis }}"
-                di {{ $tenant->domain }}.
-            </p>
+
+            @if (isset($pembayaranError))
+                <h1 class="font-display text-2xl font-semibold text-ink mb-2">Pendaftaran Tersimpan</h1>
+                <p class="text-sm text-ink-mid mb-6">{{ $pembayaranError }}</p>
+            @elseif ($tenant->status_aktif && $tenant->dibayar_at)
+                <h1 class="font-display text-2xl font-semibold text-ink mb-2">Pembayaran Diterima</h1>
+                <p class="text-sm text-ink-mid mb-6">
+                    "{{ $tenant->nama_bisnis }}" di {{ $tenant->domain }} sudah aktif. Cek email
+                    {{ $tenant->email_admin }} untuk link setup akun owner kamu.
+                </p>
+            @else
+                <h1 class="font-display text-2xl font-semibold text-ink mb-2">Menunggu Konfirmasi Pembayaran</h1>
+                <p class="text-sm text-ink-mid mb-6">
+                    Terima kasih! Setelah pembayaran untuk "{{ $tenant->nama_bisnis }}" kami terima (biasanya
+                    dalam beberapa menit), "{{ $tenant->domain }}" otomatis aktif dan link setup akun owner
+                    akan dikirim ke {{ $tenant->email_admin }}.
+                </p>
+            @endif
 
             @if ($tenant->custom_domain_diminta)
                 <div class="mb-6 rounded-lg border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-ink text-left">

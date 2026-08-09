@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Tenant;
-use App\Models\TenantFitur;
 use App\Models\TenantInvitation;
+use App\Services\TenantActivationService;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -14,6 +14,11 @@ use Illuminate\Console\Command;
 class AktifkanTenant extends Command
 {
     private const PAKET_VALID = ['basic', 'pro', 'premium'];
+
+    public function __construct(private readonly TenantActivationService $tenantActivationService)
+    {
+        parent::__construct();
+    }
 
     /**
      * Execute the console command.
@@ -38,28 +43,7 @@ class AktifkanTenant extends Command
             return self::FAILURE;
         }
 
-        if ($paket !== null && $paket !== $tenant->paket) {
-            $tenant->update(['paket' => $paket]);
-
-            TenantFitur::updateOrCreate(
-                ['tenant_id' => $tenant->id],
-                TenantFitur::presetUntukPaket($paket),
-            );
-        }
-
-        // Perpanjang dari tanggal berakhir yang lama kalau masih aktif
-        // (menambah sisa waktu), atau dari hari ini kalau sudah lewat
-        // (supaya klien tidak dirugikan dihitung dari tanggal kadaluarsa).
-        $dasarPerpanjangan = $tenant->tanggal_berakhir && $tenant->tanggal_berakhir->isFuture()
-            ? $tenant->tanggal_berakhir->copy()
-            : today();
-
-        $tenant->update([
-            'status_aktif' => true,
-            'tanggal_berakhir' => $dasarPerpanjangan->addDays($hariPerpanjang),
-        ]);
-
-        $tenant->refresh();
+        $tenant = $this->tenantActivationService->aktifkan($tenant, $paket, $hariPerpanjang);
 
         $this->info("Tenant \"{$tenant->nama_bisnis}\" ({$tenant->domain}) diaktifkan.");
         $this->line('Paket: '.$tenant->paket);

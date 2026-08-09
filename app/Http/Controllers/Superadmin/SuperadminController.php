@@ -11,7 +11,6 @@ use App\Models\TenantInvitation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -100,7 +99,7 @@ class SuperadminController extends Controller
 
         $invitation = TenantInvitation::buatUntuk($tenant, $data['email_pic']);
 
-        $this->kirimEmailUndangan($tenant, $invitation, $data['nama_pic']);
+        $invitation->kirimEmail($data['nama_pic']);
 
         return view('superadmin.tenants.success', [
             'tenant' => $tenant,
@@ -184,36 +183,12 @@ class SuperadminController extends Controller
 
         $invitation = TenantInvitation::buatUntuk($tenant, $tenant->email_admin);
 
-        $this->kirimEmailUndangan($tenant, $invitation);
+        $invitation->kirimEmail();
 
         return redirect()->route('superadmin.tenants')
             ->with('success', "Invitation owner untuk \"{$tenant->nama_bisnis}\" berhasil dibuat.")
             ->with('invitation_link', $invitation->link())
             ->with('invitation_tenant', $tenant->nama_bisnis);
-    }
-
-    /**
-     * Kirim link undangan lewat email. Best-effort saja, dan link-nya tetap
-     * ditampilkan di halaman terlepas email berhasil terkirim atau tidak,
-     * karena selama MAIL_MAILER=log (default lokal) "terkirim" cuma berarti
-     * masuk ke file log, bukan benar-benar sampai ke inbox.
-     */
-    private function kirimEmailUndangan(Tenant $tenant, TenantInvitation $invitation, ?string $namaPic = null): void
-    {
-        $link = $invitation->link();
-        $sapaan = $namaPic ? "Halo {$namaPic}," : 'Halo,';
-
-        try {
-            Mail::raw(
-                "{$sapaan}\n\nKamu diundang jadi owner untuk tenant \"{$tenant->nama_bisnis}\" di Green Deahan Sport Platform.\n\nKlik link berikut untuk membuat akun, berlaku 7 hari:\n{$link}",
-                function ($message) use ($invitation, $tenant) {
-                    $message->to($invitation->email)
-                        ->subject("Undangan jadi Owner, {$tenant->nama_bisnis}");
-                },
-            );
-        } catch (\Throwable $e) {
-            report($e);
-        }
     }
 
     /**

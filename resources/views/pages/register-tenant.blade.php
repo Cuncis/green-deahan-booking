@@ -31,8 +31,8 @@
             x-data="{
                 paket: @js(old('paket', $paketTerpilih)),
                 customDomain: @js(old('custom_domain_diminta', '')),
-                hargaPaket: { basic: 1500000, pro: 2500000, premium: 4500000 },
-                hargaAddonDomain: 250000,
+                hargaPaket: @js($hargaPaket),
+                hargaAddonDomain: @js($hargaAddonDomain),
                 get bisaCustomDomain() { return this.paket !== 'basic' },
                 get totalHarga() {
                     let total = this.hargaPaket[this.paket] ?? 0;
@@ -44,7 +44,7 @@
         >
             <div class="mb-6">
                 <h1 class="font-display text-2xl font-semibold text-ink mb-1">Daftarkan Bisnismu</h1>
-                <p class="text-sm text-ink-soft">Isi data di bawah, tim kami akan menghubungimu untuk aktivasi dalam 1x24 jam.</p>
+                <p class="text-sm text-ink-soft">Isi data di bawah, kamu akan diarahkan ke halaman pembayaran dan akun ownermu aktif otomatis begitu pembayaran diterima.</p>
             </div>
 
             @if ($errors->any())

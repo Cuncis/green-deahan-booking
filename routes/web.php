@@ -87,6 +87,7 @@ Route::middleware('guest')->group(function () {
 Route::withoutMiddleware(IdentifikasiTenant::class)->group(function () {
     Route::get('/daftar', [TenantRegistrationController::class, 'show'])->name('daftar.show');
     Route::post('/daftar', [TenantRegistrationController::class, 'store'])->name('daftar.store');
+    Route::get('/daftar/sukses', [TenantRegistrationController::class, 'sukses'])->name('daftar.sukses');
 });
 
 // Superadmin platform: independen dari tenant manapun, jadi sengaja
