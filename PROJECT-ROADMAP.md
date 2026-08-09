@@ -52,6 +52,13 @@ Disusun dari riwayat commit, dari yang paling awal:
 | Analitik lanjutan antar cabang | Tidak | Tidak | Ya |
 | Batas jumlah lapangan | 1 | 3 | tanpa batas |
 
+**Hasil audit halaman harga vs kode (9 Agustus 2026):** dicek satu-satu, `resources/views/pages/pricing.blade.php` (yang dilihat calon klien) dibandingkan `TenantFitur::presetUntukPaket()` (yang sungguhan dipakai sistem) dan `Tenant::HARGA_PAKET`/`HARGA_ADDON_CUSTOM_DOMAIN` (yang sungguhan ditagih otomatis).
+
+- Harga (Rp1,5jt/2,5jt/4,5jt) dan semua baris fitur di tabel atas **sudah cocok** dengan halaman harga publik, tidak ada yang salah tampil.
+- **Sudah dibetulkan:** baris "Reminder otomatis sebelum main" di halaman harga sebelumnya kelewat janji, kesannya kirim sendiri tanpa disentuh, padahal staf tetap harus klik "Kirim Sekarang" (lihat bagian 4). Teksnya sekarang diubah jadi "Reminder terjadwal sebelum main (klik kirim WA)".
+- **Belum dibetulkan, masih perlu keputusan:** halaman harga jual addon "Tambahan lapangan (di luar paket), Rp200rb/lapangan", tapi di sistem TIDAK ADA cara beli itu. Begitu tenant kena batas jumlah lapangan (`LapanganAdminController::store()`), satu-satunya jalan yang ditawarkan sistem cuma "Upgrade paket", tidak ada opsi bayar Rp200rb buat nambah satu lapangan tanpa naik paket. Kalau ini memang cuma janji layanan manual/offline yang diurus tim di luar sistem, halaman harga sudah benar dan tidak perlu diapa-apakan. Kalau maksudnya harus bisa dibeli sendiri lewat dashboard, ini masih perlu dibangun.
+- Bagian "Layanan & Support" (support Email/WA+Email/Prioritas, pelatihan, update fitur gratis) dan 5 addon lain (desain logo, integrasi WA Business, foto profesional, setup SEO) murni janji layanan, tidak ada representasinya di kode sama sekali, jadi tidak bisa dicek dari sini, harus dikonfirmasi manual apakah masih sesuai kenyataan yang dikerjakan tim.
+
 ## 4. Mana yang Sudah Otomatis, Mana yang Masih Manual
 
 **Keputusan yang sudah disepakati (9 Agustus 2026):** WhatsApp memang sengaja tetap manual (klik link `wa.me`), bukan sesuatu yang harus dibetulkan. Selain itu, semua langkah yang masih perlu campur tangan manusia jadi target untuk dihilangkan.
@@ -82,7 +89,8 @@ Diurutkan dari yang paling penting:
 2. ~~Otomatiskan tagihan perpanjangan tahunan.~~ **Sudah selesai.** Tagihan perpanjangan otomatis terkirim 14 hari sebelum jatuh tempo, otomatis perpanjang begitu dibayar, otomatis nonaktif kalau 7 hari lewat jatuh tempo masih belum dibayar.
 3. ~~Bikin cara mudah bikin akun superadmin.~~ **Sudah ada dari awal** (`php artisan superadmin:create`), bukan pekerjaan baru, cuma salah catat di dokumen ini sebelumnya.
 4. ~~Widget "reminder yang harus dikirim" di dashboard tenant.~~ **Sudah selesai.** Widget "Reminder Otomatis" sekarang membedakan reminder yang perlu dikirim sekarang, yang masih terjadwal, dan yang sudah terkirim, lengkap tombol kirim satu klik (buka WhatsApp + tandai terkirim sekaligus). Sudah dicoba langsung di browser, jalan dengan benar.
-5. **Cek ulang tabel harga dan fitur di bagian 3, apakah masih sesuai dengan yang benar-benar dijual sekarang.** Ini bukan pekerjaan coding, cukup dicek lima menit. Perlu diperhatikan, harga di tabel itu (dan angka diskon perpanjangan di atas) sekarang JUGA yang dipakai sistem untuk menagih otomatis, jadi kalau angkanya beda dari yang sebenarnya dijual, bukan cuma salah tampilan, tapi bisa salah tagih ke calon klien.
-6. **Fitur lain yang mungkin sudah direncanakan tapi belum ada jejaknya di sistem** (refund, ekspor data tenant, mata uang lain, aplikasi mobile, dan sejenisnya). Kalau ada rencana seperti itu, sebutkan saja supaya bisa ikut dicatat di sini.
+5. ~~Cek ulang tabel harga dan fitur di bagian 3, apakah masih sesuai dengan yang benar-benar dijual sekarang.~~ **Sudah dicek.** Harga dan fitur inti sudah cocok, teks "Reminder otomatis" yang kelewat janji sudah dibetulkan. Satu temuan masih menunggu keputusan, lihat poin 6.
+6. **Putuskan nasib addon "Tambahan lapangan Rp200rb/lapangan".** Dijual di halaman harga tapi tidak ada cara beli lewat sistem (lihat catatan di bagian 3). Kalau memang cuma janji layanan manual, halaman harga sudah benar, tidak perlu kerjaan apa-apa. Kalau harus bisa dibeli sendiri lewat dashboard tenant, ini butuh dibangun (perlu keputusan harga per-lapangan sekali beli vs berulang tahunan, sebelum bisa dibuatkan rencana kerja).
+7. **Fitur lain yang mungkin sudah direncanakan tapi belum ada jejaknya di sistem** (refund, ekspor data tenant, mata uang lain, aplikasi mobile, dan sejenisnya). Kalau ada rencana seperti itu, sebutkan saja supaya bisa ikut dicatat di sini.
 
 Bilang saja kalau mau mulai kerjakan salah satu poin di atas, nanti langsung dibuatkan rencana kerjanya.

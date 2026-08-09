@@ -48,7 +48,7 @@
             ['Kode promo & diskon', 'no', 'yes', 'yes'],
             ['Booking berulang (jadwal rutin)', 'no', 'yes', 'yes'],
             ['Rating & ulasan pelanggan', 'no', 'yes', 'yes'],
-            ['Reminder otomatis sebelum main', 'no', 'no', 'yes'],
+            ['Reminder terjadwal sebelum main (klik kirim WA)', 'no', 'no', 'yes'],
             ['Domain & branding sendiri', 'no', 'yes', 'yes'],
             ['Multi-cabang', 'no', 'no', 'yes'],
         ],
