@@ -108,6 +108,54 @@ class PaymentService
     }
 
     /**
+     * Buat invoice Mayar untuk perpanjangan tahunan tenant yang sudah
+     * pernah aktif. Dipakai KirimTagihanPerpanjangan (dijalankan scheduler
+     * 14 hari sebelum tanggal_berakhir), aktivasinya lewat
+     * PembayaranController::prosesWebhookPerpanjangan(). $kode adalah
+     * TenantTagihanPerpanjangan::kode (bukan Tenant::kode_pendaftaran),
+     * karena satu tenant bisa punya banyak tagihan perpanjangan sepanjang
+     * hidupnya, beda dari kode_pendaftaran yang sekali pakai.
+     *
+     * @return array{redirect_url: ?string}
+     */
+    public function createPerpanjanganTransaction(Tenant $tenant, string $kode, int $jumlah, string $finishRedirectUrl): array
+    {
+        $response = $this->createInvoice($this->buildParamsPerpanjangan($tenant, $kode, $jumlah, $finishRedirectUrl));
+
+        return [
+            'redirect_url' => $response['data']['link'] ?? null,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildParamsPerpanjangan(Tenant $tenant, string $kode, int $jumlah, string $finishRedirectUrl): array
+    {
+        return [
+            'name' => $tenant->nama_bisnis,
+            'email' => $tenant->email_admin ?: 'admin@greendeahan.com',
+            'mobile' => $tenant->whatsapp_admin,
+            'redirectUrl' => $finishRedirectUrl,
+            'description' => 'Perpanjangan paket '.$tenant->paket.' Green Deahan Sport',
+            // Berlaku jauh lebih lama dari invoice booking/langganan baru
+            // (2 jam) supaya link yang sama masih bisa dipakai bayar selama
+            // jendela pengingat (14 hari) sampai masa tenggang (7 hari)
+            // berjalan, lihat NonaktifkanTenantKadaluarsa.
+            'expiredAt' => now()->addDays(30)->toIso8601String(),
+            'items' => [[
+                'quantity' => 1,
+                'rate' => $jumlah,
+                'description' => 'Perpanjangan paket '.$tenant->paket,
+            ]],
+            'extraData' => [
+                'noCustomer' => $kode,
+                'tipe' => 'perpanjangan_tenant',
+            ],
+        ];
+    }
+
+    /**
      * Panggilan sesungguhnya ke Mayar, sengaja dipisah dari
      * createTransaction() supaya bisa di-partial-mock di test tanpa
      * panggilan network sungguhan ke sandbox Mayar.

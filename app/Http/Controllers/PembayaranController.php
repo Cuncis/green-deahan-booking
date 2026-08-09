@@ -9,6 +9,7 @@ use App\Models\Pembayaran;
 use App\Models\ReminderLog;
 use App\Models\Tenant;
 use App\Models\TenantInvitation;
+use App\Models\TenantTagihanPerpanjangan;
 use App\Services\TenantActivationService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -40,6 +41,10 @@ class PembayaranController extends Controller
 
         if ($data['tipe'] === 'langganan_tenant') {
             return $this->prosesWebhookLangganan($data);
+        }
+
+        if ($data['tipe'] === 'perpanjangan_tenant') {
+            return $this->prosesWebhookPerpanjangan($data);
         }
 
         return DB::transaction(function () use ($data) {
@@ -138,6 +143,33 @@ class PembayaranController extends Controller
     }
 
     /**
+     * Aktivasi ulang (perpanjangan) tenant begitu invoice perpanjangan
+     * dibayar, lihat PaymentService::createPerpanjanganTransaction() dan
+     * command KirimTagihanPerpanjangan/NonaktifkanTenantKadaluarsa. Yang
+     * dikunci di sini baris TenantTagihanPerpanjangan (bukan Tenant),
+     * karena kode referensinya (satu per siklus tagihan) ada di baris itu,
+     * bukan di tabel tenants. Cek status SETELAH lockForUpdate() supaya
+     * webhook yang dikirim ulang oleh Mayar tidak memperpanjang
+     * tanggal_berakhir dua kali, sama seperti prosesWebhookLangganan().
+     */
+    private function prosesWebhookPerpanjangan(array $data): JsonResponse
+    {
+        return DB::transaction(function () use ($data) {
+            $tagihan = TenantTagihanPerpanjangan::where('kode', $data['kode'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($tagihan->status === 'menunggu' && $data['status'] === 'sukses') {
+                $tagihan->update(['status' => 'dibayar', 'dibayar_pada' => now()]);
+
+                $this->tenantActivationService->aktifkan($tagihan->tenant);
+            }
+
+            return response()->json(['message' => 'Webhook diterima.']);
+        });
+    }
+
+    /**
      * Terjemahkan notifikasi Mayar ke skema internal yang dipakai
      * konfirmasiBooking()/batalkanBooking() di atas. Return null kalau
      * status atau metode pembayaran belum pernah dipetakan (bukan berarti
@@ -153,14 +185,15 @@ class PembayaranController extends Controller
      * mentahnya untuk debugging, tinggal tambah pemetaannya di sini.
      *
      * extraData.tipe membedakan invoice booking (dibuat
-     * PaymentService::buildParams()) dari invoice langganan tenant (dibuat
-     * PaymentService::buildParamsLangganan()), default ke 'booking' untuk
-     * invoice lama yang dibuat sebelum field ini ada. metode pembayaran
-     * cuma relevan untuk booking (disimpan di Pembayaran::metode), jadi
-     * TIDAK digatekan untuk tipe langganan_tenant supaya webhook
+     * PaymentService::buildParams()) dari invoice langganan tenant baru
+     * (buildParamsLangganan()) dan invoice perpanjangan tenant
+     * (buildParamsPerpanjangan()), default ke 'booking' untuk invoice lama
+     * yang dibuat sebelum field ini ada. metode pembayaran cuma relevan
+     * untuk booking (disimpan di Pembayaran::metode), jadi TIDAK digatekan
+     * untuk tipe langganan_tenant/perpanjangan_tenant supaya webhook
      * pembayaran tenant tidak ditolak gara-gara Mayar kirim paymentMethod
      * yang belum ada di pemetaan booking (mis. transfer bank biasa/kartu
-     * kredit yang tidak relevan buat booking tapi valid buat langganan).
+     * kredit yang tidak relevan buat booking tapi valid buat tenant).
      *
      * @return array{tipe: string, kode: string, status: string, metode: ?string, jumlah: int, kode_transaksi_gateway: string, raw: array<string, mixed>}|null
      */
@@ -168,7 +201,7 @@ class PembayaranController extends Controller
     {
         $tipe = (string) $request->input('data.extraData.tipe', 'booking');
 
-        if (! in_array($tipe, ['booking', 'langganan_tenant'], true)) {
+        if (! in_array($tipe, ['booking', 'langganan_tenant', 'perpanjangan_tenant'], true)) {
             return null;
         }
 

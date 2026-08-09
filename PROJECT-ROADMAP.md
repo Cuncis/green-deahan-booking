@@ -28,8 +28,9 @@ Disusun dari riwayat commit, dari yang paling awal:
 | **10. Penyempurnaan pembayaran** | Opsi transfer manual dihapus total, lalu Midtrans/Xendit **diganti sepenuhnya jadi Mayar** |
 | **11. Perbaikan tombol WhatsApp** | Klik tombol WhatsApp jadi lebih rapi (langsung buka WhatsApp Web di komputer, langsung buka app di HP) |
 | **12. Tagihan tenant otomatis** | Pendaftaran tenant baru sekarang otomatis buat tagihan Mayar dan langsung diarahkan ke halaman bayar, begitu dibayar akun tenant otomatis aktif dan email undangan buat ownernya otomatis terkirim, tidak perlu lagi kamu aktifkan manual satu-satu |
+| **13. Tagihan perpanjangan tahunan otomatis** | Sistem sekarang otomatis kirim tagihan perpanjangan 14 hari sebelum masa aktif tenant habis (harga 70% dari tahun pertama), otomatis perpanjang begitu dibayar, dan kalau sampai 7 hari lewat jatuh tempo belum dibayar juga, tenant otomatis dinonaktifkan (dengan satu email peringatan terakhir dulu di awal masa tenggang) |
 
-**Kondisi saat ini:** pembayaran booking pelanggan maupun tagihan langganan tenant sama-sama sudah lewat Mayar dari ujung ke ujung, hasil pengujian otomatis 349 dari 351 lolos (2 yang gagal sudah ada dari sebelumnya, tidak berhubungan sama sekali dengan pekerjaan sesi ini).
+**Kondisi saat ini:** pembayaran booking pelanggan, tagihan langganan tenant baru, maupun tagihan perpanjangan tahunan sama-sama sudah lewat Mayar dari ujung ke ujung, hasil pengujian otomatis 366 dari 368 lolos (2 yang gagal sudah ada dari sebelumnya, tidak berhubungan sama sekali dengan pekerjaan sesi ini).
 
 ## 3. Fitur di Tiap Paket
 
@@ -56,7 +57,9 @@ Disusun dari riwayat commit, dari yang paling awal:
 
 **Sudah otomatis penuh:**
 - Pelanggan booking lapangan, bayar lewat Mayar, sistem langsung konfirmasi booking-nya dan kunci jamnya. Tidak ada campur tangan manusia sama sekali.
-- Calon klien daftar tenant baru, bayar lewat Mayar (harga sesuai paket, tanpa nego), sistem otomatis aktifkan akunnya, perpanjang masa aktif, dan kirim email undangan ke ownernya. Command `tenant:activate` masih ada buat kondisi khusus (akun gratis/diskon, atau perpanjangan, lihat bagian di bawah).
+- Calon klien daftar tenant baru, bayar lewat Mayar (harga sesuai paket, tanpa nego), sistem otomatis aktifkan akunnya, perpanjang masa aktif, dan kirim email undangan ke ownernya. Command `tenant:activate` masih ada buat kondisi khusus (akun gratis/diskon, dan sejenisnya).
+- Setiap hari, sistem otomatis cek tenant mana yang masa aktifnya mau habis dalam 14 hari, buatkan tagihan perpanjangan (harga 70% dari tahun pertama), dan email-kan link bayarnya ke owner tenant. Begitu dibayar, masa aktif otomatis diperpanjang lagi.
+- Kalau sampai lewat jatuh tempo belum dibayar, tenant tetap dikasih masa tenggang 7 hari (dengan satu email peringatan terakhir di awal masa tenggang) sebelum akhirnya website-nya otomatis dinonaktifkan sendiri. Bayar kapan saja (bahkan setelah dinonaktifkan) otomatis mengaktifkan lagi, tidak perlu hubungi siapa-siapa.
 - Slot yang sudah "dikunci sementara" tapi tidak jadi dibayar otomatis dilepas lagi tiap menit.
 - Fitur yang tampil ke tenant selalu sesuai paketnya, tidak ada yang bocor ke paket yang tidak berhak.
 
@@ -65,19 +68,20 @@ Disusun dari riwayat commit, dari yang paling awal:
 - **Reminder otomatis Premium, jadi setengah otomatis.** Karena WhatsApp resmi belum dipasang, reminder tidak bisa benar-benar terkirim sendiri. Rencananya: sistem tetap otomatis catat kapan reminder harus dikirim, lalu tampilkan daftar "reminder yang harus dikirim sekarang" di dashboard tenant supaya staf tinggal klik sekali kirim, tidak perlu ingat-ingat sendiri jadwalnya. Lihat bagian 5.
 
 **Masih manual, jadi target berikutnya untuk dibikin otomatis:**
-- **Tagihan perpanjangan tahunan.** Pendaftaran pertama kali sekarang sudah otomatis (lihat di atas), tapi perpanjangan tahun berikutnya masih harus dijalankan manual lewat command. Belum ada sistem yang otomatis deteksi tenant yang masa aktifnya mau habis lalu kirim tagihan sendiri.
 - **Pemasangan domain custom.** Biaya tambahan domain custom sekarang sudah otomatis tertagih saat daftar, tapi proses pasang DNS dan sertifikat keamanannya (SSL) tetap harus dikerjakan manual oleh tim, karena verifikasi kepemilikan domain memang butuh pengecekan manusia.
 - **Pembuatan akun superadmin.** Belum ada cara otomatis untuk bikin akun superadmin baru, masih harus diubah manual langsung di database.
+
+**Catatan tentang harga perpanjangan:** karena angka pasti "biaya perpanjangan lebih ringan" belum pernah ditulis di mana pun sebelum ini, sistem sekarang pakai 70% dari harga tahun pertama (Basic Rp1.050.000, Pro Rp1.750.000, Premium Rp3.150.000/tahun), dan biaya domain custom TIDAK ditagih ulang terpisah saat perpanjangan (dianggap sudah termasuk di angka itu, sesuai teks di halaman harga yang bilang biaya ringan itu untuk "hosting, domain, dan maintenance"). Kalau angka atau asumsi ini ternyata bukan yang dimaksud, kasih tahu saja, gampang diubah di `Tenant::DISKON_PERPANJANGAN_PERSEN`.
 
 ## 5. Saran dan Langkah Selanjutnya
 
 Diurutkan dari yang paling penting:
 
-1. ~~Otomatiskan tagihan dan aktivasi tenant baru.~~ **Sudah selesai (sesi ini).** Pendaftaran tenant sekarang otomatis buat tagihan Mayar dan aktif sendiri begitu dibayar.
-2. **Otomatiskan tagihan perpanjangan tahunan.** Ini lanjutan alami dari poin 1, sekarang alur pendaftaran awal sudah terbukti jalan. Sistem perlu bisa deteksi tenant yang mau habis masa aktifnya, kirim tagihan perpanjangan sendiri, lalu perpanjang otomatis begitu dibayar.
+1. ~~Otomatiskan tagihan dan aktivasi tenant baru.~~ **Sudah selesai.** Pendaftaran tenant sekarang otomatis buat tagihan Mayar dan aktif sendiri begitu dibayar.
+2. ~~Otomatiskan tagihan perpanjangan tahunan.~~ **Sudah selesai (sesi ini).** Tagihan perpanjangan otomatis terkirim 14 hari sebelum jatuh tempo, otomatis perpanjang begitu dibayar, otomatis nonaktif kalau 7 hari lewat jatuh tempo masih belum dibayar.
 3. **Bikin cara mudah bikin akun superadmin.** Kecil dan aman dikerjakan, supaya server baru tidak perlu diutak-atik database manual.
 4. **Widget "reminder yang harus dikirim" di dashboard tenant.** Cara murah bikin fitur reminder Premium jadi benar-benar berguna tanpa perlu pasang WhatsApp API dulu.
-5. **Cek ulang tabel harga dan fitur di bagian 3, apakah masih sesuai dengan yang benar-benar dijual sekarang.** Ini bukan pekerjaan coding, cukup dicek lima menit. Perlu diperhatikan, harga di tabel itu sekarang JUGA yang dipakai sistem untuk menagih otomatis, jadi kalau angkanya beda dari yang sebenarnya dijual, bukan cuma salah tampilan, tapi bisa salah tagih ke calon klien.
+5. **Cek ulang tabel harga dan fitur di bagian 3, apakah masih sesuai dengan yang benar-benar dijual sekarang.** Ini bukan pekerjaan coding, cukup dicek lima menit. Perlu diperhatikan, harga di tabel itu (dan angka diskon perpanjangan di atas) sekarang JUGA yang dipakai sistem untuk menagih otomatis, jadi kalau angkanya beda dari yang sebenarnya dijual, bukan cuma salah tampilan, tapi bisa salah tagih ke calon klien.
 6. **Fitur lain yang mungkin sudah direncanakan tapi belum ada jejaknya di sistem** (refund, ekspor data tenant, mata uang lain, aplikasi mobile, dan sejenisnya). Kalau ada rencana seperti itu, sebutkan saja supaya bisa ikut dicatat di sini.
 
-Bilang saja kalau mau mulai kerjakan poin 2 (tagihan perpanjangan otomatis), nanti langsung dibuatkan rencana kerjanya.
+Bilang saja kalau mau mulai kerjakan salah satu poin di atas, nanti langsung dibuatkan rencana kerjanya.

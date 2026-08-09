@@ -48,6 +48,14 @@ class Tenant extends Model
     public const HARGA_ADDON_CUSTOM_DOMAIN = 250_000;
 
     /**
+     * Diskon perpanjangan tahunan dibanding harga tahun pertama, biaya
+     * hosting/domain/maintenance yang lebih ringan untuk tahun berikutnya
+     * (lihat teks di halaman /harga). Custom domain TIDAK ditagih ulang
+     * terpisah saat perpanjangan, sudah termasuk dalam angka ini.
+     */
+    public const DISKON_PERPANJANGAN_PERSEN = 30;
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -87,6 +95,11 @@ class Tenant extends Model
         return $this->hasMany(Staf::class);
     }
 
+    public function tagihanPerpanjangan(): HasMany
+    {
+        return $this->hasMany(TenantTagihanPerpanjangan::class);
+    }
+
     public function punyaFitur(string $namaFitur): bool
     {
         return (bool) ($this->fitur?->{$namaFitur} ?? false);
@@ -95,6 +108,11 @@ class Tenant extends Model
     public static function hitungHargaLangganan(string $paket, bool $customDomain): int
     {
         return self::HARGA_PAKET[$paket] + ($customDomain ? self::HARGA_ADDON_CUSTOM_DOMAIN : 0);
+    }
+
+    public static function hitungHargaPerpanjangan(string $paket): int
+    {
+        return (int) round(self::HARGA_PAKET[$paket] * (100 - self::DISKON_PERPANJANGAN_PERSEN) / 100);
     }
 
     /**
