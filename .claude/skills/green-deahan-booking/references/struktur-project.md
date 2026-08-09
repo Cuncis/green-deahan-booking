@@ -16,7 +16,7 @@ app/
 ├── Http/
 │   ├── Controllers/
 │   │   ├── BookingController.php      (hold slot, buat booking)
-│   │   └── PembayaranController.php   (webhook Midtrans/Xendit)
+│   │   └── PembayaranController.php   (webhook Mayar)
 │   └── Middleware/
 │       └── IdentifikasiTenant.php     (deteksi tenant dari domain)
 │

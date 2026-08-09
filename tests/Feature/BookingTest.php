@@ -11,10 +11,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Fokus khusus ke verifikasi signature webhook pembayaran
- * (PembayaranController::verifyMidtransSignature()/verifyXenditSignature()).
- * Pengujian logika bisnis webhook (konfirmasi booking, reminder, dst) ada
- * di PembayaranControllerTest.
+ * Fokus khusus ke verifikasi token webhook pembayaran
+ * (PembayaranController::verifyMayarToken()). Pengujian logika bisnis
+ * webhook (konfirmasi booking, reminder, dst) ada di PembayaranControllerTest.
  */
 class BookingTest extends TestCase
 {
@@ -43,22 +42,26 @@ class BookingTest extends TestCase
         ]);
     }
 
-    private function payloadInternal(Booking $booking): array
+    private function payloadMayar(Booking $booking): array
     {
         return [
-            'kode_transaksi_gateway' => 'TRX-'.$booking->id,
-            'kode_booking' => $booking->kode_booking,
-            'status' => 'sukses',
-            'metode' => 'qris',
-            'jumlah' => $booking->total_bayar,
+            'event' => 'payment.received',
+            'data' => [
+                'id' => 'invoice-'.$booking->id,
+                'transactionId' => 'TRX-'.$booking->id,
+                'status' => 'PAID',
+                'amount' => $booking->total_bayar,
+                'paymentMethod' => 'QRIS',
+                'extraData' => ['noCustomer' => $booking->kode_booking],
+            ],
         ];
     }
 
-    public function test_webhook_ditolak_tanpa_signature_valid(): void
+    public function test_webhook_ditolak_tanpa_token_valid(): void
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadInternal($booking));
+        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadMayar($booking));
 
         $response->assertStatus(401);
         $response->assertJson(['message' => 'Unauthorized']);
@@ -66,73 +69,27 @@ class BookingTest extends TestCase
         $this->assertDatabaseCount('pembayaran', 0);
     }
 
-    public function test_webhook_ditolak_kalau_xendit_callback_token_salah(): void
+    public function test_webhook_ditolak_kalau_token_salah(): void
+    {
+        $booking = $this->buatBookingMenunggu($this->tenant());
+
+        $response = $this->postJson('/api/webhook/pembayaran?token=token-salah', $this->payloadMayar($booking));
+
+        $response->assertStatus(401);
+        $this->assertSame('menunggu', $booking->fresh()->status_booking);
+    }
+
+    public function test_webhook_diterima_dengan_token_valid(): void
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
         $response = $this->postJson(
-            '/api/webhook/pembayaran',
-            $this->payloadInternal($booking),
-            ['x-callback-token' => 'token-salah'],
+            '/api/webhook/pembayaran?token=test-mayar-webhook-token',
+            $this->payloadMayar($booking),
         );
-
-        $response->assertStatus(401);
-        $this->assertSame('menunggu', $booking->fresh()->status_booking);
-    }
-
-    public function test_webhook_ditolak_kalau_midtrans_signature_salah(): void
-    {
-        $booking = $this->buatBookingMenunggu($this->tenant());
-
-        $response = $this->postJson('/api/webhook/pembayaran', [
-            'order_id' => $booking->kode_booking,
-            'status_code' => '200',
-            'gross_amount' => (string) $booking->total_bayar,
-            'signature_key' => 'signature-ngasal-bukan-hasil-hash',
-            'transaction_status' => 'settlement',
-            'payment_type' => 'qris',
-            'transaction_id' => 'TRX-'.$booking->id,
-        ]);
-
-        $response->assertStatus(401);
-        $this->assertSame('menunggu', $booking->fresh()->status_booking);
-    }
-
-    public function test_webhook_diterima_dengan_signature_valid(): void
-    {
-        $booking = $this->buatBookingMenunggu($this->tenant());
-
-        $orderId = $booking->kode_booking;
-        $statusCode = '200';
-        $grossAmount = (string) $booking->total_bayar;
-        $signatureKey = hash('sha512', $orderId.$statusCode.$grossAmount.config('services.midtrans.server_key'));
-
-        $response = $this->postJson('/api/webhook/pembayaran', [
-            'order_id' => $orderId,
-            'status_code' => $statusCode,
-            'gross_amount' => $grossAmount,
-            'signature_key' => $signatureKey,
-            'transaction_status' => 'settlement',
-            'payment_type' => 'qris',
-            'transaction_id' => 'TRX-'.$booking->id,
-        ]);
 
         $response->assertOk();
         $this->assertSame('dikonfirmasi', $booking->fresh()->status_booking);
         $this->assertDatabaseHas('pembayaran', ['booking_id' => $booking->id, 'status' => 'sukses']);
-    }
-
-    public function test_webhook_diterima_dengan_xendit_callback_token_valid(): void
-    {
-        $booking = $this->buatBookingMenunggu($this->tenant());
-
-        $response = $this->postJson(
-            '/api/webhook/pembayaran',
-            $this->payloadInternal($booking),
-            ['x-callback-token' => 'test-xendit-callback-token'],
-        );
-
-        $response->assertOk();
-        $this->assertSame('dikonfirmasi', $booking->fresh()->status_booking);
     }
 }

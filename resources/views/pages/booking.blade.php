@@ -124,9 +124,9 @@
                             this.memberTimer = setTimeout(() => this.cekMembership(digits), 600);
                         });
 
-                        // Customer kembali dari halaman pembayaran Midtrans (Snap
-                        // callbacks.finish, lihat PaymentService::buildParams()), buka lagi
-                        // modal status dan lanjut polling, bukan dibiarkan begitu saja.
+                        // Customer kembali dari halaman pembayaran Mayar (redirectUrl,
+                        // lihat PaymentService::buildParams()), buka lagi modal status
+                        // dan lanjut polling, bukan dibiarkan begitu saja.
                         const params = new URLSearchParams(window.location.search);
                         const kodeBooking = params.get('kode_booking');
                         if (kodeBooking) {
@@ -230,16 +230,16 @@
 
                             const redirectUrl = data.pembayaran?.redirect_url;
                             if (redirectUrl) {
-                                // Langsung pindah ke halaman pembayaran Midtrans, tidak perlu
+                                // Langsung pindah ke halaman pembayaran Mayar, tidak perlu
                                 // buka modal apapun di sini dulu. Modal statusnya baru muncul
-                                // nanti kalau customer sudah kembali dari Midtrans (lihat init()).
+                                // nanti kalau customer sudah kembali dari Mayar (lihat init()).
                                 akanRedirect = true;
                                 window.location.href = redirectUrl;
                                 return;
                             }
 
-                            // Snap gagal dibuat (lihat pembayaran_error), tidak ada halaman
-                            // Midtrans untuk diarahkan, jadi tampilkan kartu status di sini
+                            // Invoice gagal dibuat (lihat pembayaran_error), tidak ada halaman
+                            // Mayar untuk diarahkan, jadi tampilkan kartu status di sini
                             // supaya customer tidak bingung booking-nya hilang begitu saja.
                             this.hasil = data.data;
                             this.statusBooking = 'menunggu';
@@ -257,7 +257,7 @@
                     mulaiPollingStatus() {
                         this.hentikanPolling();
                         // Selaras dengan hold 10 menit dari KalenderBooking::pilihSlot(). Gateway
-                        // Midtrans konfirmasi dalam hitungan detik lewat webhook, jadi tidak perlu
+                        // Mayar konfirmasi dalam hitungan detik lewat webhook, jadi tidak perlu
                         // polling lebih lama dari jendela hold itu.
                         const intervalMs = 4000;
                         this.pollingSisa = Math.floor((10 * 60 * 1000) / intervalMs);
@@ -403,7 +403,7 @@
                         <p class="text-sm text-ink-mid mb-4" x-text="
                             statusBooking === 'dikonfirmasi' ? 'Terima kasih, pembayaran kamu sudah kami terima dan booking sudah dikonfirmasi.' :
                             (statusBooking === 'dibatalkan' ? 'Pembayaran tidak berhasil diproses, slot sudah dilepas kembali. Silakan booking ulang atau hubungi admin.' :
-                            'Slot kamu sudah diamankan. Kami sedang menunggu konfirmasi pembayaran dari Midtrans.')
+                            'Slot kamu sudah diamankan. Kami sedang menunggu konfirmasi pembayaran dari Mayar.')
                         "></p>
 
                         <div class="bg-cream rounded-lg p-3 text-sm text-ink-soft text-left mb-4">
@@ -413,7 +413,7 @@
 
                         <div x-show="statusBooking === 'menunggu'" x-cloak class="flex items-center justify-center gap-2 rounded-lg border border-cream-deep px-3 py-2.5 text-xs text-ink-soft mb-4">
                             <span class="w-1.5 h-1.5 rounded-full bg-amber animate-pulse"></span>
-                            Menunggu konfirmasi pembayaran dari Midtrans
+                            Menunggu konfirmasi pembayaran dari Mayar
                         </div>
 
                         <p class="text-sm text-danger mb-4" x-show="hasilPembayaranError" x-cloak x-text="hasilPembayaranError"></p>

@@ -17,44 +17,20 @@ use Illuminate\Support\Facades\Log;
 class PembayaranController extends Controller
 {
     /**
-     * Endpoint webhook dari payment gateway (Midtrans/Xendit). Tidak lewat
-     * middleware IdentifikasiTenant karena yang memanggil adalah server
-     * gateway, bukan browser customer, jadi tenant_id diambil dari data
-     * booking yang tersimpan, bukan dari domain.
+     * Endpoint webhook dari Mayar. Tidak lewat middleware IdentifikasiTenant
+     * karena yang memanggil adalah server Mayar, bukan browser customer,
+     * jadi tenant_id diambil dari data booking yang tersimpan, bukan dari
+     * domain. Lihat references/multi-tenant.md.
      */
     public function webhook(Request $request): JsonResponse
     {
-        // Deteksi gateway pengirim lalu verifikasi signature-nya SEBELUM
-        // memproses apapun. Xendit selalu kirim header x-callback-token;
-        // Midtrans selalu kirim signature_key di body, jadi keduanya tidak
-        // akan tumpang tindih satu sama lain.
-        if ($request->hasHeader('x-callback-token')) {
-            if (! $this->verifyXenditSignature($request)) {
-                return $this->tolakWebhook($request);
-            }
+        if (! $this->verifyMayarToken($request)) {
+            return $this->tolakWebhook($request);
+        }
 
-            // Xendit belum benar-benar terintegrasi (belum ada service yang
-            // membuat invoice Xendit sungguhan), jadi bentuk payload asli
-            // Xendit belum diketahui. Skema sederhana ini dipakai sementara
-            // sampai integrasinya benar-benar dibangun.
-            $data = $request->validate([
-                'kode_transaksi_gateway' => ['required', 'string'],
-                'kode_booking' => ['required', 'string'],
-                'status' => ['required', 'in:sukses,gagal,pending'],
-                'metode' => ['required', 'in:qris,ewallet,va'],
-                'jumlah' => ['required', 'integer'],
-            ]);
-        } elseif ($request->filled('signature_key')) {
-            if (! $this->verifyMidtransSignature($request)) {
-                return $this->tolakWebhook($request);
-            }
+        $data = $this->parseMayarPayload($request);
 
-            $data = $this->parseMidtransPayload($request);
-
-            if (! $data) {
-                return $this->tolakWebhook($request);
-            }
-        } else {
+        if (! $data) {
             return $this->tolakWebhook($request);
         }
 
@@ -71,6 +47,7 @@ class PembayaranController extends Controller
                 'jumlah' => $data['jumlah'],
                 'status' => $data['status'],
                 'kode_transaksi_gateway' => $data['kode_transaksi_gateway'],
+                'raw_response_gateway' => $data['raw'],
                 'waktu_bayar' => $data['status'] === 'sukses' ? now() : null,
             ]);
 
@@ -124,36 +101,42 @@ class PembayaranController extends Controller
     }
 
     /**
-     * Terjemahkan notifikasi asli Midtrans (order_id, transaction_status,
-     * payment_type, gross_amount, transaction_id, dst, lihat
-     * https://docs.midtrans.com/reference/http-notification) ke skema
-     * internal yang dipakai konfirmasiBooking()/batalkanBooking() di atas.
-     * Return null kalau transaction_status atau payment_type belum pernah
-     * dipetakan (bukan berarti invalid, tapi lebih aman ditolak daripada
-     * salah proses).
+     * Terjemahkan notifikasi Mayar ke skema internal yang dipakai
+     * konfirmasiBooking()/batalkanBooking() di atas. Return null kalau
+     * status atau metode pembayaran belum pernah dipetakan (bukan berarti
+     * invalid, tapi lebih aman ditolak daripada salah proses).
      *
-     * @return array{kode_booking: string, status: string, metode: string, jumlah: int, kode_transaksi_gateway: string}|null
+     * Mayar TIDAK mendokumentasikan bentuk payload webhook secara lengkap
+     * (lihat https://docs.mayar.id/integration/webhook), jadi status
+     * dipetakan dari nilai yang dikonfirmasi dokumentasi invoice/detail
+     * (unpaid/paid/expired, lihat https://docs.mayar.id/api-reference/invoice/detail)
+     * ditambah variasi yang dipakai contoh notifikasi payment.received
+     * (SUCCESS). Kalau di sandbox nanti ternyata field/nilai aslinya beda,
+     * raw_response_gateway di baris pembayaran menyimpan payload mentahnya
+     * untuk debugging, tinggal tambah pemetaannya di sini.
+     *
+     * @return array{kode_booking: string, status: string, metode: string, jumlah: int, kode_transaksi_gateway: string, raw: array<string, mixed>}|null
      */
-    private function parseMidtransPayload(Request $request): ?array
+    private function parseMayarPayload(Request $request): ?array
     {
-        $status = match ((string) $request->input('transaction_status')) {
-            'capture', 'settlement' => 'sukses',
-            'pending' => 'pending',
-            'deny', 'cancel', 'expire', 'failure' => 'gagal',
+        $status = match (strtoupper((string) $request->input('data.status'))) {
+            'PAID', 'SUCCESS', 'SETTLED' => 'sukses',
+            'EXPIRED', 'FAILED', 'CANCELLED', 'CANCELED' => 'gagal',
+            'UNPAID', 'PENDING', 'CREATED' => 'pending',
             default => null,
         };
 
-        $metode = match ((string) $request->input('payment_type')) {
-            'qris' => 'qris',
-            'gopay', 'shopeepay' => 'ewallet',
-            'bank_transfer', 'echannel', 'permata_va', 'other_va' => 'va',
+        $metode = match (strtoupper((string) $request->input('data.paymentMethod'))) {
+            'QRIS' => 'qris',
+            'VA', 'VIRTUAL_ACCOUNT', 'BANK_TRANSFER' => 'va',
+            'EWALLET', 'GOPAY', 'OVO', 'DANA', 'SHOPEEPAY', 'LINKAJA' => 'ewallet',
             default => null,
         };
 
-        $kodeBooking = (string) $request->input('order_id');
-        $grossAmount = $request->input('gross_amount');
+        $kodeBooking = (string) $request->input('data.extraData.noCustomer');
+        $jumlah = $request->input('data.amount');
 
-        if ($status === null || $metode === null || $kodeBooking === '' || $grossAmount === null) {
+        if ($status === null || $metode === null || $kodeBooking === '' || $jumlah === null) {
             return null;
         }
 
@@ -161,46 +144,23 @@ class PembayaranController extends Controller
             'kode_booking' => $kodeBooking,
             'status' => $status,
             'metode' => $metode,
-            'jumlah' => (int) round((float) $grossAmount),
-            'kode_transaksi_gateway' => (string) $request->input('transaction_id'),
+            'jumlah' => (int) round((float) $jumlah),
+            'kode_transaksi_gateway' => (string) $request->input('data.transactionId', $request->input('data.id')),
+            'raw' => (array) $request->input('data'),
         ];
     }
 
     /**
-     * Verifikasi signature Midtrans: SHA512(order_id + status_code +
-     * gross_amount + server_key) harus sama dengan signature_key yang
-     * dikirim. Dokumentasi resmi Midtrans: https://docs.midtrans.com.
+     * Verifikasi webhook Mayar: shared secret dikirim sebagai query string
+     * di URL webhook yang didaftarkan sendiri di dashboard Mayar
+     * (.../api/webhook/pembayaran?token=MAYAR_WEBHOOK_TOKEN), bukan lewat
+     * signature header seperti Midtrans/Xendit. Mayar tidak mendokumentasikan
+     * mekanisme signing lain untuk webhook-nya.
      */
-    private function verifyMidtransSignature(Request $request): bool
+    private function verifyMayarToken(Request $request): bool
     {
-        $serverKey = config('services.midtrans.server_key');
-
-        if (empty($serverKey)) {
-            return false;
-        }
-
-        $orderId = (string) $request->input('order_id');
-        $statusCode = (string) $request->input('status_code');
-        $grossAmount = (string) $request->input('gross_amount');
-        $signatureKey = (string) $request->input('signature_key');
-
-        if ($orderId === '' || $statusCode === '' || $grossAmount === '' || $signatureKey === '') {
-            return false;
-        }
-
-        $expected = hash('sha512', $orderId.$statusCode.$grossAmount.$serverKey);
-
-        return hash_equals($expected, $signatureKey);
-    }
-
-    /**
-     * Verifikasi signature Xendit: header x-callback-token harus sama
-     * dengan token verifikasi yang diset di dashboard Xendit.
-     */
-    private function verifyXenditSignature(Request $request): bool
-    {
-        $expectedToken = config('services.xendit.callback_token');
-        $token = (string) $request->header('x-callback-token');
+        $expectedToken = config('services.mayar.webhook_token');
+        $token = (string) $request->query('token');
 
         if (empty($expectedToken) || $token === '') {
             return false;

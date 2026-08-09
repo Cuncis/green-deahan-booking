@@ -9,7 +9,7 @@ Repo ini privat dan hanya untuk internal tim Green Deahan.
 - **Backend:** Laravel 13, PHP 8.4, MySQL
 - **Frontend:** Blade + Livewire 4 (komponen interaktif seperti kalender dan slot booking) + Alpine.js (interaksi ringan tanpa round-trip server)
 - **Styling:** Tailwind CSS murni, tanpa DaisyUI/Bootstrap/UI kit lain. Semua komponen dibangun custom dari design token brand.
-- **Pembayaran:** Midtrans (`midtrans/midtrans-php`)
+- **Pembayaran:** Mayar (`App\Services\PaymentService`, integrasi lewat Http client, lihat `config/services.php`)
 - **Notifikasi:** WhatsApp lewat link `wa.me` (lihat `app/Jobs/KirimNotifikasiWhatsApp.php`)
 
 Konvensi lengkap penamaan, arsitektur multi-tenant, anti double-booking, fitur per paket, dan design token ada di `.claude/skills/green-deahan-booking/`. Ini sumber kebenaran untuk konvensi project, wajib dibaca sebelum menyentuh area terkait.

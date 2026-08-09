@@ -35,12 +35,10 @@ return [
         ],
     ],
 
-    'midtrans' => [
-        'server_key' => env('MIDTRANS_SERVER_KEY'),
-    ],
-
-    'xendit' => [
-        'callback_token' => env('XENDIT_CALLBACK_TOKEN'),
+    'mayar' => [
+        'api_key' => env('MAYAR_API_KEY'),
+        'webhook_token' => env('MAYAR_WEBHOOK_TOKEN'),
+        'is_production' => env('MAYAR_IS_PRODUCTION', false),
     ],
 
 ];

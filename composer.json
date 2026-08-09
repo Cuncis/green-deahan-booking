@@ -10,8 +10,7 @@
         "fakerphp/faker": "^1.23",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
-        "livewire/livewire": "^4.3",
-        "midtrans/midtrans-php": "^2.6"
+        "livewire/livewire": "^4.3"
     },
     "require-dev": {
         "laravel/boost": "^2.4",

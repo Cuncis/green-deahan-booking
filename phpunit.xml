@@ -32,9 +32,8 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
-        <env name="MIDTRANS_SERVER_KEY" value="test-midtrans-server-key"/>
-        <env name="MIDTRANS_CLIENT_KEY" value="test-midtrans-client-key"/>
-        <env name="MIDTRANS_IS_PRODUCTION" value="false"/>
-        <env name="XENDIT_CALLBACK_TOKEN" value="test-xendit-callback-token"/>
+        <env name="MAYAR_API_KEY" value="test-mayar-api-key"/>
+        <env name="MAYAR_WEBHOOK_TOKEN" value="test-mayar-webhook-token"/>
+        <env name="MAYAR_IS_PRODUCTION" value="false"/>
     </php>
 </phpunit>

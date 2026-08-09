@@ -20,10 +20,10 @@ class BookingControllerTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Semua test di sini bukan tentang integrasi Midtrans-nya sendiri (lihat
-     * PaymentServiceTest untuk itu), jadi createSnapTransaction() di-mock
-     * supaya tidak ada panggilan network sungguhan ke sandbox Midtrans tiap
-     * kali suite ini jalan.
+     * Semua test di sini bukan tentang integrasi Mayar-nya sendiri (lihat
+     * PaymentServiceTest untuk itu), jadi createInvoice() di-mock supaya
+     * tidak ada panggilan network sungguhan ke sandbox Mayar tiap kali
+     * suite ini jalan.
      */
     protected function setUp(): void
     {
@@ -31,9 +31,11 @@ class BookingControllerTest extends TestCase
 
         $this->partialMock(PaymentService::class, function ($mock) {
             $mock->shouldAllowMockingProtectedMethods()
-                ->shouldReceive('createSnapTransaction')->andReturn([
-                    'token' => 'fake-snap-token',
-                    'redirect_url' => 'https://app.sandbox.midtrans.com/snap/v4/redirection/fake-snap-token',
+                ->shouldReceive('createInvoice')->andReturn([
+                    'data' => [
+                        'id' => 'fake-invoice-id',
+                        'link' => 'https://sandbox.mayar.club/invoice/fake-invoice-id',
+                    ],
                 ]);
         });
     }
@@ -138,7 +140,7 @@ class BookingControllerTest extends TestCase
         $response->assertJsonPath('data.diskon_jumlah', 0);
         $response->assertJsonPath('data.total_bayar', 100000);
         $response->assertJsonPath('data.status_booking', 'menunggu');
-        $response->assertJsonPath('pembayaran.redirect_url', 'https://app.sandbox.midtrans.com/snap/v4/redirection/fake-snap-token');
+        $response->assertJsonPath('pembayaran.redirect_url', 'https://sandbox.mayar.club/invoice/fake-invoice-id');
 
         $this->assertDatabaseHas('customers', [
             'no_telepon' => '081234567890',

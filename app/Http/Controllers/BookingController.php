@@ -68,8 +68,8 @@ class BookingController extends Controller
 
     /**
      * Dipoll dari browser setelah booking dibuat, supaya modal instruksi
-     * pembayaran bisa otomatis update begitu webhook Midtrans/Xendit
-     * mengonfirmasi status_booking (lihat PembayaranController::webhook()).
+     * pembayaran bisa otomatis update begitu webhook Mayar mengonfirmasi
+     * status_booking (lihat PembayaranController::webhook()).
      * Tidak ada cara lain browser tahu webhook sudah diproses selain polling.
      */
     public function cekStatusBooking(Request $request, string $kodeBooking): JsonResponse
@@ -213,13 +213,13 @@ class BookingController extends Controller
             'data' => $booking,
         ];
 
-        // Panggilan ke Midtrans sengaja di LUAR DB::transaction() di atas,
+        // Panggilan ke Mayar sengaja di LUAR DB::transaction() di atas,
         // supaya lock row jadwal_slot tidak ketahan selama menunggu network
         // I/O ke gateway pembayaran.
         try {
             // Customer diarahkan kembali ke halaman booking lapangan ini
             // (dengan kode_booking di query string) setelah selesai di
-            // halaman Snap, supaya halaman booking bisa buka lagi modal
+            // halaman Mayar, supaya halaman booking bisa buka lagi modal
             // status dan lanjut polling (lihat booking.blade.php).
             $finishRedirectUrl = route('booking.index', [
                 'lapangan' => $lapanganId,

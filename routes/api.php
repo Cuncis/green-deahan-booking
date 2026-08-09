@@ -21,6 +21,8 @@ Route::middleware(IdentifikasiTenant::class)->group(function () {
         ->name('booking.status');
 });
 
-// Dipanggil server payment gateway (Midtrans/Xendit), bukan browser customer,
-// jadi tidak lewat IdentifikasiTenant. Lihat references/multi-tenant.md.
+// Dipanggil server Mayar, bukan browser customer, jadi tidak lewat
+// IdentifikasiTenant. Lihat references/multi-tenant.md. Daftarkan URL ini
+// di dashboard Mayar dengan query string ?token=MAYAR_WEBHOOK_TOKEN
+// (lihat PembayaranController::verifyMayarToken()).
 Route::post('/webhook/pembayaran', [PembayaranController::class, 'webhook'])->name('webhook.pembayaran');

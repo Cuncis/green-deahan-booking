@@ -14,9 +14,8 @@ use Tests\TestCase;
 
 /**
  * Unit test untuk PaymentService::createTransaction(), dengan
- * createSnapTransaction() di-partial-mock supaya tidak ada panggilan network
- * sungguhan ke sandbox Midtrans (SDK-nya pakai curl mentah, Http::fake()
- * tidak bisa mencegat itu).
+ * createInvoice() di-partial-mock supaya tidak ada panggilan network
+ * sungguhan ke sandbox Mayar.
  */
 class PaymentServiceTest extends TestCase
 {
@@ -50,43 +49,46 @@ class PaymentServiceTest extends TestCase
         ], $bookingOverride));
     }
 
-    private function mockSnap(array $response): PaymentService
+    private function mockMayar(array $response): PaymentService
     {
         return $this->partialMock(PaymentService::class, function ($mock) use ($response) {
             $mock->shouldAllowMockingProtectedMethods()
-                ->shouldReceive('createSnapTransaction')
+                ->shouldReceive('createInvoice')
                 ->once()
                 ->andReturn($response);
         });
     }
 
-    public function test_mengembalikan_redirect_url_dari_snap(): void
+    public function test_mengembalikan_redirect_url_dari_invoice(): void
     {
         $booking = $this->buatBooking();
 
-        $service = $this->mockSnap([
-            'token' => 'snap-token-1',
-            'redirect_url' => 'https://app.sandbox.midtrans.com/snap/v4/redirection/snap-token-1',
+        $service = $this->mockMayar([
+            'statusCode' => 200,
+            'data' => [
+                'id' => 'invoice-1',
+                'transactionId' => 'trx-1',
+                'link' => 'https://sandbox.mayar.club/invoice/invoice-1',
+            ],
         ]);
 
         $hasil = $service->createTransaction($booking, 'https://tenant.test/?kode_booking='.$booking->kode_booking);
 
-        $this->assertSame('https://app.sandbox.midtrans.com/snap/v4/redirection/snap-token-1', $hasil['redirect_url']);
+        $this->assertSame('https://sandbox.mayar.club/invoice/invoice-1', $hasil['redirect_url']);
     }
 
     /**
-     * Beda dari integrasi Core API sebelumnya: metode pembayaran baru
-     * diketahui setelah customer pilih sendiri di halaman Snap, jadi baris
-     * pembayaran TIDAK dibuat di sini. Baris itu baru dibuat oleh
-     * PembayaranController::webhook() begitu Midtrans kasih tahu hasilnya.
+     * Metode pembayaran baru diketahui setelah customer pilih sendiri di
+     * halaman Mayar, jadi baris pembayaran TIDAK dibuat di sini. Baris itu
+     * baru dibuat oleh PembayaranController::webhook() begitu Mayar kasih
+     * tahu hasilnya.
      */
     public function test_tidak_membuat_record_pembayaran_sebelum_webhook(): void
     {
         $booking = $this->buatBooking();
 
-        $service = $this->mockSnap([
-            'token' => 'snap-token-1',
-            'redirect_url' => 'https://app.sandbox.midtrans.com/snap/v4/redirection/snap-token-1',
+        $service = $this->mockMayar([
+            'data' => ['id' => 'invoice-1', 'link' => 'https://sandbox.mayar.club/invoice/invoice-1'],
         ]);
 
         $service->createTransaction($booking, 'https://tenant.test/');
@@ -101,23 +103,23 @@ class PaymentServiceTest extends TestCase
         $capturedParams = null;
         $service = $this->partialMock(PaymentService::class, function ($mock) use (&$capturedParams) {
             $mock->shouldAllowMockingProtectedMethods()
-                ->shouldReceive('createSnapTransaction')
+                ->shouldReceive('createInvoice')
                 ->once()
                 ->withArgs(function ($params) use (&$capturedParams) {
                     $capturedParams = $params;
 
                     return true;
                 })
-                ->andReturn(['token' => 'snap-token-1', 'redirect_url' => 'https://app.sandbox.midtrans.com/snap/v4/redirection/snap-token-1']);
+                ->andReturn(['data' => ['id' => 'invoice-1', 'link' => 'https://sandbox.mayar.club/invoice/invoice-1']]);
         });
 
         $service->createTransaction($booking, 'https://tenant.test/?kode_booking='.$booking->kode_booking);
 
-        $this->assertSame('customer@greendeahan.com', $capturedParams['customer_details']['email']);
-        $this->assertSame('Budi Santoso', $capturedParams['customer_details']['first_name']);
-        $this->assertSame($booking->kode_booking, $capturedParams['transaction_details']['order_id']);
-        $this->assertSame(100000, $capturedParams['transaction_details']['gross_amount']);
-        $this->assertSame('https://tenant.test/?kode_booking='.$booking->kode_booking, $capturedParams['callbacks']['finish']);
-        $this->assertArrayNotHasKey('payment_type', $capturedParams);
+        $this->assertSame('customer@greendeahan.com', $capturedParams['email']);
+        $this->assertSame('Budi Santoso', $capturedParams['name']);
+        $this->assertSame('081234567890', $capturedParams['mobile']);
+        $this->assertSame($booking->kode_booking, $capturedParams['extraData']['noCustomer']);
+        $this->assertSame(100000, $capturedParams['items'][0]['rate']);
+        $this->assertSame('https://tenant.test/?kode_booking='.$booking->kode_booking, $capturedParams['redirectUrl']);
     }
 }

@@ -20,7 +20,7 @@
                 Transfer VA
             </span>
         </div>
-        <p class="text-xs text-ink-soft">Kamu akan diarahkan ke halaman pembayaran Midtrans untuk memilih metode dan menyelesaikan pembayaran.</p>
+        <p class="text-xs text-ink-soft">Kamu akan diarahkan ke halaman pembayaran Mayar untuk memilih metode dan menyelesaikan pembayaran.</p>
     </div>
 
     @if ($tenant->punyaFitur('dp_pembayaran'))

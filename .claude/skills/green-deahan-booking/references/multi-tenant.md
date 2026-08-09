@@ -70,7 +70,7 @@ class Lapangan extends Model
 
 ## Webhook Pembayaran: Pengecualian
 
-Endpoint webhook dari Midtrans/Xendit **tidak lewat middleware `IdentifikasiTenant`**, karena yang memanggil endpoint itu server payment gateway, bukan browser customer yang akses lewat domain tenant. Di webhook, tenant_id didapat dari data `booking` yang sudah tersimpan:
+Endpoint webhook dari Mayar **tidak lewat middleware `IdentifikasiTenant`**, karena yang memanggil endpoint itu server payment gateway, bukan browser customer yang akses lewat domain tenant. Di webhook, tenant_id didapat dari data `booking` yang sudah tersimpan:
 
 ```php
 $booking = Booking::where('kode_booking', $data['kode_booking'])->firstOrFail();

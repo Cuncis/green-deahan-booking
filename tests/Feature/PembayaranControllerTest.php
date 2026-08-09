@@ -43,52 +43,35 @@ class PembayaranControllerTest extends TestCase
         ]);
     }
 
+    /**
+     * @param  'PAID'|'EXPIRED'|'UNPAID'  $status
+     */
     private function payloadWebhook(Booking $booking, string $status): array
     {
         return [
-            'kode_transaksi_gateway' => 'TRX-'.$booking->id,
-            'kode_booking' => $booking->kode_booking,
-            'status' => $status,
-            'metode' => 'qris',
-            'jumlah' => $booking->total_bayar,
+            'event' => 'payment.received',
+            'data' => [
+                'id' => 'invoice-'.$booking->id,
+                'transactionId' => 'TRX-'.$booking->id,
+                'status' => $status,
+                'amount' => $booking->total_bayar,
+                'paymentMethod' => 'QRIS',
+                'extraData' => ['noCustomer' => $booking->kode_booking],
+            ],
         ];
     }
 
     /**
-     * Lewat header x-callback-token Xendit, supaya test yang fokus ke
-     * logika bisnis (bukan ke verifikasi signature-nya sendiri) tidak
-     * perlu hitung hash SHA512 Midtrans satu-satu. Lihat WebhookSignatureTest
-     * untuk pengujian verifikasi signature-nya sendiri.
+     * Lewat query string ?token=..., supaya test yang fokus ke logika
+     * bisnis (bukan ke verifikasi token-nya sendiri) tidak perlu ulang
+     * setup token tiap test. Lihat WebhookSignatureTest untuk pengujian
+     * verifikasi token itu sendiri.
      */
     private function postWebhook(string $url, array $payload)
     {
-        return $this->postJson($url, $payload, [
-            'x-callback-token' => 'test-xendit-callback-token',
-        ]);
-    }
+        $separator = str_contains($url, '?') ? '&' : '?';
 
-    /**
-     * Payload notifikasi ASLI Midtrans (order_id, transaction_status,
-     * payment_type, gross_amount, transaction_id), beda dari payloadWebhook()
-     * di atas yang skema internal (dipakai lewat jalur Xendit). Lihat
-     * PembayaranController::parseMidtransPayload().
-     */
-    private function payloadMidtransAsli(Booking $booking, array $override = []): array
-    {
-        $orderId = $booking->kode_booking;
-        $statusCode = '200';
-        $grossAmount = (string) $booking->total_bayar;
-        $signatureKey = hash('sha512', $orderId.$statusCode.$grossAmount.config('services.midtrans.server_key'));
-
-        return array_merge([
-            'order_id' => $orderId,
-            'status_code' => $statusCode,
-            'gross_amount' => $grossAmount,
-            'signature_key' => $signatureKey,
-            'transaction_status' => 'settlement',
-            'payment_type' => 'qris',
-            'transaction_id' => 'TRX-'.$booking->id,
-        ], $override);
+        return $this->postJson($url.$separator.'token=test-mayar-webhook-token', $payload);
     }
 
     public function test_webhook_bisa_diakses_tanpa_tenant_terdaftar_di_domain(): void
@@ -97,7 +80,7 @@ class PembayaranControllerTest extends TestCase
 
         $response = $this->postWebhook(
             'http://domain-tidak-terdaftar.test/api/webhook/pembayaran',
-            $this->payloadWebhook($booking, 'sukses'),
+            $this->payloadWebhook($booking, 'PAID'),
         );
 
         $response->assertOk();
@@ -107,7 +90,7 @@ class PembayaranControllerTest extends TestCase
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'pending'));
+        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'UNPAID'));
 
         $this->assertDatabaseHas('pembayaran', [
             'booking_id' => $booking->id,
@@ -121,7 +104,7 @@ class PembayaranControllerTest extends TestCase
 
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $response = $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
+        $response = $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'PAID'));
 
         $response->assertOk();
         $this->assertSame('dikonfirmasi', $booking->fresh()->status_booking);
@@ -131,6 +114,8 @@ class PembayaranControllerTest extends TestCase
         $this->assertDatabaseHas('pembayaran', [
             'booking_id' => $booking->id,
             'status' => 'sukses',
+            'metode' => 'qris',
+            'kode_transaksi_gateway' => 'TRX-'.$booking->id,
         ]);
     }
 
@@ -140,7 +125,7 @@ class PembayaranControllerTest extends TestCase
 
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
+        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'PAID'));
 
         Queue::assertPushed(KirimNotifikasiWhatsApp::class, function ($job) use ($booking) {
             return $job->booking->is($booking);
@@ -163,7 +148,7 @@ class PembayaranControllerTest extends TestCase
             'jam_mulai' => '18:00',
         ]);
 
-        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
+        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'PAID'));
 
         $this->assertDatabaseHas('reminder_log', [
             'booking_id' => $booking->id,
@@ -183,7 +168,7 @@ class PembayaranControllerTest extends TestCase
 
         $booking = $this->buatBookingMenunggu($tenant);
 
-        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'sukses'));
+        $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'PAID'));
 
         $this->assertDatabaseCount('reminder_log', 0);
     }
@@ -192,7 +177,7 @@ class PembayaranControllerTest extends TestCase
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $response = $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'gagal'));
+        $response = $this->postWebhook('/api/webhook/pembayaran', $this->payloadWebhook($booking, 'EXPIRED'));
 
         $response->assertOk();
         $this->assertSame('dibatalkan', $booking->fresh()->status_booking);
@@ -208,89 +193,62 @@ class PembayaranControllerTest extends TestCase
     public function test_webhook_kode_booking_tidak_ditemukan_mengembalikan_404(): void
     {
         $response = $this->postWebhook('/api/webhook/pembayaran', [
-            'kode_transaksi_gateway' => 'TRX-X',
-            'kode_booking' => 'TIDAK-ADA',
-            'status' => 'sukses',
-            'metode' => 'qris',
-            'jumlah' => 10000,
+            'event' => 'payment.received',
+            'data' => [
+                'id' => 'invoice-x',
+                'transactionId' => 'TRX-X',
+                'status' => 'PAID',
+                'amount' => 10000,
+                'paymentMethod' => 'QRIS',
+                'extraData' => ['noCustomer' => 'TIDAK-ADA'],
+            ],
         ]);
 
         $response->assertNotFound();
     }
 
-    /**
-     * Pengujian jalur Midtrans asli (bukan skema internal lewat Xendit di
-     * atas), memastikan parseMidtransPayload() memetakan transaction_status
-     * dan payment_type sungguhan dari Midtrans dengan benar. Ini kasus yang
-     * sebelumnya bikin booking tidak pernah terkonfirmasi di production
-     * (webhook asli Midtrans ditolak validate() karena nama field beda).
-     */
-    public function test_webhook_midtrans_settlement_mengonfirmasi_booking(): void
+    public function test_webhook_metode_va_dipetakan_dengan_benar(): void
     {
-        Queue::fake();
-
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadMidtransAsli($booking, [
-            'transaction_status' => 'settlement',
-            'payment_type' => 'qris',
-        ]));
+        $payload = $this->payloadWebhook($booking, 'PAID');
+        $payload['data']['paymentMethod'] = 'BANK_TRANSFER';
+
+        $response = $this->postWebhook('/api/webhook/pembayaran', $payload);
 
         $response->assertOk();
-        $this->assertSame('dikonfirmasi', $booking->fresh()->status_booking);
-        $this->assertSame('booked', $booking->fresh()->slot->status);
         $this->assertDatabaseHas('pembayaran', [
             'booking_id' => $booking->id,
             'status' => 'sukses',
-            'metode' => 'qris',
-            'kode_transaksi_gateway' => 'TRX-'.$booking->id,
-        ]);
-    }
-
-    public function test_webhook_midtrans_pending_menyimpan_status_pending_tanpa_konfirmasi(): void
-    {
-        $booking = $this->buatBookingMenunggu($this->tenant());
-
-        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadMidtransAsli($booking, [
-            'transaction_status' => 'pending',
-            'payment_type' => 'bank_transfer',
-        ]));
-
-        $response->assertOk();
-        $this->assertSame('menunggu', $booking->fresh()->status_booking);
-        $this->assertDatabaseHas('pembayaran', [
-            'booking_id' => $booking->id,
-            'status' => 'pending',
             'metode' => 'va',
         ]);
     }
 
-    public function test_webhook_midtrans_expire_membatalkan_booking_dan_melepas_slot(): void
+    public function test_webhook_metode_ewallet_dipetakan_dengan_benar(): void
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadMidtransAsli($booking, [
-            'transaction_status' => 'expire',
-            'payment_type' => 'gopay',
-        ]));
+        $payload = $this->payloadWebhook($booking, 'PAID');
+        $payload['data']['paymentMethod'] = 'GOPAY';
+
+        $response = $this->postWebhook('/api/webhook/pembayaran', $payload);
 
         $response->assertOk();
-        $this->assertSame('dibatalkan', $booking->fresh()->status_booking);
-        $this->assertSame('kosong', $booking->fresh()->slot->status);
         $this->assertDatabaseHas('pembayaran', [
             'booking_id' => $booking->id,
-            'status' => 'gagal',
+            'status' => 'sukses',
             'metode' => 'ewallet',
         ]);
     }
 
-    public function test_webhook_midtrans_ditolak_kalau_transaction_status_belum_dikenal(): void
+    public function test_webhook_ditolak_kalau_metode_pembayaran_belum_dikenal(): void
     {
         $booking = $this->buatBookingMenunggu($this->tenant());
 
-        $response = $this->postJson('/api/webhook/pembayaran', $this->payloadMidtransAsli($booking, [
-            'transaction_status' => 'authorize',
-        ]));
+        $payload = $this->payloadWebhook($booking, 'PAID');
+        $payload['data']['paymentMethod'] = 'CREDIT_CARD';
+
+        $response = $this->postWebhook('/api/webhook/pembayaran', $payload);
 
         $response->assertStatus(401);
         $this->assertSame('menunggu', $booking->fresh()->status_booking);
