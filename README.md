@@ -139,7 +139,7 @@ sudo supervisorctl status
 
 Setelah dipasang, Supervisor otomatis merestart kedua proses ini kalau crash atau server reboot (`autostart=true`, `autorestart=true`). Log masing-masing proses ada di `storage/logs/queue-worker.log` dan `storage/logs/scheduler.log`.
 
-Kalau ganti kode, jangan lupa `sudo supervisorctl restart green-deahan-queue:*` supaya worker pakai kode terbaru (worker PHP yang sudah jalan tidak otomatis reload class yang berubah).
+Kalau ganti kode, jangan lupa `sudo supervisorctl restart green-deahan-queue:* green-deahan-scheduler:*` supaya worker DAN scheduler pakai kode terbaru (proses PHP yang sudah jalan tidak otomatis reload class yang berubah, jadi command terjadwal baru seperti `tenant:kirim-tagihan-perpanjangan` juga tidak akan kepakai kalau schedule:work yang lama masih jalan). `deploy.sh` di root project sudah menjalankan ini otomatis tiap deploy.
 
 ### Ownership Git di Server
 
