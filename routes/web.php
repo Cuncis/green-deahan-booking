@@ -145,6 +145,7 @@ Route::middleware(['auth', 'verified', 'check.tenant.staf'])->prefix('admin')->n
     Route::get('/lapangan/{lapangan}/edit', [LapanganAdminController::class, 'edit'])->name('lapangan.edit');
     Route::put('/lapangan/{lapangan}', [LapanganAdminController::class, 'update'])->name('lapangan.update');
     Route::delete('/lapangan/{lapangan}', [LapanganAdminController::class, 'destroy'])->name('lapangan.destroy');
+    Route::post('/lapangan/minta-upgrade', [LapanganAdminController::class, 'mintaUpgrade'])->name('lapangan.minta-upgrade');
 
     Route::get('/jadwal', [JadwalAdminController::class, 'index'])->name('jadwal');
 

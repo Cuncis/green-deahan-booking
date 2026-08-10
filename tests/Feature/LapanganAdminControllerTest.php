@@ -12,6 +12,7 @@ use App\Models\TenantFitur;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -136,6 +137,104 @@ class LapanganAdminControllerTest extends TestCase
 
         $response->assertSessionHasErrors('nama');
         $this->assertSame(1, Lapangan::where('tenant_id', $tenant->id)->count());
+    }
+
+    public function test_halaman_lapangan_basic_yang_capai_batas_menampilkan_tombol_upgrade_pro_dan_premium(): void
+    {
+        $tenant = $this->tenant();
+        $tenant->update(['paket' => 'basic']);
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('basic'),
+        ));
+        $user = $this->staf($tenant);
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
+
+        $response = $this->actingAs($user)->get(route('admin.lapangan'));
+
+        $response->assertSee('Upgrade ke Pro');
+        $response->assertSee('Upgrade ke Premium');
+    }
+
+    public function test_halaman_lapangan_pro_yang_capai_batas_hanya_menampilkan_tombol_upgrade_premium(): void
+    {
+        $tenant = $this->tenant();
+        $tenant->update(['paket' => 'pro']);
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('pro'),
+        ));
+        $user = $this->staf($tenant);
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        Lapangan::factory()->count(3)->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
+
+        $response = $this->actingAs($user)->get(route('admin.lapangan'));
+
+        $response->assertDontSee('Upgrade ke Pro');
+        $response->assertSee('Upgrade ke Premium');
+    }
+
+    public function test_tenant_basic_bisa_minta_upgrade_ke_pro_atau_premium(): void
+    {
+        Mail::fake();
+
+        $tenant = $this->tenant();
+        $tenant->update(['paket' => 'basic']);
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('basic'),
+        ));
+        $user = $this->staf($tenant);
+
+        $response = $this->actingAs($user)->post(route('admin.lapangan.minta-upgrade'), [
+            'paket_tujuan' => 'premium',
+        ]);
+
+        $response->assertRedirect(route('admin.lapangan'));
+        $response->assertSessionHas('success');
+    }
+
+    public function test_tenant_pro_hanya_bisa_minta_upgrade_ke_premium(): void
+    {
+        Mail::fake();
+
+        $tenant = $this->tenant();
+        $tenant->update(['paket' => 'pro']);
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('pro'),
+        ));
+        $user = $this->staf($tenant);
+
+        $responseValid = $this->actingAs($user)->post(route('admin.lapangan.minta-upgrade'), [
+            'paket_tujuan' => 'premium',
+        ]);
+        $responseValid->assertSessionHas('success');
+
+        $responseInvalid = $this->actingAs($user)->post(route('admin.lapangan.minta-upgrade'), [
+            'paket_tujuan' => 'pro',
+        ]);
+        $responseInvalid->assertSessionHasErrors('paket_tujuan');
+    }
+
+    public function test_tenant_premium_tidak_bisa_minta_upgrade(): void
+    {
+        Mail::fake();
+
+        $tenant = $this->tenant();
+        $tenant->update(['paket' => 'premium']);
+        TenantFitur::create(array_merge(
+            ['tenant_id' => $tenant->id],
+            TenantFitur::presetUntukPaket('premium'),
+        ));
+        $user = $this->staf($tenant);
+
+        $response = $this->actingAs($user)->post(route('admin.lapangan.minta-upgrade'), [
+            'paket_tujuan' => 'premium',
+        ]);
+
+        $response->assertSessionHasErrors('paket_tujuan');
     }
 
     public function test_admin_tidak_bisa_edit_lapangan_tenant_lain(): void

@@ -48,8 +48,39 @@
             @endif
 
             @if ($batasLapangan !== null && $jumlahLapangan >= $batasLapangan)
-                <div class="mb-5 rounded-lg border border-amber/30 bg-amber-pale px-4 py-3 text-sm text-amber">
-                    Paket {{ ucfirst($tenant->paket) }} kamu dibatasi {{ $batasLapangan }} lapangan. Upgrade paket untuk tambah lebih banyak.
+                <div class="mb-5 rounded-lg border border-amber/30 bg-amber-pale px-4 py-4 text-sm text-amber">
+                    <p class="mb-3">Paket {{ ucfirst($tenant->paket) }} kamu dibatasi {{ $batasLapangan }} lapangan. Upgrade paket untuk tambah lebih banyak.</p>
+
+                    <div class="flex flex-wrap gap-3">
+                        @if ($tenant->paket === 'basic')
+                            <form method="POST" action="{{ route('admin.lapangan.minta-upgrade') }}">
+                                @csrf
+                                <input type="hidden" name="paket_tujuan" value="pro">
+                                <button type="submit" class="flex flex-col items-start gap-0.5 rounded-lg border-2 border-amber/40 bg-white px-4 py-2.5 text-left hover:border-amber transition-colors">
+                                    <span class="font-sans font-semibold text-sm text-ink">Upgrade ke Pro</span>
+                                    <span class="text-xs text-ink-soft">3 lapangan, DP pembayaran, kode promo, booking berulang, rating &amp; ulasan, laporan pendapatan.</span>
+                                </button>
+                            </form>
+
+                            <form method="POST" action="{{ route('admin.lapangan.minta-upgrade') }}">
+                                @csrf
+                                <input type="hidden" name="paket_tujuan" value="premium">
+                                <button type="submit" class="flex flex-col items-start gap-0.5 rounded-lg border-2 border-amber/40 bg-white px-4 py-2.5 text-left hover:border-amber transition-colors">
+                                    <span class="font-sans font-semibold text-sm text-ink">Upgrade ke Premium</span>
+                                    <span class="text-xs text-ink-soft">Lapangan tanpa batas, multi-cabang, membership, reminder otomatis, dan semua fitur Pro.</span>
+                                </button>
+                            </form>
+                        @elseif ($tenant->paket === 'pro')
+                            <form method="POST" action="{{ route('admin.lapangan.minta-upgrade') }}">
+                                @csrf
+                                <input type="hidden" name="paket_tujuan" value="premium">
+                                <button type="submit" class="flex flex-col items-start gap-0.5 rounded-lg border-2 border-amber/40 bg-white px-4 py-2.5 text-left hover:border-amber transition-colors">
+                                    <span class="font-sans font-semibold text-sm text-ink">Upgrade ke Premium</span>
+                                    <span class="text-xs text-ink-soft">Lapangan tanpa batas, multi-cabang, membership, reminder otomatis, role staf, dan analitik lanjutan.</span>
+                                </button>
+                            </form>
+                        @endif
+                    </div>
                 </div>
             @endif
 

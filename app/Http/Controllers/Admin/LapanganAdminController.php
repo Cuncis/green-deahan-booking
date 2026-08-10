@@ -9,6 +9,7 @@ use App\Models\Lapangan;
 use App\Models\Tenant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -74,6 +75,77 @@ class LapanganAdminController extends Controller
 
         return redirect()->route('admin.lapangan')
             ->with('success', "Lapangan \"{$data['nama']}\" berhasil ditambahkan.");
+    }
+
+    /**
+     * Tenant Basic/Pro minta upgrade paket lewat tombol di halaman Lapangan
+     * Saya (lihat pages.admin.lapangan.index). Tidak ada upgrade otomatis,
+     * cuma kirim email permintaan ke admin_email (sama seperti
+     * TenantRegistrationController::kirimNotifikasiPendaftaran()), tim yang
+     * proses manual lewat `php artisan tenant:activate --paket=`.
+     */
+    public function mintaUpgrade(Request $request): RedirectResponse
+    {
+        $tenant = app('tenant');
+
+        $data = $request->validate([
+            'paket_tujuan' => ['required', Rule::in($this->paketUpgradeTersedia($tenant->paket))],
+        ]);
+
+        $this->kirimPermintaanUpgrade($tenant, $data['paket_tujuan']);
+
+        return redirect()->route('admin.lapangan')
+            ->with('success', 'Permintaan upgrade sudah dikirim, tim kami akan segera menghubungimu.');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function paketUpgradeTersedia(string $paketSaatIni): array
+    {
+        return match ($paketSaatIni) {
+            'basic' => ['pro', 'premium'],
+            'pro' => ['premium'],
+            default => [],
+        };
+    }
+
+    /**
+     * Best-effort saja (sama seperti TenantRegistrationController::
+     * kirimNotifikasiPendaftaran()), kegagalan kirim email tidak boleh
+     * menggagalkan alur permintaan upgrade.
+     */
+    private function kirimPermintaanUpgrade(Tenant $tenant, string $paketTujuan): void
+    {
+        $adminEmail = config('app.admin_email');
+
+        if (! $adminEmail) {
+            return;
+        }
+
+        $subdomain = Str::before($tenant->domain, '.greendeahan.com');
+
+        $pesan = implode("\n", [
+            'Ada tenant minta upgrade paket.',
+            '',
+            "Nama Bisnis: {$tenant->nama_bisnis}",
+            "Domain: {$tenant->domain}",
+            "Paket saat ini: {$tenant->paket}",
+            "Paket yang diminta: {$paketTujuan}",
+            "Email PIC: {$tenant->email_admin}",
+            "WhatsApp PIC: {$tenant->whatsapp_admin}",
+            '',
+            "Kalau disetujui, aktifkan lewat: php artisan tenant:activate {$subdomain} --paket={$paketTujuan}",
+        ]);
+
+        try {
+            Mail::raw($pesan, function ($message) use ($adminEmail, $tenant) {
+                $message->to($adminEmail)
+                    ->subject("Permintaan Upgrade Paket, {$tenant->nama_bisnis}");
+            });
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function edit(Lapangan $lapangan): View
