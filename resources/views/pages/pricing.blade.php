@@ -62,7 +62,6 @@
 
     $addons = [
         ['Domain custom (.com) per tahun', 'Rp250rb'],
-        ['Tambahan lapangan (di luar paket)', 'Rp200rb/lapangan'],
         ['Desain logo & branding', 'Rp500rb'],
         ['Integrasi WhatsApp Business', 'Rp350rb'],
         ['Foto profesional lapangan', 'Rp500rb'],
