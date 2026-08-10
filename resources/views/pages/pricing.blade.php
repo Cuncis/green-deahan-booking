@@ -199,9 +199,6 @@
                 </div>
             </div>
 
-            <div class="mt-10 text-center text-xs text-stone-400">
-                <strong class="text-brand">Green Deahan Sport</strong>, berpengalaman sejak 2010, 0813-5757-0064, greendeahan.com
-            </div>
         </div>
 
         <x-site-footer />
