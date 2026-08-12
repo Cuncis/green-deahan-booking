@@ -11,6 +11,7 @@ Repo ini privat dan hanya untuk internal tim Green Deahan.
 - **Styling:** Tailwind CSS murni, tanpa DaisyUI/Bootstrap/UI kit lain. Semua komponen dibangun custom dari design token brand.
 - **Pembayaran:** Mayar (`App\Services\PaymentService`, integrasi lewat Http client, lihat `config/services.php`)
 - **Notifikasi:** WhatsApp lewat link `wa.me` (lihat `app/Jobs/KirimNotifikasiWhatsApp.php`)
+- **Storage foto:** Disk lokal secara default, Cloudflare R2 untuk production multi-server (`App\Services\FotoUploadService`, lihat bagian Deployment)
 
 Konvensi lengkap penamaan, arsitektur multi-tenant, anti double-booking, fitur per paket, dan design token ada di `.claude/skills/green-deahan-booking/`. Ini sumber kebenaran untuk konvensi project, wajib dibaca sebelum menyentuh area terkait.
 
@@ -145,8 +146,30 @@ git config --global --add safe.directory /var/www/green-deahan-booking
 
 ### Environment Production
 
-- `MAIL_MAILER` wajib diganti dari `log` ke driver SMTP asli. Email verifikasi (`MustVerifyEmail`) tidak akan pernah terkirim selama masih `log`, jadi staf tenant tidak akan bisa lolos halaman verify-email.
-- `ADMIN_EMAIL` menerima notifikasi internal platform (misalnya pendaftar tenant baru lewat `/daftar`).
+- `MAIL_MAILER` wajib diganti dari `log` ke `resend` (driver API Resend bawaan Laravel, isi `RESEND_API_KEY`). Email verifikasi (`MustVerifyEmail`) tidak akan pernah terkirim selama masih `log`, jadi staf tenant tidak akan bisa lolos halaman verify-email.
+- `ADMIN_EMAIL` menerima notifikasi internal platform (misalnya pendaftar tenant baru lewat `/daftar`, atau permintaan upgrade paket lewat halaman Lapangan Saya).
+
+### Storage Foto (Cloudflare R2)
+
+Default-nya (`FILESYSTEM_DISK=public`) foto lapangan/galeri/logo tenant/artikel tersimpan di disk lokal server (`storage/app/public`, di-serve lewat symlink `public/storage`). Ini tidak cocok untuk production multi-server (foto yang diupload di satu server tidak kelihatan dari server lain), jadi pindahkan ke Cloudflare R2 (S3-compatible, lebih murah dari AWS S3 asli untuk kasus ini karena tidak ada biaya egress):
+
+1. Buat bucket baru di dashboard Cloudflare R2, lalu buat API token S3 (Account API Tokens, bukan token Cloudflare biasa) untuk dapat `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`.
+2. Aktifkan akses publik bucket-nya (R2.dev public access) atau hubungkan custom domain ke bucket, lalu catat domain publik itu.
+3. Isi di `.env`:
+   ```bash
+   FILESYSTEM_DISK=s3
+   AWS_ACCESS_KEY_ID=...
+   AWS_SECRET_ACCESS_KEY=...
+   AWS_DEFAULT_REGION=auto
+   AWS_BUCKET=nama-bucket-kamu
+   AWS_ENDPOINT=https://<account_id>.r2.cloudflarestorage.com
+   AWS_URL=https://pub-xxxxxxxx.r2.dev
+   AWS_USE_PATH_STYLE_ENDPOINT=true
+   ```
+   `AWS_URL` wajib diisi (bukan opsional), dipakai `App\Services\FotoUploadService` membangun URL foto yang benar-benar bisa diakses publik, R2 tidak menyediakan `Storage::url()` otomatis tanpa ini.
+4. `composer install` di server (paket `league/flysystem-aws-s3-v3` sudah ada di `composer.json`, tidak perlu install manual).
+
+Semua logika simpan/hapus foto (4 lokasi: `LapanganAdminController`, `GaleriAdminController`, `SettingsAdminController`, `ArtikelAdminController`) sudah lewat satu `App\Services\FotoUploadService` yang otomatis baca `FILESYSTEM_DISK`, tidak ada kode lain yang perlu diubah.
 
 ## Struktur Project
 

@@ -5,14 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Cabang;
 use App\Models\Tenant;
+use App\Services\FotoUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class SettingsAdminController extends Controller
 {
+    public function __construct(private readonly FotoUploadService $fotoUploadService) {}
+
     public function show(): View
     {
         $tenant = app('tenant');
@@ -43,15 +44,8 @@ class SettingsAdminController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            $this->hapusFileLama($tenant->logo_url);
-            $path = $request->file('logo')->store('logo', 'public');
-
-            // Sengaja pakai asset() (resolve dari host request saat ini), BUKAN
-            // Storage::disk('public')->url() yang selalu balik ke APP_URL statis.
-            // Tenant diakses dari macam-macam domain (subdomain, custom domain),
-            // jadi URL logo yang di-hardcode ke satu domain akan rusak/404 di
-            // domain tenant manapun selain APP_URL itu sendiri.
-            $tenant->update(['logo_url' => asset('storage/'.$path)]);
+            $this->fotoUploadService->hapus($tenant->logo_url);
+            $tenant->update(['logo_url' => $this->fotoUploadService->simpan($request->file('logo'), 'logo')]);
         }
 
         if ($tenant->punyaFitur('multi_cabang')) {
@@ -87,19 +81,6 @@ class SettingsAdminController extends Controller
 
         foreach ($data['cabang'] as $cabangId => $fields) {
             Cabang::where('tenant_id', $tenant->id)->where('id', $cabangId)->update($fields);
-        }
-    }
-
-    private function hapusFileLama(?string $url): void
-    {
-        if (! $url) {
-            return;
-        }
-
-        $path = Str::after($url, '/storage/');
-
-        if ($path && $path !== $url) {
-            Storage::disk('public')->delete($path);
         }
     }
 }

@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GaleriItem;
+use App\Services\FotoUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -22,6 +21,8 @@ class GaleriAdminController extends Controller
      * @var array<int, string>
      */
     private const KATEGORI = ['futsal', 'minisoccer', 'padel', 'badminton', 'proses'];
+
+    public function __construct(private readonly FotoUploadService $fotoUploadService) {}
 
     public function index(Request $request): View
     {
@@ -47,7 +48,7 @@ class GaleriAdminController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validateData($request, fotoWajib: true);
-        $data['foto_url'] = $this->simpanFoto($request);
+        $data['foto_url'] = $this->fotoUploadService->simpan($request->file('foto'), 'galeri');
         $data['tampilan_besar'] = $request->boolean('tampilan_besar');
         $data['status_aktif'] = true;
 
@@ -72,8 +73,8 @@ class GaleriAdminController extends Controller
         $data['status_aktif'] = $request->boolean('status_aktif');
 
         if ($request->hasFile('foto')) {
-            $this->hapusFotoLama($galeri->foto_url);
-            $data['foto_url'] = $this->simpanFoto($request);
+            $this->fotoUploadService->hapus($galeri->foto_url);
+            $data['foto_url'] = $this->fotoUploadService->simpan($request->file('foto'), 'galeri');
         }
 
         $galeri->update($data);
@@ -84,7 +85,7 @@ class GaleriAdminController extends Controller
 
     public function destroy(GaleriItem $galeri): RedirectResponse
     {
-        $this->hapusFotoLama($galeri->foto_url);
+        $this->fotoUploadService->hapus($galeri->foto_url);
         $judul = $galeri->judul;
         $galeri->delete();
 
@@ -106,32 +107,5 @@ class GaleriAdminController extends Controller
             'urutan' => ['nullable', 'integer', 'min:0'],
             'foto' => [$fotoWajib ? 'required' : 'nullable', 'image', 'max:4096'],
         ]);
-    }
-
-    /**
-     * Sengaja pakai asset() (resolve dari host request saat ini), BUKAN
-     * Storage::disk('public')->url() yang selalu balik ke APP_URL statis
-     * dan bikin URL foto rusak/404 di domain manapun selain APP_URL itu
-     * sendiri (situs korporat greendeahan.com bisa diakses dari beberapa
-     * domain, lihat routes/web.php).
-     */
-    private function simpanFoto(Request $request): string
-    {
-        $path = $request->file('foto')->store('galeri', 'public');
-
-        return asset('storage/'.$path);
-    }
-
-    private function hapusFotoLama(?string $fotoUrl): void
-    {
-        if (! $fotoUrl) {
-            return;
-        }
-
-        $path = Str::after($fotoUrl, '/storage/');
-
-        if ($path && $path !== $fotoUrl) {
-            Storage::disk('public')->delete($path);
-        }
     }
 }

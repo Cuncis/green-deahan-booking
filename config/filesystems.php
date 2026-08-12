@@ -48,9 +48,10 @@ return [
         ],
 
         // Juga dipakai untuk Cloudflare R2 (S3-compatible), tinggal isi
-        // AWS_ENDPOINT dengan endpoint R2 dan AWS_USE_PATH_STYLE_ENDPOINT=true
-        // di .env, lalu set FILESYSTEM_DISK=s3. Dipakai LapanganAdminController
-        // dan SettingsAdminController untuk simpan foto lapangan & logo tenant.
+        // AWS_ENDPOINT+AWS_URL dengan endpoint & domain publik R2 dan
+        // AWS_USE_PATH_STYLE_ENDPOINT=true di .env, lalu set
+        // FILESYSTEM_DISK=s3. Dipakai App\Services\FotoUploadService untuk
+        // simpan foto lapangan/galeri/logo tenant/artikel.
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

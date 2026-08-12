@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Artikel;
+use App\Services\FotoUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -17,6 +17,8 @@ use Illuminate\View\View;
  */
 class ArtikelAdminController extends Controller
 {
+    public function __construct(private readonly FotoUploadService $fotoUploadService) {}
+
     public function index(Request $request): View
     {
         $artikel = Artikel::orderByDesc('tanggal_terbit')
@@ -41,7 +43,7 @@ class ArtikelAdminController extends Controller
         $data['status_aktif'] = true;
 
         if ($request->hasFile('foto')) {
-            $data['foto_url'] = $this->simpanFoto($request);
+            $data['foto_url'] = $this->fotoUploadService->simpan($request->file('foto'), 'artikel');
         }
 
         $artikel = Artikel::create($data);
@@ -63,8 +65,8 @@ class ArtikelAdminController extends Controller
         $data['status_aktif'] = $request->boolean('status_aktif');
 
         if ($request->hasFile('foto')) {
-            $this->hapusFotoLama($artikel->foto_url);
-            $data['foto_url'] = $this->simpanFoto($request);
+            $this->fotoUploadService->hapus($artikel->foto_url);
+            $data['foto_url'] = $this->fotoUploadService->simpan($request->file('foto'), 'artikel');
         }
 
         $artikel->update($data);
@@ -75,7 +77,7 @@ class ArtikelAdminController extends Controller
 
     public function destroy(Artikel $artikel): RedirectResponse
     {
-        $this->hapusFotoLama($artikel->foto_url);
+        $this->fotoUploadService->hapus($artikel->foto_url);
         $judul = $artikel->judul;
         $artikel->delete();
 
@@ -110,32 +112,5 @@ class ArtikelAdminController extends Controller
         }
 
         return $slug;
-    }
-
-    /**
-     * Sengaja pakai asset() (resolve dari host request saat ini), BUKAN
-     * Storage::disk('public')->url() yang selalu balik ke APP_URL statis
-     * dan bikin URL foto rusak/404 di domain manapun selain APP_URL itu
-     * sendiri (situs korporat greendeahan.com bisa diakses dari beberapa
-     * domain, lihat routes/web.php).
-     */
-    private function simpanFoto(Request $request): string
-    {
-        $path = $request->file('foto')->store('artikel', 'public');
-
-        return asset('storage/'.$path);
-    }
-
-    private function hapusFotoLama(?string $fotoUrl): void
-    {
-        if (! $fotoUrl) {
-            return;
-        }
-
-        $path = Str::after($fotoUrl, '/storage/');
-
-        if ($path && $path !== $fotoUrl) {
-            Storage::disk('public')->delete($path);
-        }
     }
 }

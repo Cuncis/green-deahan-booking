@@ -7,10 +7,10 @@ use App\Models\Cabang;
 use App\Models\JadwalSlot;
 use App\Models\Lapangan;
 use App\Models\Tenant;
+use App\Services\FotoUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -22,6 +22,8 @@ class LapanganAdminController extends Controller
      * @var array<int, string>
      */
     private const JENIS_OLAHRAGA = ['futsal', 'padel', 'badminton', 'tennis', 'mini soccer'];
+
+    public function __construct(private readonly FotoUploadService $fotoUploadService) {}
 
     public function index(): View
     {
@@ -68,7 +70,7 @@ class LapanganAdminController extends Controller
         $data['cabang_id'] = $this->resolveCabangId($request, $tenant);
 
         if ($request->hasFile('foto')) {
-            $data['foto_url'] = $this->simpanFoto($request);
+            $data['foto_url'] = $this->fotoUploadService->simpan($request->file('foto'), 'lapangan');
         }
 
         Lapangan::create($data);
@@ -176,8 +178,8 @@ class LapanganAdminController extends Controller
         $data['cabang_id'] = $this->resolveCabangId($request, $tenant);
 
         if ($request->hasFile('foto')) {
-            $this->hapusFotoLama($lapangan->foto_url);
-            $data['foto_url'] = $this->simpanFoto($request);
+            $this->fotoUploadService->hapus($lapangan->foto_url);
+            $data['foto_url'] = $this->fotoUploadService->simpan($request->file('foto'), 'lapangan');
         }
 
         $lapangan->update($data);
@@ -202,7 +204,7 @@ class LapanganAdminController extends Controller
                 ->with('error', "Lapangan \"{$lapangan->nama}\" punya riwayat booking, tidak bisa dihapus. Nonaktifkan saja lewat form edit.");
         }
 
-        $this->hapusFotoLama($lapangan->foto_url);
+        $this->fotoUploadService->hapus($lapangan->foto_url);
         $lapangan->delete();
 
         return redirect()->route('admin.lapangan')
@@ -234,32 +236,5 @@ class LapanganAdminController extends Controller
         }
 
         return Cabang::where('tenant_id', $tenant->id)->value('id');
-    }
-
-    /**
-     * Sengaja pakai asset() (resolve dari host request saat ini), BUKAN
-     * Storage::disk('public')->url() yang selalu balik ke APP_URL statis.
-     * Tenant diakses dari macam-macam domain (subdomain, custom domain),
-     * jadi URL foto yang di-hardcode ke satu domain akan rusak/404 di
-     * domain tenant manapun selain APP_URL itu sendiri.
-     */
-    private function simpanFoto(Request $request): string
-    {
-        $path = $request->file('foto')->store('lapangan', 'public');
-
-        return asset('storage/'.$path);
-    }
-
-    private function hapusFotoLama(?string $fotoUrl): void
-    {
-        if (! $fotoUrl) {
-            return;
-        }
-
-        $path = Str::after($fotoUrl, '/storage/');
-
-        if ($path && $path !== $fotoUrl) {
-            Storage::disk('public')->delete($path);
-        }
     }
 }
