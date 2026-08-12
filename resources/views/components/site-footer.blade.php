@@ -35,6 +35,26 @@
                     Senin, Sabtu, 06.00 sampai 23.00 WIB
                 </p>
             </div>
+
+            <div class="mt-4 flex items-center gap-3">
+                @foreach ([
+                    ['icon' => 'instagram-logo', 'href' => 'https://www.instagram.com/green_deahan1927', 'label' => 'Instagram', 'hover' => 'hover:bg-pink-600'],
+                    ['icon' => 'facebook-logo', 'href' => 'https://www.facebook.com/greendeahan/', 'label' => 'Facebook', 'hover' => 'hover:bg-[#1877f2]'],
+                    ['icon' => 'tiktok-logo', 'href' => 'https://www.tiktok.com/@green_deahan', 'label' => 'TikTok', 'hover' => 'hover:bg-stone-600'],
+                    ['icon' => 'x-logo', 'href' => 'https://x.com/greendeahan1927', 'label' => 'X / Twitter', 'hover' => 'hover:bg-stone-600'],
+                    ['icon' => 'youtube-logo', 'href' => 'https://www.youtube.com/@green_deahan', 'label' => 'YouTube', 'hover' => 'hover:bg-red-600'],
+                ] as $social)
+                    <a
+                        href="{{ $social['href'] }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="{{ $social['label'] }}"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-800 text-stone-300 transition-colors {{ $social['hover'] }}"
+                    >
+                        <x-icon :name="$social['icon']" size="15" />
+                    </a>
+                @endforeach
+            </div>
         </div>
 
         <div>
@@ -72,29 +92,8 @@
         </div>
     </div>
 
-    <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 border-t border-stone-800 pt-6 text-xs text-stone-500 sm:flex-row">
-        <div class="text-center sm:text-left">
-            &copy; {{ now()->year }} <strong class="font-semibold text-stone-300">Green Deahan Sport</strong>. Seluruh hak cipta dilindungi.<br>
-            Jasa Pembuatan Lapangan Futsal, Mini Soccer, Padel &amp; Badminton Se-Indonesia
-        </div>
-        <div class="flex items-center gap-3">
-            @foreach ([
-                ['icon' => 'instagram-logo', 'href' => 'https://www.instagram.com/green_deahan1927', 'label' => 'Instagram', 'hover' => 'hover:bg-pink-600'],
-                ['icon' => 'facebook-logo', 'href' => 'https://www.facebook.com/greendeahan/', 'label' => 'Facebook', 'hover' => 'hover:bg-[#1877f2]'],
-                ['icon' => 'tiktok-logo', 'href' => 'https://www.tiktok.com/@green_deahan', 'label' => 'TikTok', 'hover' => 'hover:bg-stone-600'],
-                ['icon' => 'x-logo', 'href' => 'https://x.com/greendeahan1927', 'label' => 'X / Twitter', 'hover' => 'hover:bg-stone-600'],
-                ['icon' => 'youtube-logo', 'href' => 'https://www.youtube.com/@green_deahan', 'label' => 'YouTube', 'hover' => 'hover:bg-red-600'],
-            ] as $social)
-                <a
-                    href="{{ $social['href'] }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="{{ $social['label'] }}"
-                    class="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-800 text-stone-300 transition-colors {{ $social['hover'] }}"
-                >
-                    <x-icon :name="$social['icon']" size="15" />
-                </a>
-            @endforeach
-        </div>
+    <div class="mx-auto max-w-6xl border-t border-stone-800 pt-6 text-center text-xs text-stone-500">
+        &copy; {{ now()->year }} <strong class="font-semibold text-stone-300">Green Deahan Sport</strong>. Seluruh hak cipta dilindungi.<br>
+        Jasa Pembuatan Lapangan Futsal, Mini Soccer, Padel &amp; Badminton Se-Indonesia
     </div>
 </footer>
