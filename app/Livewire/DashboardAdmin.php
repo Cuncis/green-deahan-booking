@@ -78,29 +78,6 @@ class DashboardAdmin extends Component
     }
 
     /**
-     * Jumlah slot yang sudah dibooking, dikelompokkan per jam mulai,
-     * untuk melihat jam berapa yang paling ramai.
-     *
-     * @return array<int, int>
-     */
-    public function jamRamai(): array
-    {
-        $perJam = JadwalSlot::where('tenant_id', app('tenant')->id)
-            ->when($this->cabangId, fn ($q) => $q->whereHas('lapangan', fn ($q2) => $q2->where('cabang_id', $this->cabangId)))
-            ->where('status', 'booked')
-            ->get()
-            ->groupBy(fn (JadwalSlot $slot) => (int) substr($slot->jam_mulai, 0, 2));
-
-        $hasil = [];
-
-        for ($jam = 0; $jam < 24; $jam++) {
-            $hasil[$jam] = $perJam->has($jam) ? $perJam->get($jam)->count() : 0;
-        }
-
-        return $hasil;
-    }
-
-    /**
      * Jumlah member dan persen diskon untuk tiap tier membership.
      *
      * @return array<int, array{tier: string, label: string, jumlah: int, persen: int}>
@@ -284,7 +261,6 @@ class DashboardAdmin extends Component
             'bookingMingguIni' => $statistikLengkap ? $this->bookingMingguIni() : null,
             'tingkatKeterisian' => $statistikLengkap ? $this->tingkatKeterisian() : null,
             'bookingTerbaru' => $this->bookingTerbaru(),
-            'jamRamai' => $statistikLengkap ? $this->jamRamai() : [],
             'daftarCabang' => $tenant->punyaFitur('multi_cabang') ? $this->daftarCabang() : collect(),
             'ringkasanMembership' => $tenant->punyaFitur('sistem_membership') ? $this->ringkasanMembership() : [],
             'daftarReminder' => $tenant->punyaFitur('reminder_otomatis') ? $this->daftarReminder() : collect(),

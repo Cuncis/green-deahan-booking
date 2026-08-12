@@ -134,6 +134,20 @@ Route::middleware(['auth', 'verified', 'check.tenant.staf'])->prefix('admin')->n
         ]);
     })->name('dashboard');
 
+    Route::get('/laporan', function () {
+        $tenant = app('tenant');
+        abort_unless($tenant->punyaFitur('laporan_pendapatan'), 404);
+
+        return view('pages.admin.laporan', ['tenant' => $tenant]);
+    })->name('laporan');
+
+    Route::get('/promo', function () {
+        $tenant = app('tenant');
+        abort_unless($tenant->punyaFitur('kode_promo'), 404);
+
+        return view('pages.admin.promo', ['tenant' => $tenant]);
+    })->name('promo');
+
     Route::get('/booking', [BookingAdminController::class, 'index'])->name('booking');
     Route::get('/booking/export', [BookingAdminController::class, 'export'])->name('booking.export');
     Route::post('/booking/{booking}/confirm', [BookingAdminController::class, 'confirm'])->name('booking.confirm');

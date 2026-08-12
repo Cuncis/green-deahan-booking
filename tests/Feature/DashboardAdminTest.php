@@ -120,34 +120,6 @@ class DashboardAdminTest extends TestCase
             ->assertDontSee('Tingkat Keterisian');
     }
 
-    public function test_grafik_pendapatan_disembunyikan_kalau_fitur_laporan_pendapatan_tidak_aktif(): void
-    {
-        $tenant = $this->tenant();
-
-        TenantFitur::create(array_merge(
-            ['tenant_id' => $tenant->id],
-            TenantFitur::presetUntukPaket('basic'),
-        ));
-
-        Livewire::test(DashboardAdmin::class)
-            ->assertDontSee('Pendapatan 7 Hari Terakhir');
-    }
-
-    public function test_grafik_pendapatan_tampil_kalau_fitur_laporan_pendapatan_aktif(): void
-    {
-        $tenant = $this->tenant();
-
-        TenantFitur::create(array_merge(
-            ['tenant_id' => $tenant->id],
-            TenantFitur::presetUntukPaket('pro'),
-        ));
-
-        $this->buatBooking($tenant, [], ['status_booking' => 'dikonfirmasi', 'total_bayar' => 150000]);
-
-        Livewire::test(DashboardAdmin::class)
-            ->assertSee('Pendapatan 7 Hari Terakhir');
-    }
-
     public function test_filter_cabang_disembunyikan_kalau_fitur_multi_cabang_tidak_aktif(): void
     {
         $tenant = $this->tenant();
@@ -209,83 +181,6 @@ class DashboardAdminTest extends TestCase
 
         Livewire::test(DashboardAdmin::class)
             ->assertViewHas('bookingTerbaru', fn ($bookings) => $bookings->count() === 1);
-    }
-
-    public function test_jam_ramai_disembunyikan_kalau_laporan_pendapatan_tidak_aktif(): void
-    {
-        $tenant = $this->tenant();
-
-        TenantFitur::create(array_merge(
-            ['tenant_id' => $tenant->id],
-            TenantFitur::presetUntukPaket('basic'),
-        ));
-
-        Livewire::test(DashboardAdmin::class)
-            ->assertDontSee('Jam Ramai')
-            ->assertViewHas('jamRamai', []);
-    }
-
-    public function test_jam_ramai_menghitung_slot_booked_per_jam(): void
-    {
-        $tenant = $this->tenant();
-
-        TenantFitur::create(array_merge(
-            ['tenant_id' => $tenant->id],
-            TenantFitur::presetUntukPaket('pro'),
-        ));
-
-        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
-        $lapangan = Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
-
-        JadwalSlot::factory()->create([
-            'tenant_id' => $tenant->id,
-            'lapangan_id' => $lapangan->id,
-            'tanggal' => now()->addDay()->toDateString(),
-            'jam_mulai' => '19:00',
-            'status' => 'booked',
-        ]);
-        JadwalSlot::factory()->create([
-            'tenant_id' => $tenant->id,
-            'lapangan_id' => $lapangan->id,
-            'tanggal' => now()->addDays(2)->toDateString(),
-            'jam_mulai' => '19:00',
-            'status' => 'booked',
-        ]);
-        JadwalSlot::factory()->create([
-            'tenant_id' => $tenant->id,
-            'lapangan_id' => $lapangan->id,
-            'tanggal' => now()->addDays(3)->toDateString(),
-            'jam_mulai' => '08:00',
-            'status' => 'kosong',
-        ]);
-
-        Livewire::test(DashboardAdmin::class)
-            ->assertSee('Jam Ramai')
-            ->assertViewHas('jamRamai', fn ($jamRamai) => $jamRamai[19] === 2 && $jamRamai[8] === 0);
-    }
-
-    public function test_kode_promo_manager_tampil_kalau_fitur_kode_promo_aktif(): void
-    {
-        $tenant = $this->tenant();
-
-        TenantFitur::create(array_merge(
-            ['tenant_id' => $tenant->id],
-            TenantFitur::presetUntukPaket('pro'),
-        ));
-
-        Livewire::test(DashboardAdmin::class)->assertSee('Kode Promo');
-    }
-
-    public function test_kode_promo_manager_tersembunyi_kalau_fitur_tidak_aktif(): void
-    {
-        $tenant = $this->tenant();
-
-        TenantFitur::create(array_merge(
-            ['tenant_id' => $tenant->id],
-            TenantFitur::presetUntukPaket('basic'),
-        ));
-
-        Livewire::test(DashboardAdmin::class)->assertDontSee('Kode Promo');
     }
 
     public function test_panel_membership_menampilkan_jumlah_dan_persen_diskon_per_tier(): void
