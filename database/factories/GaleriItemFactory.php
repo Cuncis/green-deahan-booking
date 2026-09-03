@@ -23,7 +23,7 @@ class GaleriItemFactory extends Factory
             'kota' => fake()->city(),
             'material' => fake()->randomElement(['Lantai Interlock', 'Rumput Sintetis', 'Kaca Tempered + Artificial Grass']),
             'deskripsi' => fake()->sentence(15),
-            'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2024/07/interlock1.jpg',
+            'foto_url' => 'https://cdn.libradigital.id/site-assets/interlock1.jpg',
             'tampilan_besar' => fake()->boolean(30),
             'urutan' => fake()->numberBetween(1, 100),
             'status_aktif' => true,

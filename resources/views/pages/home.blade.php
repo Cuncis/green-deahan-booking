@@ -106,7 +106,7 @@
 
                 <div class="relative">
                     <img
-                        src="https://gdlogin.greendeahan.com/wp-content/uploads/2024/08/photo_24_2024-07-23_10-52-44.jpg"
+                        src="https://cdn.libradigital.id/site-assets/photo_24_2024-07-23_10-52-44.jpg"
                         alt="Lapangan Olahraga Green Deahan Sport"
                         class="aspect-[4/3] w-full rounded-2xl border border-stone-200 object-cover shadow-xl"
                     />
@@ -153,7 +153,7 @@
                         'nama' => 'Lapangan Futsal',
                         'badge' => 'Paling Populer',
                         'badgeClass' => 'text-brand bg-brand-50 border-brand-200',
-                        'gambar' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2024/07/IMG-20181216-WA0019.jpg',
+                        'gambar' => 'https://cdn.libradigital.id/site-assets/IMG-20181216-WA0019.jpg',
                         'deskripsi' => 'Konstruksi lapangan futsal standar internasional. Pilih lantai <strong>interlock</strong> atau <strong>rumput sintetis</strong>. Sudah termasuk pencahayaan, pagar, gawang, net, dan fasilitas pendukung lengkap.',
                         'checklist' => ['Lantai interlock atau rumput sintetis', 'Sistem pencahayaan LED standar pertandingan', 'Pagar, gawang, net termasuk', 'Ruang ganti & tribun (opsional)', 'Garansi konstruksi & material'],
                         'topik' => 'pembuatan lapangan futsal',
@@ -162,7 +162,7 @@
                         'nama' => 'Mini Soccer',
                         'badge' => 'Outdoor & Indoor',
                         'badgeClass' => 'text-blue-700 bg-blue-50 border-blue-200',
-                        'gambar' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/minisoccer2-img.png',
+                        'gambar' => 'https://cdn.libradigital.id/site-assets/minisoccer2-img.png',
                         'deskripsi' => 'Lapangan mini soccer dengan rumput sintetis premium grade A. Sistem drainase profesional agar tidak tergenang saat hujan. Material bisa disesuaikan dengan <strong>budget Anda</strong>.',
                         'checklist' => ['Rumput sintetis premium grade A/B', 'Sistem drainase profesional', 'Tribun penonton & pagar keliling', 'Pencahayaan malam hari (opsional)', 'Cocok outdoor & indoor'],
                         'topik' => 'pembuatan lapangan mini soccer',
@@ -171,7 +171,7 @@
                         'nama' => 'Lapangan Padel',
                         'badge' => 'Tren Terbaru 2025',
                         'badgeClass' => 'text-orange-700 bg-orange-50 border-orange-200',
-                        'gambar' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/padel1-img-1-1.png',
+                        'gambar' => 'https://cdn.libradigital.id/site-assets/padel1-img-1-1.png',
                         'deskripsi' => 'Spesialis konstruksi lapangan padel standar internasional (IFF). Dari struktur rangka baja, kaca tempered, hingga lantai artificial grass padel, semua <strong>all-in-one service</strong>.',
                         'checklist' => ['Rangka baja galvanis anti karat', 'Kaca tempered safety glass', 'Artificial grass khusus padel', 'Standar internasional IFF', 'Bisa indoor & outdoor'],
                         'topik' => 'pembuatan lapangan padel',
@@ -180,7 +180,7 @@
                         'nama' => 'Lapangan Badminton',
                         'badge' => 'Indoor Specialist',
                         'badgeClass' => 'text-purple-700 bg-purple-50 border-purple-200',
-                        'gambar' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/badminton2-img-1.png',
+                        'gambar' => 'https://cdn.libradigital.id/site-assets/badminton2-img-1.png',
                         'deskripsi' => 'Konstruksi lapangan badminton dengan lantai <strong>interlock</strong> atau <strong>kayu keras</strong> berkualitas. Non-slip, ramah sendi lutut. Pencahayaan LED anti-silau.',
                         'checklist' => ['Lantai interlock atau kayu keras', 'Non-slip & ramah lutut', 'Pencahayaan LED anti-silau', 'Tiang net & net standar BWF', '1 atau multi-court tersedia'],
                         'topik' => 'pembuatan lapangan badminton',
@@ -302,12 +302,12 @@
 
             <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ([
-                    ['gambar' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/futsal-img4-1.png', 'kategori' => 'Futsal', 'warna' => 'text-brand', 'judul' => 'Futsal Arena Jakarta Selatan', 'deskripsi' => 'Lantai interlock + pencahayaan LED. Selesai dalam 21 hari kerja.'],
-                    ['gambar' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/minisoccer-img2.png', 'kategori' => 'Mini Soccer', 'warna' => 'text-blue-600', 'judul' => 'Mini Soccer Outdoor Surabaya', 'deskripsi' => 'Rumput sintetis premium + tribun penonton. Kapasitas 200 orang.'],
-                    ['gambar' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/padel1-img.png', 'kategori' => 'Padel', 'warna' => 'text-orange-600', 'judul' => 'Padel Premium Medan', 'deskripsi' => 'Standar internasional IFF. Kaca tempered, rangka baja galvanis.'],
-                    ['gambar' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/badminton1-img.png', 'kategori' => 'Badminton', 'warna' => 'text-purple-600', 'judul' => 'Badminton 4 Court Bandung', 'deskripsi' => 'Lantai interlock, LED anti-silau. 4 court dalam 1 gedung.'],
-                    ['gambar' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/futsal1-outdoor.png', 'kategori' => 'Futsal', 'warna' => 'text-brand', 'judul' => 'Futsal Outdoor Makassar', 'deskripsi' => 'Rumput sintetis tahan cuaca, sistem drainase anti banjir.'],
-                    ['gambar' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/minisoccer-img3.png', 'kategori' => 'Mini Soccer', 'warna' => 'text-blue-600', 'judul' => 'Mini Soccer Indoor Semarang', 'deskripsi' => 'Full roof + pencahayaan. Bisa dipakai malam hari non-stop.'],
+                    ['gambar' => 'https://cdn.libradigital.id/site-assets/futsal-img4-1.png', 'kategori' => 'Futsal', 'warna' => 'text-brand', 'judul' => 'Futsal Arena Jakarta Selatan', 'deskripsi' => 'Lantai interlock + pencahayaan LED. Selesai dalam 21 hari kerja.'],
+                    ['gambar' => 'https://cdn.libradigital.id/site-assets/minisoccer-img2.png', 'kategori' => 'Mini Soccer', 'warna' => 'text-blue-600', 'judul' => 'Mini Soccer Outdoor Surabaya', 'deskripsi' => 'Rumput sintetis premium + tribun penonton. Kapasitas 200 orang.'],
+                    ['gambar' => 'https://cdn.libradigital.id/site-assets/padel1-img.png', 'kategori' => 'Padel', 'warna' => 'text-orange-600', 'judul' => 'Padel Premium Medan', 'deskripsi' => 'Standar internasional IFF. Kaca tempered, rangka baja galvanis.'],
+                    ['gambar' => 'https://cdn.libradigital.id/site-assets/badminton1-img.png', 'kategori' => 'Badminton', 'warna' => 'text-purple-600', 'judul' => 'Badminton 4 Court Bandung', 'deskripsi' => 'Lantai interlock, LED anti-silau. 4 court dalam 1 gedung.'],
+                    ['gambar' => 'https://cdn.libradigital.id/site-assets/futsal1-outdoor.png', 'kategori' => 'Futsal', 'warna' => 'text-brand', 'judul' => 'Futsal Outdoor Makassar', 'deskripsi' => 'Rumput sintetis tahan cuaca, sistem drainase anti banjir.'],
+                    ['gambar' => 'https://cdn.libradigital.id/site-assets/minisoccer-img3.png', 'kategori' => 'Mini Soccer', 'warna' => 'text-blue-600', 'judul' => 'Mini Soccer Indoor Semarang', 'deskripsi' => 'Full roof + pencahayaan. Bisa dipakai malam hari non-stop.'],
                 ] as $proyek)
                     <div class="reveal group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white transition-all hover:shadow-lg">
                         <div class="h-52 overflow-hidden">
@@ -366,7 +366,7 @@
 
                     <div class="reveal space-y-5">
                         <img
-                            src="https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/hero-img2.png"
+                            src="https://cdn.libradigital.id/site-assets/hero-img2.png"
                             alt="Tim Green Deahan Sedang Bekerja"
                             class="aspect-[4/3] w-full rounded-2xl border border-stone-200 object-cover"
                         />
@@ -405,9 +405,9 @@
 
             <div class="grid gap-6 md:grid-cols-3">
                 @foreach ([
-                    ['foto' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/foto1.webp', 'nama' => 'Budi Santoso', 'peran' => 'Owner Futsal, Jakarta Selatan', 'ulasan' => 'Awalnya ragu karena project dari nol, tapi GreenDeahan handle semuanya dengan profesional. Lapangan futsal saya sudah balik modal dalam 8 bulan.'],
-                    ['foto' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/foto2.jpg', 'nama' => 'Ahmad Wijaya', 'peran' => 'Pengusaha, Surabaya', 'ulasan' => 'Tim yang sangat responsif! Konsultasi gratisnya detail banget, bantu pilih material sesuai budget. Lapangan mini soccer saya jadi yang paling ramai di daerah. Recommended 100%!'],
-                    ['foto' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/foto3.jpg', 'nama' => 'Ricky Pratama', 'peran' => 'Investor, Medan', 'ulasan' => 'Proyek lapangan padel pertama di kota kami dikerjakan GreenDeahan. Dari desain sampai konstruksi standar internasional. Garansi dan after sales service-nya juga top!'],
+                    ['foto' => 'https://cdn.libradigital.id/site-assets/foto1.webp', 'nama' => 'Budi Santoso', 'peran' => 'Owner Futsal, Jakarta Selatan', 'ulasan' => 'Awalnya ragu karena project dari nol, tapi GreenDeahan handle semuanya dengan profesional. Lapangan futsal saya sudah balik modal dalam 8 bulan.'],
+                    ['foto' => 'https://cdn.libradigital.id/site-assets/foto2.jpg', 'nama' => 'Ahmad Wijaya', 'peran' => 'Pengusaha, Surabaya', 'ulasan' => 'Tim yang sangat responsif! Konsultasi gratisnya detail banget, bantu pilih material sesuai budget. Lapangan mini soccer saya jadi yang paling ramai di daerah. Recommended 100%!'],
+                    ['foto' => 'https://cdn.libradigital.id/site-assets/foto3.jpg', 'nama' => 'Ricky Pratama', 'peran' => 'Investor, Medan', 'ulasan' => 'Proyek lapangan padel pertama di kota kami dikerjakan GreenDeahan. Dari desain sampai konstruksi standar internasional. Garansi dan after sales service-nya juga top!'],
                 ] as $testimoni)
                     <div class="reveal rounded-2xl border border-stone-200 bg-white p-6 transition-shadow hover:shadow-lg">
                         <div class="mb-4 flex items-center gap-0.5 text-yellow-400">
@@ -472,7 +472,7 @@
             <div class="grid items-center gap-14 md:grid-cols-2">
                 <div class="reveal">
                     <img
-                        src="https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/profile-img1.jpg"
+                        src="https://cdn.libradigital.id/site-assets/profile-img1.jpg"
                         alt="Kantor dan Workshop Green Deahan Sport"
                         class="aspect-[4/3] w-full rounded-2xl border border-stone-200 object-cover"
                     />

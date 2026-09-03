@@ -15,7 +15,7 @@
         <nav class="sticky top-0 z-40 flex items-center h-16 px-5 border-b border-cream-deep bg-cream/95 backdrop-blur">
             <a href="/">
                 <img
-                    src="https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/full-logo-02.png"
+                    src="https://cdn.libradigital.id/site-assets/full-logo-02.png"
                     alt="Green Deahan Sport"
                     class="h-9 w-auto object-contain"
                 />

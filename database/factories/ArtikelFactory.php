@@ -26,7 +26,7 @@ class ArtikelFactory extends Factory
             'kategori' => fake()->randomElement(['Panduan Bisnis', 'Tips Perawatan', 'Futsal', 'Material', 'Badminton', 'Mini Soccer', 'Padel']),
             'ringkasan' => fake()->paragraph(),
             'konten' => '<p>'.fake()->paragraphs(5, true).'</p>',
-            'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2024/07/interlock1.jpg',
+            'foto_url' => 'https://cdn.libradigital.id/site-assets/interlock1.jpg',
             'status_aktif' => true,
             'tanggal_terbit' => fake()->dateTimeBetween('-1 year')->format('Y-m-d'),
         ];

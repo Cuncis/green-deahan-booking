@@ -40,7 +40,7 @@ class ArtikelSeeder extends Seeder
 <li>Strategi pemasaran (media sosial, partnership komunitas)</li>
 <li>Jam operasional (extended hours = lebih banyak slot)</li>
 </ul>
-', 'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/roi-img.jpg', 'tanggal_terbit' => '2026-05-03'],
+', 'foto_url' => 'https://cdn.libradigital.id/site-assets/roi-img.jpg', 'tanggal_terbit' => '2026-05-03'],
             ['judul' => '7 Cara Merawat Lapangan Futsal agar Awet Sampai 10 Tahun', 'slug' => '7-cara-merawat-lapangan-futsal-agar-awet-sampai-10-tahun', 'kategori' => 'Tips Perawatan', 'ringkasan' => 'Investasi lapangan futsal bisa bertahan lama jika dirawat dengan benar. Berikut 7 tips dari tim GreenDeahan berdasarkan pengalaman 16+ tahun di lapangan. 1. Bersihkan Secara Rutin Sapu atau vacuum lantai setiap hari sebelum dan sesudah jam operasional. Debu dan pasir yang menumpuk bisa menggores permukaan lantai. 2. Larang Sepatu Non-Futsal Pasang aturan wajib sepatu futsal. [...]', 'konten' => '<p>Investasi lapangan futsal bisa bertahan lama jika dirawat dengan benar. Berikut 7 tips dari tim GreenDeahan berdasarkan pengalaman 16+ tahun di lapangan.</p>
 <h2>1. Bersihkan Secara Rutin</h2>
 <p>Sapu atau vacuum lantai setiap hari sebelum dan sesudah jam operasional. Debu dan pasir yang menumpuk bisa menggores permukaan lantai.</p>
@@ -56,7 +56,7 @@ class ArtikelSeeder extends Seeder
 <p>Bersihkan lampu LED dari debu setiap bulan. Lampu yang kotor bisa mengurangi intensitas cahaya hingga 30%. Ganti segera jika ada yang mati.</p>
 <h2>7. Gunakan Jasa Servis Berkala</h2>
 <blockquote><p>💡 GreenDeahan menyediakan layanan maintenance berkala untuk memastikan lapangan Anda selalu dalam kondisi prima. Hubungi kami untuk paket perawatan tahunan.</p></blockquote>
-', 'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2024/07/interlock1.jpg', 'tanggal_terbit' => '2026-05-03'],
+', 'foto_url' => 'https://cdn.libradigital.id/site-assets/interlock1.jpg', 'tanggal_terbit' => '2026-05-03'],
             ['judul' => 'Ukuran Standar Lapangan Futsal Indoor & Outdoor Sesuai FIFA', 'slug' => 'ukuran-standar-lapangan-futsal-indoor-outdoor-sesuai-fifa', 'kategori' => 'Futsal', 'ringkasan' => 'Lapangan futsal yang sesuai standar akan meningkatkan kepercayaan pelanggan dan memungkinkan Anda menggelar turnamen resmi. Ukuran Standar FIFA Panjang: 25–42 meter (internasional: 38–42 meter) Lebar: 15–25 meter (internasional: 18–22 meter) Area penjaga gawang: 6 meter × 3 meter Titik penalti: 6 meter dari garis gawang Titik penalti kedua: 10 meter dari garis gawang Ukuran yang [...]', 'konten' => '<p>Lapangan futsal yang sesuai standar akan meningkatkan kepercayaan pelanggan dan memungkinkan Anda menggelar turnamen resmi.</p>
 <h2>Ukuran Standar FIFA</h2>
 <ul>
@@ -75,7 +75,7 @@ class ArtikelSeeder extends Seeder
 <li>Konsultasikan dengan tim GreenDeahan untuk solusi desain terbaik</li>
 </ul>
 <blockquote><p>💡 Kami pernah mengoptimalkan lahan selebar 18 meter menjadi lapangan futsal yang fungsional dan nyaman. Hubungi kami untuk konsultasi desain gratis!</p></blockquote>
-', 'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/futsal-court1.webp', 'tanggal_terbit' => '2026-04-28'],
+', 'foto_url' => 'https://cdn.libradigital.id/site-assets/futsal-court1.webp', 'tanggal_terbit' => '2026-04-28'],
             ['judul' => 'Cara Merawat Rumput Sintetis agar Tidak Cepat Rusak dan Pudar', 'slug' => 'cara-merawat-rumput-sintetis-agar-tidak-cepat-rusak-dan-pudar', 'kategori' => 'Tips Perawatan', 'ringkasan' => 'Rumput sintetis yang terpasang dengan baik seharusnya bisa bertahan 6–10 tahun. Namun tanpa perawatan yang tepat, usia pakainya bisa jauh lebih pendek. Perawatan Harian Sapu atau blower permukaan dari daun, debu, dan sampah Siram dengan air bersih jika terlalu panas (terutama saat siang hari outdoor) Periksa ada tidaknya benda tajam yang tertinggal di permukaan Perawatan [...]', 'konten' => '<p>Rumput sintetis yang terpasang dengan baik seharusnya bisa bertahan 6–10 tahun. Namun tanpa perawatan yang tepat, usia pakainya bisa jauh lebih pendek.</p>
 <h2>Perawatan Harian</h2>
 <ul>
@@ -96,7 +96,7 @@ class ArtikelSeeder extends Seeder
 <li>Lakukan deep cleaning dengan alat khusus</li>
 </ul>
 <blockquote><p>💡 GreenDeahan menyediakan paket servis berkala rumput sintetis. Kami datang ke lokasi Anda untuk melakukan perawatan komprehensif. Tanya harga paket via WhatsApp!</p></blockquote>
-', 'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/futsal1-outdoor.png', 'tanggal_terbit' => '2026-04-03'],
+', 'foto_url' => 'https://cdn.libradigital.id/site-assets/futsal1-outdoor.png', 'tanggal_terbit' => '2026-04-03'],
             ['judul' => 'Lantai Interlock vs Rumput Sintetis: Mana yang Lebih Cocok untuk Futsal Anda?', 'slug' => 'lantai-interlock-vs-rumput-sintetis-mana-yang-lebih-cocok-untuk-futsal-anda', 'kategori' => 'Material', 'ringkasan' => 'Pilihan lantai adalah keputusan paling krusial dalam membangun lapangan futsal. Dua opsi paling populer adalah lantai interlock dan rumput sintetis — keduanya punya keunggulan masing-masing. Lantai Interlock Harga: Lebih terjangkau, Rp 80–150 juta untuk 1 lapangan Daya tahan: 10–15 tahun dengan perawatan minimal Keunggulan: Jika satu tile rusak, bisa diganti sebagian saja Kekurangan: Kurang estetik [...]', 'konten' => '<p>Pilihan lantai adalah keputusan paling krusial dalam membangun lapangan futsal. Dua opsi paling populer adalah lantai interlock dan rumput sintetis — keduanya punya keunggulan masing-masing.</p>
 <h2>Lantai Interlock</h2>
 <ul>
@@ -115,7 +115,7 @@ class ArtikelSeeder extends Seeder
 <li><strong>Cocok untuk:</strong> Outdoor, target pasar premium, area rekreasi</li>
 </ul>
 <blockquote><p>💡 <strong>Rekomendasi GreenDeahan:</strong> Untuk bisnis pertama dengan modal terbatas → pilih interlock. Untuk lokasi outdoor atau target pasar menengah ke atas → rumput sintetis.</p></blockquote>
-', 'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/interlock-rumput-sintetis.png', 'tanggal_terbit' => '2026-03-01'],
+', 'foto_url' => 'https://cdn.libradigital.id/site-assets/interlock-rumput-sintetis.png', 'tanggal_terbit' => '2026-03-01'],
             ['judul' => 'Vinyl Sport vs Kayu Keras untuk Lapangan Badminton: Pilih yang Mana?', 'slug' => 'vinyl-sport-vs-kayu-keras-untuk-lapangan-badminton-pilih-yang-mana', 'kategori' => 'Badminton', 'ringkasan' => 'Pilihan lantai sangat menentukan kenyamanan pemain dan umur lapangan badminton Anda. Mari bandingkan dua pilihan paling populer. Vinyl Sport Harga: Rp 120–200 juta untuk 2 court Keunggulan: Non-slip, shock absorption baik, ramah lutut, mudah dibersihkan Warna: Tersedia banyak pilihan warna dan motif Umur: 8–12 tahun Standar: Digunakan di banyak arena BWF Kayu Keras (Hardwood) Harga: [...]', 'konten' => '<p>Pilihan lantai sangat menentukan kenyamanan pemain dan umur lapangan badminton Anda. Mari bandingkan dua pilihan paling populer.</p>
 <h2>Vinyl Sport</h2>
 <ul>
@@ -133,7 +133,7 @@ class ArtikelSeeder extends Seeder
 <li><strong>Umur:</strong> 15–25 tahun dengan perawatan baik</li>
 </ul>
 <blockquote><p>💡 <strong>Rekomendasi:</strong> Untuk bisnis skala menengah → vinyl sport lebih cost-effective. Untuk arena premium atau pelatihan atlet → kayu keras memberikan pengalaman bermain terbaik.</p></blockquote>
-', 'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/badmintoon-img2.png', 'tanggal_terbit' => '2026-02-08'],
+', 'foto_url' => 'https://cdn.libradigital.id/site-assets/badmintoon-img2.png', 'tanggal_terbit' => '2026-02-08'],
             ['judul' => 'Ukuran Standar Lapangan Mini Soccer: Panduan Lengkap Sebelum Bangun', 'slug' => 'ukuran-standar-lapangan-mini-soccer-panduan-lengkap-sebelum-bangun', 'kategori' => 'Mini Soccer', 'ringkasan' => 'Membangun lapangan mini soccer yang tidak sesuai ukuran standar bisa merugikan bisnis Anda jangka panjang. Berikut panduan ukuran resmi yang kami gunakan. Ukuran Lapangan Mini Soccer Panjang: 30 – 45 meter Lebar: 18 – 25 meter Area penjaga gawang: 5 x 3 meter Titik penalti: 6 meter dari garis gawang Ukuran Lahan Minimal yang Dibutuhkan [...]', 'konten' => '<p>Membangun lapangan mini soccer yang tidak sesuai ukuran standar bisa merugikan bisnis Anda jangka panjang. Berikut panduan ukuran resmi yang kami gunakan.</p>
 <h2>Ukuran Lapangan Mini Soccer</h2>
 <ul>
@@ -160,7 +160,7 @@ class ArtikelSeeder extends Seeder
 <li>Pencahayaan malam (min. 500 lux)</li>
 <li>Area parkir</li>
 </ul>
-', 'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/minisoccer3-img-1.png', 'tanggal_terbit' => '2026-02-03'],
+', 'foto_url' => 'https://cdn.libradigital.id/site-assets/minisoccer3-img-1.png', 'tanggal_terbit' => '2026-02-03'],
             ['judul' => 'Mengapa Lapangan Padel Jadi Investasi Paling Menjanjikan di 2026', 'slug' => 'mengapa-lapangan-padel-jadi-investasi-paling-menjanjikan-di-2026', 'kategori' => 'Padel', 'ringkasan' => 'Padel bukan sekadar tren sesaat. Olahraga ini sedang mengalami pertumbuhan eksplosif di Indonesia, mengikuti jejak negara-negara Amerika Latin dan Eropa di mana padel sudah menjadi olahraga rakyat. Kenapa Padel Booming? Mudah dipelajari untuk semua usia, bahkan pemula bisa langsung seru bermain Dimainkan 4 orang (doubles), sehingga lebih sosial dan ramai Tidak terlalu menguras fisik seperti [...]', 'konten' => '<p>Padel bukan sekadar tren sesaat. Olahraga ini sedang mengalami pertumbuhan eksplosif di Indonesia, mengikuti jejak negara-negara Amerika Latin dan Eropa di mana padel sudah menjadi olahraga rakyat.</p>
 <h2>Kenapa Padel Booming?</h2>
 <ul>
@@ -174,7 +174,7 @@ class ArtikelSeeder extends Seeder
 <blockquote><p>💡 <strong>Peluang emas:</strong> Di banyak kota tier-2 Indonesia, belum ada lapangan padel sama sekali. Menjadi yang pertama di kota Anda = keunggulan kompetitif besar!</p></blockquote>
 <h2>Biaya Konstruksi Padel</h2>
 <p>1 lapangan padel standar internasional bisa dibangun dengan investasi Rp 250 – 450 juta. Lebih mahal dari futsal, namun return-nya jauh lebih tinggi dan segmen pasarnya premium.</p>
-', 'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/05/padel2-img-1.png', 'tanggal_terbit' => '2026-01-23'],
+', 'foto_url' => 'https://cdn.libradigital.id/site-assets/padel2-img-1.png', 'tanggal_terbit' => '2026-01-23'],
             ['judul' => 'Mengenal Spesifikasi Lapangan Padel Standar Internasional (IFF)', 'slug' => 'mengenal-spesifikasi-lapangan-padel-standar-internasional-iff', 'kategori' => 'Padel', 'ringkasan' => 'Jika Anda ingin membangun lapangan padel yang bisa digunakan untuk kompetisi dan mendapat kepercayaan pemain serius, wajib mengacu pada standar IFF (International Padel Federation). Dimensi Lapangan Panjang: 20 meter Lebar: 10 meter Tinggi minimum: 6 meter (indoor) Tinggi kaca belakang: 3 meter Tinggi kaca samping: 3 meter (bagian belakang) + pagar metal 1 meter Spesifikasi [...]', 'konten' => '<p>Jika Anda ingin membangun lapangan padel yang bisa digunakan untuk kompetisi dan mendapat kepercayaan pemain serius, wajib mengacu pada standar IFF (International Padel Federation).</p>
 <h2>Dimensi Lapangan</h2>
 <ul>
@@ -194,7 +194,7 @@ class ArtikelSeeder extends Seeder
 <h2>Pencahayaan Standar</h2>
 <p>Minimum 400 lux untuk penggunaan umum, 500–750 lux untuk kompetisi. Gunakan lampu LED dengan CRI (Color Rendering Index) minimum 80.</p>
 <blockquote><p>💡 GreenDeahan adalah spesialis lapangan padel di Indonesia. Semua proyek padel kami mengacu pada standar IFF. Konsultasi gratis untuk estimasi biaya dan desain!</p></blockquote>
-', 'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/padel-img1.png', 'tanggal_terbit' => '2026-01-03'],
+', 'foto_url' => 'https://cdn.libradigital.id/site-assets/padel-img1.png', 'tanggal_terbit' => '2026-01-03'],
             ['judul' => 'Berapa Modal Membangun Lapangan Futsal? Rincian Biaya Lengkap 2026', 'slug' => 'berapa-modal-membangun-lapangan-futsal-rincian-biaya-lengkap-2026', 'kategori' => 'Panduan Bisnis', 'ringkasan' => '1. Komponen Biaya Utama Sewa/beli lahan: Tergantung lokasi. Di kota besar bisa Rp 15–50 juta/bulan untuk sewa. Beli lahan mulai Rp 300 juta – 1 miliar. Konstruksi lapangan: Rp 150 – 400 juta tergantung ukuran, material, dan fasilitas. Lantai (interlock/rumput sintetis): Rp 80 – 200 juta untuk 1 lapangan standar. Pencahayaan LED: Rp 20 – [...]', 'konten' => '<h2>1. Komponen Biaya Utama</h2>
 <ul>
 <li><strong>Sewa/beli lahan:</strong> Tergantung lokasi. Di kota besar bisa Rp 15–50 juta/bulan untuk sewa. Beli lahan mulai Rp 300 juta – 1 miliar.</li>
@@ -215,7 +215,7 @@ class ArtikelSeeder extends Seeder
 <p>Dengan harga sewa per jam Rp 100.000 – 200.000 dan rata-rata 10 jam booking per hari, pendapatan bisa mencapai Rp 30 – 60 juta per bulan. Balik modal bisa dicapai dalam 12 – 24 bulan.</p>
 <h2>4. Sistem Pembayaran GreenDeahan</h2>
 <p>Kami memudahkan Anda dengan sistem DP di awal dan pelunasan setelah lapangan selesai 100%. Tidak perlu keluar modal besar sekaligus. Hubungi kami untuk simulasi RAB sesuai kebutuhan Anda.</p>
-', 'foto_url' => 'https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/futsal-img2.png', 'tanggal_terbit' => '2026-01-01'],        ];
+', 'foto_url' => 'https://cdn.libradigital.id/site-assets/futsal-img2.png', 'tanggal_terbit' => '2026-01-01'],        ];
 
         foreach ($artikel as $item) {
             Artikel::updateOrCreate(

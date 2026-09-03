@@ -8,7 +8,7 @@
             <div class="mb-4 flex items-center gap-2.5">
                 <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-white p-0.5">
                     <img
-                        src="https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/GD-logo-1.png"
+                        src="https://cdn.libradigital.id/site-assets/GD-logo-1.png"
                         alt="Green Deahan Sport"
                         class="h-full w-full object-contain"
                     />

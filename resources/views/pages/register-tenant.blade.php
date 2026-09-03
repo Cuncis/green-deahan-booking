@@ -17,7 +17,7 @@
             <div class="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
                 <a href="/">
                     <img
-                        src="https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/full-logo-02.png"
+                        src="https://cdn.libradigital.id/site-assets/full-logo-02.png"
                         alt="Green Deahan Sport"
                         class="h-9 w-auto object-contain"
                     />

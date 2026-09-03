@@ -18,7 +18,7 @@
             <div>
                 <a href="/">
                     <img
-                        src="https://gdlogin.greendeahan.com/wp-content/uploads/2026/04/full-logo-02.png"
+                        src="https://cdn.libradigital.id/site-assets/full-logo-02.png"
                         alt="Green Deahan Sport"
                         class="h-16 w-auto object-contain"
                     />
