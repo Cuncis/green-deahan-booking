@@ -6,7 +6,7 @@
 
         <title>Green Deahan Sport, Jasa Pembuatan Lapangan Futsal, Mini Soccer, Padel dan Badminton Se-Indonesia</title>
 
-        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -60,11 +60,8 @@
         <section class="mx-auto max-w-6xl px-6 pb-0 pt-28">
             <div class="grid items-center gap-10 pb-16 md:grid-cols-2">
                 <div>
-                    <span class="mb-5 inline-block rounded-full bg-brand-100 px-3 py-1.5 text-xs font-bold tracking-wide text-brand">
-                        Jasa Pembuatan Lapangan #1 Se-Indonesia
-                    </span>
-                    <h1 class="font-marketing-display mb-5 text-4xl font-black leading-tight text-stone-900 md:text-5xl lg:text-6xl">
-                        Bangun Lapangan Olahraga dari<br>
+                    <h1 class="font-marketing-display mb-5 text-4xl font-black leading-tight text-stone-900 md:text-5xl">
+                        Bangun Lapangan Olahraga dari
                         <span class="text-brand">Nol sampai Siap Beroperasi</span>
                     </h1>
                     <p class="mb-6 max-w-lg text-base leading-relaxed text-stone-500 md:text-lg">
@@ -96,12 +93,12 @@
                         </a>
                         <a
                             href="/galeri"
-                            class="rounded-xl border-2 border-brand px-7 py-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand-50"
+                            class="flex items-center gap-2 rounded-xl border-2 border-brand px-7 py-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand-50"
                         >
-                            Lihat Portofolio &rarr;
+                            Lihat Portofolio
+                            <x-icon name="arrow-right" size="16" />
                         </a>
                     </div>
-                    <p class="mt-3 text-xs text-stone-400">*Konsultasi gratis, tanpa kewajiban apapun. Respon dalam 1 jam!</p>
                 </div>
 
                 <div class="relative">

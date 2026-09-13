@@ -6,12 +6,12 @@
 
         <title>{{ $artikel->judul }}, Green Deahan Sport</title>
 
-        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
-            .artikel-konten h2 { font-family: 'DM Mono', monospace; font-weight: 700; font-size: 1.25rem; color: #1c1917; margin-top: 2rem; margin-bottom: 0.75rem; }
+            .artikel-konten h2 { font-family: 'Manrope', sans-serif; font-weight: 700; letter-spacing: -0.02em; font-size: 1.25rem; color: #1c1917; margin-top: 2rem; margin-bottom: 0.75rem; }
             .artikel-konten p { color: #57534e; line-height: 1.75; margin-bottom: 1rem; }
             .artikel-konten ul { list-style: disc; padding-left: 1.5rem; color: #57534e; margin-bottom: 1rem; }
             .artikel-konten li { margin-bottom: 0.4rem; line-height: 1.6; }

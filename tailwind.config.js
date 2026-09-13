@@ -42,7 +42,7 @@ export default {
                 // Font asli homepage greendeahan.com (Inter untuk body, DM
                 // Mono untuk heading), lihat pages/home.blade.php.
                 marketing: ['Inter', ...defaultTheme.fontFamily.sans],
-                'marketing-display': ['"DM Mono"', ...defaultTheme.fontFamily.mono],
+                'marketing-display': ['Manrope', ...defaultTheme.fontFamily.sans],
             },
             borderRadius: {
                 card: '16px',

@@ -5,3 +5,7 @@
 [x-cloak] {
     display: none !important;
 }
+
+.font-marketing-display {
+    letter-spacing: -0.02em;
+}
