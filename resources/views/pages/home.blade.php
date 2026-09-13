@@ -110,19 +110,6 @@
                         alt="Lapangan Olahraga Green Deahan Sport"
                         class="aspect-[4/3] w-full rounded-2xl border border-stone-200 object-cover shadow-xl"
                     />
-                    <div class="absolute -bottom-5 -left-5 flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-4 shadow-lg">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-100">
-                            <x-icon name="futsal-goal" size="22" class="text-brand" />
-                        </div>
-                        <div>
-                            <div class="font-marketing-display text-xl font-black text-brand">100+</div>
-                            <div class="text-xs font-semibold text-stone-500">Proyek Berhasil</div>
-                        </div>
-                    </div>
-                    <div class="absolute -right-4 -top-4 rounded-2xl bg-brand p-3 text-center text-white shadow-lg">
-                        <div class="font-marketing-display text-2xl font-black">16+</div>
-                        <div class="text-[10px] font-bold uppercase tracking-wide">Tahun</div>
-                    </div>
                 </div>
             </div>
         </section>

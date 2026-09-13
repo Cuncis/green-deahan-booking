@@ -26,7 +26,6 @@
             ['label' => 'Beranda', 'href' => '/'],
             ['label' => 'Galeri', 'href' => '/galeri'],
             ['label' => 'Blog', 'href' => '/blog'],
-            ['label' => 'Website Booking', 'href' => '/harga'],
             ['label' => 'Kontak', 'href' => '/kontak'],
         ]" />
 
