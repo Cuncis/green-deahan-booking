@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Route;
 // dan Superadmin\ArtikelAdminController.
 $situsKorporat = function () {
     Route::get('/', fn () => view('pages.home'))->name('home');
+    Route::get('/konsep', fn () => view('pages.konsep'))->name('konsep');
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');

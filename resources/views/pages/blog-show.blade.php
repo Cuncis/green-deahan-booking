@@ -24,6 +24,7 @@
 
         <x-site-nav :nav-links="[
             ['label' => 'Beranda', 'href' => '/'],
+            ['label' => 'Konsep', 'href' => '/konsep'],
             ['label' => 'Galeri', 'href' => '/galeri'],
             ['label' => 'Blog', 'href' => '/blog'],
             ['label' => 'Kontak', 'href' => '/kontak'],

@@ -83,6 +83,7 @@
             <h4 class="mb-4 text-sm font-bold uppercase tracking-widest text-white">Halaman</h4>
             <ul class="space-y-2 text-sm">
                 <li><a href="/" class="transition-colors hover:text-white">Beranda</a></li>
+                <li><a href="/konsep" class="transition-colors hover:text-white">Konsep Sport Center</a></li>
                 <li><a href="/galeri" class="transition-colors hover:text-white">Galeri Proyek</a></li>
                 <li><a href="/blog" class="transition-colors hover:text-white">Blog & Tips</a></li>
                 <li><a href="/harga" class="transition-colors hover:text-white">Website Booking</a></li>
