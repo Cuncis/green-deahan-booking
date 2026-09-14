@@ -36,6 +36,7 @@ $situsKorporat = function () {
     Route::get('/v2/konsep', fn () => Inertia::render('V2Konsep'))->name('home.v2.konsep');
     Route::get('/konsep', fn () => view('pages.konsep'))->name('konsep');
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
+    Route::get('/v2/galeri', [GaleriController::class, 'v2'])->name('home.v2.galeri');
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
     Route::get('/kontak', fn () => view('pages.kontak'))->name('kontak');

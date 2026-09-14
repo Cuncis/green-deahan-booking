@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\GaleriItem;
 use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
- * Halaman /galeri di situs korporat (greendeahan.com). Datanya dikelola
- * lewat /superadmin/galeri, lihat Superadmin\GaleriAdminController.
+ * Halaman /galeri (Blade) dan /v2/galeri (Inertia + React) di situs
+ * korporat (greendeahan.com). Datanya dikelola lewat /superadmin/galeri,
+ * lihat Superadmin\GaleriAdminController.
  */
 class GaleriController extends Controller
 {
@@ -24,6 +27,19 @@ class GaleriController extends Controller
     ];
 
     public function index(): View
+    {
+        return view('pages.galeri', $this->data());
+    }
+
+    public function v2(): Response
+    {
+        return Inertia::render('V2Galeri', $this->data());
+    }
+
+    /**
+     * @return array{kategoriTab: array<string, array{label: string, icon: string, badgeClass: string}>, items: array<int, array<string, mixed>>}
+     */
+    private function data(): array
     {
         $items = GaleriItem::where('status_aktif', true)
             ->orderBy('urutan')
@@ -43,9 +59,9 @@ class GaleriController extends Controller
             ])
             ->all();
 
-        return view('pages.galeri', [
+        return [
             'kategoriTab' => self::KATEGORI_TAB,
             'items' => $items,
-        ]);
+        ];
     }
 }

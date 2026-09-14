@@ -7,6 +7,7 @@ use App\Models\GaleriItem;
 use App\Models\Lapangan;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class GaleriPageTest extends TestCase
@@ -76,6 +77,22 @@ class GaleriPageTest extends TestCase
         $response->assertDontSee('📍');
         $response->assertDontSee('🧱');
         $response->assertDontSee('🔍');
+    }
+
+    public function test_v2_galeri_merender_komponen_inertia_dengan_data_dari_database(): void
+    {
+        GaleriItem::factory()->create(['kategori' => 'padel', 'judul' => 'Padel Premium Medan', 'status_aktif' => true]);
+        GaleriItem::factory()->create(['judul' => 'Item Nonaktif', 'status_aktif' => false]);
+
+        $response = $this->get('http://greendeahan.com/v2/galeri');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('V2Galeri')
+            ->has('kategoriTab.futsal.label')
+            ->has('items', 1)
+            ->where('items.0.title', 'Padel Premium Medan')
+        );
     }
 
     /**
