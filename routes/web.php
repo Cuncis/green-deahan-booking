@@ -16,6 +16,7 @@ use App\Http\Middleware\IdentifikasiTenant;
 use App\Models\Lapangan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 // Situs korporat platform (greendeahan.com), bukan booking tenant manapun.
 // Harus didaftarkan SEBELUM rute '/' generik di bawah dan dibatasi lewat
@@ -29,6 +30,10 @@ use Illuminate\Support\Facades\Route;
 // dan Superadmin\ArtikelAdminController.
 $situsKorporat = function () {
     Route::get('/', fn () => view('pages.home'))->name('home');
+    // Halaman yang dibangun dengan Inertia + React, lihat resources/js/pages/.
+    // Halaman lain semua Blade + Livewire + Alpine.
+    Route::get('/v2', fn () => Inertia::render('V2Home'))->name('home.v2');
+    Route::get('/v2/konsep', fn () => Inertia::render('V2Konsep'))->name('home.v2.konsep');
     Route::get('/konsep', fn () => view('pages.konsep'))->name('konsep');
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');

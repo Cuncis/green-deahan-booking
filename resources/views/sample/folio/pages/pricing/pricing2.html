@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - Pricing v2 (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="../../landing/default.html" class="flex items-center gap-2"><img src="../../assets/images/logo.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="../../landing/default.html" class="text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="pricing2.html" class="text-sm font-medium text-primary">Pricing</a>
+    </div><div class="flex items-center gap-3"><a href="../auth/signup.html" class="hidden sm:inline-flex items-center rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-gray-100" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="../../landing/default.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="pricing2.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-primary">Pricing</a>
+    <a href="../auth/signup.html" class="flex w-full justify-center mt-2 items-center rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="bg-secondary py-16">
+    <div class="mx-auto max-w-3xl px-6 text-center">
+      <p class="text-xs text-gray-500">Home / Pricing v2</p>
+      <h1 class="mt-3 text-4xl font-semibold text-gray-900 sm:text-5xl">Affordable &amp; flexible pricing plans</h1>
+    </div>
+
+    <div class="mx-auto mt-10 max-w-5xl space-y-6 px-6">
+      <div class="rounded-3xl bg-white p-8 shadow-sm">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div>
+            <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-secondary"><img src="../../assets/images/elements/rocket.png" class="h-8" alt="rocket icon"></div>
+            <p class="font-semibold text-gray-900">Basic plan</p>
+            <p class="mt-1 text-3xl font-bold text-gray-900">$59 <span class="text-sm font-normal text-gray-500">/month</span></p>
+            <p class="mt-1 text-sm">Ideal for small teams, the Basic plan manages up to 10 projects.</p>
+          </div>
+          <div>
+            <span class="font-semibold text-gray-400">Quick look at all the features</span>
+            <ul class="mt-2 space-y-2 text-sm"><li><i class="bi bi-check-lg text-green-500 mr-1"></i>Up to 10 projects</li><li><i class="bi bi-check-lg text-green-500 mr-1"></i>5 team members</li><li><i class="bi bi-check-lg text-green-500 mr-1"></i>Basic reporting</li></ul>
+            <a href="#" class="mt-3 inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white">Get started <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-3xl grad-primary p-8 text-white">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div>
+            <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gray-900"><img src="../../assets/images/elements/thunder.png" class="h-8" alt="rocket icon"></div>
+            <p class="font-semibold">Enterprise plan</p>
+            <p class="mt-1 text-3xl font-bold">Custom</p>
+            <p class="mt-1 text-sm">For businesses with unique requirements, our Custom Plan delivers a fully personalized experience.</p>
+          </div>
+          <div>
+            <span class="font-semibold">Quick look at all the features</span>
+            <ul class="mt-2 space-y-2 text-sm"><li><i class="bi bi-check-lg mr-1"></i>Unlimited projects</li><li><i class="bi bi-check-lg mr-1"></i>Custom reporting and analytics</li><li><i class="bi bi-check-lg mr-1"></i>Dedicated account manager</li></ul>
+            <a href="../contact/contact-us1.html" class="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900">Contact us <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits (dark) -->
+  <section data-aos="fade-up" class="bg-gray-900 py-16 text-white lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-10 lg:grid-cols-3">
+        <div>
+          <p class="text-gray-300">Key benefits</p>
+          <ul class="mt-3 space-y-2">
+            <li><i class="bi bi-wallet2 text-primary mr-2"></i>No hidden fees</li>
+            <li><i class="bi bi-headset text-pink mr-2"></i>24/7 Customer support</li>
+            <li><i class="bi bi-rocket-takeoff text-yellow-400 mr-2"></i>Easy upgrade &amp; downgrade</li>
+            <li><i class="bi bi-clock-history text-green-400 mr-2"></i>You can cancel anytime</li>
+          </ul>
+        </div>
+        <div class="lg:col-span-2">
+          <div class="grid grid-cols-2 gap-8">
+            <div><h3 class="border-l-2 border-primary pl-4 text-3xl font-bold"><span class="" data-counter="98" data-suffix="%">98%</span></h3><p class="mt-1 text-sm text-gray-300">Customer satisfaction</p></div>
+            <div><h3 class="border-l-2 border-primary pl-4 text-3xl font-bold"><span class="" data-counter="10" data-suffix="K+">10K+</span></h3><p class="mt-1 text-sm text-gray-300">Businesses onboarded</p></div>
+          </div>
+          <blockquote class="mt-8 flex gap-4">
+            <img class="h-16 w-16 rounded-full" src="../../assets/images/avatar/06.jpg" alt="avatar">
+            <div><p class="text-gray-100">"Switching plans was effortless and support answered every question within minutes."</p><div class="mt-2 text-sm text-gray-400">Samuel Bishop, Operations Lead</div></div>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div><h2 class="text-3xl font-semibold text-gray-900">Frequently Asked Questions</h2><p class="mt-3">Our team is ready to assist you! <a href="../contact/contact-us1.html" class="font-semibold text-primary underline">Talk to Us</a></p></div>
+        <div class="md:col-span-2 space-y-4" data-accordion>
+          <div class="acc-item overflow-hidden rounded-xl bg-secondary p-4"><button type="button" class="acc-trigger flex w-full items-center justify-between text-left font-semibold text-gray-900" aria-expanded="true"><span>What payment methods do you accept?</span><i class="bi bi-chevron-down acc-icon ml-3 shrink-0 text-gray-400 rotate-180"></i></button><div class="acc-panel"><p class="pt-2 text-sm text-gray-600">We accept all major credit cards, PayPal, and bank transfers for custom plans.</p></div></div>
+          <div class="acc-item overflow-hidden rounded-xl bg-secondary p-4"><button type="button" class="acc-trigger flex w-full items-center justify-between text-left font-semibold text-gray-900" aria-expanded="false"><span>Can I change my plan later?</span><i class="bi bi-chevron-down acc-icon ml-3 shrink-0 text-gray-400"></i></button><div class="acc-panel"><p class="pt-2 text-sm text-gray-600">Yes, you can upgrade or downgrade your plan at any time from your account settings.</p></div></div>
+          <div class="acc-item overflow-hidden rounded-xl bg-secondary p-4"><button type="button" class="acc-trigger flex w-full items-center justify-between text-left font-semibold text-gray-900" aria-expanded="false"><span>Is there a free trial available?</span><i class="bi bi-chevron-down acc-icon ml-3 shrink-0 text-gray-400"></i></button><div class="acc-panel"><p class="pt-2 text-sm text-gray-600">Yes, we offer a 14-day free trial for our Basic and Standard plans. No credit card required.</p></div></div>
+          <div class="acc-item overflow-hidden rounded-xl bg-secondary p-4"><button type="button" class="acc-trigger flex w-full items-center justify-between text-left font-semibold text-gray-900" aria-expanded="false"><span>Are there any setup fees?</span><i class="bi bi-chevron-down acc-icon ml-3 shrink-0 text-gray-400"></i></button><div class="acc-panel"><p class="pt-2 text-sm text-gray-600">No, there are no setup fees for any of our plans.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-gray-900 pt-16 pb-8 text-gray-300 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+      <div><img class="h-10" src="../../assets/images/logo-light.svg" alt="logo"><p class="mt-4 text-sm">A Bootstrap theme that's both stylish and functional, perfect for any type of technology or corporate website.</p></div>
+      <div><h6 class="font-semibold text-white">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../about/about1.html" class="hover:text-white">About us</a></li><li><a href="../about/career.html" class="hover:text-white">Career</a></li></ul></div>
+      <div><h6 class="font-semibold text-white">Resources</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="pricing2.html" class="hover:text-white">Pricing</a></li><li><a href="../blog/blog-mininal.html" class="hover:text-white">Blogs</a></li></ul></div>
+    </div>
+    <hr class="my-8 border-white/10">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-400">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm"><li><a href="#" class="hover:text-white">Privacy policy</a></li><li><a href="#" class="hover:text-white">Terms &amp; conditions</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../../assets/js/site.js"></script>
+
+</body>
+</html>

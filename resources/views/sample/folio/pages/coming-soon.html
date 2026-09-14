@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - Coming Soon (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="py-6 text-center">
+  <img src="../assets/images/logo.svg" class="mx-auto h-8" alt="logo">
+</header>
+
+<main class="flex min-h-[80vh] items-center">
+  <div class="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 md:grid-cols-2">
+    <img src="../assets/images/elements/coming-soon.png" class="mx-auto max-h-96" alt="coming soon image">
+    <div>
+      <h1 class="text-4xl font-bold text-gray-900">Cooking Up Something <span class="text-primary">Great</span></h1>
+      <p class="mt-3">We are going to launch our website very soon, stay tuned.</p>
+      <form class="mt-6">
+        <b class="text-sm text-gray-900">Notify me when the website is launched</b>
+        <div class="mt-2 flex items-center gap-2 rounded-lg bg-secondary p-1.5 shadow">
+          <input type="email" placeholder="Enter your email" class="flex-1 bg-transparent px-3 outline-none">
+          <button type="button" class="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white">Notify Me!</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

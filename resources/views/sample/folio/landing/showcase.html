@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - Application Showcase (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="default.html" class="flex items-center gap-2"><img src="../assets/images/logo.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="default.html" class="text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="../pages/about/about1.html" class="text-sm font-medium text-gray-600 hover:text-primary">About</a>
+      <a href="../pages/pricing/pricing1.html" class="text-sm font-medium text-gray-600 hover:text-primary">Pricing</a>
+      <a href="../pages/blog/blog-mininal.html" class="text-sm font-medium text-gray-600 hover:text-primary">Blog</a>
+    </div><div class="flex items-center gap-3"><a href="#" class="hidden sm:inline-flex items-center rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white"><i class="bi bi-cloud-download-fill mr-2"></i>Download app</a><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-gray-100" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="default.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="../pages/about/about1.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">About</a>
+      <a href="../pages/pricing/pricing1.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Pricing</a>
+      <a href="../pages/blog/blog-mininal.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Blog</a>
+    <a href="#" class="flex w-full justify-center mt-2 items-center rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white"><i class="bi bi-cloud-download-fill mr-2"></i>Download app</a></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl">Smart, Secure, and Simple Banking</h1>
+          <p class="mt-4 text-lg">Experience seamless money transfers, hassle-free bill payments, and secure account management, all in one app.</p>
+          <div class="mt-6 flex flex-wrap gap-4">
+            <img src="../assets/images/elements/google-play.svg" class="h-12" alt="play store">
+            <img src="../assets/images/elements/app-store.svg" class="h-12" alt="app-store">
+          </div>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="flex -space-x-2">
+              <img class="h-9 w-9 rounded-full ring-2 ring-white" src="../assets/images/avatar/02.jpg" alt="avatar">
+              <img class="h-9 w-9 rounded-full ring-2 ring-white" src="../assets/images/avatar/05.jpg" alt="avatar">
+              <img class="h-9 w-9 rounded-full ring-2 ring-white" src="../assets/images/avatar/10.jpg" alt="avatar">
+            </div>
+            <p><span class="font-semibold text-primary">5000+</span> users have downloaded our app</p>
+          </div>
+        </div>
+        <img src="../assets/images/mobile-app/hero.png" class="mx-auto max-h-[480px]" alt="mobile image">
+      </div>
+    </div>
+  </section>
+
+  <!-- Banking app features -->
+  <section data-aos="fade-up" class="bg-secondary py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <h2 class="text-center text-3xl font-semibold text-gray-900">Discover the power of our online <span class="text-primary">banking</span> app</h2>
+      <div class="mt-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-3">
+        <div class="space-y-6 lg:text-right">
+          <div><h6 class="font-semibold text-gray-900"><i class="bi bi-cash-stack text-green-500 mr-2"></i>Instant money transfers</h6><p class="mt-1 text-sm">Transfer money to friends, family, or businesses quickly and securely.</p></div>
+          <div><h6 class="font-semibold text-gray-900"><i class="bi bi-receipt text-purple mr-2"></i>Easy bill payments</h6><p class="mt-1 text-sm">Pay utility bills, credit card bills, and more with just a few taps.</p></div>
+          <div><h6 class="font-semibold text-gray-900"><i class="bi bi-bell text-yellow-500 mr-2"></i>Real-time notifications</h6><p class="mt-1 text-sm">Stay updated with real-time alerts for transactions and account activities.</p></div>
+        </div>
+        <img src="../assets/images/mobile-app/feature.png" class="mx-auto max-h-96" alt="feature mobile">
+        <div class="space-y-6">
+          <div><h6 class="font-semibold text-gray-900"><i class="bi bi-person-vcard text-blue-400 mr-2"></i>Account management</h6><p class="mt-1 text-sm">Monitor your account balance, transaction history and manage finances efficiently.</p></div>
+          <div><h6 class="font-semibold text-gray-900"><i class="bi bi-gear text-primary mr-2"></i>Budgeting tools</h6><p class="mt-1 text-sm">Use built-in tools to set budgets, track spending, and save more effectively.</p></div>
+          <div><h6 class="font-semibold text-gray-900"><i class="bi bi-headset text-pink mr-2"></i>24/7 customer support</h6><p class="mt-1 text-sm">Get help anytime with our dedicated customer support team.</p></div>
+        </div>
+      </div>
+      <div class="mt-16 grid grid-cols-1 gap-8 text-center sm:grid-cols-3">
+        <div><h4 class="text-2xl font-bold text-gray-900">4.5/5.0</h4><p class="mt-1 text-sm">Rating by 365 users</p></div>
+        <div><h4 class="text-2xl font-bold text-gray-900">35K+</h4><p class="mt-1 text-sm">Review on Google Play and iOS</p></div>
+        <div><i class="bi bi-people text-2xl text-primary"></i><h4 class="mt-1 text-2xl font-bold text-gray-900">86M</h4><p class="mt-1 text-sm">Total members use this platform</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bank detail steps -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+        <img src="../assets/images/mobile-app/step-1.jpg" class="rounded-3xl" alt="step image">
+        <div>
+          <span class="font-semibold text-primary">Phase 1</span>
+          <h2 class="mt-2 text-2xl font-semibold text-gray-900">Sign up and secure your account</h2>
+          <p class="mt-3">Create an account using your email or phone number. Complete the straightforward verification process to ensure your account is protected.</p>
+          <div class="mt-4 flex gap-3">
+            <button class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100"><i class="bi bi-arrow-left"></i></button>
+            <button class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100"><i class="bi bi-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section data-aos="fade-up" class="bg-secondary py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+        <div>
+          <h2 class="text-3xl font-semibold text-gray-900">Experience the future of banking today</h2>
+          <ul class="mt-4 space-y-2 font-semibold text-gray-900">
+            <li><i class="bi bi-check-circle text-primary mr-2"></i>Convenience at your fingertips</li>
+            <li><i class="bi bi-check-circle text-primary mr-2"></i>Enhanced security</li>
+            <li><i class="bi bi-check-circle text-primary mr-2"></i>Comprehensive financial tools</li>
+          </ul>
+          <div class="mt-6 grid grid-cols-2 gap-6">
+            <div><div class="text-3xl font-bold text-pink"><span class="" data-counter="98" data-suffix="%">98%</span></div><p class="mt-1 text-sm">Customer satisfaction rate</p></div>
+            <div><div class="text-3xl font-bold text-green-500"><span class="" data-counter="60" data-suffix="+">60+</span></div><p class="mt-1 text-sm">Serving countries worldwide</p></div>
+          </div>
+        </div>
+        <img src="../assets/images/mobile-app/01.jpg" class="rounded-3xl" alt="feature image">
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog slider -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <h3 class="text-center text-3xl font-semibold text-gray-900 sm:text-left">Our latest insights</h3>
+      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="overflow-hidden rounded-2xl shadow-sm"><img src="../assets/images/blog/4by3/01.jpg" class="h-40 w-full object-cover" alt="Blog-img"><div class="p-4"><h6 class="font-semibold text-gray-900">Tips for secure online banking</h6></div></article>
+        <article class="overflow-hidden rounded-2xl shadow-sm"><img src="../assets/images/blog/4by3/02.jpg" class="h-40 w-full object-cover" alt="Blog-img"><div class="p-4"><h6 class="font-semibold text-gray-900">The future of digital banking</h6></div></article>
+        <article class="overflow-hidden rounded-2xl shadow-sm"><img src="../assets/images/blog/4by3/03.jpg" class="h-40 w-full object-cover" alt="Blog-img"><div class="p-4"><h6 class="font-semibold text-gray-900">How to maximize your savings</h6></div></article>
+        <article class="overflow-hidden rounded-2xl shadow-sm"><img src="../assets/images/blog/4by3/04.jpg" class="h-40 w-full object-cover" alt="Blog-img"><div class="p-4"><h6 class="font-semibold text-gray-900">Understanding mobile payment solutions</h6></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section data-aos="fade-up" class="bg-secondary py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-3">
+        <div class="text-center lg:text-left">
+          <h2 class="text-2xl font-semibold text-gray-900">Hear from our satisfied users</h2>
+          <p class="mt-2">Rated <span class="rounded bg-gray-900 px-2 py-1 text-white">4.9/5.0</span> by over 100,000+ users</p>
+        </div>
+        <div class="swiper rounded-2xl bg-white p-6 lg:col-span-2" data-swiper='{"autoplay":{"delay":4500,"disableOnInteraction":false}}'>
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                <img src="../assets/images/team/01.jpg" class="rounded-xl" alt="Emma Watson">
+                <div class="sm:col-span-2">
+                  <div class="text-primary text-sm"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+                  <p class="mt-2 text-gray-900">"I've been using this app for over a year now, and it has made managing my finances so much easier."</p>
+                  <p class="mt-3 font-semibold text-gray-900">Emma Watson</p>
+                  <small class="text-gray-500">UI/UX Designer</small>
+                </div>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                <img src="../assets/images/team/04.jpg" class="rounded-xl" alt="Louis Ferguson">
+                <div class="sm:col-span-2">
+                  <div class="text-primary text-sm"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+                  <p class="mt-2 text-gray-900">"The app is fast, reliable, and customer support is always there when I need help. Highly recommended!"</p>
+                  <p class="mt-3 font-semibold text-gray-900">Louis Ferguson</p>
+                  <small class="text-gray-500">Web Developer</small>
+                </div>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                <img src="../assets/images/team/03.jpg" class="rounded-xl" alt="Jacqueline Miller">
+                <div class="sm:col-span-2">
+                  <div class="text-primary text-sm"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                  <p class="mt-2 text-gray-900">"The budgeting tools in this app have helped me save more and spend wisely."</p>
+                  <p class="mt-3 font-semibold text-gray-900">Jacqueline Miller</p>
+                  <small class="text-gray-500">Product designer</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="swiper-pagination mt-4 !static"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-10 rounded-3xl bg-secondary p-10 lg:grid-cols-2">
+        <div>
+          <h2 class="text-3xl font-semibold text-gray-900">Start your online banking today</h2>
+          <p class="mt-3">Join the millions of users who are already enjoying a smarter, simpler, and more secure way to manage their finances.</p>
+          <div class="mt-4 flex flex-wrap gap-4">
+            <img src="../assets/images/elements/google-play.svg" class="h-12" alt="play store">
+            <img src="../assets/images/elements/app-store.svg" class="h-12" alt="app-store">
+          </div>
+        </div>
+        <img src="../assets/images/mobile-app/cta.png" class="mx-auto max-h-72" alt="cta image">
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-gray-900 pt-16 pb-8 text-gray-300 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+      <div><img class="h-10" src="../assets/images/logo-light.svg" alt="logo"><p class="mt-4 text-sm">A Bootstrap theme that's both stylish and functional, perfect for any type of technology or corporate website.</p></div>
+      <div><h6 class="font-semibold text-white">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pages/about/about1.html" class="hover:text-white">About us</a></li><li><a href="../pages/contact/contact-us1.html" class="hover:text-white">Contact us</a></li></ul></div>
+      <div><h6 class="font-semibold text-white">Resources</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pages/pricing/pricing1.html" class="hover:text-white">Pricing</a></li><li><a href="../pages/blog/blog-mininal.html" class="hover:text-white">Blogs</a></li></ul></div>
+    </div>
+    <hr class="my-8 border-white/10">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-400">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm"><li><a href="#" class="hover:text-white">Privacy policy</a></li><li><a href="#" class="hover:text-white">Terms &amp; conditions</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

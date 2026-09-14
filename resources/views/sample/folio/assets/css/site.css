@@ -1,0 +1,58 @@
+/* Shared enhancement styles for the converted Folio pages */
+
+.acc-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.acc-icon {
+  transition: transform 0.3s ease;
+}
+
+#mobile-menu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+[data-tab-buttons] .tab-btn {
+  transition: background-color 0.2s ease, color 0.2s ease;
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+}
+
+[data-tab-buttons] .tab-btn.is-active {
+  background-color: #111827 !important;
+  color: #fff !important;
+}
+
+#back-to-top {
+  transition: opacity 0.3s ease;
+}
+
+.swiper:has(.swiper-pagination) {
+  padding-bottom: 2.5rem;
+}
+
+.swiper-pagination-bullet {
+  background: #5F41FB;
+  opacity: 0.3;
+}
+
+.swiper-pagination-bullet-active {
+  opacity: 1;
+}
+
+.swiper-button-prev-custom,
+.swiper-button-next-custom {
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-aos] {
+    transition: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}

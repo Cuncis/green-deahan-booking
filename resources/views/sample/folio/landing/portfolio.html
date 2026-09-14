@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - Portfolio Landing (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="default.html" class="flex items-center gap-2"><img src="../assets/images/logo.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="default.html" class="text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="../pages/portfolio/portfolio-grid.html" class="text-sm font-medium text-gray-600 hover:text-primary">Work</a>
+      <a href="../pages/pricing/pricing1.html" class="text-sm font-medium text-gray-600 hover:text-primary">Pricing</a>
+      <a href="../pages/blog/blog-mininal.html" class="text-sm font-medium text-gray-600 hover:text-primary">Blog</a>
+      <a href="../pages/contact/contact-us1.html" class="text-sm font-medium text-gray-600 hover:text-primary">Contact us</a>
+    </div><div class="flex items-center gap-3"><a href="../pages/auth/signup.html" class="hidden sm:inline-flex items-center rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-gray-100" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="default.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="../pages/portfolio/portfolio-grid.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Work</a>
+      <a href="../pages/pricing/pricing1.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Pricing</a>
+      <a href="../pages/blog/blog-mininal.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Blog</a>
+      <a href="../pages/contact/contact-us1.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Contact us</a>
+    <a href="../pages/auth/signup.html" class="flex w-full justify-center mt-2 items-center rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="py-16 lg:py-20">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-12 lg:grid-cols-2">
+        <div>
+          <h5 class="mb-2 text-lg">Hello, I'm</h5>
+          <h1 class="relative text-5xl font-bold text-gray-900">Emily Johnson
+            <span class="ml-2 inline-block -rotate-6 rounded-lg bg-primary px-3 py-1.5 align-middle text-sm font-semibold text-white">Web developer</span>
+          </h1>
+          <p class="mt-5 text-lg">I am a self-taught web Developer from the USA. Currently, I am a freelancer and collaborating with small companies and agencies. I deal with UI design / Front-end development and Bootstrap Development.</p>
+          <a href="#" class="mt-4 inline-flex items-center gap-2 rounded-full bg-gray-100 px-6 py-3 font-semibold text-gray-900">Work with me! <i class="bi bi-arrow-right"></i></a>
+
+          <h2 class="mt-12 text-2xl font-semibold text-gray-900">My expertise</h2>
+          <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div class="rounded-2xl bg-yellow-50 p-5">
+              <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-yellow-500 text-white"><i class="bi bi-pc-display"></i></div>
+              <h6 class="font-semibold text-gray-900">Web application development</h6>
+              <p class="mt-1 text-sm">Building robust and scalable web applications tailored to your business.</p>
+              <a href="#" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary">View projects <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="rounded-2xl bg-pink-50 p-5">
+              <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-pink text-white"><i class="bi bi-vector-pen"></i></div>
+              <h6 class="font-semibold text-gray-900">UI/UX design</h6>
+              <p class="mt-1 text-sm">I focus on creating interfaces that are both visually appealing and easy to use.</p>
+              <a href="#" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary">View projects <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="rounded-2xl bg-blue-50 p-5">
+              <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-400 text-white"><i class="bi bi-globe2"></i></div>
+              <h6 class="font-semibold text-gray-900">Web maintenance &amp; support</h6>
+              <p class="mt-1 text-sm">From regular updates to troubleshooting and security checks.</p>
+              <a href="#" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary">View projects <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="rounded-2xl bg-green-50 p-5">
+              <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-white"><i class="bi bi-cart-check"></i></div>
+              <h6 class="font-semibold text-gray-900">E-commerce solutions</h6>
+              <p class="mt-1 text-sm">Powerful e-commerce platforms that drive sales and enhance shopping.</p>
+              <a href="#" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary">View projects <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="lg:sticky lg:top-24 lg:h-fit">
+          <img src="../assets/images/bg/05.jpg" class="h-[500px] w-full rounded-3xl object-cover" alt="Emily Johnson">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section data-aos="fade-up" class="py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
+        <h2 class="text-3xl font-semibold text-gray-900">A glimpse of my projects</h2>
+        <a href="../pages/portfolio/portfolio-grid.html" class="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">View all projects</a>
+      </div>
+      <div class="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2">
+        <a href="../pages/portfolio/portfolio-case-study2.html" class="group">
+          <div class="relative overflow-hidden rounded-3xl"><img src="../assets/images/portfolio/list/02.jpg" class="h-72 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img"></div>
+          <div class="mt-3 flex items-center justify-between"><div><h6 class="font-semibold text-gray-900">Brand Identity Development</h6><span class="text-sm">Logo design</span></div><small class="text-gray-400">@2022</small></div>
+        </a>
+        <a href="../pages/portfolio/portfolio-case-study2.html" class="group">
+          <div class="relative overflow-hidden rounded-3xl"><img src="../assets/images/portfolio/3by4/08.jpg" class="h-72 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img"></div>
+          <div class="mt-3 flex items-center justify-between"><div><h6 class="font-semibold text-gray-900">ShopSmart</h6><span class="text-sm">E-commerce</span></div><small class="text-gray-400">@2023</small></div>
+        </a>
+        <a href="../pages/portfolio/portfolio-case-study2.html" class="group">
+          <div class="relative overflow-hidden rounded-3xl"><img src="../assets/images/portfolio/4by4/03.jpg" class="h-72 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img"></div>
+          <div class="mt-3 flex items-center justify-between"><div><h6 class="font-semibold text-gray-900">TechWave</h6><span class="text-sm">Animation</span></div><small class="text-gray-400">@2022</small></div>
+        </a>
+        <a href="../pages/portfolio/portfolio-case-study2.html" class="group">
+          <div class="relative overflow-hidden rounded-3xl"><img src="../assets/images/portfolio/04.jpg" class="h-72 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img"></div>
+          <div class="mt-3 flex items-center justify-between"><div><h6 class="font-semibold text-gray-900">Digital marketing overhaul</h6><span class="text-sm">Marketing</span></div><small class="text-gray-400">@2021</small></div>
+        </a>
+      </div>
+      <div class="mt-8 rounded-2xl bg-gray-900 py-4 text-center text-white">
+        <p>Let's create a modern, engaging website for your business. <a href="../pages/contact/contact-us1.html" class="font-semibold underline">Hire me</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About stats -->
+  <section data-aos="fade-up" class="bg-secondary py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+        <div>
+          <span class="font-semibold text-primary">About me</span>
+          <h2 class="mt-2 text-3xl font-semibold text-gray-900">I've been developing websites since 2009</h2>
+          <p class="mt-4">I'm passionate about web development and UI design, specializing in creating visually stunning and highly functional digital experiences.</p>
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+            <span class="font-semibold text-gray-900">Follow me on:</span>
+            <a href="#" class="rounded-full bg-white px-4 py-2 text-sm"><i class="bi bi-facebook mr-1"></i>Facebook</a>
+            <a href="#" class="rounded-full bg-white px-4 py-2 text-sm"><i class="bi bi-instagram mr-1"></i>Instagram</a>
+            <a href="#" class="rounded-full bg-white px-4 py-2 text-sm"><i class="bi bi-twitter-x mr-1"></i>Twitter</a>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-6 text-center">
+          <div class="col-span-2 border-b border-primary/25 pb-4"><div class="text-4xl font-bold text-primary"><span class="" data-counter="14" data-suffix="+">14+</span></div><p class="mt-1 text-sm">Years of experience</p></div>
+          <div><div class="text-2xl font-bold text-primary"><span class="" data-counter="68" data-suffix="+">68+</span></div><p class="mt-1 text-sm">Successful projects</p></div>
+          <div><div class="text-2xl font-bold text-primary"><span class="" data-counter="105" data-suffix="+">105+</span></div><p class="mt-1 text-sm">Satisfied clients</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Development tips -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-10 lg:grid-cols-4">
+        <div>
+          <h2 class="text-2xl font-semibold text-gray-900">Development tips &amp; trends</h2>
+          <p class="mt-3 text-sm"><i class="bi bi-instagram text-primary mr-1"></i>Follow us on <b>Instagram</b> to see life at <a href="#" class="underline">@folio</a></p>
+        </div>
+        <div class="divide-y divide-gray-100 lg:col-span-3">
+          <div class="grid grid-cols-4 items-center gap-4 py-4"><img src="../assets/images/blog/4by4/03.jpg" class="col-span-1 h-16 w-full rounded-xl object-cover" alt="blog-img"><div class="col-span-3"><h6 class="font-semibold text-gray-900">10 essential tips for crafting a stunning website</h6><div class="mt-1 flex items-center justify-between text-sm text-gray-500"><span>Aug 28, 2024 &middot; 5 min read</span><a href="../pages/blog/blog-single.html" class="text-primary">Read more <i class="bi bi-arrow-right"></i></a></div></div></div>
+          <div class="grid grid-cols-4 items-center gap-4 py-4"><img src="../assets/images/blog/4by4/01.jpg" class="col-span-1 h-16 w-full rounded-xl object-cover" alt="blog-img"><div class="col-span-3"><h6 class="font-semibold text-gray-900">The future of UI/UX design: trends to watch</h6><div class="mt-1 flex items-center justify-between text-sm text-gray-500"><span>Aug 18, 2024 &middot; 5 min read</span><a href="../pages/blog/blog-single.html" class="text-primary">Read more <i class="bi bi-arrow-right"></i></a></div></div></div>
+          <div class="grid grid-cols-4 items-center gap-4 py-4"><img src="../assets/images/blog/4by4/06.jpg" class="col-span-1 h-16 w-full rounded-xl object-cover" alt="blog-img"><div class="col-span-3"><h6 class="font-semibold text-gray-900">Behind the scenes of my latest web project</h6><div class="mt-1 flex items-center justify-between text-sm text-gray-500"><span>Aug 12, 2024 &middot; 5 min read</span><a href="../pages/blog/blog-single.html" class="text-primary">Read more <i class="bi bi-arrow-right"></i></a></div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact CTA -->
+  <section data-aos="fade-up" class="pb-16 lg:pb-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-10 lg:grid-cols-2">
+        <img src="../assets/images/about/16.jpg" class="rounded-3xl" alt="portfolio-img">
+        <div>
+          <h2 class="text-3xl font-semibold text-gray-900">Say hi by filling out the form below</h2>
+          <form class="mt-6 space-y-4">
+            <input placeholder="What's Your good name?" class="w-full border-b border-gray-300 py-2 outline-none">
+            <input type="email" placeholder="Enter your email address" class="w-full border-b border-gray-300 py-2 outline-none">
+            <textarea placeholder="Describe about your project" class="w-full border-b border-gray-300 py-2 outline-none" rows="2"></textarea>
+            <button class="rounded-full grad-primary px-6 py-3 font-semibold text-white">Send a message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-gray-900 pt-16 pb-8 text-gray-300 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+      <div><img class="h-10" src="../assets/images/logo-light.svg" alt="logo"><p class="mt-4 text-sm">A Bootstrap theme that's both stylish and functional, perfect for any type of technology or corporate website.</p></div>
+      <div><h6 class="font-semibold text-white">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pages/about/about1.html" class="hover:text-white">About us</a></li><li><a href="../pages/contact/contact-us1.html" class="hover:text-white">Contact us</a></li></ul></div>
+      <div><h6 class="font-semibold text-white">Resources</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pages/portfolio/portfolio-grid.html" class="hover:text-white">Portfolio</a></li><li><a href="../pages/blog/blog-mininal.html" class="hover:text-white">Blogs</a></li></ul></div>
+    </div>
+    <hr class="my-8 border-white/10">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-400">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm"><li><a href="#" class="hover:text-white">Privacy policy</a></li><li><a href="#" class="hover:text-white">Terms &amp; conditions</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - SaaS Landing (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="default.html" class="flex items-center gap-2"><img src="../assets/images/logo.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="default.html" class="text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="../pages/saas/feature-single.html" class="text-sm font-medium text-gray-600 hover:text-primary">Features</a>
+      <a href="../pages/pricing/pricing2.html" class="text-sm font-medium text-gray-600 hover:text-primary">Pricing</a>
+      <a href="../pages/blog/blog-mininal.html" class="text-sm font-medium text-gray-600 hover:text-primary">Blog</a>
+    </div><div class="flex items-center gap-3"><div class="hidden items-center gap-2 rounded-full bg-gray-100 p-1 sm:flex">
+      <a href="../pages/auth/signin.html" class="rounded-full px-4 py-1.5 text-sm font-semibold text-gray-700">Login</a>
+      <a href="../pages/auth/signup.html" class="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-white">Sign up</a>
+    </div><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-gray-100" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="default.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="../pages/saas/feature-single.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Features</a>
+      <a href="../pages/pricing/pricing2.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Pricing</a>
+      <a href="../pages/blog/blog-mininal.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Blog</a>
+    <div class="flex items-center justify-center gap-2 rounded-full bg-gray-100 p-1 mt-2">
+      <a href="../pages/auth/signin.html" class="rounded-full px-4 py-1.5 text-sm font-semibold text-gray-700">Login</a>
+      <a href="../pages/auth/signup.html" class="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-white">Sign up</a>
+    </div></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="bg-secondary py-16 text-center">
+    <div class="mx-auto max-w-3xl px-6">
+      <p class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm"><span class="rounded-full bg-green-500 px-2 py-0.5 text-xs font-semibold text-white">v2.0.0</span>Unlock your potential with new version</p>
+      <h1 class="mt-4 text-4xl font-bold text-gray-900 sm:text-5xl">Powerful <span class="text-primary">Saas</span> solutions for modern businesses</h1>
+      <p class="mt-4">Empower your business with cutting-edge software solutions designed to streamline operations, boost productivity, and drive growth.</p>
+      <a href="../pages/pricing/pricing2.html" class="mt-4 inline-flex rounded-full grad-primary px-6 py-3 font-semibold text-white">Get started now, free</a>
+      <p class="mt-2 text-sm text-gray-900">Sign up now for a 14-day free trial</p>
+    </div>
+    <div class="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-4 px-6 sm:grid-cols-4">
+      <img src="../assets/images/elements/saas-decoration/01.png" class="rounded-2xl shadow" alt="saas image">
+      <img src="../assets/images/elements/saas-decoration/02.png" class="rounded-2xl shadow" alt="saas image">
+      <img src="../assets/images/elements/saas-decoration/03.png" class="rounded-2xl shadow" alt="saas image">
+      <div class="rounded-2xl bg-primary p-4 text-white"><i class="bi bi-people-fill text-xl"></i><div class="mt-3"><span class="text-xs text-white/70">New clients</span><h3 class="text-2xl font-bold"><span class="" data-counter="321">321</span></h3></div></div>
+    </div>
+  </section>
+
+  <!-- Skill stats -->
+  <section data-aos="fade-up" class="py-10">
+    <div class="mx-auto grid max-w-5xl grid-cols-1 divide-y divide-primary/20 border-y border-primary/20 px-6 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      <div class="flex items-center gap-3 py-4 sm:justify-center"><h4 class="text-2xl font-bold text-gray-900">99<span class="text-primary">%</span></h4><p class="text-sm">Track and analyze business reports</p></div>
+      <div class="flex items-center gap-3 py-4 sm:justify-center"><h4 class="text-2xl font-bold text-gray-900"><span class="" data-counter="4.8" data-decimals="1">4.8</span></h4><div><div class="text-yellow-400 text-sm"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div><p class="text-sm">Best rated company</p></div></div>
+      <div class="flex items-center gap-3 py-4 sm:justify-center"><h4 class="text-2xl font-bold text-gray-900">95<span class="text-purple">%</span></h4><p class="text-sm">Genuine reputed happy customers</p></div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section data-aos="fade-up" class="py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        <div>
+          <h2 class="text-3xl font-semibold text-gray-900">Streamline your workflow with intelligent automation</h2>
+          <a href="../pages/saas/feature-single.html" class="mt-3 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">Explore feature</a>
+          <hr class="my-6 border-primary/20">
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div><h6 class="font-semibold text-gray-900">Real-time collaboration</h6><p class="mt-1 text-sm">Work together with your team in real time, anywhere.</p></div>
+            <div><h6 class="font-semibold text-gray-900">Custom dashboards</h6><p class="mt-1 text-sm">Build dashboards tailored to what matters to you.</p></div>
+          </div>
+        </div>
+        <div class="rounded-3xl bg-secondary p-8"><img src="../assets/images/elements/saas-decoration/tab-1.png" class="rounded-2xl" alt="saas image"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Steps (dark) -->
+  <section data-aos="fade-up" class="bg-gray-900 py-16 text-white lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+        <h2 class="text-3xl font-semibold">How Folio works</h2>
+        <a href="#" class="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900"><i class="bi bi-google mr-2"></i>Sign up with Google</a>
+      </div>
+      <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div class="rounded-2xl bg-white/5 p-6"><img src="../assets/images/elements/saas-decoration/step-1.png" class="mx-auto h-32" alt="step image"><h6 class="mt-4 font-semibold">Sign up and customize</h6><p class="mt-1 text-sm text-gray-300">Create your account and customize your dashboard to fit your needs.</p></div>
+        <div class="rounded-2xl bg-white/5 p-6"><img src="../assets/images/elements/saas-decoration/step-2-1.png" class="mx-auto h-32" alt="step image"><h6 class="mt-4 font-semibold">Integrate and collect data</h6><p class="mt-1 text-sm text-gray-300">Start collecting valuable data from all your business processes.</p></div>
+        <div class="rounded-2xl bg-white/5 p-6"><img src="../assets/images/elements/saas-decoration/step-3.png" class="mx-auto h-32" alt="step image"><h6 class="mt-4 font-semibold">Analyze and optimize</h6><p class="mt-1 text-sm text-gray-300">Use the analytics to make informed decisions and drive growth.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tab feature -->
+  <section data-aos="fade-up" class="bg-secondary py-16 text-center">
+    <div class="mx-auto max-w-4xl px-6">
+      <h2 class="text-3xl font-semibold text-gray-900">Discover the power of our platform</h2>
+      <div data-tabs>
+        <div class="flex flex-wrap justify-center gap-3" data-tab-buttons>
+          <button type="button" class="tab-btn is-active rounded-2xl px-6 py-4 text-sm font-semibold" data-tab-target="dashboard"><i class="bi bi-grid-1x2 mb-1 block text-xl"></i>Dashboard</button>
+          <button type="button" class="tab-btn rounded-2xl px-6 py-4 text-sm font-semibold" data-tab-target="analytics"><i class="bi bi-bar-chart mb-1 block text-xl"></i>Analytics</button>
+          <button type="button" class="tab-btn rounded-2xl px-6 py-4 text-sm font-semibold" data-tab-target="reports"><i class="bi bi-file-earmark-text mb-1 block text-xl"></i>Reports</button>
+          <button type="button" disabled class="cursor-not-allowed rounded-2xl bg-white px-6 py-4 text-sm font-semibold text-gray-400">Management <span class="ml-1 rounded bg-green-500 px-1.5 py-0.5 text-[10px] text-white">Soon</span></button>
+        </div>
+        <div data-tab-panels>
+          <div data-tab-panel="dashboard" class="mt-8 rounded-2xl bg-white p-6 text-left sm:flex sm:items-center sm:gap-8">
+            <img src="../assets/images/elements/saas-decoration/tab-2.png" class="w-full rounded-xl sm:w-1/2" alt="tab image">
+            <div class="mt-4 sm:mt-0 sm:w-1/2">
+              <h6 class="font-semibold text-gray-900">Access live data and insights as they happen</h6>
+              <ul class="mt-3 space-y-1 text-sm">
+                <li><i class="bi bi-check-circle text-primary mr-2"></i>Collaborative approach</li>
+                <li><i class="bi bi-check-circle text-primary mr-2"></i>Live data dashboards</li>
+                <li><i class="bi bi-check-circle text-primary mr-2"></i>Data security and compliance</li>
+              </ul>
+              <div class="mt-4 flex items-center gap-3"><h4 class="text-2xl font-bold text-gray-900" data-counter="99" data-suffix="%">99%</h4><p class="text-sm">Track and analyze business reports</p></div>
+            </div>
+          </div>
+          <div data-tab-panel="analytics" hidden class="mt-8 rounded-2xl bg-white p-6 text-left sm:flex sm:items-center sm:gap-8">
+            <div class="sm:w-1/2">
+              <h6 class="font-semibold text-gray-900">Drive your business forward with powerful analytics</h6>
+              <ul class="mt-3 space-y-1 text-sm">
+                <li><i class="bi bi-check-circle text-primary mr-2"></i>Actionable recommendations</li>
+                <li><i class="bi bi-check-circle text-primary mr-2"></i>Live data dashboards</li>
+                <li><i class="bi bi-check-circle text-primary mr-2"></i>Instant notifications</li>
+              </ul>
+              <a href="../pages/saas/feature-single.html" class="mt-3 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">Explore feature</a>
+            </div>
+            <img src="../assets/images/elements/saas-decoration/tab-1.png" class="mt-4 w-full rounded-xl sm:mt-0 sm:w-1/2" alt="tab image">
+          </div>
+          <div data-tab-panel="reports" hidden class="mt-8 rounded-2xl bg-white p-6 text-left sm:flex sm:items-center sm:gap-8">
+            <img src="../assets/images/elements/saas-decoration/tab-3.png" class="w-full rounded-xl sm:w-1/2" alt="tab image">
+            <div class="mt-4 sm:mt-0 sm:w-1/2">
+              <h6 class="font-semibold text-gray-900">Access live data and insights as they happen</h6>
+              <ul class="mt-3 space-y-1 text-sm">
+                <li><i class="bi bi-check-circle text-primary mr-2"></i>Collaborative approach</li>
+                <li><i class="bi bi-check-circle text-primary mr-2"></i>Live data dashboards</li>
+                <li><i class="bi bi-check-circle text-primary mr-2"></i>Data security and compliance</li>
+              </ul>
+              <div class="mt-4 flex items-center gap-3"><h4 class="text-2xl font-bold text-gray-900" data-counter="99" data-suffix="%">99%</h4><p class="text-sm">Track and analyze business reports</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Integration -->
+  <section data-aos="fade-up" class="py-16">
+    <div class="mx-auto max-w-4xl px-6 text-center">
+      <h2 class="text-3xl font-semibold text-gray-900">Maximize efficiency with seamless <span class="text-primary">Integrations</span></h2>
+      <p class="mt-3">Our robust integration capabilities ensure your data flows smoothly across systems.</p>
+      <a href="#" class="mt-3 inline-flex items-center gap-2 rounded-full grad-primary px-6 py-3 font-semibold text-white">Explore all integrations <i class="bi bi-arrow-right"></i></a>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 shadow"><img src="../assets/images/client/icons/07.svg" class="h-5" alt="icon"></div>
+        <div class="flex h-14 w-14 items-center justify-center rounded-full border border-gray-100 shadow"><img src="../assets/images/client/icons/01.svg" class="h-6" alt="icon"></div>
+        <div class="flex h-16 w-16 items-center justify-center rounded-full border border-gray-100 shadow"><img src="../assets/images/logo-icon.svg" class="h-8" alt="icon"></div>
+        <div class="flex h-14 w-14 items-center justify-center rounded-full border border-gray-100 shadow"><img src="../assets/images/client/icons/10.svg" class="h-6" alt="icon"></div>
+        <div class="flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 shadow"><img src="../assets/images/client/icons/09.svg" class="h-5" alt="icon"></div>
+      </div>
+      <div class="mt-8 flex flex-col items-center gap-4 rounded-2xl bg-secondary p-6 sm:flex-row">
+        <div class="flex -space-x-2">
+          <img class="h-9 w-9 rounded-full ring-2 ring-white" src="../assets/images/avatar/02.jpg" alt="avatar">
+          <img class="h-9 w-9 rounded-full ring-2 ring-white" src="../assets/images/avatar/05.jpg" alt="avatar">
+          <img class="h-9 w-9 rounded-full ring-2 ring-white" src="../assets/images/avatar/10.jpg" alt="avatar">
+        </div>
+        <p class="text-gray-900">Join over 15M+ users transforming ideas</p>
+        <p class="sm:ml-auto"><a href="../pages/auth/signup.html" class="font-semibold text-primary underline">Create an account</a> and kickstart your business</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section data-aos="fade-up" class="bg-secondary py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-12 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          <h2 class="text-3xl font-semibold text-gray-900">Affordable solutions for every budget</h2>
+          <p class="mt-2">Need guidance? <a href="#" class="text-purple underline">Reserve a 20-minute call</a></p>
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="rounded-2xl bg-white p-5 text-center ring-2 ring-primary"><img src="../assets/images/elements/rocket.png" class="mx-auto h-10" alt="Starter plan"><p class="mt-3 font-semibold text-gray-900">Starter plan</p><span class="text-2xl font-bold text-gray-900">$25</span> <span class="text-sm">/month</span></div>
+            <div class="rounded-2xl bg-white p-5 text-center"><img src="../assets/images/elements/thunder.png" class="mx-auto h-10" alt="Professional plan"><p class="mt-3 font-semibold text-gray-900">Professional plan</p><span class="text-2xl font-bold text-gray-900">$49</span> <span class="text-sm">/month</span></div>
+            <div class="rounded-2xl bg-white p-5 text-center"><img src="../assets/images/elements/fire.png" class="mx-auto h-10" alt="Enterprise plan"><p class="mt-3 font-semibold text-gray-900">Enterprise plan</p><span class="text-2xl font-bold text-gray-900">$89</span> <span class="text-sm">/month</span></div>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-gray-900 p-6 text-white">
+          <h5 class="font-semibold">Included features</h5>
+          <ul class="mt-4 space-y-2 text-sm">
+            <li><i class="bi bi-check-lg text-green-400 mr-2"></i>Customizable features</li>
+            <li><i class="bi bi-check-lg text-green-400 mr-2"></i>5 user accounts</li>
+            <li><i class="bi bi-check-lg text-green-400 mr-2"></i>10 GB storage</li>
+            <li><i class="bi bi-check-lg text-green-400 mr-2"></i>Email support</li>
+          </ul>
+          <a href="../pages/pricing/pricing2.html" class="mt-6 block rounded-full bg-primary py-3 text-center text-sm font-semibold">Get started</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blogs -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-10 lg:grid-cols-4">
+        <div><h2 class="text-2xl font-semibold text-gray-900">Insights from our blog</h2><p class="mt-3 text-sm"><i class="bi bi-instagram text-primary mr-1"></i>Follow us on Instagram to see life at <a href="#" class="underline">@folio</a></p></div>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:col-span-3">
+          <div class="relative"><span class="absolute m-4 rounded bg-gray-900 px-2 py-1 text-xs font-semibold text-white">Lifestyle</span><img src="../assets/images/blog/4by3/01.jpg" class="rounded-2xl" alt="blog-image"><h6 class="mt-3 font-semibold text-gray-900">Harnessing the power of real-time analytics</h6><p class="mt-1 text-sm">By Carolyn Ortiz</p></div>
+          <div class="relative"><span class="absolute m-4 rounded bg-gray-900 px-2 py-1 text-xs font-semibold text-white">Research</span><img src="../assets/images/blog/4by3/02.jpg" class="rounded-2xl" alt="blog-image"><h6 class="mt-3 font-semibold text-gray-900">The ultimate guide to customizable reports</h6><p class="mt-1 text-sm">By Louis Ferguson</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-secondary pt-16 pb-8 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="flex flex-col items-center justify-between gap-4 border-b border-gray-300 pb-8 sm:flex-row">
+      <h2 class="text-2xl font-semibold text-gray-900">Get started with our powerful <span class="text-primary">SaaS</span> solution today</h2>
+      <a href="../pages/auth/signup.html" class="whitespace-nowrap rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">Start your free trial</a>
+    </div>
+    <div class="grid grid-cols-1 gap-10 pt-8 md:grid-cols-3">
+      <div><img class="h-10" src="../assets/images/logo.svg" alt="logo"><p class="mt-4 text-sm">A Bootstrap theme that's both stylish and functional, perfect for any type of technology or corporate website.</p></div>
+      <div><h6 class="font-semibold text-gray-900">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pages/about/about1.html" class="hover:text-primary">About us</a></li><li><a href="../pages/contact/contact-us1.html" class="hover:text-primary">Contact us</a></li></ul></div>
+      <div><h6 class="font-semibold text-gray-900">Resources</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pages/pricing/pricing2.html" class="hover:text-primary">Pricing</a></li><li><a href="../pages/blog/blog-mininal.html" class="hover:text-primary">Blogs</a></li></ul></div>
+    </div>
+    <hr class="my-8 border-gray-300">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-500">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm"><li><a href="#" class="hover:text-primary">Privacy policy</a></li><li><a href="#" class="hover:text-primary">Terms &amp; conditions</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

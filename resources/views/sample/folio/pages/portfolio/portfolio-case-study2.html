@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - Case Study v2 (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="../../landing/default.html" class="flex items-center gap-2"><img src="../../assets/images/logo.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="../../landing/default.html" class="text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="portfolio-grid.html" class="text-sm font-medium text-gray-600 hover:text-primary">Portfolio</a>
+    </div><div class="flex items-center gap-3"><a href="../auth/signup.html" class="hidden sm:inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-gray-100" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="../../landing/default.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="portfolio-grid.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Portfolio</a>
+    <a href="../auth/signup.html" class="flex w-full justify-center mt-2 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a></div></div>
+</header>
+
+<main>
+
+  <section data-aos="fade-up" class="py-8">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <img src="../../assets/images/portfolio/05.jpg" class="h-64 w-full rounded-3xl object-cover sm:h-96" alt="hero">
+
+      <div class="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          <p class="text-xs text-gray-500">Home / Portfolio / Case study v2</p>
+          <h1 class="mt-3 text-2xl font-semibold text-gray-900">Mobile app development</h1>
+          <p class="mt-3 text-lg">Ideas are the seeds of innovation. They can originate from personal experiences, observations, or the desire to solve a problem.</p>
+
+          <h6 class="mt-8 font-semibold text-gray-900"><span class="mr-2 text-primary">01.</span>Overview</h6>
+          <p class="mt-2"><span class="mr-1 rounded bg-secondary px-2 py-1 text-2xl font-bold text-gray-900">I</span>deas require nurturing and refinement through research, feedback, and market analysis to become actionable plans.</p>
+          <div class="mt-3 flex flex-wrap gap-2"><span class="rounded-full bg-gray-100 px-4 py-1.5 text-sm">Branding</span><span class="rounded-full bg-gray-100 px-4 py-1.5 text-sm">Mobile design</span></div>
+
+          <h6 class="mt-8 font-semibold text-gray-900"><span class="mr-2 text-primary">02.</span>The Challenge</h6>
+          <p class="mt-2">Turning ideas into reality is a transformative process that drives innovation and progress.</p>
+          <ul class="mt-2 space-y-2 text-sm"><li><i class="bi bi-check-lg text-green-500 mr-2"></i>User research and testing</li><li><i class="bi bi-check-lg text-green-500 mr-2"></i>Cross-platform architecture</li><li><i class="bi bi-check-lg text-green-500 mr-2"></i>Performance optimization</li></ul>
+        </div>
+
+        <div>
+          <div class="rounded-3xl bg-secondary p-6">
+            <div class="space-y-4">
+              <div><small class="text-gray-400">Category</small><p class="font-semibold text-gray-900">Mobile app</p></div>
+              <div><small class="text-gray-400">Client</small><p class="font-semibold text-gray-900">Webestica Agency</p></div>
+              <div><small class="text-gray-400">Date</small><p class="font-semibold text-gray-900">May 12, 2024</p></div>
+              <a href="#" class="block rounded-full bg-gray-900 py-2.5 text-center text-sm font-semibold text-white">View project <i class="bi bi-box-arrow-up-right ml-1"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-10 grid grid-cols-1 items-end gap-4 sm:grid-cols-2">
+        <img src="../../assets/images/portfolio/01.jpg" class="rounded-3xl" alt="portfolio image">
+        <img src="../../assets/images/portfolio/03.jpg" class="rounded-3xl" alt="portfolio image">
+      </div>
+
+      <div class="mt-10 rounded-3xl bg-secondary p-8 lg:p-12">
+        <q class="text-lg text-gray-900">Too months nay end change relied who beauty wishes matter. Shew of john real park so rest we on.</q>
+        <div class="mt-4 flex items-center gap-3">
+          <img class="h-11 w-11 rounded-full" src="../../assets/images/avatar/09.jpg" alt="avatar">
+          <div><h6 class="font-semibold text-gray-900">Emma Watson</h6><small class="text-gray-500">CEO, Co-founder</small></div>
+        </div>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-2">
+        <div><h6 class="font-semibold text-gray-900"><span class="mr-2 text-primary">03.</span>Result</h6><p class="mt-2 text-lg">Two assure Edward whence the was. Who worthy yet ten boys denote wonder.</p></div>
+        <div>
+          <p>Partnering with experts, seeking mentorship, and building a network of like-minded individuals can provide valuable insights.</p>
+          <div class="mt-4 grid grid-cols-3 gap-4">
+            <div><h2 class="text-2xl font-bold text-primary"><span class="" data-counter="22" data-suffix="%">22%</span></h2><p class="mt-1 text-sm">Increase in engagement</p></div>
+            <div><h2 class="text-2xl font-bold text-purple"><span class="" data-counter="4.5" data-suffix="M" data-decimals="1">4.5M</span></h2><p class="mt-1 text-sm">Impressions across social</p></div>
+            <div><h2 class="text-2xl font-bold text-pink"><span class="" data-counter="12.8" data-prefix="$" data-suffix="M" data-decimals="1">$12.8M</span></h2><p class="mt-1 text-sm">Total raised in funding</p></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-8 border-gray-200">
+      <div class="flex items-center justify-between">
+        <a href="portfolio-case-study1.html" class="text-sm font-semibold text-gray-900"><i class="bi bi-arrow-left mr-2"></i>Prev project</a>
+        <a href="portfolio-grid.html" class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white"><i class="bi bi-grid-fill"></i></a>
+        <a href="portfolio-list.html" class="text-sm font-semibold text-gray-900">Next project<i class="bi bi-arrow-right ml-2"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section data-aos="fade-up" class="pb-16 lg:pb-24">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="flex flex-col items-center justify-between gap-6 rounded-3xl bg-secondary p-8 sm:flex-row lg:p-12">
+        <div><h5 class="font-light text-gray-600">Have a project in mind?</h5><h2 class="text-3xl font-bold text-gray-900">Let's get to <span class="text-primary">work.</span></h2></div>
+        <a href="../contact/contact-us1.html" class="whitespace-nowrap rounded-full bg-gray-900 px-6 py-3 font-semibold text-white">Get in touch</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-gray-900 pt-16 pb-8 text-gray-300 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+      <div><img class="h-10" src="../../assets/images/logo-light.svg" alt="logo"><p class="mt-4 text-sm">A Bootstrap theme that's both stylish and functional, perfect for any type of technology or corporate website.</p></div>
+      <div><h6 class="font-semibold text-white">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../about/about1.html" class="hover:text-white">About us</a></li><li><a href="../about/career.html" class="hover:text-white">Career</a></li></ul></div>
+      <div><h6 class="font-semibold text-white">Resources</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pricing/pricing1.html" class="hover:text-white">Pricing</a></li><li><a href="../blog/blog-mininal.html" class="hover:text-white">Blogs</a></li></ul></div>
+    </div>
+    <hr class="my-8 border-white/10">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-400">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm"><li><a href="#" class="hover:text-white">Privacy policy</a></li><li><a href="#" class="hover:text-white">Terms &amp; conditions</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../../assets/js/site.js"></script>
+
+</body>
+</html>

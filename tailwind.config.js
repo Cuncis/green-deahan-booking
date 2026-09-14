@@ -7,6 +7,8 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
+        // /v2 is the only page built with React (Inertia), see resources/js/pages/V2Home.tsx.
+        './resources/js/**/*.tsx',
     ],
 
     theme: {

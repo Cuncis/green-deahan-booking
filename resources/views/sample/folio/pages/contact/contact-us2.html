@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - Contact Us v2 (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="../../landing/default.html" class="flex items-center gap-2"><img src="../../assets/images/logo.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="../../landing/default.html" class="text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="contact-us2.html" class="text-sm font-medium text-primary">Contact us</a>
+    </div><div class="flex items-center gap-3"><a href="../auth/signup.html" class="hidden sm:inline-flex items-center rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-gray-100" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="../../landing/default.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="contact-us2.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-primary">Contact us</a>
+    <a href="../auth/signup.html" class="flex w-full justify-center mt-2 items-center rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="relative bg-cover bg-center py-24 text-white" style="background-image: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)), url(../../assets/images/bg/contact.jpg)">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <h1 class="text-4xl font-semibold sm:text-5xl">Contact us</h1>
+    </div>
+  </section>
+
+  <!-- CTA form -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-10 lg:grid-cols-2">
+        <div>
+          <h5 class="font-semibold text-gray-900">How can we help you?</h5>
+          <p class="mt-2 text-lg">Get in touch with us to see how we can help you with your project.</p>
+          <form class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <input placeholder="What's Your good name?" class="rounded-lg border border-gray-200 px-4 py-2.5">
+            <input type="email" placeholder="Enter your email address" class="rounded-lg border border-gray-200 px-4 py-2.5">
+            <input placeholder="How can we help you?" class="rounded-lg border border-gray-200 px-4 py-2.5 sm:col-span-2">
+            <textarea placeholder="Describe about your project" class="rounded-lg border border-gray-200 px-4 py-2.5 sm:col-span-2" rows="3"></textarea>
+            <button class="rounded-full grad-primary px-6 py-3 font-semibold text-white sm:col-span-2 sm:w-fit">Send a message</button>
+          </form>
+        </div>
+        <div>
+          <div class="rounded-3xl bg-secondary p-6 sm:p-8">
+            <h5 class="font-semibold text-gray-900">Get in touch</h5>
+            <div class="mt-4 flex gap-3"><div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white"><i class="bi bi-telephone"></i></div><div><p class="text-sm">Feel free to call us.</p><div class="mt-1 flex flex-wrap gap-3 text-sm font-semibold text-gray-900"><a href="tel:+12518546308">+(251) 854-6308</a><a href="tel:+14695372410">+(469) 537-2410</a></div></div></div>
+            <div class="mt-4 flex gap-3"><div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white"><i class="bi bi-envelope"></i></div><div><p class="text-sm">Join our growing team.</p><a href="mailto:example@gmail.com" class="text-sm font-semibold text-gray-900">example@gmail.com</a></div></div>
+            <div class="mt-4 flex gap-3"><div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white"><i class="bi bi-pin-map-fill"></i></div><div><p class="text-sm">Are you ready for coffee?</p><p class="text-sm font-semibold text-gray-900">55/123 Norman street, Banking road, Sydney NSW 5000</p></div></div>
+          </div>
+          <div class="mt-4 flex items-center justify-center gap-3">
+            <span class="font-semibold text-gray-900">Connect with:</span>
+            <a href="#" class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="flex h-9 w-9 items-center justify-center rounded-full bg-pink-500 text-white"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-white"><i class="bi bi-twitter-x"></i></a>
+            <a href="#" class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-700 text-white"><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Map -->
+  <section>
+    <iframe class="block h-64 w-full grayscale lg:h-96" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343008!2d-74.00425878428698!3d40.74076684379132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259bf5c1654f3%3A0xc80f9cfce5383d5d!2sGoogle!5e0!3m2!1sen!2sin!4v1586000412513!5m2!1sen!2sin"></iframe>
+  </section>
+
+</main>
+
+<footer class="bg-gray-900 pt-16 pb-8 text-gray-300 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+      <div><img class="h-10" src="../../assets/images/logo-light.svg" alt="logo"><p class="mt-4 text-sm">A Bootstrap theme that's both stylish and functional, perfect for any type of technology or corporate website.</p></div>
+      <div><h6 class="font-semibold text-white">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../about/about1.html" class="hover:text-white">About us</a></li><li><a href="../about/career.html" class="hover:text-white">Career</a></li></ul></div>
+      <div><h6 class="font-semibold text-white">Resources</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pricing/pricing1.html" class="hover:text-white">Pricing</a></li><li><a href="../blog/blog-mininal.html" class="hover:text-white">Blogs</a></li></ul></div>
+    </div>
+    <hr class="my-8 border-white/10">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-400">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm"><li><a href="#" class="hover:text-white">Privacy policy</a></li><li><a href="#" class="hover:text-white">Terms &amp; conditions</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../../assets/js/site.js"></script>
+
+</body>
+</html>

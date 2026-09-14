@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - Default Landing (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#5F41FB',
+          secondary: '#F3F3FB',
+          purple: '#893EFB',
+          pink: '#FF6399',
+          dark: '#212934',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="default.html" class="flex items-center gap-2">
+      <img src="../assets/images/logo.svg" class="h-8" alt="Folio logo">
+    </a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="default.html" class="text-sm font-medium text-gray-900 hover:text-primary">Home</a>
+      <a href="../pages/about/about1.html" class="text-sm font-medium text-gray-600 hover:text-primary">About</a>
+      <a href="../pages/about/service-grid.html" class="text-sm font-medium text-gray-600 hover:text-primary">Services</a>
+      <a href="../pages/pricing/pricing1.html" class="text-sm font-medium text-gray-600 hover:text-primary">Pricing</a>
+      <a href="../pages/blog/blog-mininal.html" class="text-sm font-medium text-gray-600 hover:text-primary">Blog</a>
+      <a href="../pages/contact/contact-us1.html" class="text-sm font-medium text-gray-600 hover:text-primary">Contact us</a>
+    </div><div class="flex items-center gap-3"><a href="../pages/auth/signup.html" class="hidden sm:inline-flex items-center rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90">Sign up</a><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-gray-100" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="default.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-900 hover:text-primary">Home</a>
+      <a href="../pages/about/about1.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">About</a>
+      <a href="../pages/about/service-grid.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Services</a>
+      <a href="../pages/pricing/pricing1.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Pricing</a>
+      <a href="../pages/blog/blog-mininal.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Blog</a>
+      <a href="../pages/contact/contact-us1.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Contact us</a>
+    <a href="../pages/auth/signup.html" class="flex w-full justify-center mt-2 items-center rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90">Sign up</a></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="relative overflow-hidden bg-secondary pt-10 pb-16 lg:pb-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        <div>
+          <h1 class="text-4xl font-normal text-gray-900 sm:text-5xl">
+            We help your
+            <span class="block text-3xl font-semibold sm:text-4xl">Business <span class="text-primary">Grow</span></span>
+          </h1>
+          <p class="mt-4 text-lg text-gray-600">Let your brand shine with our innovative and visually stunning websites.</p>
+          <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+            <li class="flex items-center text-gray-900"><i class="bi bi-check-circle text-green-500 mr-1.5"></i>Flexible solutions</li>
+            <li class="flex items-center text-gray-900"><i class="bi bi-check-circle text-green-500 mr-1.5"></i>System integration</li>
+            <li class="flex items-center text-gray-900"><i class="bi bi-check-circle text-green-500 mr-1.5"></i>Complimentary updates</li>
+          </ul>
+          <div class="mt-6 flex flex-wrap items-center gap-4">
+            <a href="#" class="rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-md hover:shadow-lg">Get started</a>
+            <a href="../pages/portfolio/portfolio-modern.html" class="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">Explore our projects <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+        <div class="relative">
+          <img src="../assets/images/bg/01.jpg" class="rounded-3xl" alt="hero-img">
+          <div class="absolute bottom-0 right-0 hidden sm:block -mb-8 -mr-6 rounded-3xl bg-white p-4 shadow-xl">
+            <div class="mb-2 flex -space-x-2">
+              <img class="h-9 w-9 rounded-full ring-2 ring-white" src="../assets/images/avatar/01.jpg" alt="avatar">
+              <img class="h-9 w-9 rounded-full ring-2 ring-white" src="../assets/images/avatar/02.jpg" alt="avatar">
+              <img class="h-9 w-9 rounded-full ring-2 ring-white" src="../assets/images/avatar/03.jpg" alt="avatar">
+              <img class="h-9 w-9 rounded-full ring-2 ring-white" src="../assets/images/avatar/08.jpg" alt="avatar">
+              <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-[11px] font-bold text-white ring-2 ring-white">500+</div>
+            </div>
+            <p class="text-sm text-gray-600">Total visitors per month</p>
+            <p class="font-bold text-gray-900"><i class="bi bi-star-fill text-yellow-400 mr-1"></i>4.8/5.0</p>
+          </div>
+          <div class="absolute left-0 top-0 mt-3 hidden sm:flex items-center gap-3 rounded-full bg-white py-2 pl-2 pr-5 shadow-xl">
+            <img class="h-10 w-10 rounded-full" src="../assets/images/avatar/08.jpg" alt="avatar">
+            <div>
+              <span class="block text-sm font-bold text-gray-900">Dennis Barrett</span>
+              <p class="text-xs text-gray-600">Folio team nailed it!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Leader / client logos -->
+  <section data-aos="fade-up" class="bg-secondary py-12">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-6 lg:grid-cols-4">
+        <h6 class="text-center text-base font-semibold text-gray-900 lg:text-left">Collaborating with industry leaders</h6>
+        <div class="col-span-3 swiper" data-swiper='{"slidesPerView":2,"spaceBetween":32,"loop":true,"autoplay":{"delay":2000,"disableOnInteraction":false},"breakpoints":{"640":{"slidesPerView":3},"1024":{"slidesPerView":6}}}'>
+          <div class="swiper-wrapper items-center">
+            <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/01.svg" class="h-8 opacity-70 grayscale" alt="client logo"></div>
+            <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/02.svg" class="h-8 opacity-70 grayscale" alt="client logo"></div>
+            <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/03.svg" class="h-8 opacity-70 grayscale" alt="client logo"></div>
+            <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/04.svg" class="h-8 opacity-70 grayscale" alt="client logo"></div>
+            <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/05.svg" class="h-8 opacity-70 grayscale" alt="client logo"></div>
+            <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/06.svg" class="h-8 opacity-70 grayscale" alt="client logo"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Offer -->
+  <section data-aos="fade-up" class="relative bg-secondary py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="text-3xl font-semibold text-gray-900">What we offer</h2>
+      </div>
+      <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div class="rounded-2xl bg-white p-6 shadow-sm transition hover:shadow-lg">
+          <div class="mb-8 flex h-14 w-14 items-center justify-center rounded-full bg-pink-500 text-white">
+            <img src="../assets/images/icons/icon1.svg" alt="service icon" class="h-7 w-7">
+          </div>
+          <h6 class="font-semibold text-gray-900">Web design &amp; Development</h6>
+          <a href="../pages/about/service-single.html" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">Read more <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="rounded-2xl bg-white p-6 shadow-sm transition hover:shadow-lg">
+          <div class="mb-8 flex h-14 w-14 items-center justify-center rounded-full bg-yellow-500 text-white">
+            <img src="../assets/images/icons/icon2.svg" alt="service icon" class="h-7 w-7">
+          </div>
+          <h6 class="font-semibold text-gray-900">Digital marketing solutions</h6>
+          <a href="../pages/about/service-single.html" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">Read more <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="rounded-2xl bg-white p-6 shadow-sm transition hover:shadow-lg">
+          <div class="mb-8 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white">
+            <img src="../assets/images/icons/icon3.svg" alt="service icon" class="h-7 w-7">
+          </div>
+          <h6 class="font-semibold text-gray-900">Brand strategy &amp; Identity</h6>
+          <a href="../pages/about/service-single.html" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">Read more <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="mx-auto mt-10 max-w-2xl rounded-2xl grad-primary py-4 text-center">
+        <p class="text-white">Ready to elevate your digital presence? <a href="../pages/contact/contact-us1.html" class="font-semibold underline">Hire us now</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section data-aos="fade-up" class="bg-gray-900 py-16 text-white lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        <img src="../assets/images/about/01.jpg" class="rounded-3xl" alt="process image">
+        <div>
+          <span class="text-primary">Our process</span>
+          <h2 class="mt-3 mb-4 text-3xl font-semibold">Streamline your path to success</h2>
+          <div class="divide-y divide-white/10 border-t border-white/10" data-accordion>
+            <div class="acc-item py-1">
+              <button type="button" class="acc-trigger flex w-full cursor-pointer items-center justify-between gap-3 py-3 text-left font-medium" aria-expanded="true">
+                <span><span class="text-primary mr-2">01</span>Consultation &amp; Strategy</span>
+                <i class="bi bi-chevron-down acc-icon shrink-0 rotate-180"></i>
+              </button>
+              <div class="acc-panel"><p class="pb-3 text-sm text-gray-300">We begin by understanding your goals, challenges, and vision. Through in-depth consultation, we craft a tailored strategy that aligns with your objectives.</p></div>
+            </div>
+            <div class="acc-item py-1">
+              <button type="button" class="acc-trigger flex w-full cursor-pointer items-center justify-between gap-3 py-3 text-left font-medium" aria-expanded="false">
+                <span><span class="text-primary mr-2">02</span>Implementation &amp; Development</span>
+                <i class="bi bi-chevron-down acc-icon shrink-0"></i>
+              </button>
+              <div class="acc-panel"><p class="pb-3 text-sm text-gray-300">We provide a range of tools, guides, and best practices to help you create designs, websites, and content that are inclusive and accessible to all individuals.</p></div>
+            </div>
+            <div class="acc-item py-1">
+              <button type="button" class="acc-trigger flex w-full cursor-pointer items-center justify-between gap-3 py-3 text-left font-medium" aria-expanded="false">
+                <span><span class="text-primary mr-2">03</span>Refinement &amp; Delivery</span>
+                <i class="bi bi-chevron-down acc-icon shrink-0"></i>
+              </button>
+              <div class="acc-panel"><p class="pb-3 text-sm text-gray-300">This crucial process ensures that content is easily readable and perceivable by individuals with varying degrees of visual impairment.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-16 grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div><div class="text-4xl font-bold text-primary"><span class="" data-counter="22" data-suffix="+">22+</span></div><p class="mt-2 text-sm text-gray-300">Years of experience</p></div>
+        <div><div class="text-4xl font-bold text-pink-500"><span class="" data-counter="200" data-suffix="+">200+</span></div><p class="mt-2 text-sm text-gray-300">In-house projects completed</p></div>
+        <div><div class="text-4xl font-bold text-blue-400"><span class="" data-counter="32" data-suffix="+">32+</span></div><p class="mt-2 text-sm text-gray-300">Awards and counting</p></div>
+        <div><div class="text-4xl font-bold text-yellow-400"><span class="" data-counter="10" data-prefix="&gt;" data-suffix="K">&gt;10K</span></div><p class="mt-2 text-sm text-gray-300">Satisfied users</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Project -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mb-8 flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
+        <h2 class="text-3xl font-semibold text-gray-900">Our latest projects</h2>
+        <a href="../pages/portfolio/portfolio-list.html" class="rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white">Explore portfolio</a>
+      </div>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
+        <a href="../pages/portfolio/portfolio-case-study1.html" class="group relative col-span-7 overflow-hidden rounded-3xl">
+          <img src="../assets/images/portfolio/01.jpg" class="h-80 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img">
+          <div class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 to-transparent p-6">
+            <span class="text-sm text-white/80">Technology</span>
+            <h6 class="mt-1 font-semibold text-white">Brand Identity Development</h6>
+          </div>
+        </a>
+        <a href="../pages/portfolio/portfolio-case-study2.html" class="group relative col-span-5 overflow-hidden rounded-3xl">
+          <img src="../assets/images/portfolio/02.jpg" class="h-80 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img">
+          <div class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 to-transparent p-6">
+            <span class="text-sm text-white/80">Technology</span>
+            <h6 class="mt-1 font-semibold text-white">E-commerce platform launch</h6>
+          </div>
+        </a>
+        <a href="../pages/portfolio/portfolio-case-study1.html" class="group relative col-span-5 overflow-hidden rounded-3xl">
+          <img src="../assets/images/portfolio/03.jpg" class="h-64 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img">
+          <div class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 to-transparent p-6">
+            <span class="text-sm text-white/80">Technology</span>
+            <h6 class="mt-1 font-semibold text-white">Mobile app development</h6>
+          </div>
+        </a>
+        <a href="../pages/portfolio/portfolio-case-study2.html" class="group relative col-span-7 overflow-hidden rounded-3xl">
+          <img src="../assets/images/portfolio/04.jpg" class="h-64 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img">
+          <div class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 to-transparent p-6">
+            <span class="text-sm text-white/80">Technology</span>
+            <h6 class="mt-1 font-semibold text-white">Digital marketing overhaul</h6>
+          </div>
+        </a>
+      </div>
+      <div class="mx-auto mt-10 max-w-3xl rounded-2xl bg-white p-6 text-center shadow-lg">
+        <p class="text-gray-900">Embark on your project journey! partner with us today <a href="../pages/contact/contact-us2.html" class="font-semibold text-primary underline">Join today</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-6xl px-6 lg:px-8">
+      <div class="rounded-3xl bg-secondary p-8 lg:p-16">
+        <div class="mx-auto max-w-2xl text-center">
+          <h2 class="text-3xl font-semibold text-gray-900">Client Testimonials</h2>
+        </div>
+        <div class="swiper mx-auto mt-8 max-w-2xl" data-swiper='{"autoplay":{"delay":4500,"disableOnInteraction":false}}'>
+          <div class="swiper-wrapper">
+            <div class="swiper-slide text-center">
+              <img class="mx-auto h-16 w-16 rounded-full" src="../assets/images/avatar/09.jpg" alt="avatar">
+              <blockquote class="mt-4 text-lg text-gray-900">"Our passion for customer excellence is just one reason why we are the market leader. We've always worked very hard to give our customers the best experience."</blockquote>
+              <div class="mt-3 text-yellow-400"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+              <h6 class="mt-3 font-semibold text-gray-900">Jacqueline Miller</h6>
+              <span class="text-sm text-gray-500">Product designer</span>
+            </div>
+            <div class="swiper-slide text-center">
+              <img class="mx-auto h-16 w-16 rounded-full" src="../assets/images/avatar/10.jpg" alt="avatar">
+              <blockquote class="mt-4 text-lg text-gray-900">"Their team went above and beyond to understand our needs and deliver a solution that exceeded our expectations."</blockquote>
+              <div class="mt-3 text-yellow-400"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+              <h6 class="mt-3 font-semibold text-gray-900">Louis Ferguson</h6>
+              <span class="text-sm text-gray-500">Web Developer</span>
+            </div>
+            <div class="swiper-slide text-center">
+              <img class="mx-auto h-16 w-16 rounded-full" src="../assets/images/avatar/01.jpg" alt="avatar">
+              <blockquote class="mt-4 text-lg text-gray-900">"Was out laughter raptures returned outweigh. Luckily cheered colonel I do we attack highest enabled. Tried law yet style child."</blockquote>
+              <div class="mt-3 text-yellow-400"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+              <h6 class="mt-3 font-semibold text-gray-900">Emma Watson</h6>
+              <span class="text-sm text-gray-500">UI/UX designer</span>
+            </div>
+          </div>
+          <div class="swiper-pagination mt-4 !static"></div>
+        </div>
+        <hr class="my-8 border-primary/25">
+        <div class="grid grid-cols-1 items-center gap-6 px-0 sm:grid-cols-3 lg:px-8">
+          <h5 class="text-center sm:text-left">More than 500+ clients using <span class="text-primary">Folio</span> platform</h5>
+          <div class="flex items-center gap-3 border-primary/25 sm:border-l sm:pl-6">
+            <img src="../assets/images/elements/apple.svg" class="h-10 w-10" alt="apple">
+            <div>
+              <div class="text-yellow-400"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+              <span class="text-sm text-gray-600">4.8 stars on App Store</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 border-primary/25 sm:border-l sm:pl-6">
+            <img src="../assets/images/elements/gicon.svg" class="h-10 w-10" alt="google">
+            <div>
+              <div class="text-yellow-400"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+              <span class="text-sm text-gray-600">4.6 stars on Google</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Subscribe -->
+  <section data-aos="fade-up" class="bg-gray-900 py-16 text-white lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        <div>
+          <h2 class="text-3xl font-semibold">Stay updated with our <span class="text-purple">Newsletter</span></h2>
+          <p class="mt-4 text-gray-300">Join our community of like-minded individuals committed to digital excellence.</p>
+          <form class="mt-6 flex flex-col gap-3 sm:flex-row">
+            <input type="email" placeholder="Your email" class="flex-1 rounded-lg border-0 bg-gray-800 px-4 py-3 text-white placeholder:text-gray-400">
+            <button type="submit" class="rounded-lg bg-primary px-6 py-3 font-semibold text-white hover:opacity-90">Subscribe!</button>
+          </form>
+          <p class="mt-2 text-xs text-gray-400">No Spam, We Promise!</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <img src="../assets/images/about/02.jpg" class="rounded-3xl" alt="newsletter image">
+          <img src="../assets/images/about/03.jpg" class="rounded-3xl" alt="newsletter image">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="text-3xl font-semibold text-gray-900">Insights on our blog</h2>
+      </div>
+      <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+        <article class="overflow-hidden rounded-2xl border border-gray-200 shadow-sm transition hover:shadow-lg">
+          <div class="relative">
+            <span class="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold">Lifestyle</span>
+            <img src="../assets/images/blog/01.jpg" class="h-48 w-full object-cover" alt="Blog img">
+          </div>
+          <div class="p-5">
+            <h6 class="font-semibold text-gray-900">Techniques to captivate your audience</h6>
+            <a href="../pages/blog/blog-single.html" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">Read more <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </article>
+        <article class="grad-primary flex flex-col justify-between overflow-hidden rounded-2xl p-6 text-white">
+          <div>
+            <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">Research</span>
+            <h6 class="mt-4 font-semibold">Building a strong identity for your business</h6>
+          </div>
+          <a href="../pages/blog/blog-single.html" class="mt-6 inline-flex items-center gap-1 text-sm font-semibold hover:underline">Read more <i class="bi bi-arrow-right"></i></a>
+        </article>
+        <article class="overflow-hidden rounded-2xl border border-gray-200 shadow-sm transition hover:shadow-lg">
+          <div class="relative">
+            <span class="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold">Lifestyle</span>
+            <img src="../assets/images/blog/02.jpg" class="h-48 w-full object-cover" alt="Blog img">
+          </div>
+          <div class="p-5">
+            <h6 class="font-semibold text-gray-900">Tips for improving your website's visibility</h6>
+            <a href="../pages/blog/blog-single.html" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">Read more <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </article>
+      </div>
+      <div class="mt-10 text-center">
+        <p class="text-gray-600">Want more insights?</p>
+        <a href="../pages/blog/blog-mininal.html" class="mt-2 inline-block rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-md hover:shadow-lg">Explore all resources</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-900 pt-16 pb-8 text-gray-300 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mb-12 grid grid-cols-1 items-center gap-6 lg:grid-cols-2">
+      <img class="h-10" src="../assets/images/logo-light.svg" alt="logo">
+      <div class="flex flex-col items-center justify-between gap-4 rounded-2xl bg-white/5 p-6 sm:flex-row">
+        <h5 class="text-white">Let's innovate together</h5>
+        <a href="../pages/contact/contact-us1.html" class="whitespace-nowrap rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white">Start innovating</a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-10 lg:grid-cols-3">
+      <div>
+        <h6 class="font-semibold text-white">Company</h6>
+        <hr class="my-4 border-white/10">
+        <ul class="space-y-2 text-sm">
+          <li><a href="../pages/about/about1.html" class="hover:text-white">About us</a></li>
+          <li><a href="../pages/contact/contact-us1.html" class="hover:text-white">Contact us</a></li>
+          <li><a href="../pages/about/career.html" class="hover:text-white">Career <span class="ml-1 rounded bg-green-600 px-1.5 py-0.5 text-[10px] text-white">We are hiring!</span></a></li>
+          <li><a href="../pages/about/career-single.html" class="hover:text-white">Career detail</a></li>
+          <li><a href="../pages/contact/contact-us2.html" class="hover:text-white">Become a partner</a></li>
+          <li><a href="../pages/about/service-single.html" class="hover:text-white">Services</a></li>
+        </ul>
+      </div>
+      <div>
+        <h6 class="font-semibold text-white">Resources</h6>
+        <hr class="my-4 border-white/10">
+        <ul class="space-y-2 text-sm">
+          <li><a href="../pages/portfolio/portfolio-case-study1.html" class="hover:text-white">Case studies</a></li>
+          <li><a href="../pages/pricing/pricing1.html" class="hover:text-white">Pricing</a></li>
+          <li><a href="../pages/blog/blog-mininal.html" class="hover:text-white">Blogs</a></li>
+          <li><a href="../pages/blog/blog-single.html" class="hover:text-white">Blog detail</a></li>
+          <li><a href="product.html" class="hover:text-white">Success stories <i class="bi bi-box-arrow-up-right ml-1 text-xs"></i></a></li>
+        </ul>
+      </div>
+      <div>
+        <h6 class="font-semibold text-white">Community</h6>
+        <hr class="my-4 border-white/10">
+        <ul class="space-y-2 text-sm">
+          <li><a href="../pages/portfolio/portfolio-case-study1.html" class="hover:text-white"><i class="bi bi-file-earmark-text mr-2"></i>Case Studies</a></li>
+          <li><a href="agency.html" class="hover:text-white"><i class="bi bi-bullseye mr-2"></i>Changelog</a></li>
+          <li><a href="../pages/contact/contact-us2.html" class="hover:text-white"><i class="bi bi-chat-left mr-2"></i>Supports</a></li>
+          <li><a href="../pages/blog/blog-mininal.html" class="hover:text-white"><i class="bi bi-send mr-2"></i>Newsletter</a></li>
+          <li><a href="../pages/about/service-grid.html" class="hover:text-white"><i class="bi bi-life-preserver mr-2"></i>Help center</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="my-8 border-white/10">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-400">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-2">
+        <li><a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"><i class="bi bi-facebook"></i></a></li>
+        <li><a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"><i class="bi bi-instagram"></i></a></li>
+        <li><a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"><i class="bi bi-twitter-x"></i></a></li>
+        <li><a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"><i class="bi bi-linkedin"></i></a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

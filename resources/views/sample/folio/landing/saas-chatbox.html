@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - SaaS AI Chatbox (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur border-b border-white/10" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="default.html" class="flex items-center gap-2"><img src="../assets/images/logo-light.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="default.html" class="text-sm font-medium text-gray-300 hover:text-white">Home</a>
+      <a href="../pages/saas/feature-single.html" class="text-sm font-medium text-gray-300 hover:text-white">Features</a>
+      <a href="../pages/pricing/pricing2.html" class="text-sm font-medium text-gray-300 hover:text-white">Pricing</a>
+    </div><div class="flex items-center gap-3"><div class="hidden items-center gap-2 rounded-full bg-white/10 p-1 sm:flex">
+      <a href="../pages/auth/signin.html" class="rounded-full px-4 py-1.5 text-sm font-semibold text-gray-200">Login</a>
+      <a href="../pages/auth/signup.html" class="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-white">Sign up</a>
+    </div><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-white/10" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="default.html" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm font-medium text-gray-300 hover:text-white">Home</a>
+      <a href="../pages/saas/feature-single.html" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm font-medium text-gray-300 hover:text-white">Features</a>
+      <a href="../pages/pricing/pricing2.html" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm font-medium text-gray-300 hover:text-white">Pricing</a>
+    <div class="flex items-center justify-center gap-2 rounded-full bg-white/10 p-1 mt-2">
+      <a href="../pages/auth/signin.html" class="rounded-full px-4 py-1.5 text-sm font-semibold text-gray-200">Login</a>
+      <a href="../pages/auth/signup.html" class="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-white">Sign up</a>
+    </div></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="bg-gray-900 pb-16 pt-12 text-center text-white">
+    <div class="mx-auto max-w-3xl px-6">
+      <h1 class="text-4xl font-bold sm:text-5xl">Rapidly Develop an <span class="text-purple">AI Chatbot</span> Using Your Expertise</h1>
+      <ul class="mt-6 flex flex-wrap justify-center gap-4 text-sm">
+        <li><i class="bi bi-cloud-fill text-pink mr-2"></i>Cloud hosting</li>
+        <li><i class="bi bi-chat-square-quote-fill text-green-400 mr-2"></i>Team collaboration</li>
+        <li><i class="bi bi-lightbulb-fill text-yellow-400 mr-2"></i>Fully adaptable</li>
+        <li><i class="bi bi-database-fill text-blue-400 mr-2"></i>Unify your data</li>
+      </ul>
+      <div class="mt-6 flex flex-wrap justify-center gap-3">
+        <a href="../pages/auth/signup.html" class="rounded-full bg-primary px-6 py-3 font-semibold">Start building now <i class="bi bi-arrow-right ml-1"></i></a>
+        <a href="#" class="rounded-full bg-white px-6 py-3 font-semibold text-gray-900">Get started</a>
+      </div>
+    </div>
+    <div class="mx-auto -mb-16 mt-10 max-w-4xl px-6">
+      <img src="../assets/images/bg/chat-boat.jpg" class="rounded-3xl shadow-2xl" alt="chatbot image">
+    </div>
+  </section>
+
+  <!-- Company logos -->
+  <section data-aos="fade-up" class="bg-white pt-24 pb-10">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <h6 class="text-center text-sm text-gray-500">Trusted by 10,000+ marketers at leading companies.</h6>
+      <div class="mt-6 swiper" data-swiper='{"slidesPerView":2,"spaceBetween":32,"loop":true,"autoplay":{"delay":2200,"disableOnInteraction":false},"breakpoints":{"640":{"slidesPerView":3},"1024":{"slidesPerView":5}}}'>
+        <div class="swiper-wrapper items-center">
+          <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/01.svg" class="h-6 opacity-60" alt="client logo"></div>
+          <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/02.svg" class="h-6 opacity-60" alt="client logo"></div>
+          <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/03.svg" class="h-6 opacity-60" alt="client logo"></div>
+          <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/04.svg" class="h-6 opacity-60" alt="client logo"></div>
+          <div class="swiper-slide flex items-center justify-center"><img src="../assets/images/client/logo-gray/05.svg" class="h-6 opacity-60" alt="client logo"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Accordion -->
+  <section data-aos="fade-up" class="py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+        <img src="../assets/images/elements/saas-decoration/chatbot-03.png" class="rounded-3xl" alt="chatbot image">
+        <div>
+          <h2 class="text-3xl font-semibold text-gray-900">Boost productivity with intelligent automation</h2>
+          <div class="mt-6 space-y-4" data-accordion>
+            <div class="acc-item overflow-hidden rounded-xl border border-gray-100 p-4"><button type="button" class="acc-trigger flex w-full items-center justify-between text-left font-semibold text-gray-900" aria-expanded="true"><span><i class="bi bi-lightbulb text-primary mr-2"></i>Accelerate brainstorming with AI</span><i class="bi bi-chevron-down acc-icon ml-3 shrink-0 text-gray-400 rotate-180"></i></button><div class="acc-panel"><p class="pt-2 text-sm text-gray-600">Our AI-powered tool helps you brainstorm faster by providing instant suggestions and creative prompts.</p></div></div>
+            <div class="acc-item overflow-hidden rounded-xl border border-gray-100 p-4"><button type="button" class="acc-trigger flex w-full items-center justify-between text-left font-semibold text-gray-900" aria-expanded="false"><span><i class="bi bi-boxes text-primary mr-2"></i>Instant access to accurate information</span><i class="bi bi-chevron-down acc-icon ml-3 shrink-0 text-gray-400"></i></button><div class="acc-panel"><p class="pt-2 text-sm text-gray-600">Obtain reliable and factual content at lightning speed with our advanced AI.</p></div></div>
+            <div class="acc-item overflow-hidden rounded-xl border border-gray-100 p-4"><button type="button" class="acc-trigger flex w-full items-center justify-between text-left font-semibold text-gray-900" aria-expanded="false"><span><i class="bi bi-transparency text-primary mr-2"></i>Seamless content distribution</span><i class="bi bi-chevron-down acc-icon ml-3 shrink-0 text-gray-400"></i></button><div class="acc-panel"><p class="pt-2 text-sm text-gray-600">Publish content effortlessly across multiple channels.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- List content -->
+  <section data-aos="fade-up" class="bg-secondary py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+        <div>
+          <h2 class="text-3xl font-semibold text-gray-900">Generate content effortlessly in minutes</h2>
+          <p class="mt-3">Share your latest product updates directly in-app with visual notifications and interactive widgets.</p>
+          <ul class="mt-4 space-y-2 font-semibold text-gray-900">
+            <li><i class="bi bi-asterisk text-primary mr-2"></i>Boost feature adoption and engagement</li>
+            <li><i class="bi bi-asterisk text-primary mr-2"></i>Write creatively in any language</li>
+            <li><i class="bi bi-asterisk text-primary mr-2"></i>Scalable solutions for your growth</li>
+            <li><i class="bi bi-asterisk text-primary mr-2"></i>Unlock possibilities with advanced analytics</li>
+          </ul>
+        </div>
+        <img src="../assets/images/elements/saas-decoration/chatbot-02.png" class="mx-auto max-h-96" alt="chatbot feature image">
+      </div>
+    </div>
+  </section>
+
+  <!-- Skill/quote -->
+  <section data-aos="fade-up" class="py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+        <img src="../assets/images/about/14.jpg" class="rounded-3xl" alt="feature image">
+        <div>
+          <h4 class="text-2xl font-semibold text-gray-900">"AI chatbots innovate conversations with insights from extensive knowledge repositories"</h4>
+          <p class="mt-4 font-semibold text-gray-900">Jacqueline Miller <span class="block font-normal text-sm text-gray-500">CEO &amp; Founder</span></p>
+          <hr class="my-4 border-primary/20">
+          <div class="grid grid-cols-3 gap-4 text-center">
+            <div><h2 class="text-2xl font-bold text-primary"><span class="" data-counter="5" data-suffix="x">5x</span></h2><p class="text-sm">Boost content production</p></div>
+            <div><h2 class="text-2xl font-bold text-purple"><span class="" data-counter="85" data-suffix="%">85%</span></h2><p class="text-sm">Save time on prospecting</p></div>
+            <div><h2 class="text-2xl font-bold text-pink"><span class="" data-counter="68" data-suffix="%">68%</span></h2><p class="text-sm">Reduce editing time</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Integration features -->
+  <section data-aos="fade-up" class="bg-secondary py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h1 class="text-3xl font-bold text-gray-900">Easily bring <span class="text-primary">AI</span> in your workflow to create content</h1>
+        <p class="mt-4">Our robust integration capabilities ensure your data flows smoothly across systems.</p>
+        <a href="#" class="mt-4 inline-flex items-center gap-2 rounded-full grad-primary px-6 py-3 font-semibold text-white">Integrate with your apps <i class="bi bi-arrow-right"></i></a>
+      </div>
+      <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="text-center"><i class="bi bi-translate text-4xl text-pink"></i><h6 class="mt-3 font-semibold text-gray-900">Natural language processing</h6><p class="mt-1 text-sm">NLP allows the chatbot to interpret and process natural language inputs effectively.</p></div>
+        <div class="text-center"><i class="bi bi-emoji-smile text-4xl text-blue-400"></i><h6 class="mt-3 font-semibold text-gray-900">Sentiment analysis</h6><p class="mt-1 text-sm">Respond appropriately, enhancing customer satisfaction and engagement.</p></div>
+        <div class="text-center"><i class="bi bi-cpu text-4xl text-green-500"></i><h6 class="mt-3 font-semibold text-gray-900">Machine learning adaptation</h6><p class="mt-1 text-sm">Continuously improve through machine learning as it learns from each interaction.</p></div>
+        <div class="text-center"><i class="bi bi-clipboard-check text-4xl text-purple"></i><h6 class="mt-3 font-semibold text-gray-900">Automated task handling</h6><p class="mt-1 text-sm">Perform routine tasks such as scheduling, processing orders, or providing information.</p></div>
+        <div class="text-center"><i class="bi bi-journal-bookmark text-4xl text-yellow-500"></i><h6 class="mt-3 font-semibold text-gray-900">Knowledge base integration</h6><p class="mt-1 text-sm">Access a comprehensive database of information to provide accurate answers.</p></div>
+        <div class="text-center"><i class="bi bi-mic text-4xl text-primary"></i><h6 class="mt-3 font-semibold text-gray-900">Voice recognition</h6><p class="mt-1 text-sm">Advanced voice recognition for more dynamic and versatile communication.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA dark -->
+  <section data-aos="fade-up" class="py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-8 rounded-3xl bg-gray-900 p-10 text-white lg:grid-cols-2">
+        <div>
+          <h2 class="text-3xl font-semibold">Experience the Power of <span class="text-purple">AI Chatbot</span></h2>
+          <p class="mt-3 text-gray-300">Our AI chatbot enhances customer satisfaction and boosts your business efficiency.</p>
+          <a href="../pages/pricing/pricing1.html" class="mt-3 inline-flex rounded-full border border-white/30 px-6 py-3 font-semibold">Start free trial</a>
+        </div>
+        <img src="../assets/images/elements/chatbot-cta.png" class="mx-auto max-h-64" alt="chatbot cta">
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section data-aos="fade-up" class="pb-16 lg:pb-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <h2 class="text-center text-3xl font-semibold text-gray-900">Choose the plan that fits your needs</h2>
+      <div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div class="rounded-3xl bg-secondary p-8 text-center"><h6 class="font-semibold text-gray-900">Free</h6><div class="mt-2 text-3xl font-bold text-gray-900">$0<span class="text-sm font-normal">/month</span></div><a href="../pages/auth/signup.html" class="mt-4 inline-block rounded-full border border-primary px-5 py-2 text-sm font-semibold text-primary">Sign up now</a><p class="mt-4 text-sm"><i class="bi bi-patch-check text-green-500 mr-1"></i>Limited to 100 conversations/month</p></div>
+        <div class="rounded-3xl bg-primary p-8 text-center text-white"><h6 class="font-semibold">Professional</h6><div class="mt-2 text-3xl font-bold">$59<span class="text-sm font-normal">/month</span></div><a href="../pages/pricing/pricing2.html" class="mt-4 inline-block rounded-full bg-gray-900 px-5 py-2 text-sm font-semibold">Upgrade Now</a><p class="mt-4 text-sm"><i class="bi bi-patch-check mr-1"></i>Detailed analytics and reporting</p></div>
+        <div class="rounded-3xl bg-secondary p-8 text-center"><h6 class="font-semibold text-gray-900">Enterprise</h6><div class="mt-2 text-2xl font-bold text-gray-900">Custom</div><a href="../pages/pricing/pricing2.html" class="mt-4 inline-block rounded-full border border-primary px-5 py-2 text-sm font-semibold text-primary">Request pricing</a><p class="mt-4 text-sm"><i class="bi bi-patch-check text-green-500 mr-1"></i>Custom integration and development</p></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-gray-900 pt-16 pb-8 text-gray-300 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+      <div><img class="h-10" src="../assets/images/logo-light.svg" alt="logo"><p class="mt-4 text-sm">(251) 854-6308 &middot; example@gmail.com</p></div>
+      <div><h6 class="font-semibold text-white">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pages/about/about1.html" class="hover:text-white">About us</a></li><li><a href="../pages/contact/contact-us1.html" class="hover:text-white">Contact us</a></li></ul></div>
+      <div><h6 class="font-semibold text-white">Stay connected</h6><div class="mt-3 flex gap-2"><a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10"><i class="bi bi-facebook"></i></a><a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10"><i class="bi bi-instagram"></i></a><a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10"><i class="bi bi-twitter-x"></i></a></div></div>
+    </div>
+    <hr class="my-8 border-white/10">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-400">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm"><li><a href="#" class="hover:text-white">Privacy policy</a></li><li><a href="#" class="hover:text-white">Terms &amp; conditions</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

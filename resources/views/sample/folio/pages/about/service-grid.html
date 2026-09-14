@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - Services Grid (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur border-b border-white/10" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="../../landing/default.html" class="flex items-center gap-2"><img src="../../assets/images/logo-light.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="../../landing/default.html" class="text-sm font-medium text-gray-300 hover:text-white">Home</a>
+      <a href="service-grid.html" class="text-sm font-medium text-white">Services</a>
+      <a href="../contact/contact-us1.html" class="text-sm font-medium text-gray-300 hover:text-white">Contact us</a>
+    </div><div class="flex items-center gap-3"><a href="../auth/signup.html" class="hidden sm:inline-flex items-center rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-white/10" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="../../landing/default.html" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm font-medium text-gray-300 hover:text-white">Home</a>
+      <a href="service-grid.html" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm font-medium text-white">Services</a>
+      <a href="../contact/contact-us1.html" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm font-medium text-gray-300 hover:text-white">Contact us</a>
+    <a href="../auth/signup.html" class="flex w-full justify-center mt-2 items-center rounded-full grad-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="bg-gray-900 py-16 text-white">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
+        <div class="text-center md:text-left">
+          <p class="text-xs text-gray-400"><a href="../../landing/default.html" class="hover:underline">Home</a> / Services</p>
+          <h1 class="mt-3 text-4xl font-semibold sm:text-5xl">Our Professional Services</h1>
+          <a href="../contact/contact-us1.html" class="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-gray-900"><i class="bi bi-telephone"></i>Contact our experts</a>
+        </div>
+        <img src="../../assets/images/elements/service-hero.png" class="mx-auto max-h-72" alt="hero image">
+      </div>
+    </div>
+  </section>
+
+  <!-- Service cards -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <a href="service-single.html" class="group rounded-2xl bg-secondary p-8"><img src="../../assets/images/services/3d-icon/development.png" class="h-16" alt="icon"><h6 class="mt-6 font-semibold text-gray-900">Web design &amp; Development</h6><ul class="mt-2 list-disc pl-4 text-sm"><li>Custom website design</li><li>E-commerce solutions</li><li>Website maintenance and support</li></ul></a>
+        <a href="service-single.html" class="group rounded-2xl bg-secondary p-8"><img src="../../assets/images/services/3d-icon/marketing.png" class="h-16" alt="icon"><h6 class="mt-6 font-semibold text-gray-900">Digital marketing solutions</h6><ul class="mt-2 list-disc pl-4 text-sm"><li>Fundamentals of SEO</li><li>Social media marketing</li><li>Pay-Per-Click</li></ul></a>
+        <a href="service-single.html" class="group rounded-2xl bg-secondary p-8"><span class="rounded bg-primary px-2 py-1 text-xs font-semibold text-white">New</span><img src="../../assets/images/services/3d-icon/brand.png" class="mt-3 h-16" alt="icon"><h6 class="mt-6 font-semibold text-gray-900">Brand strategy &amp; Identity</h6><ul class="mt-2 list-disc pl-4 text-sm"><li>Logo design</li><li>Brand strategy</li><li>Visual identity</li></ul></a>
+        <a href="service-single.html" class="group rounded-2xl bg-secondary p-8"><img src="../../assets/images/services/3d-icon/database.png" class="h-16" alt="icon"><h6 class="mt-6 font-semibold text-gray-900">Database analysis</h6><ul class="mt-2 list-disc pl-4 text-sm"><li>Data collection and management</li><li>Data analysis</li><li>Reporting and visualization</li></ul></a>
+        <a href="service-single.html" class="group rounded-2xl bg-secondary p-8"><img src="../../assets/images/services/3d-icon/consulting.png" class="h-16" alt="icon"><h6 class="mt-6 font-semibold text-gray-900">Consulting services</h6><ul class="mt-2 list-disc pl-4 text-sm"><li>Business strategy</li><li>Technology consulting</li><li>Operational improvement</li></ul></a>
+        <a href="service-single.html" class="group rounded-2xl bg-secondary p-8"><img src="../../assets/images/services/3d-icon/app-dev.png" class="h-16" alt="icon"><h6 class="mt-6 font-semibold text-gray-900">Mobile app development</h6><ul class="mt-2 list-disc pl-4 text-sm"><li>Custom app design &amp; development</li><li>Cross-Platform solutions</li><li>Usability testing</li></ul></a>
+      </div>
+      <p class="mt-8 text-center text-gray-900">Let's create something great work together. <a href="../contact/contact-us1.html" class="font-semibold text-primary underline">Got a project in mind?</a></p>
+    </div>
+  </section>
+
+  <!-- FAQ / reviews -->
+  <section data-aos="fade-up" class="bg-secondary py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
+        <div class="relative">
+          <img src="../../assets/images/about/13.jpg" class="rounded-3xl" alt="image">
+          <div class="absolute -bottom-6 -right-4 rounded-2xl bg-white p-4 text-center shadow-lg"><h6 class="text-2xl font-bold text-gray-900">4.8</h6><div class="text-yellow-400 text-sm"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div><span class="text-xs text-gray-500">2855 Reviews</span></div>
+        </div>
+        <div>
+          <h2 class="text-3xl font-semibold text-gray-900">Why choose us?</h2>
+          <div class="mt-6 space-y-3" data-accordion>
+            <div class="acc-item overflow-hidden rounded-xl bg-white p-4"><button type="button" class="acc-trigger flex w-full items-center justify-between text-left font-semibold text-gray-900" aria-expanded="true"><span>Rapid prototype development</span><i class="bi bi-chevron-down acc-icon ml-3 shrink-0 text-gray-400 rotate-180"></i></button><div class="acc-panel"><p class="pt-2 text-sm text-gray-600">Our expert team delivers a functional prototype within 24 hours, ensuring rapid progress.</p></div></div>
+            <div class="acc-item overflow-hidden rounded-xl bg-white p-4"><button type="button" class="acc-trigger flex w-full items-center justify-between text-left font-semibold text-gray-900" aria-expanded="false"><span>Client-Centric approach</span><i class="bi bi-chevron-down acc-icon ml-3 shrink-0 text-gray-400"></i></button><div class="acc-panel"><p class="pt-2 text-sm text-gray-600">We provide a range of tools, guides, and best practices to help you create designs.</p></div></div>
+            <div class="acc-item overflow-hidden rounded-xl bg-white p-4"><button type="button" class="acc-trigger flex w-full items-center justify-between text-left font-semibold text-gray-900" aria-expanded="false"><span>24/7 tech &amp; business support</span><i class="bi bi-chevron-down acc-icon ml-3 shrink-0 text-gray-400"></i></button><div class="acc-panel"><p class="pt-2 text-sm text-gray-600">We provide a range of tools, guides, and best practices to help you create websites.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="grid grid-cols-1 items-start gap-10 md:grid-cols-2">
+        <div><h2 class="text-3xl font-semibold text-gray-900">Let's level up your brand, together</h2><p class="mt-3">Reach us anytime at <a href="#" class="text-primary underline">example@gmail.com</a></p></div>
+        <form class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <input placeholder="Full name" class="rounded-lg border border-gray-200 px-4 py-2.5">
+          <input type="email" placeholder="name@example.com" class="rounded-lg border border-gray-200 px-4 py-2.5">
+          <input placeholder="Subject name" class="rounded-lg border border-gray-200 px-4 py-2.5 sm:col-span-2">
+          <textarea placeholder="Write your message here...." class="rounded-lg border border-gray-200 px-4 py-2.5 sm:col-span-2" rows="4"></textarea>
+          <button class="rounded-full bg-primary px-6 py-3 font-semibold text-white sm:col-span-2 sm:w-fit">Send a message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-gray-900 pt-16 pb-8 text-gray-300 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+      <div><img class="h-10" src="../../assets/images/logo-light.svg" alt="logo"><p class="mt-4 text-sm">A Bootstrap theme that's both stylish and functional, perfect for any type of technology or corporate website.</p></div>
+      <div><h6 class="font-semibold text-white">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="about1.html" class="hover:text-white">About us</a></li><li><a href="career.html" class="hover:text-white">Career</a></li></ul></div>
+      <div><h6 class="font-semibold text-white">Resources</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pricing/pricing1.html" class="hover:text-white">Pricing</a></li><li><a href="../blog/blog-mininal.html" class="hover:text-white">Blogs</a></li></ul></div>
+    </div>
+    <hr class="my-8 border-white/10">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-400">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm"><li><a href="#" class="hover:text-white">Privacy policy</a></li><li><a href="#" class="hover:text-white">Terms &amp; conditions</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../../assets/js/site.js"></script>
+
+</body>
+</html>

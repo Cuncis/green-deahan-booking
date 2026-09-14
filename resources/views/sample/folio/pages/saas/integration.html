@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - Integrations (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="../../landing/default.html" class="flex items-center gap-2"><img src="../../assets/images/logo.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="../../landing/default.html" class="text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="integration.html" class="text-sm font-medium text-primary">Integrations</a>
+    </div><div class="flex items-center gap-3"><div class="hidden items-center gap-2 rounded-full bg-gray-100 p-1 sm:flex">
+      <a href="../auth/signin.html" class="rounded-full px-4 py-1.5 text-sm font-semibold text-gray-700">Login</a>
+      <a href="../auth/signup.html" class="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-white">Sign up</a>
+    </div><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-gray-100" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="../../landing/default.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="integration.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-primary">Integrations</a>
+    <div class="flex items-center justify-center gap-2 rounded-full bg-gray-100 p-1 mt-2">
+      <a href="../auth/signin.html" class="rounded-full px-4 py-1.5 text-sm font-semibold text-gray-700">Login</a>
+      <a href="../auth/signup.html" class="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-white">Sign up</a>
+    </div></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="py-16 text-center">
+    <div class="mx-auto max-w-2xl px-6">
+      <h1 class="text-4xl font-semibold text-gray-900 sm:text-5xl">Elevate Your Performance with Integrations</h1>
+      <p class="mt-4">Effortlessly connect to top platforms for CRM, marketing, payments, and more. Enhance workflows, automate tasks, and drive growth with ease.</p>
+    </div>
+    <div class="relative mx-auto mt-10 flex h-64 max-w-2xl items-center justify-center rounded-3xl bg-secondary">
+      <div class="flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-lg"><img src="../../assets/images/logo-icon.svg" class="h-10" alt="integration icon"></div>
+    </div>
+  </section>
+
+  <!-- Filter + grid -->
+  <section data-aos="fade-up" class="pb-16 lg:pb-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <span class="text-sm text-gray-500">Filter by:</span>
+        <button class="border-b-2 border-primary pb-1 text-sm font-semibold text-primary">All</button>
+        <button class="pb-1 text-sm text-gray-500">Productivity</button>
+        <button class="pb-1 text-sm text-gray-500">CRM</button>
+        <button class="pb-1 text-sm text-gray-500">Payment</button>
+        <button class="pb-1 text-sm text-gray-500">e-commerce</button>
+        <button class="pb-1 text-sm text-gray-500">Streaming</button>
+      </div>
+
+      <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-2xl bg-secondary p-6"><div class="flex items-center gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white"><img src="../../assets/images/client/icons/05.svg" class="h-6" alt="icon"></div><div><h6 class="font-semibold text-gray-900">Graphlo</h6><span class="text-xs text-gray-500">Productivity</span></div></div><p class="mt-3 text-sm">Integrate with Graphlo to streamline your customer relationship management.</p><a href="integration-single.html" class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">Explore integration <i class="bi bi-arrow-right"></i></a></div>
+        <div class="rounded-2xl bg-secondary p-6"><div class="flex items-center gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white"><img src="../../assets/images/client/icons/11.svg" class="h-6" alt="icon"></div><div><h6 class="font-semibold text-gray-900">Vectra</h6><span class="text-xs text-gray-500">CRM</span></div></div><p class="mt-3 text-sm">Seamless email marketing campaigns with automated sequences and tracking.</p><a href="integration-single.html" class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">Explore integration <i class="bi bi-arrow-right"></i></a></div>
+        <div class="rounded-2xl bg-secondary p-6"><div class="flex items-center gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white"><img src="../../assets/images/client/icons/10.svg" class="h-6" alt="icon"></div><div><h6 class="font-semibold text-gray-900">Signum</h6><span class="text-xs text-gray-500">Payment</span></div></div><p class="mt-3 text-sm">Secure and efficient payment processing with subscription management.</p><a href="integration-single.html" class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">Explore integration <i class="bi bi-arrow-right"></i></a></div>
+        <div class="rounded-2xl bg-secondary p-6"><div class="flex items-center gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white"><img src="../../assets/images/client/icons/04.svg" class="h-6" alt="icon"></div><div><h6 class="font-semibold text-gray-900">Grapherz</h6><span class="text-xs text-gray-500">Streaming</span></div></div><p class="mt-3 text-sm">Streamlined accounting and financial management with invoicing.</p><a href="integration-single.html" class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">Explore integration <i class="bi bi-arrow-right"></i></a></div>
+        <div class="rounded-2xl bg-secondary p-6"><div class="flex items-center gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white"><img src="../../assets/images/client/icons/07.svg" class="h-6" alt="icon"></div><div><h6 class="font-semibold text-gray-900">Imprintify</h6><span class="text-xs text-gray-500">Productivity</span></div></div><p class="mt-3 text-sm">Enhance team communication and collaboration with real-time updates.</p><a href="integration-single.html" class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">Explore integration <i class="bi bi-arrow-right"></i></a></div>
+        <div class="rounded-2xl bg-secondary p-6"><div class="flex items-center gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white"><img src="../../assets/images/client/icons/08.svg" class="h-6" alt="icon"></div><div><h6 class="font-semibold text-gray-900">Logique</h6><span class="text-xs text-gray-500">e-commerce</span></div></div><p class="mt-3 text-sm">Enhance your e-commerce operations by syncing inventory and orders.</p><a href="integration-single.html" class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">Explore integration <i class="bi bi-arrow-right"></i></a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section data-aos="fade-up" class="pb-16 lg:pb-24">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="flex flex-col items-center justify-between gap-6 rounded-3xl bg-secondary p-8 sm:flex-row lg:p-12">
+        <div><h2 class="text-2xl font-semibold text-gray-900">Elevate your business to the next level</h2><p class="mt-2">Explore the possibilities and discover how integrating with Folio can take your business further.</p></div>
+        <a href="../contact/contact-us1.html" class="whitespace-nowrap rounded-full bg-gray-900 px-6 py-3 font-semibold text-white">Optimize Your Workflow</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-secondary-grad pt-16 pb-8 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+      <div><img class="h-10" src="../../assets/images/logo.svg" alt="logo"><p class="mt-4 text-sm">A Bootstrap theme that's both stylish and functional, perfect for any type of technology or corporate website.</p></div>
+      <div><h6 class="font-semibold text-gray-900">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../about/about1.html" class="hover:text-primary">About us</a></li><li><a href="../about/career.html" class="hover:text-primary">Career</a></li></ul></div>
+      <div><h6 class="font-semibold text-gray-900">Resources</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pricing/pricing2.html" class="hover:text-primary">Pricing</a></li><li><a href="../blog/blog-mininal.html" class="hover:text-primary">Blogs</a></li></ul></div>
+    </div>
+    <hr class="my-8 border-gray-300">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-500">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm"><li><a href="#" class="hover:text-primary">Privacy policy</a></li><li><a href="#" class="hover:text-primary">Terms &amp; conditions</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../../assets/js/site.js"></script>
+
+</body>
+</html>

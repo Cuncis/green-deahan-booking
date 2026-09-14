@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - Contact Us (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<p class="bg-yellow-100 px-6 py-2 text-center text-xs text-yellow-800">Note: this route (<code>conatctus</code>) is a near-duplicate of <a href="contact/contact-us1.html" class="underline">contact-us1</a> in the original Angular source.</p>
+
+<header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur border-b border-white/10" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="../landing/default.html" class="flex items-center gap-2"><img src="../assets/images/logo-light.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="../landing/default.html" class="text-sm font-medium text-gray-300 hover:text-white">Home</a>
+      <a href="contactus.html" class="text-sm font-medium text-white">Contact us</a>
+    </div><div class="flex items-center gap-3"><a href="auth/signup.html" class="hidden sm:inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-white/10" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="../landing/default.html" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm font-medium text-gray-300 hover:text-white">Home</a>
+      <a href="contactus.html" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm font-medium text-white">Contact us</a>
+    <a href="auth/signup.html" class="flex w-full justify-center mt-2 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">Sign up</a></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="bg-gray-900 py-16 text-white">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <span class="text-2xl">👋</span>
+      <h1 class="mt-3 text-4xl font-semibold sm:text-5xl">Let's Connect</h1>
+      <p class="mt-2 text-gray-300">We're here to help</p>
+      <p>Support hours: <span class="font-bold text-primary">24/7</span></p>
+    </div>
+  </section>
+
+  <!-- Contact info cards -->
+  <section data-aos="fade-up" class="-mt-10 pb-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div class="rounded-3xl bg-secondary p-6"><div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-pink text-white"><i class="bi bi-telephone"></i></div><h6 class="font-semibold text-gray-900">Call us</h6><p class="mt-1 text-sm">Speak with a member of our team. We're always ready to assist you.</p><a href="tel:+12518546308" class="mt-2 inline-block font-semibold text-primary">+(251) 854-6308</a></div>
+        <div class="rounded-3xl bg-secondary p-6"><div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white"><i class="bi bi-envelope"></i></div><h6 class="font-semibold text-gray-900">Mail us</h6><p class="mt-1 text-sm">We're prompt and aim to respond to all inquiries within 24 hours.</p><a href="mailto:example@gmail.com" class="mt-2 inline-block font-semibold text-primary">example@gmail.com</a></div>
+        <div class="rounded-3xl bg-secondary p-6"><div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-yellow-500 text-white"><i class="bi bi-headset"></i></div><h6 class="font-semibold text-gray-900">Support</h6><p class="mt-1 text-sm">Check out helpful resources, FAQs and developer tools.</p><a href="#" class="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow">Chat now <i class="bi bi-arrow-right"></i></a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact form -->
+  <section data-aos="fade-up" class="pb-16">
+    <div class="mx-auto max-w-4xl px-6">
+      <div class="rounded-3xl bg-secondary p-8 lg:p-12">
+        <h1 class="text-center text-3xl font-bold text-gray-900"><i class="bi bi-emoji-smile mr-2"></i>Say <span class="text-primary" data-typed='["Hello","Hola","Ciao","Bonjour"]'></span></h1>
+        <p class="mt-2 text-center">Have an idea, need advice, or just want to say hello? We're all ears.</p>
+        <form class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div><label class="text-sm text-gray-700">Your name</label><input class="mt-1 w-full rounded-lg border border-gray-200 px-4 py-2.5"></div>
+          <div><label class="text-sm text-gray-700">Email address</label><input type="email" class="mt-1 w-full rounded-lg border border-gray-200 px-4 py-2.5"></div>
+          <div><label class="text-sm text-gray-700">Mobile number</label><input class="mt-1 w-full rounded-lg border border-gray-200 px-4 py-2.5"></div>
+          <div><label class="text-sm text-gray-700">Subject</label><input class="mt-1 w-full rounded-lg border border-gray-200 px-4 py-2.5"></div>
+          <div class="sm:col-span-2"><label class="text-sm text-gray-700">Message</label><textarea class="mt-1 w-full rounded-lg border border-gray-200 px-4 py-2.5" rows="3"></textarea></div>
+          <label class="flex items-start gap-2 text-xs sm:col-span-2"><input type="checkbox" class="mt-0.5 rounded border-gray-300">I agree that my data is collected and stored.</label>
+          <button class="rounded-full bg-primary px-6 py-3 font-semibold text-white sm:col-span-2 sm:w-fit">Send a message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Map & offices -->
+  <section data-aos="fade-up" class="pb-16 lg:pb-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+        <iframe class="h-64 w-full rounded-3xl grayscale lg:h-[420px]" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343008!2d-74.00425878428698!3d40.74076684379132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259bf5c1654f3%3A0xc80f9cfce5383d5d!2sGoogle!5e0!3m2!1sen!2sin!4v1586000412513!5m2!1sen!2sin"></iframe>
+        <div>
+          <h2 class="text-3xl font-semibold text-gray-900">Our offices</h2>
+          <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div><h6 class="font-semibold text-gray-900">🇺🇸 United States</h6><p class="mt-2 text-sm">4517 Washington Ave.<br>Manchester, Kentucky 39495</p></div>
+            <div><h6 class="font-semibold text-gray-900">🇬🇧 United Kingdom</h6><p class="mt-2 text-sm">3891 Ranchview Dr.<br>Richardson, California 62639</p></div>
+          </div>
+          <a href="#" class="mt-4 inline-flex items-center gap-2 rounded-full bg-gray-100 px-5 py-2.5 text-sm font-semibold text-gray-900">Contact our help center <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-gray-900 pt-16 pb-8 text-gray-300 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+      <div><img class="h-10" src="../assets/images/logo-light.svg" alt="logo"><p class="mt-4 text-sm">A Bootstrap theme that's both stylish and functional, perfect for any type of technology or corporate website.</p></div>
+      <div><h6 class="font-semibold text-white">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="about/about1.html" class="hover:text-white">About us</a></li><li><a href="about/career.html" class="hover:text-white">Career</a></li></ul></div>
+      <div><h6 class="font-semibold text-white">Resources</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="pricing/pricing1.html" class="hover:text-white">Pricing</a></li><li><a href="blog/blog-mininal.html" class="hover:text-white">Blogs</a></li></ul></div>
+    </div>
+    <hr class="my-8 border-white/10">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-400">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm"><li><a href="#" class="hover:text-white">Privacy policy</a></li><li><a href="#" class="hover:text-white">Terms &amp; conditions</a></li></ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

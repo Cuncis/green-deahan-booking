@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Folio - AI Agency Landing (converted)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    primary: '#5F41FB', secondary: '#F3F3FB', purple: '#893EFB', pink: '#FF6399', dark: '#212934',
+  } } } };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+  .grad-primary { background-image: linear-gradient(90deg, #5F41FB 0%, #893EFB 100%); }
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body class="bg-white text-gray-600">
+
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100" data-header>
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+    <a href="default.html" class="flex items-center gap-2"><img src="../assets/images/logo.svg" class="h-8" alt="Folio logo"></a><div class="hidden lg:flex lg:items-center lg:gap-x-8">
+      <a href="default.html" class="text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="../pages/about/about1.html" class="text-sm font-medium text-gray-600 hover:text-primary">About</a>
+      <a href="../pages/about/service-grid.html" class="text-sm font-medium text-gray-600 hover:text-primary">Services</a>
+      <a href="../pages/pricing/pricing1.html" class="text-sm font-medium text-gray-600 hover:text-primary">Pricing</a>
+      <a href="../pages/blog/blog-mininal.html" class="text-sm font-medium text-gray-600 hover:text-primary">Blog</a>
+      <a href="../pages/contact/contact-us1.html" class="text-sm font-medium text-gray-600 hover:text-primary">Contact us</a>
+    </div><div class="flex items-center gap-3"><a href="#" class="hidden sm:inline-flex items-center rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90"><i class="bi bi-calendar-week mr-2"></i>Schedule a call</a><button type="button" class="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-900" data-mobile-toggle aria-expanded="false" aria-controls="mobile-menu"><i class="bi bi-list text-xl icon-open"></i><i class="bi bi-x-lg text-xl icon-close hidden"></i></button></div></nav>
+<div id="mobile-menu" class="lg:hidden border-t border-gray-100" data-mobile-menu><div class="flex flex-col gap-1 px-6 py-4">
+      <a href="default.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Home</a>
+      <a href="../pages/about/about1.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">About</a>
+      <a href="../pages/about/service-grid.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Services</a>
+      <a href="../pages/pricing/pricing1.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Pricing</a>
+      <a href="../pages/blog/blog-mininal.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Blog</a>
+      <a href="../pages/contact/contact-us1.html" class="block px-3 py-2 rounded-lg hover:bg-black/5 text-sm font-medium text-gray-600 hover:text-primary">Contact us</a>
+    <a href="#" class="flex w-full justify-center mt-2 items-center rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90"><i class="bi bi-calendar-week mr-2"></i>Schedule a call</a></div></div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section data-aos="fade-up" class="bg-secondary py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
+        <div>
+          <h1 class="text-4xl font-semibold text-gray-900 sm:text-5xl">Smart Solutions with <span class="text-primary">AI</span></h1>
+          <p class="mt-4 text-lg text-gray-600">Harness AI to unlock your business potential, streamline operations, and drive growth.</p>
+          <a href="#" class="mt-6 inline-flex items-center gap-2 rounded-full grad-primary px-6 py-3 font-semibold text-white">Get Started <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <img src="../assets/images/elements/ai-robot.png" alt="AI robot" class="mx-auto max-h-96">
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section data-aos="fade-up" class="py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div class="text-center">
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-yellow-100 text-yellow-500"><i class="bi bi-rocket-takeoff text-2xl"></i></div>
+          <h6 class="font-semibold text-gray-900">Future-proof solutions</h6>
+          <p class="mt-2 text-sm">Our AI solutions are designed with scalability in mind, allowing your business to grow and adapt.</p>
+        </div>
+        <div class="text-center">
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary"><i class="bi bi-shield-check text-2xl"></i></div>
+          <h6 class="font-semibold text-gray-900">Data security and compliance</h6>
+          <p class="mt-2 text-sm">We ensure full compliance with industry standards, safeguarding your data at all times.</p>
+        </div>
+        <div class="text-center">
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-pink-100 text-pink"><i class="bi bi-plug text-2xl"></i></div>
+          <h6 class="font-semibold text-gray-900">Effortless integration and support</h6>
+          <p class="mt-2 text-sm">We prioritize seamless integration of our AI solutions into your existing systems.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About / tabs -->
+  <section data-aos="fade-up" class="py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        <img src="../assets/images/about/07.jpg" class="rounded-3xl" alt="about image">
+        <div>
+          <div class="flex items-center gap-3">
+            <h2 class="text-4xl font-semibold text-primary">14+</h2>
+            <h6 class="font-semibold text-gray-900">Products successfully launched</h6>
+          </div>
+          <hr class="my-5 border-primary/30">
+          <div data-tabs>
+            <div class="flex flex-wrap gap-3" data-tab-buttons>
+              <button type="button" class="tab-btn is-active rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white" data-tab-target="mission"><i class="bi bi-bullseye mr-2"></i>Our Mission</button>
+              <button type="button" class="tab-btn rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700" data-tab-target="vision"><i class="bi bi-eye mr-2"></i>Our Vision</button>
+              <button type="button" class="tab-btn rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700" data-tab-target="goal"><i class="bi bi-trophy mr-2"></i>Our Goal</button>
+            </div>
+            <div class="mt-5" data-tab-panels>
+              <div data-tab-panel="mission">
+                <p>We strive to be the trusted partner that helps our clients navigate the complexities of the digital age with confidence and ease.</p>
+                <ul class="mt-3 space-y-2 text-sm text-gray-900">
+                  <li><i class="bi bi-patch-check text-green-500 mr-2"></i>Advanced AI technology</li>
+                  <li><i class="bi bi-patch-check text-green-500 mr-2"></i>Boosting efficiency with optimized workflows</li>
+                  <li><i class="bi bi-patch-check text-green-500 mr-2"></i>Driving sustainable growth with insights</li>
+                </ul>
+              </div>
+              <div data-tab-panel="vision" hidden>
+                <p>Effective design communicates your brand's identity, cultivates trust, and can significantly impact conversion rates and customer loyalty.</p>
+                <ul class="mt-3 space-y-2 text-sm text-gray-900">
+                  <li><i class="bi bi-patch-check text-green-500 mr-2"></i>Tailored solutions</li>
+                  <li><i class="bi bi-patch-check text-green-500 mr-2"></i>Proven track record</li>
+                  <li><i class="bi bi-patch-check text-green-500 mr-2"></i>Cost-effectiveness</li>
+                </ul>
+              </div>
+              <div data-tab-panel="goal" hidden>
+                <p>We provide a range of tools, guides, and best practices to help you create designs, websites and content that stand out.</p>
+                <ul class="mt-3 space-y-2 text-sm text-gray-900">
+                  <li><i class="bi bi-patch-check text-green-500 mr-2"></i>Digital pioneers</li>
+                  <li><i class="bi bi-patch-check text-green-500 mr-2"></i>Continuous learning</li>
+                  <li><i class="bi bi-patch-check text-green-500 mr-2"></i>Inspiring transformation</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services (dark) -->
+  <section data-aos="fade-up" class="bg-gray-900 py-16 text-white lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-12 lg:grid-cols-12">
+        <div class="lg:col-span-4">
+          <h2 class="text-3xl font-semibold">AI solutions for every business</h2>
+          <p class="mt-4 text-gray-300">Discover our AI services designed to optimize operations, enhance decisions, and drive growth.</p>
+          <a href="../pages/about/service-list.html" class="mt-4 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold">Explore all services</a>
+        </div>
+        <div class="divide-y divide-white/10 lg:col-span-7 lg:col-start-6">
+          <div class="flex items-center gap-3 py-4"><img src="../assets/images/services/geo-shape/01.svg" class="h-8 w-8" alt="icon"><h6 class="font-medium">AI consulting and strategy</h6><i class="bi bi-arrow-right ml-auto"></i></div>
+          <div class="flex items-center gap-3 py-4"><img src="../assets/images/services/geo-shape/02.svg" class="h-8 w-8" alt="icon"><h6 class="font-medium">Natural language processing (NLP)</h6><i class="bi bi-arrow-right ml-auto"></i></div>
+          <div class="flex items-center gap-3 py-4"><img src="../assets/images/services/geo-shape/03.svg" class="h-8 w-8" alt="icon"><h6 class="font-medium">Custom AI development</h6><i class="bi bi-arrow-right ml-auto"></i></div>
+          <div class="flex items-center gap-3 py-4"><img src="../assets/images/services/geo-shape/04.svg" class="h-8 w-8" alt="icon"><h6 class="font-medium">AI-Powered automation</h6><i class="bi bi-arrow-right ml-auto"></i></div>
+          <div class="flex items-center gap-3 py-4"><img src="../assets/images/services/geo-shape/05.svg" class="h-8 w-8" alt="icon"><h6 class="font-medium">Computer vision solutions</h6><i class="bi bi-arrow-right ml-auto"></i></div>
+        </div>
+      </div>
+      <div class="mt-16 text-center">
+        <h4 class="font-semibold">AI technologies and tools we utilize</h4>
+        <div class="mt-6 flex flex-wrap justify-center gap-4">
+          <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-white/5"><img src="../assets/images/client/icons/08.svg" class="h-8" alt="icon"></div>
+          <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-white/5"><img src="../assets/images/client/icons/04.svg" class="h-8" alt="icon"></div>
+          <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-white/5"><img src="../assets/images/client/icons/12.svg" class="h-8" alt="icon"></div>
+          <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-white/5"><img src="../assets/images/client/icons/09.svg" class="h-8" alt="icon"></div>
+          <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-white/5"><img src="../assets/images/client/icons/05.svg" class="h-8" alt="icon"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section data-aos="fade-up" class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <h2 class="text-center text-3xl font-semibold text-gray-900 sm:text-left">Success stories and projects</h2>
+      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="group relative overflow-hidden rounded-3xl">
+          <img src="../assets/images/portfolio/4by4/01.jpg" class="h-72 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img">
+          <div class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 to-transparent p-5">
+            <img src="../assets/images/client/logo-light/05.svg" class="h-6" alt="client logo">
+            <h6 class="mt-2 font-semibold text-white">AI-Driven customer insights platform</h6>
+          </div>
+        </div>
+        <div class="group relative overflow-hidden rounded-3xl">
+          <img src="../assets/images/portfolio/4by4/02.jpg" class="h-72 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img">
+          <div class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 to-transparent p-5">
+            <img src="../assets/images/client/logo-light/06.svg" class="h-6" alt="client logo">
+            <h6 class="mt-2 font-semibold text-white">Automated customer support with NLP</h6>
+          </div>
+        </div>
+        <div class="group relative overflow-hidden rounded-3xl">
+          <img src="../assets/images/portfolio/4by4/03.jpg" class="h-72 w-full object-cover transition duration-500 group-hover:scale-105" alt="portfolio-img">
+          <div class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 to-transparent p-5">
+            <img src="../assets/images/client/logo-light/08.svg" class="h-6" alt="client logo">
+            <h6 class="mt-2 font-semibold text-white">Smart inventory management for retail</h6>
+          </div>
+        </div>
+      </div>
+      <div class="mx-auto mt-8 max-w-2xl rounded-2xl grad-primary py-4 text-center">
+        <p class="text-white">Kickstart your project! collaborate with us for success! <a href="../pages/contact/contact-us1.html" class="font-semibold underline">Start today</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills counters -->
+  <section data-aos="fade-up" class="py-8">
+    <div class="mx-auto grid max-w-5xl grid-cols-1 gap-8 px-6 text-center md:grid-cols-3">
+      <div><div class="text-5xl font-bold text-primary"><span class="" data-counter="105" data-suffix="+">105+</span></div><p class="mt-2 text-sm">Total projects completed</p></div>
+      <div><div class="text-5xl font-bold text-purple"><span class="" data-counter="35" data-suffix="+">35+</span></div><p class="mt-2 text-sm">Awards and accolades</p></div>
+      <div><div class="text-5xl font-bold text-pink"><span class="" data-counter="10" data-prefix="&gt;" data-suffix="K">&gt;10K</span></div><p class="mt-2 text-sm">Satisfied users</p></div>
+    </div>
+  </section>
+
+  <!-- Award -->
+  <section data-aos="fade-up" class="bg-secondary py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <h2 class="text-center text-3xl font-semibold text-gray-900 sm:text-left">Our prestigious awards</h2>
+      <div class="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-3">
+        <div class="text-center">
+          <h6 class="font-semibold text-gray-900">Best Website Award</h6>
+          <span class="font-semibold text-primary">2023</span>
+          <p class="mt-2 text-xs uppercase tracking-wide text-gray-400">Accordion to</p>
+          <img src="../assets/images/elements/clutch.svg" class="mx-auto mt-1 h-8" alt="logo">
+        </div>
+        <div class="text-center">
+          <h6 class="font-semibold text-gray-900">Digital Vanguard Award</h6>
+          <span class="font-semibold text-primary">2022</span>
+          <p class="mt-2 text-xs uppercase tracking-wide text-gray-400">Accordion to</p>
+          <img src="../assets/images/elements/fwa.svg" class="mx-auto mt-1 h-8" alt="logo">
+        </div>
+        <div class="text-center">
+          <h6 class="font-semibold text-gray-900">Website of the day</h6>
+          <span class="font-semibold text-primary">2021</span>
+          <p class="mt-2 text-xs uppercase tracking-wide text-gray-400">Accordion to</p>
+          <img src="../assets/images/elements/dribbble.svg" class="mx-auto mt-1 h-8" alt="logo">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Client -->
+  <section data-aos="fade-up" class="py-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-10 lg:grid-cols-3">
+        <div>
+          <h2 class="text-3xl font-semibold text-gray-900">Solutions we've built for...</h2>
+          <p class="mt-4">Our AI solutions have driven innovation, streamlined operations, and fueled exceptional business growth.</p>
+          <a href="#" class="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white">Become a client <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-gray-100 bg-gray-100 lg:col-span-2">
+          <div class="flex items-center justify-center bg-white p-6"><img src="../assets/images/client/logo-dark/03.svg" class="h-8" alt="client logo"></div>
+          <div class="flex items-center justify-center bg-white p-6"><img src="../assets/images/client/logo-dark/08.svg" class="h-8" alt="client logo"></div>
+          <div class="flex items-center justify-center bg-white p-6"><img src="../assets/images/client/logo-dark/09.svg" class="h-8" alt="client logo"></div>
+          <div class="flex items-center justify-center bg-white p-6"><img src="../assets/images/client/logo-dark/02.svg" class="h-8" alt="client logo"></div>
+          <div class="flex items-center justify-center bg-white p-6"><img src="../assets/images/client/logo-dark/10.svg" class="h-8" alt="client logo"></div>
+          <div class="flex items-center justify-center bg-white p-6"><img src="../assets/images/client/logo-dark/06.svg" class="h-8" alt="client logo"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section data-aos="fade-up" class="pb-16 lg:pb-24">
+    <div class="mx-auto max-w-4xl px-6 lg:px-8">
+      <div class="swiper rounded-3xl bg-secondary p-10 text-center" data-swiper='{"autoplay":{"delay":4500,"disableOnInteraction":false}}'>
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <div class="text-yellow-400"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+            <blockquote class="mt-4 text-lg text-gray-900">"Our passion for customer excellence is just one reason why we are the market leader. We've always worked very hard to give our customers the best experience."</blockquote>
+            <h6 class="mt-4 font-semibold text-gray-900">Jacqueline Miller</h6>
+            <span class="text-sm text-gray-500">Product designer</span>
+          </div>
+          <div class="swiper-slide">
+            <div class="text-yellow-400"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            <blockquote class="mt-4 text-lg text-gray-900">"Their team went above and beyond to understand our needs and deliver a solution that exceeded our expectations."</blockquote>
+            <h6 class="mt-4 font-semibold text-gray-900">Louis Ferguson</h6>
+            <span class="text-sm text-gray-500">Web Developer</span>
+          </div>
+          <div class="swiper-slide">
+            <div class="text-yellow-400"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+            <blockquote class="mt-4 text-lg text-gray-900">"Was out laughter raptures returned outweigh. Luckily cheered colonel I do we attack highest enabled."</blockquote>
+            <h6 class="mt-4 font-semibold text-gray-900">Emma Watson</h6>
+            <span class="text-sm text-gray-500">UI/UX designer</span>
+          </div>
+        </div>
+        <div class="swiper-pagination mt-4 !static"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-gray-900 pt-16 pb-8 text-gray-300 lg:pt-24">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-2">
+      <div>
+        <img class="h-10" src="../assets/images/logo-light.svg" alt="logo">
+        <p class="mt-4 max-w-sm text-sm">Never miss a story! Get the freshest headlines and updates sent uninterrupted to your inbox.</p>
+        <form class="mt-4 flex max-w-sm gap-2">
+          <input type="email" placeholder="Enter your email" class="flex-1 rounded-lg border-0 bg-gray-800 px-4 py-2.5 text-white placeholder:text-gray-400">
+          <button class="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white">Subscribe!</button>
+        </form>
+      </div>
+      <div class="grid grid-cols-2 gap-8 sm:grid-cols-3">
+        <div><h6 class="font-semibold text-white">Company</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pages/about/about1.html" class="hover:text-white">About us</a></li><li><a href="../pages/about/career.html" class="hover:text-white">Career</a></li><li><a href="../pages/about/service-single.html" class="hover:text-white">Services</a></li></ul></div>
+        <div><h6 class="font-semibold text-white">Resources</h6><ul class="mt-3 space-y-2 text-sm"><li><a href="../pages/portfolio/portfolio-case-study1.html" class="hover:text-white">Case studies</a></li><li><a href="../pages/pricing/pricing1.html" class="hover:text-white">Pricing</a></li><li><a href="../pages/blog/blog-mininal.html" class="hover:text-white">Blogs</a></li></ul></div>
+        <div><h6 class="font-semibold text-white">Follow</h6><ul class="mt-3 flex gap-2"><li><a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10"><i class="bi bi-facebook"></i></a></li><li><a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10"><i class="bi bi-instagram"></i></a></li><li><a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10"><i class="bi bi-twitter-x"></i></a></li></ul></div>
+      </div>
+    </div>
+    <hr class="my-8 border-white/10">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-gray-400">Copyrights &copy;2026 Folio. Converted sample for comparison purposes.</p>
+      <ul class="flex gap-4 text-sm">
+        <li><a href="#" class="hover:text-white">Privacy policy</a></li>
+        <li><a href="#" class="hover:text-white">Terms &amp; conditions</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<button id="back-to-top" type="button" class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white opacity-0 pointer-events-none shadow-lg" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.1.0/typed.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>
