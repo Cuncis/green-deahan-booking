@@ -7,6 +7,7 @@ use App\Models\Cabang;
 use App\Models\Lapangan;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class BlogPageTest extends TestCase
@@ -82,6 +83,21 @@ class BlogPageTest extends TestCase
 
         $response->assertViewHas('terkait', fn ($terkaitList) => $terkaitList->pluck('id')->contains($terkait->id)
             && ! $terkaitList->pluck('judul')->contains('Artikel Kategori Lain'));
+    }
+
+    public function test_v2_blog_merender_komponen_inertia_dengan_data_dari_database(): void
+    {
+        Artikel::factory()->create(['judul' => 'Cara Merawat Lapangan Futsal', 'status_aktif' => true]);
+        Artikel::factory()->create(['judul' => 'Artikel Draft', 'status_aktif' => false]);
+
+        $response = $this->get('http://greendeahan.com/v2/blog');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('V2Blog')
+            ->has('artikel', 1)
+            ->where('artikel.0.judul', 'Cara Merawat Lapangan Futsal')
+        );
     }
 
     public function test_subdomain_tenant_tidak_terpengaruh_rute_blog(): void

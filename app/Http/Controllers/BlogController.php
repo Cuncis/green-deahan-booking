@@ -4,16 +4,36 @@ namespace App\Http\Controllers;
 
 use App\Models\Artikel;
 use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
- * Halaman /blog di situs korporat (greendeahan.com). Datanya dikelola
- * lewat /superadmin/artikel, lihat Superadmin\ArtikelAdminController.
+ * Halaman /blog (Blade) dan /v2/blog (Inertia + React) di situs korporat
+ * (greendeahan.com). Datanya dikelola lewat /superadmin/artikel, lihat
+ * Superadmin\ArtikelAdminController.
  */
 class BlogController extends Controller
 {
     public function index(): View
     {
-        $artikel = Artikel::where('status_aktif', true)
+        return view('pages.blog', [
+            'artikel' => $this->artikelAktif(),
+        ]);
+    }
+
+    public function v2(): Response
+    {
+        return Inertia::render('V2Blog', [
+            'artikel' => $this->artikelAktif(),
+        ]);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function artikelAktif(): array
+    {
+        return Artikel::where('status_aktif', true)
             ->orderByDesc('tanggal_terbit')
             ->get()
             ->map(fn (Artikel $item) => [
@@ -25,10 +45,6 @@ class BlogController extends Controller
                 'tanggal' => $item->tanggal_terbit->translatedFormat('d F Y'),
             ])
             ->all();
-
-        return view('pages.blog', [
-            'artikel' => $artikel,
-        ]);
     }
 
     public function show(string $slug): View
