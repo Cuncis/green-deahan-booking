@@ -41,6 +41,7 @@ $situsKorporat = function () {
     Route::get('/v2/blog', [BlogController::class, 'v2'])->name('home.v2.blog');
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
     Route::get('/kontak', fn () => view('pages.kontak'))->name('kontak');
+    Route::get('/v2/kontak', fn () => Inertia::render('V2Kontak'))->name('home.v2.kontak');
 
     // Paket berlangganan situs booking, cross-sell dari layanan konstruksi
     // lapangan ke produk SaaS booking. CTA per paket mengarah ke /daftar

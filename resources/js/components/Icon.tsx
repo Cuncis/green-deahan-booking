@@ -114,6 +114,28 @@ const paths: Record<string, ReactElement> = {
             <path d="M12 3v18M3 12h18M5.5 5.5c3 3 3 10 0 13M18.5 5.5c-3 3-3 10 0 13" />
         </svg>
     ),
+    checklist: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="h-full w-full">
+            <rect x="3.5" y="4" width="17" height="16" rx="1.5" />
+            <path d="M7.5 9.5l1.5 1.5 3-3" />
+            <line x1="13.5" y1="10" x2="17" y2="10" />
+            <path d="M7.5 15.5l1.5 1.5 3-3" />
+            <line x1="13.5" y1="16" x2="17" y2="16" />
+        </svg>
+    ),
+    send: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-full w-full">
+            <line x1="22" y1="2" x2="11" y2="13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+        </svg>
+    ),
+    'help-circle': (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="h-full w-full">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9.2 9.3a2.8 2.8 0 0 1 5.4.9c0 1.8-2.4 2-2.6 3.6" />
+            <path d="M12 17.2h.01" />
+        </svg>
+    ),
     search: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="h-full w-full">
             <circle cx="11" cy="11" r="7" />

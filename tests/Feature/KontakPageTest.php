@@ -6,6 +6,7 @@ use App\Models\Cabang;
 use App\Models\Lapangan;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class KontakPageTest extends TestCase
@@ -50,6 +51,14 @@ class KontakPageTest extends TestCase
         $response->assertDontSee('✉️');
         $response->assertDontSee('🕐');
         $response->assertDontSee('🗺');
+    }
+
+    public function test_v2_kontak_merender_komponen_inertia(): void
+    {
+        $response = $this->get('http://greendeahan.com/v2/kontak');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->component('V2Kontak'));
     }
 
     public function test_subdomain_tenant_tidak_terpengaruh_rute_kontak(): void
