@@ -50,7 +50,7 @@ export default function Footer() {
                         </p>
                         <p className="flex items-center gap-2">
                             <Icon name="clock" size={14} className="text-stone-500" />
-                            Senin, Sabtu, 06.00 sampai 23.00 WIB
+                            Senin-Sabtu, 06.00-23.00 WIB
                         </p>
                     </div>
 

@@ -32,7 +32,7 @@
                 </p>
                 <p class="flex items-center gap-2">
                     <x-icon name="clock" size="14" class="text-stone-500" />
-                    Senin, Sabtu, 06.00 sampai 23.00 WIB
+                    Senin-Sabtu, 06.00-23.00 WIB
                 </p>
             </div>
 
