@@ -70,6 +70,7 @@ export default function SportsPlanner() {
     const [step, setStep] = useState(1);
     const [panjang, setPanjang] = useState<number | ''>('');
     const [lebar, setLebar] = useState<number | ''>('');
+    const [landChoice, setLandChoice] = useState<string | null>(null);
     const [budgetKey, setBudgetKey] = useState<BudgetKey | null>(null);
     const [budgetCustom, setBudgetCustom] = useState<number | ''>('');
     const [selectedSports, setSelectedSports] = useState<SportKey[]>([]);
@@ -215,49 +216,69 @@ export default function SportsPlanner() {
                 {step === 1 && (
                     <div>
                         <h3 className="mb-1 text-lg font-bold text-stone-900">Seberapa besar lahan Anda?</h3>
-                        <p className="mb-5 text-sm text-stone-500">Masukkan ukuran lahan, atau pilih salah satu ukuran umum di bawah.</p>
+                        <p className="mb-5 text-sm text-stone-500">Pilih salah satu ukuran umum, atau pilih &quot;Lainnya&quot; untuk masukkan ukuran sendiri.</p>
 
-                        <div className="mb-5 grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Panjang (meter)</label>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    value={panjang}
-                                    onChange={(e) => setPanjang(e.target.value === '' ? '' : Number(e.target.value))}
-                                    placeholder="45"
-                                    className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Lebar (meter)</label>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    value={lebar}
-                                    onChange={(e) => setLebar(e.target.value === '' ? '' : Number(e.target.value))}
-                                    placeholder="35"
-                                    className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
-                                />
-                            </div>
-                        </div>
-
-                        <p className="mb-3 text-xs font-bold uppercase tracking-wide text-stone-400">Atau pilih ukuran umum</p>
                         <div className="mb-5 flex flex-wrap gap-2">
-                            {landPresets.map((preset) => (
-                                <button
-                                    key={`${preset.p}x${preset.l}`}
-                                    type="button"
-                                    onClick={() => {
-                                        setPanjang(preset.p);
-                                        setLebar(preset.l);
-                                    }}
-                                    className="rounded-lg border-2 border-stone-200 px-3 py-2 text-xs font-bold text-stone-600 transition-colors hover:border-brand hover:text-brand"
-                                >
-                                    {preset.p} x {preset.l} m
-                                </button>
-                            ))}
+                            {landPresets.map((preset) => {
+                                const key = `${preset.p}x${preset.l}`;
+                                return (
+                                    <button
+                                        key={key}
+                                        type="button"
+                                        onClick={() => {
+                                            setPanjang(preset.p);
+                                            setLebar(preset.l);
+                                            setLandChoice(key);
+                                        }}
+                                        className={`rounded-lg border-2 px-3 py-2 text-xs font-bold transition-colors ${
+                                            landChoice === key ? 'border-brand bg-brand-50 text-brand' : 'border-stone-200 text-stone-600 hover:border-brand hover:text-brand'
+                                        }`}
+                                    >
+                                        {preset.p} x {preset.l} m
+                                    </button>
+                                );
+                            })}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setPanjang('');
+                                    setLebar('');
+                                    setLandChoice('lainnya');
+                                }}
+                                className={`rounded-lg border-2 px-3 py-2 text-xs font-bold transition-colors ${
+                                    landChoice === 'lainnya' ? 'border-brand bg-brand-50 text-brand' : 'border-stone-200 text-stone-600 hover:border-brand hover:text-brand'
+                                }`}
+                            >
+                                Lainnya
+                            </button>
                         </div>
+
+                        {landChoice === 'lainnya' && (
+                            <div className="mb-5 grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Panjang (meter)</label>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        value={panjang}
+                                        onChange={(e) => setPanjang(e.target.value === '' ? '' : Number(e.target.value))}
+                                        placeholder="45"
+                                        className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Lebar (meter)</label>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        value={lebar}
+                                        onChange={(e) => setLebar(e.target.value === '' ? '' : Number(e.target.value))}
+                                        placeholder="35"
+                                        className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         {luas > 0 && (
                             <div className="rounded-xl bg-brand-50 p-4 text-center">

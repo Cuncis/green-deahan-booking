@@ -80,9 +80,26 @@
         <!-- Step 1: Land -->
         <div x-show="step === 1" x-cloak>
             <h3 class="font-marketing-display mb-1 text-lg font-black text-stone-900">Seberapa besar lahan Anda?</h3>
-            <p class="mb-5 text-sm text-stone-500">Masukkan ukuran lahan, atau pilih salah satu ukuran umum di bawah.</p>
+            <p class="mb-5 text-sm text-stone-500">Pilih salah satu ukuran umum, atau pilih "Lainnya" untuk masukkan ukuran sendiri.</p>
 
-            <div class="mb-5 grid grid-cols-2 gap-4">
+            <div class="mb-5 flex flex-wrap gap-2">
+                @foreach ($landPresets as $preset)
+                    <button
+                        type="button"
+                        x-on:click="panjang = {{ $preset['p'] }}; lebar = {{ $preset['l'] }}; landChoice = '{{ $preset['p'] }}x{{ $preset['l'] }}'"
+                        class="rounded-lg border-2 px-3 py-2 text-xs font-bold transition-colors"
+                        :class="landChoice === '{{ $preset['p'] }}x{{ $preset['l'] }}' ? 'border-brand bg-brand-50 text-brand' : 'border-stone-200 text-stone-600 hover:border-brand hover:text-brand'"
+                    >{{ $preset['p'] }} x {{ $preset['l'] }} m</button>
+                @endforeach
+                <button
+                    type="button"
+                    x-on:click="panjang = null; lebar = null; landChoice = 'lainnya'"
+                    class="rounded-lg border-2 px-3 py-2 text-xs font-bold transition-colors"
+                    :class="landChoice === 'lainnya' ? 'border-brand bg-brand-50 text-brand' : 'border-stone-200 text-stone-600 hover:border-brand hover:text-brand'"
+                >Lainnya</button>
+            </div>
+
+            <div class="mb-5 grid grid-cols-2 gap-4" x-show="landChoice === 'lainnya'" x-cloak>
                 <div>
                     <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Panjang (meter)</label>
                     <input type="number" min="1" x-model.number="panjang" placeholder="45"
@@ -93,17 +110,6 @@
                     <input type="number" min="1" x-model.number="lebar" placeholder="35"
                            class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
                 </div>
-            </div>
-
-            <p class="mb-3 text-xs font-bold uppercase tracking-wide text-stone-400">Atau pilih ukuran umum</p>
-            <div class="mb-5 flex flex-wrap gap-2">
-                @foreach ($landPresets as $preset)
-                    <button
-                        type="button"
-                        x-on:click="panjang = {{ $preset['p'] }}; lebar = {{ $preset['l'] }}"
-                        class="rounded-lg border-2 border-stone-200 px-3 py-2 text-xs font-bold text-stone-600 transition-colors hover:border-brand hover:text-brand"
-                    >{{ $preset['p'] }} x {{ $preset['l'] }} m</button>
-                @endforeach
             </div>
 
             <div class="rounded-xl bg-brand-50 p-4 text-center" x-show="luas > 0">
@@ -633,6 +639,7 @@
             stepLabels: ['Lahan', 'Budget', 'Olahraga', 'Fasilitas', 'Hasil'],
             panjang: null,
             lebar: null,
+            landChoice: null,
             budgetKey: null,
             budgetCustom: null,
             selectedSports: [],
