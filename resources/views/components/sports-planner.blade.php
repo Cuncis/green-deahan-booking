@@ -132,13 +132,18 @@
                         :class="budgetKey === '{{ $budget['key'] }}' ? 'border-brand bg-brand-50 text-brand' : 'border-stone-200 text-stone-700 hover:border-brand'"
                     >{{ $budget['label'] }}</button>
                 @endforeach
+                <button
+                    type="button"
+                    x-on:click="budgetKey = 'custom'; budgetCustom = null"
+                    class="rounded-xl border-2 px-4 py-3 text-left text-sm font-bold transition-colors"
+                    :class="budgetKey === 'custom' ? 'border-brand bg-brand-50 text-brand' : 'border-stone-200 text-stone-700 hover:border-brand'"
+                >Lainnya</button>
             </div>
 
-            <div class="mt-3">
-                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Atau masukkan budget spesifik (Rp)</label>
-                <input type="number" min="0" x-model.number="budgetCustom" x-on:input="budgetKey = 'custom'" placeholder="2000000000"
-                       class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
-                       :class="budgetKey === 'custom' ? 'border-brand' : ''" />
+            <div class="mt-3" x-show="budgetKey === 'custom'" x-cloak>
+                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Masukkan budget spesifik (Rp)</label>
+                <input type="number" min="0" x-model.number="budgetCustom" placeholder="2000000000"
+                       class="w-full rounded-xl border-2 border-brand bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
             </div>
         </div>
 
@@ -177,6 +182,12 @@
                     @endforeach
                 </div>
             </div>
+
+            <div class="mt-5 rounded-xl border border-stone-200 p-4" x-show="selectedSports.includes('lainnya')" x-cloak>
+                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Sebutkan jenis olahraga lainnya</label>
+                <input type="text" x-model="sportLainnyaText" placeholder="Contoh: Voli, Tenis, Panjat Tebing"
+                       class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
+            </div>
         </div>
 
         <!-- Step 4: Facilities -->
@@ -208,6 +219,12 @@
                     <span class="w-6 text-center text-sm font-black text-stone-900" x-text="parkirUnits"></span>
                     <button type="button" x-on:click="parkirUnits = Math.min(30, parkirUnits + 1)" class="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-stone-200 font-black text-stone-600 hover:border-brand">+</button>
                 </div>
+            </div>
+
+            <div class="mt-5 rounded-xl border border-stone-200 p-4" x-show="selectedFacilities.includes('lainnya')" x-cloak>
+                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Sebutkan fasilitas lainnya</label>
+                <input type="text" x-model="facilityLainnyaText" placeholder="Contoh: Mushola, Ruang Tunggu VIP"
+                       class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
             </div>
         </div>
 
@@ -644,7 +661,9 @@
             budgetCustom: null,
             selectedSports: [],
             futsalVariant: 'standard',
+            sportLainnyaText: '',
             selectedFacilities: [],
+            facilityLainnyaText: '',
             parkirUnits: 6,
             hasil: [],
             activeOptionIndex: 0,
@@ -743,8 +762,12 @@
                 if (!this.leadLokasi.trim()) { this.leadError = 'Lokasi proyek wajib diisi.'; return; }
 
                 const opsi = this.aktif;
-                const sportsLabel = this.selectedSports.map((s) => (PLANNER_CONFIG.sports[s] ? PLANNER_CONFIG.sports[s].label || s : s)).join(', ') || 'Belum ditentukan';
-                const facilitiesLabel = this.selectedFacilities.map((f) => (PLANNER_CONFIG.facilities[f] ? PLANNER_CONFIG.facilities[f].label : f)).join(', ') || 'Belum ditentukan';
+                const sportsLabel = this.selectedSports
+                    .map((s) => (s === 'lainnya' ? (this.sportLainnyaText.trim() || 'Lainnya') : (PLANNER_CONFIG.sports[s] ? PLANNER_CONFIG.sports[s].label || s : s)))
+                    .join(', ') || 'Belum ditentukan';
+                const facilitiesLabel = this.selectedFacilities
+                    .map((f) => (f === 'lainnya' ? (this.facilityLainnyaText.trim() || 'Lainnya') : (PLANNER_CONFIG.facilities[f] ? PLANNER_CONFIG.facilities[f].label : f)))
+                    .join(', ') || 'Belum ditentukan';
                 const rekomendasi = opsi ? opsi.courts.map((c) => c.label).join(', ') + ' plus ' + opsi.facilities.map((f) => f.label).join(', ') : 'Belum ada rekomendasi';
 
                 const waText = encodeURIComponent(

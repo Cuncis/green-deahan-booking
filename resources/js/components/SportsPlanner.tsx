@@ -75,7 +75,9 @@ export default function SportsPlanner() {
     const [budgetCustom, setBudgetCustom] = useState<number | ''>('');
     const [selectedSports, setSelectedSports] = useState<SportKey[]>([]);
     const [futsalVariant, setFutsalVariant] = useState<FutsalVariant>('standard');
+    const [sportLainnyaText, setSportLainnyaText] = useState('');
     const [selectedFacilities, setSelectedFacilities] = useState<FacilityKey[]>([]);
+    const [facilityLainnyaText, setFacilityLainnyaText] = useState('');
     const [parkirUnits, setParkirUnits] = useState(6);
     const [hasil, setHasil] = useState<PlannerOption[]>([]);
     const [activeOptionIndex, setActiveOptionIndex] = useState(0);
@@ -148,8 +150,11 @@ export default function SportsPlanner() {
         if (!leadWa.trim()) return setLeadError('Nomor WhatsApp wajib diisi.');
         if (!leadLokasi.trim()) return setLeadError('Lokasi proyek wajib diisi.');
 
-        const sportsLabel = selectedSports.map((s) => PLANNER_CONFIG.sports[s]?.label || s).join(', ') || 'Belum ditentukan';
-        const facilitiesLabel = selectedFacilities.map((f) => PLANNER_CONFIG.facilities[f]?.label || f).join(', ') || 'Belum ditentukan';
+        const sportsLabel =
+            selectedSports.map((s) => (s === 'lainnya' ? sportLainnyaText.trim() || 'Lainnya' : PLANNER_CONFIG.sports[s]?.label || s)).join(', ') || 'Belum ditentukan';
+        const facilitiesLabel =
+            selectedFacilities.map((f) => (f === 'lainnya' ? facilityLainnyaText.trim() || 'Lainnya' : PLANNER_CONFIG.facilities[f]?.label || f)).join(', ') ||
+            'Belum ditentukan';
         const rekomendasi = aktif
             ? `${aktif.courts.map((c) => c.label).join(', ')} plus ${aktif.facilities.map((f) => f.label).join(', ')}`
             : 'Belum ada rekomendasi';
@@ -311,24 +316,33 @@ export default function SportsPlanner() {
                                     {budget.label}
                                 </button>
                             ))}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setBudgetKey('custom');
+                                    setBudgetCustom('');
+                                }}
+                                className={`rounded-xl border-2 px-4 py-3 text-left text-sm font-bold transition-colors ${
+                                    budgetKey === 'custom' ? 'border-brand bg-brand-50 text-brand' : 'border-stone-200 text-stone-700 hover:border-brand'
+                                }`}
+                            >
+                                Lainnya
+                            </button>
                         </div>
 
-                        <div className="mt-3">
-                            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Atau masukkan budget spesifik (Rp)</label>
-                            <input
-                                type="number"
-                                min={0}
-                                value={budgetCustom}
-                                onChange={(e) => {
-                                    setBudgetCustom(e.target.value === '' ? '' : Number(e.target.value));
-                                    setBudgetKey('custom');
-                                }}
-                                placeholder="2000000000"
-                                className={`w-full rounded-xl border-2 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none ${
-                                    budgetKey === 'custom' ? 'border-brand' : 'border-stone-200'
-                                }`}
-                            />
-                        </div>
+                        {budgetKey === 'custom' && (
+                            <div className="mt-3">
+                                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Masukkan budget spesifik (Rp)</label>
+                                <input
+                                    type="number"
+                                    min={0}
+                                    value={budgetCustom}
+                                    onChange={(e) => setBudgetCustom(e.target.value === '' ? '' : Number(e.target.value))}
+                                    placeholder="2000000000"
+                                    className="w-full rounded-xl border-2 border-brand bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -372,6 +386,19 @@ export default function SportsPlanner() {
                                         </button>
                                     ))}
                                 </div>
+                            </div>
+                        )}
+
+                        {selectedSports.includes('lainnya') && (
+                            <div className="mt-5 rounded-xl border border-stone-200 p-4">
+                                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Sebutkan jenis olahraga lainnya</label>
+                                <input
+                                    type="text"
+                                    value={sportLainnyaText}
+                                    onChange={(e) => setSportLainnyaText(e.target.value)}
+                                    placeholder="Contoh: Voli, Tenis, Panjat Tebing"
+                                    className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                />
                             </div>
                         )}
                     </div>
@@ -422,6 +449,19 @@ export default function SportsPlanner() {
                                         +
                                     </button>
                                 </div>
+                            </div>
+                        )}
+
+                        {selectedFacilities.includes('lainnya') && (
+                            <div className="mt-5 rounded-xl border border-stone-200 p-4">
+                                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Sebutkan fasilitas lainnya</label>
+                                <input
+                                    type="text"
+                                    value={facilityLainnyaText}
+                                    onChange={(e) => setFacilityLainnyaText(e.target.value)}
+                                    placeholder="Contoh: Mushola, Ruang Tunggu VIP"
+                                    className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                />
                             </div>
                         )}
                     </div>

@@ -372,6 +372,7 @@ export default function V2Konsep() {
                                             {budget.label}
                                         </div>
                                     ))}
+                                    <div className="rounded-xl bg-white px-5 py-4 text-sm font-semibold text-stone-700 shadow-sm">Lainnya</div>
                                 </div>
                             </Reveal>
                             <Reveal className="rounded-2xl bg-stone-900 p-6 text-white">
