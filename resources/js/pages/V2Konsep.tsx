@@ -407,33 +407,6 @@ export default function V2Konsep() {
 
                 <SportsPlanner />
 
-                {/* CTA FINAL */}
-                <section className="bg-brand-50 px-6 py-16">
-                    <Reveal className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-6 border-t border-brand-200 pt-10 text-center md:flex-row md:text-left">
-                        <div>
-                            <h2 className="mb-2 text-2xl font-bold text-stone-900 md:text-3xl">Siap Wujudkan Konsep Sport Center Anda?</h2>
-                            <p className="text-sm text-stone-500">Konsultasi gratis dengan tim kami, kami bantu tentukan konsep paling sesuai untuk lokasi Anda.</p>
-                        </div>
-                        <div className="flex flex-shrink-0 flex-col gap-3 sm:flex-row">
-                            <a
-                                href={`${WA_LINK}?text=${encodeURIComponent('Halo, saya ingin konsultasi konsep sport center untuk lokasi saya')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-dark/20 transition-transform duration-300 hover:-translate-y-0.5 hover:bg-brand-dark"
-                            >
-                                <Icon name="whatsapp-logo" size={16} className="text-white" />
-                                Konsultasi Gratis
-                            </a>
-                            <a
-                                href="/galeri"
-                                className="whitespace-nowrap rounded-full border-2 border-brand px-7 py-3.5 text-center text-sm font-bold text-brand transition-colors hover:bg-brand hover:text-white"
-                            >
-                                Lihat Portofolio
-                            </a>
-                        </div>
-                    </Reveal>
-                </section>
-
                 <Footer />
                 <BackToTop />
             </div>
