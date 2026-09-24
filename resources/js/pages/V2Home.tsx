@@ -429,11 +429,11 @@ export default function V2Home() {
                 </section>
 
                 {/* CTA FINAL */}
-                <section className="bg-stone-900 px-6 py-20">
+                <section className="bg-gradient-to-br from-brand to-brand-dark px-6 py-20">
                     <div className="mx-auto max-w-3xl text-center">
-                        <span className="mb-5 inline-block rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold tracking-wide text-white">Siap Mulai Proyek Anda?</span>
+                        <span className="mb-5 inline-block rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold tracking-wide text-white">Siap Mulai Proyek Anda?</span>
                         <h2 className="mb-4 text-3xl font-bold leading-tight text-white md:text-5xl">Wujudkan Lapangan Impian Anda Sekarang!</h2>
-                        <p className="mx-auto mb-3 max-w-xl text-base leading-relaxed text-stone-400">
+                        <p className="mx-auto mb-3 max-w-xl text-base leading-relaxed text-brand-100">
                             Konsultasi <strong className="text-white">GRATIS</strong>, survey lokasi, desain profesional, konstruksi berkualitas. Garansi resmi &amp; pelunasan setelah lapangan 100% selesai.
                         </p>
                         <div className="mt-6 flex flex-col justify-center gap-4 sm:flex-row">
@@ -441,9 +441,9 @@ export default function V2Home() {
                                 href={`${WA_LINK}?text=${encodeURIComponent('Halo GreenDeahan, saya ingin konsultasi pembuatan lapangan')}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 rounded-full bg-brand px-8 py-4 text-sm font-bold text-white shadow-xl transition-colors hover:bg-brand-dark"
+                                className="flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-bold text-brand shadow-xl transition-colors hover:bg-brand-50"
                             >
-                                <Icon name="whatsapp-logo" size={16} className="text-white" />
+                                <Icon name="whatsapp-logo" size={16} className="text-brand" />
                                 Chat WhatsApp Sekarang
                             </a>
                             <a
@@ -451,7 +451,7 @@ export default function V2Home() {
                                 className="flex items-center justify-center gap-2 rounded-full border border-white/30 px-8 py-4 text-sm font-semibold text-white transition-colors hover:bg-white/10"
                             >+62 813-5757-0064</a>
                         </div>
-                        <p className="mt-5 text-xs text-stone-500">*Konsultasi 100% gratis, tidak ada kewajiban apapun</p>
+                        <p className="mt-5 text-xs text-brand-200">*Konsultasi 100% gratis, tidak ada kewajiban apapun</p>
                     </div>
                 </section>
 
