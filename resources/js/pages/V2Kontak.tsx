@@ -418,11 +418,11 @@ export default function V2Kontak() {
                 </section>
 
                 {/* COVERAGE STRIP (in place of Folio's map embed - we don't have one physical office address to plot) */}
-                <section className="bg-stone-900 px-6 py-10 text-center text-white">
+                <section className="bg-gradient-to-br from-brand to-brand-dark px-6 py-12 text-center text-white">
                     <Reveal>
-                        <p className="text-sm font-bold uppercase tracking-widest text-brand-300">Area Layanan</p>
+                        <p className="text-sm font-bold uppercase tracking-widest text-brand-100">Area Layanan</p>
                         <h2 className="mt-1 text-xl font-bold sm:text-2xl">Melayani Seluruh Indonesia</h2>
-                        <p className="mx-auto mt-2 max-w-xl text-sm text-stone-400">
+                        <p className="mx-auto mt-2 max-w-xl text-sm text-brand-100">
                             Jabodetabek, Jawa Tengah &amp; Timur, Sumatera, Kalimantan, Sulawesi, Bali, NTB, dan wilayah lainnya.
                         </p>
                     </Reveal>

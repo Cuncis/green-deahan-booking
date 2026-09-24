@@ -185,7 +185,7 @@ export default function SportsPlanner() {
     }
 
     return (
-        <section id="kalkulator" className="mx-auto mb-16 max-w-5xl px-6 scroll-mt-24">
+        <section id="kalkulator" className="mx-auto max-w-5xl px-6 py-16 scroll-mt-24 lg:py-24">
             <Reveal className="mb-10 text-center">
                 <span className="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-brand">Kalkulator Interaktif</span>
                 <h2 className="mb-3 text-3xl font-bold text-stone-900 md:text-4xl">Coba Kalkulator Perencanaan Lapangan</h2>
