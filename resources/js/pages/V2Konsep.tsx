@@ -88,10 +88,11 @@ export default function V2Konsep() {
                                         href={WA_LINK}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand underline underline-offset-2 transition-colors hover:text-brand-dark"
+                                        className="group inline-flex items-center gap-1.5 text-sm font-semibold text-stone-600"
                                     >
-                                        atau chat WhatsApp
-                                        <Icon name="arrow-right" size={14} />
+                                        atau{' '}
+                                        <span className="text-brand underline underline-offset-2 transition-colors group-hover:text-brand-dark">chat WhatsApp</span>
+                                        <Icon name="arrow-right" size={14} className="text-brand" />
                                     </a>
                                 </div>
                             </Reveal>
