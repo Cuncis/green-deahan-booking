@@ -80,7 +80,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-[#f7f5f2] font-marketing text-stone-900 antialiased">
+    <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased">
 
         <x-site-nav :nav-links="[
             ['label' => 'Beranda', 'href' => '/'],
@@ -102,7 +102,7 @@
             <!-- Pricing cards -->
             <div class="mb-12 grid grid-cols-1 gap-5 md:grid-cols-3">
                 @foreach ($paketList as $paket)
-                    <div class="relative flex flex-col rounded-2xl border bg-white p-6 {{ $paket['featured'] ? 'border-2 border-brand shadow-xl shadow-brand-dark/10' : 'border-stone-200' }}">
+                    <div class="relative flex flex-col rounded-2xl border bg-[#f5f5f5] p-6 {{ $paket['featured'] ? 'border-2 border-brand shadow-xl shadow-brand-dark/10' : 'border-stone-200' }}">
                         @if ($paket['featured'])
                             <span class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-4 py-1 text-[0.65rem] font-extrabold uppercase tracking-wide text-white">Paling Populer</span>
                         @endif
@@ -123,7 +123,7 @@
             </div>
 
             <!-- Comparison table -->
-            <div class="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+            <div class="overflow-hidden rounded-2xl border border-stone-200 bg-[#f5f5f5] shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[560px] border-collapse text-sm">
                         <thead>
@@ -139,7 +139,7 @@
                         </thead>
                         <tbody>
                             @foreach ($sections as $judulSeksi => $baris)
-                                <tr class="bg-[#f7f5f2]">
+                                <tr class="bg-[#f5f5f5]">
                                     <td colspan="4" class="px-6 py-2.5 text-xs font-bold uppercase tracking-wide text-brand">{{ $judulSeksi }}</td>
                                 </tr>
                                 @foreach ($baris as [$fitur, $basic, $pro, $premium])
@@ -186,7 +186,7 @@
             </div>
 
             <!-- Add-ons -->
-            <div class="mt-6 rounded-2xl border border-dashed border-stone-300 bg-white p-6">
+            <div class="mt-6 rounded-2xl border border-dashed border-stone-300 bg-[#f5f5f5] p-6">
                 <h3 class="font-marketing-display mb-4 text-base font-black text-stone-900">Tambahan Opsional (Add-on)</h3>
                 <div class="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
                     @foreach ($addons as [$label, $harga])

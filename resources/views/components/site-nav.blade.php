@@ -26,7 +26,7 @@
     x-data="{ mobileOpen: false, scrolled: false }"
     x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 40 })"
     :class="scrolled ? 'shadow-md' : ''"
-    class="fixed inset-x-0 top-0 z-50 border-b border-stone-200 bg-[#f7f5f2]/95 backdrop-blur transition-shadow duration-300"
+    class="fixed inset-x-0 top-0 z-50 border-b border-stone-200 bg-[#f5f5f5]/95 backdrop-blur transition-shadow duration-300"
 >
     <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <a href="/" class="flex items-center">
@@ -69,7 +69,7 @@
     <div
         x-show="mobileOpen"
         x-cloak
-        class="flex flex-col gap-4 border-t border-stone-200 bg-[#f7f5f2] px-6 py-4 text-sm font-semibold text-stone-700 md:hidden"
+        class="flex flex-col gap-4 border-t border-stone-200 bg-[#f5f5f5] px-6 py-4 text-sm font-semibold text-stone-700 md:hidden"
     >
         @foreach ($navLinks as $link)
             <a href="{{ $link['href'] }}" class="hover:text-brand" x-on:click="mobileOpen = false">{{ $link['label'] }}</a>

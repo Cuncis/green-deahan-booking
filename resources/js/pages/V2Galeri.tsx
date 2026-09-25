@@ -65,7 +65,7 @@ function Lightbox({ item, onClose, onNav }: { item: GaleriItemProps; onClose: ()
             onClick={onClose}
         >
             <div
-                className={`relative w-full max-w-3xl overflow-hidden rounded-2xl bg-white transition-all duration-200 ${
+                className={`relative w-full max-w-3xl overflow-hidden rounded-2xl bg-[#f5f5f5] transition-all duration-200 ${
                     visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
                 }`}
                 onClick={(e) => e.stopPropagation()}
@@ -82,7 +82,7 @@ function Lightbox({ item, onClose, onNav }: { item: GaleriItemProps; onClose: ()
                         <Icon name="expand" size={16} />
                     </a>
                 </div>
-                <div className="bg-white p-5">
+                <div className="bg-[#f5f5f5] p-5">
                     <div className="flex items-start justify-between gap-4">
                         <div>
                             <span className={`mb-2 inline-block rounded-full border px-2.5 py-1 text-xs font-bold ${item.badgeClass}`}>{item.badgeLabel}</span>
@@ -113,7 +113,7 @@ function Lightbox({ item, onClose, onNav }: { item: GaleriItemProps; onClose: ()
                 <button
                     type="button"
                     onClick={onClose}
-                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-white"
+                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-[#f5f5f5]"
                 >
                     <Icon name="x-close" size={16} />
                 </button>
@@ -123,7 +123,7 @@ function Lightbox({ item, onClose, onNav }: { item: GaleriItemProps; onClose: ()
                         e.stopPropagation();
                         onNav(-1);
                     }}
-                    className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-white"
+                    className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-[#f5f5f5]"
                 >
                     <Icon name="chevron-left" size={18} />
                 </button>
@@ -133,7 +133,7 @@ function Lightbox({ item, onClose, onNav }: { item: GaleriItemProps; onClose: ()
                         e.stopPropagation();
                         onNav(1);
                     }}
-                    className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-white"
+                    className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-[#f5f5f5]"
                 >
                     <Icon name="chevron-right" size={18} />
                 </button>
@@ -178,14 +178,14 @@ export default function V2Galeri({ kategoriTab, items }: V2GaleriProps) {
 
             <PageStyles />
 
-            <div className="bg-white text-stone-600 antialiased">
+            <div className="bg-[#f5f5f5] text-stone-600 antialiased">
                 <Nav />
 
                 {/* HERO */}
                 <section className="relative overflow-hidden bg-brand-50 pb-16 pt-32 text-center">
                     <GradientBlobs />
                     <Reveal className="relative z-10 mx-auto max-w-2xl px-6">
-                        <span className="mb-4 inline-block rounded-full bg-white px-4 py-1.5 text-xs font-bold tracking-wide text-brand shadow-sm">
+                        <span className="mb-4 inline-block rounded-full bg-[#f5f5f5] px-4 py-1.5 text-xs font-bold tracking-wide text-brand shadow-sm">
                             Portofolio Nyata
                         </span>
                         <h1 className="text-4xl font-bold leading-tight text-stone-900 md:text-5xl">
@@ -210,7 +210,7 @@ export default function V2Galeri({ kategoriTab, items }: V2GaleriProps) {
                 </section>
 
                 {/* FILTER */}
-                <section className="border-b border-stone-200 bg-white px-6 py-6">
+                <section className="border-b border-stone-200 bg-[#f5f5f5] px-6 py-6">
                     <Reveal className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-3">
                         <span className="text-sm font-semibold text-stone-400">Filter:</span>
                         {Object.entries(kategoriTab).map(([key, tab]) => (

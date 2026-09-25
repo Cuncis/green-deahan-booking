@@ -6,7 +6,7 @@
     <div class="mx-auto mb-10 grid max-w-6xl gap-10 sm:grid-cols-2 md:grid-cols-4">
         <div class="md:col-span-2">
             <div class="mb-4 flex items-center gap-2.5">
-                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-white p-0.5">
+                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f5f5f5] p-0.5">
                     <img
                         src="https://cdn.libradigital.id/site-assets/GD-logo-1.png"
                         alt="Green Deahan Sport"

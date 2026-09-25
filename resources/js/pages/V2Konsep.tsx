@@ -64,7 +64,7 @@ export default function V2Konsep() {
 
             <PageStyles />
 
-            <div className="bg-white text-stone-600 antialiased">
+            <div className="bg-[#f5f5f5] text-stone-600 antialiased">
                 <Nav />
 
                 {/* HERO */}
@@ -72,7 +72,7 @@ export default function V2Konsep() {
                     <div className="mx-auto max-w-6xl px-6">
                         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
                             <Reveal>
-                                <span className="inline-block rounded-full bg-white px-4 py-1.5 text-xs font-bold text-brand shadow-sm">Panduan Sebelum Membangun</span>
+                                <span className="inline-block rounded-full bg-[#f5f5f5] px-4 py-1.5 text-xs font-bold text-brand shadow-sm">Panduan Sebelum Membangun</span>
                                 <h1 className="mt-4 text-3xl font-bold leading-tight text-stone-900 md:text-4xl">Pilih Konsep Sport Center yang Tepat</h1>
                                 <p className="mt-3 text-base leading-relaxed text-stone-600">
                                     Kenali 3 pilihan konsep dan kebutuhan lahannya. Lalu coba kalkulator gratis di bawah.
@@ -151,7 +151,7 @@ export default function V2Konsep() {
                         </Reveal>
                         <Reveal className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
                             {kebutuhanLahan.map((item) => (
-                                <div key={item.nama} className="rounded-2xl bg-white p-5 shadow-sm">
+                                <div key={item.nama} className="rounded-2xl bg-[#f5f5f5] p-5 shadow-sm">
                                     <Icon name={item.icon} size={24} className="mx-auto text-brand" />
                                     <p className="mt-2 text-sm font-bold text-stone-900">{item.nama}</p>
                                     <p className="text-xs text-stone-500">{item.ukuran}</p>

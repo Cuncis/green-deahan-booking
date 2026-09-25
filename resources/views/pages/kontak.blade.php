@@ -19,7 +19,7 @@
             .faq-answer.open { max-height: 300px; }
         </style>
     </head>
-    <body class="bg-[#f7f5f2] font-marketing text-stone-900 antialiased" x-data="kontakApp()" x-init="initReveal()">
+    <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="kontakApp()" x-init="initReveal()">
 
         <x-site-nav :nav-links="[
             ['label' => 'Beranda', 'href' => '/'],
@@ -52,7 +52,7 @@
                     href="https://wa.me/6281357570064?text={{ urlencode('Halo GreenDeahan, saya ingin konsultasi lapangan') }}"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="social-card reveal group flex flex-col items-center rounded-2xl border-2 border-stone-200 bg-white p-5 text-center hover:border-[#25d366]"
+                    class="social-card reveal group flex flex-col items-center rounded-2xl border-2 border-stone-200 bg-[#f5f5f5] p-5 text-center hover:border-[#25d366]"
                 >
                     <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#25d366]">
                         <x-icon name="whatsapp-logo" size="26" class="text-white" />
@@ -64,7 +64,7 @@
                     </div>
                 </a>
 
-                <a href="tel:+6281357570064" class="social-card reveal group flex flex-col items-center rounded-2xl border-2 border-stone-200 bg-white p-5 text-center hover:border-brand">
+                <a href="tel:+6281357570064" class="social-card reveal group flex flex-col items-center rounded-2xl border-2 border-stone-200 bg-[#f5f5f5] p-5 text-center hover:border-brand">
                     <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand">
                         <x-icon name="phone-call" size="22" class="text-white" />
                     </div>
@@ -75,7 +75,7 @@
                     </div>
                 </a>
 
-                <a href="mailto:rumput1927@gmail.com" class="social-card reveal group flex flex-col items-center rounded-2xl border-2 border-stone-200 bg-white p-5 text-center hover:border-red-400">
+                <a href="mailto:rumput1927@gmail.com" class="social-card reveal group flex flex-col items-center rounded-2xl border-2 border-stone-200 bg-[#f5f5f5] p-5 text-center hover:border-red-400">
                     <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500">
                         <x-icon name="mail-envelope" size="22" class="text-white" />
                     </div>
@@ -106,7 +106,7 @@
 
                 <!-- Contact Form -->
                 <div class="reveal lg:col-span-3">
-                    <div class="rounded-2xl border border-stone-200 bg-white p-8">
+                    <div class="rounded-2xl border border-stone-200 bg-[#f5f5f5] p-8">
                         <div class="mb-6">
                             <span class="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1.5 text-xs font-bold tracking-wide text-brand">
                                 <x-icon name="checklist" size="13" />
@@ -132,12 +132,12 @@
                                 <div>
                                     <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600" for="f-name">Nama Lengkap *</label>
                                     <input id="f-name" x-model="name" type="text" placeholder="Masukkan nama Anda"
-                                           class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)] focus:outline-none" />
+                                           class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)] focus:outline-none" />
                                 </div>
                                 <div>
                                     <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600" for="f-type">Jenis Lapangan yang Diminati *</label>
                                     <select id="f-type" x-model="lapanganType"
-                                            class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm text-stone-700 transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)] focus:outline-none">
+                                            class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm text-stone-700 transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)] focus:outline-none">
                                         <option value="">-- Pilih jenis lapangan --</option>
                                         <option value="Lapangan Futsal">Lapangan Futsal</option>
                                         <option value="Mini Soccer">Mini Soccer</option>
@@ -152,12 +152,12 @@
                                 <div>
                                     <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600" for="f-city">Kota / Lokasi Proyek *</label>
                                     <input id="f-city" x-model="city" type="text" placeholder="Contoh: Jakarta Selatan"
-                                           class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)] focus:outline-none" />
+                                           class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)] focus:outline-none" />
                                 </div>
                                 <div>
                                     <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600" for="f-budget">Estimasi Budget</label>
                                     <select id="f-budget" x-model="budget"
-                                            class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm text-stone-700 transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)] focus:outline-none">
+                                            class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm text-stone-700 transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)] focus:outline-none">
                                         <option value="">-- Pilih range budget --</option>
                                         <option value="Di bawah Rp 200 juta">Di bawah Rp 200 juta</option>
                                         <option value="Rp 200-500 juta">Rp 200-500 juta</option>
@@ -172,7 +172,7 @@
                                 <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600" for="f-msg">Pesan / Detail Kebutuhan</label>
                                 <textarea id="f-msg" x-model="message" rows="4"
                                           placeholder="Ceritakan kebutuhan Anda: ukuran lahan, jumlah lapangan, fasilitas yang diinginkan, target waktu selesai, dll."
-                                          class="w-full resize-none rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)] focus:outline-none"></textarea>
+                                          class="w-full resize-none rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)] focus:outline-none"></textarea>
                             </div>
 
                             <div>
@@ -185,7 +185,7 @@
                                         'renovasi' => 'Renovasi Lapangan',
                                         'perawatan' => 'Perawatan Berkala',
                                     ] as $value => $label)
-                                        <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-stone-200 bg-[#f7f5f2] px-3 py-2 text-xs font-semibold text-stone-700 transition-colors hover:border-brand">
+                                        <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-stone-200 bg-[#f5f5f5] px-3 py-2 text-xs font-semibold text-stone-700 transition-colors hover:border-brand">
                                             <input type="checkbox" x-model="interests" value="{{ $value }}" class="accent-[#006400]" />
                                             {{ $label }}
                                         </label>
@@ -209,7 +209,7 @@
 
                 <!-- Sidebar Info -->
                 <div class="reveal space-y-5 lg:col-span-2">
-                    <div class="rounded-2xl border border-stone-200 bg-white p-6">
+                    <div class="rounded-2xl border border-stone-200 bg-[#f5f5f5] p-6">
                         <h3 class="font-marketing-display mb-5 flex items-center gap-2 border-b border-stone-100 pb-3 text-base font-black text-stone-900">
                             <x-icon name="location-pin" size="18" class="text-brand" />
                             Informasi Kontak
@@ -278,7 +278,7 @@
                     </div>
 
                     <!-- Quick FAQ -->
-                    <div class="rounded-2xl border border-stone-200 bg-white p-6">
+                    <div class="rounded-2xl border border-stone-200 bg-[#f5f5f5] p-6">
                         <h3 class="font-marketing-display mb-4 flex items-center gap-2 border-b border-stone-100 pb-3 text-base font-black text-stone-900">
                             <x-icon name="help-circle" size="18" class="text-brand" />
                             Pertanyaan Cepat

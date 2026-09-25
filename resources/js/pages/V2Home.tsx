@@ -79,7 +79,7 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
     }, [isOpen]);
 
     return (
-        <div className="overflow-hidden rounded-xl bg-[#f7f5f2]">
+        <div className="overflow-hidden rounded-xl bg-[#f5f5f5]">
             <button
                 type="button"
                 className="flex w-full items-center justify-between p-5 text-left text-sm font-semibold text-stone-900"
@@ -173,7 +173,7 @@ export default function V2Home() {
                 @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
             `}</style>
 
-            <div className="bg-white text-stone-600 antialiased">
+            <div className="bg-[#f5f5f5] text-stone-600 antialiased">
                 <Nav />
 
                 {/* HERO */}
@@ -221,7 +221,7 @@ export default function V2Home() {
                             alt="Lapangan Olahraga Green Deahan Sport"
                             className="aspect-[16/7] w-full rounded-3xl border border-stone-100 object-cover shadow-xl"
                         />
-                        <div className="absolute -bottom-6 left-6 hidden items-center gap-3 rounded-2xl bg-white px-5 py-4 shadow-xl sm:flex">
+                        <div className="absolute -bottom-6 left-6 hidden items-center gap-3 rounded-2xl bg-[#f5f5f5] px-5 py-4 shadow-xl sm:flex">
                             <div className="flex items-center gap-0.5 text-yellow-400">
                                 {Array.from({ length: 5 }).map((_, i) => <Icon key={i} name="star" size={14} />)}
                             </div>
@@ -257,7 +257,7 @@ export default function V2Home() {
 
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                         {layanan.map((item) => (
-                            <Reveal key={item.nama} className="rounded-2xl bg-[#f7f5f2] p-6 text-center transition-colors hover:bg-brand-50">
+                            <Reveal key={item.nama} className="rounded-2xl bg-[#f5f5f5] p-6 text-center transition-colors hover:bg-brand-50">
                                 <div className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full ${item.color} text-white`}>
                                     <Icon name={item.icon} size={26} />
                                 </div>
@@ -272,7 +272,7 @@ export default function V2Home() {
                 </section>
 
                 {/* TENTANG */}
-                <section className="bg-[#f7f5f2] py-20">
+                <section className="bg-[#f5f5f5] py-20">
                     <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 lg:grid-cols-2">
                         <Reveal>
                             <img
@@ -312,7 +312,7 @@ export default function V2Home() {
 
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                         {proses.map((langkah) => (
-                            <Reveal key={langkah.no} className="rounded-2xl bg-[#f7f5f2] p-6 text-center transition-colors hover:bg-brand-50">
+                            <Reveal key={langkah.no} className="rounded-2xl bg-[#f5f5f5] p-6 text-center transition-colors hover:bg-brand-50">
                                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">{langkah.no}</div>
                                 <h6 className="mb-1 font-semibold text-stone-900">{langkah.judul}</h6>
                                 <p className="text-xs leading-relaxed text-stone-500">{langkah.deskripsi}</p>
@@ -358,7 +358,7 @@ export default function V2Home() {
                     </Reveal>
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {keunggulan.map((item) => (
-                            <Reveal key={item.judul} className="rounded-2xl bg-[#f7f5f2] p-6 text-center transition-colors hover:bg-brand-50">
+                            <Reveal key={item.judul} className="rounded-2xl bg-[#f5f5f5] p-6 text-center transition-colors hover:bg-brand-50">
                                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-brand">
                                     <Icon name={item.icon} size={24} />
                                 </div>
@@ -370,7 +370,7 @@ export default function V2Home() {
                 </section>
 
                 {/* TESTIMONI */}
-                <section className="bg-[#f7f5f2] py-20">
+                <section className="bg-[#f5f5f5] py-20">
                     <div className="mx-auto max-w-6xl px-6">
                         <Reveal className="mb-14 text-center">
                             <span className="mb-4 inline-block rounded-full bg-brand-100 px-3 py-1.5 text-xs font-bold tracking-wide text-brand">Testimoni Klien</span>
@@ -386,7 +386,7 @@ export default function V2Home() {
 
                         <div className="grid gap-6 md:grid-cols-3">
                             {testimoni.map((item) => (
-                                <Reveal key={item.nama} className="rounded-2xl bg-white p-6 shadow-sm">
+                                <Reveal key={item.nama} className="rounded-2xl bg-[#f5f5f5] p-6 shadow-sm">
                                     <div className="mb-3 flex items-center gap-0.5 text-yellow-400">
                                         {Array.from({ length: 5 }).map((_, i) => <Icon key={i} name="star" size={14} />)}
                                     </div>
@@ -441,7 +441,7 @@ export default function V2Home() {
                                 href={`${WA_LINK}?text=${encodeURIComponent('Halo GreenDeahan, saya ingin konsultasi pembuatan lapangan')}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-bold text-brand shadow-xl transition-colors hover:bg-brand-50"
+                                className="flex items-center justify-center gap-2 rounded-full bg-[#f5f5f5] px-8 py-4 text-sm font-bold text-brand shadow-xl transition-colors hover:bg-brand-50"
                             >
                                 <Icon name="whatsapp-logo" size={16} className="text-brand" />
                                 Chat WhatsApp Sekarang

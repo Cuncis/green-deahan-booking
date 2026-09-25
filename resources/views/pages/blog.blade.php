@@ -20,7 +20,7 @@
         </style>
     </head>
     <body
-        class="bg-[#f7f5f2] font-marketing text-stone-900 antialiased"
+        class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased"
         x-data="blogApp()"
         x-init="$nextTick(() => initReveal()); $watch('filteredPosts', () => $nextTick(() => initReveal()))"
     >
@@ -55,7 +55,7 @@
                                 type="text"
                                 x-model="searchQuery"
                                 placeholder="Cari artikel..."
-                                class="w-full rounded-xl border-2 border-stone-200 bg-white py-3 pl-10 pr-4 text-sm font-medium transition-all focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
+                                class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] py-3 pl-10 pr-4 text-sm font-medium transition-all focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
                             />
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                     <button
                         type="button"
                         x-on:click="activeCategory = cat"
-                        :class="activeCategory === cat ? 'bg-brand text-white border-brand' : 'bg-white text-stone-600 border-stone-200 hover:border-brand hover:text-brand'"
+                        :class="activeCategory === cat ? 'bg-brand text-white border-brand' : 'bg-[#f5f5f5] text-stone-600 border-stone-200 hover:border-brand hover:text-brand'"
                         class="rounded-full border-2 px-4 py-2 text-xs font-bold transition-all"
                         x-text="cat === 'semua' ? 'Semua' : cat"
                     ></button>
@@ -83,7 +83,7 @@
             <!-- Featured post -->
             <div class="reveal mb-12" x-show="filteredPosts.length > 0 && !searchQuery && activeCategory === 'semua'">
                 <template x-if="filteredPosts[0]">
-                    <a :href="'/blog/' + filteredPosts[0].slug" class="group block overflow-hidden rounded-2xl border-2 border-stone-200 bg-white transition-colors hover:border-brand">
+                    <a :href="'/blog/' + filteredPosts[0].slug" class="group block overflow-hidden rounded-2xl border-2 border-stone-200 bg-[#f5f5f5] transition-colors hover:border-brand">
                         <div class="grid md:grid-cols-2">
                             <div class="relative overflow-hidden" style="min-height:280px">
                                 <img :src="filteredPosts[0].fotoUrl" :alt="filteredPosts[0].judul" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
@@ -109,7 +109,7 @@
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" x-show="filteredPosts.length > 0">
                 <template x-for="post in (searchQuery || activeCategory !== 'semua' ? filteredPosts : filteredPosts.slice(1))" :key="post.slug">
                     <div class="reveal">
-                        <a :href="'/blog/' + post.slug" class="blog-card block overflow-hidden rounded-2xl border-2 border-stone-200 bg-white">
+                        <a :href="'/blog/' + post.slug" class="blog-card block overflow-hidden rounded-2xl border-2 border-stone-200 bg-[#f5f5f5]">
                             <div class="aspect-[16/9] overflow-hidden">
                                 <img :src="post.fotoUrl" :alt="post.judul" class="h-full w-full object-cover">
                             </div>
@@ -147,7 +147,7 @@
                     href="https://wa.me/6281357570064?text={{ urlencode('Halo, saya ingin konsultasi lapangan setelah baca blog') }}"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="inline-flex flex-shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-brand shadow-lg transition-colors hover:bg-brand-50"
+                    class="inline-flex flex-shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-[#f5f5f5] px-7 py-3.5 text-sm font-bold text-brand shadow-lg transition-colors hover:bg-brand-50"
                 >
                     <x-icon name="whatsapp-logo" size="16" class="text-brand" />
                     Konsultasi Gratis Sekarang

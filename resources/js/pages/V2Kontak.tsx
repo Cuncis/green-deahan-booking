@@ -161,7 +161,7 @@ export default function V2Kontak() {
 
             <PageStyles />
 
-            <div className="bg-white text-stone-600 antialiased">
+            <div className="bg-[#f5f5f5] text-stone-600 antialiased">
                 <Nav />
 
                 {/* HERO */}
@@ -192,7 +192,7 @@ export default function V2Kontak() {
                                     href={card.href}
                                     target={card.external ? '_blank' : undefined}
                                     rel={card.external ? 'noopener noreferrer' : undefined}
-                                    className={`group flex flex-col items-center rounded-2xl border-2 border-stone-200 bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${card.hoverBorder}`}
+                                    className={`group flex flex-col items-center rounded-2xl border-2 border-stone-200 bg-[#f5f5f5] p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${card.hoverBorder}`}
                                 >
                                     <div className={`mb-4 flex h-14 w-14 items-center justify-center rounded-2xl ${card.color}`}>
                                         <Icon name={card.icon} size={24} className="text-white" />
@@ -254,7 +254,7 @@ export default function V2Kontak() {
                                                 value={name}
                                                 onChange={(e) => setName(e.target.value)}
                                                 placeholder="Masukkan nama Anda"
-                                                className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
+                                                className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
                                             />
                                         </div>
                                         <div>
@@ -265,7 +265,7 @@ export default function V2Kontak() {
                                                 id="f-type"
                                                 value={lapanganType}
                                                 onChange={(e) => setLapanganType(e.target.value)}
-                                                className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm text-stone-700 transition-colors focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
+                                                className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm text-stone-700 transition-colors focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
                                             >
                                                 <option value="">-- Pilih jenis lapangan --</option>
                                                 <option value="Lapangan Futsal">Lapangan Futsal</option>
@@ -288,7 +288,7 @@ export default function V2Kontak() {
                                                 value={city}
                                                 onChange={(e) => setCity(e.target.value)}
                                                 placeholder="Contoh: Jakarta Selatan"
-                                                className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
+                                                className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
                                             />
                                         </div>
                                         <div>
@@ -299,7 +299,7 @@ export default function V2Kontak() {
                                                 id="f-budget"
                                                 value={budget}
                                                 onChange={(e) => setBudget(e.target.value)}
-                                                className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm text-stone-700 transition-colors focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
+                                                className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm text-stone-700 transition-colors focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
                                             >
                                                 <option value="">-- Pilih range budget --</option>
                                                 <option value="Di bawah Rp 200 juta">Di bawah Rp 200 juta</option>
@@ -321,7 +321,7 @@ export default function V2Kontak() {
                                             onChange={(e) => setMessage(e.target.value)}
                                             rows={4}
                                             placeholder="Ceritakan kebutuhan Anda: ukuran lahan, jumlah lapangan, fasilitas yang diinginkan, target waktu selesai, dll."
-                                            className="w-full resize-none rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
+                                            className="w-full resize-none rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 transition-colors focus:border-brand focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,100,0,.1)]"
                                         />
                                     </div>
 
@@ -333,7 +333,7 @@ export default function V2Kontak() {
                                             {interestOptions.map((opt) => (
                                                 <label
                                                     key={opt.value}
-                                                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-stone-200 bg-[#f7f5f2] px-3 py-2 text-xs font-semibold text-stone-700 transition-colors hover:border-brand"
+                                                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-stone-200 bg-[#f5f5f5] px-3 py-2 text-xs font-semibold text-stone-700 transition-colors hover:border-brand"
                                                 >
                                                     <input
                                                         type="checkbox"
@@ -368,7 +368,7 @@ export default function V2Kontak() {
                                 <div className="mt-4 space-y-4">
                                     {infoRows.map((row) => (
                                         <div key={row.label} className="flex gap-3">
-                                            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+                                            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#f5f5f5] shadow-sm">
                                                 <Icon name={row.icon} size={19} className="text-brand" />
                                             </div>
                                             <div>
@@ -386,7 +386,7 @@ export default function V2Kontak() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center justify-center gap-3 rounded-3xl border border-stone-100 bg-white p-5">
+                            <div className="flex flex-wrap items-center justify-center gap-3 rounded-3xl border border-stone-100 bg-[#f5f5f5] p-5">
                                 <span className="text-sm font-semibold text-stone-900">Ikuti Kami:</span>
                                 {socials.map((s) => (
                                     <a
@@ -402,7 +402,7 @@ export default function V2Kontak() {
                                 ))}
                             </div>
 
-                            <div className="rounded-3xl border border-stone-100 bg-white p-6">
+                            <div className="rounded-3xl border border-stone-100 bg-[#f5f5f5] p-6">
                                 <h3 className="mb-4 flex items-center gap-2 border-b border-stone-100 pb-3 text-base font-bold text-stone-900">
                                     <Icon name="help-circle" size={18} className="text-brand" />
                                     Pertanyaan Cepat

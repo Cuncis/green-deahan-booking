@@ -22,7 +22,7 @@
             .faq-answer.open { max-height: 300px; }
         </style>
     </head>
-    <body class="bg-[#f7f5f2] font-marketing text-stone-900 antialiased" x-data="{
+    <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="{
         revealObserver: null,
         initReveal() {
             this.revealObserver = new IntersectionObserver((entries) => {
@@ -76,7 +76,7 @@
                             ['icon' => 'padel-racket', 'label' => 'Padel'],
                             ['icon' => 'shuttlecock', 'label' => 'Badminton'],
                         ] as $sport)
-                            <div class="flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm font-semibold text-stone-700">
+                            <div class="flex items-center gap-2 rounded-lg border border-stone-200 bg-[#f5f5f5] px-3 py-2 text-sm font-semibold text-stone-700">
                                 <x-icon :name="$sport['icon']" size="16" class="text-brand" />
                                 {{ $sport['label'] }}
                             </div>
@@ -170,7 +170,7 @@
                         'topik' => 'pembuatan lapangan badminton',
                     ],
                 ] as $layanan)
-                    <div class="reveal overflow-hidden rounded-2xl border border-stone-200 bg-white transition-all hover:border-brand hover:shadow-xl">
+                    <div class="reveal overflow-hidden rounded-2xl border border-stone-200 bg-[#f5f5f5] transition-all hover:border-brand hover:shadow-xl">
                         <img src="{{ $layanan['gambar'] }}" alt="{{ $layanan['nama'] }}" class="h-52 w-full object-cover">
                         <div class="p-6">
                             <span class="inline-block rounded-full border px-2.5 py-1 text-xs font-bold {{ $layanan['badgeClass'] }}">{{ $layanan['badge'] }}</span>
@@ -197,7 +197,7 @@
         </section>
 
         <!-- ══════════════ PROSES ══════════════ -->
-        <section class="border-y border-stone-200 bg-white px-6 py-20">
+        <section class="border-y border-stone-200 bg-[#f5f5f5] px-6 py-20">
             <div class="mx-auto max-w-6xl">
                 <div class="reveal mb-14 text-center">
                     <span class="mb-4 inline-block rounded-full bg-brand-100 px-3 py-1.5 text-xs font-bold tracking-wide text-brand">Cara Kerja</span>
@@ -212,7 +212,7 @@
                         ['no' => '03', 'judul' => 'Penawaran Harga', 'deskripsi' => 'RAB & penawaran harga detail dikirim. Transparan, tanpa biaya tersembunyi.'],
                         ['no' => '04', 'judul' => 'Konstruksi', 'deskripsi' => 'Pengerjaan oleh tim ahli, tepat waktu. Anda bisa pantau progress setiap hari.'],
                     ] as $langkah)
-                        <div class="reveal rounded-2xl border border-stone-200 bg-[#f7f5f2] p-6 text-center transition-colors hover:border-brand">
+                        <div class="reveal rounded-2xl border border-stone-200 bg-[#f5f5f5] p-6 text-center transition-colors hover:border-brand">
                             <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-white">
                                 <span class="font-marketing-display text-xl font-black">{{ $langkah['no'] }}</span>
                             </div>
@@ -293,7 +293,7 @@
                     ['gambar' => 'https://cdn.libradigital.id/site-assets/futsal1-outdoor.png', 'kategori' => 'Futsal', 'warna' => 'text-brand', 'judul' => 'Futsal Outdoor Makassar', 'deskripsi' => 'Rumput sintetis tahan cuaca, sistem drainase anti banjir.'],
                     ['gambar' => 'https://cdn.libradigital.id/site-assets/minisoccer-img3.png', 'kategori' => 'Mini Soccer', 'warna' => 'text-blue-600', 'judul' => 'Mini Soccer Indoor Semarang', 'deskripsi' => 'Full roof + pencahayaan. Bisa dipakai malam hari non-stop.'],
                 ] as $proyek)
-                    <div class="reveal group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white transition-all hover:shadow-lg">
+                    <div class="reveal group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-[#f5f5f5] transition-all hover:shadow-lg">
                         <div class="h-52 overflow-hidden">
                             <img
                                 src="{{ $proyek['gambar'] }}"
@@ -321,7 +321,7 @@
         </section>
 
         <!-- ══════════════ KEUNGGULAN ══════════════ -->
-        <section class="border-y border-stone-200 bg-white px-6 py-20">
+        <section class="border-y border-stone-200 bg-[#f5f5f5] px-6 py-20">
             <div class="mx-auto max-w-6xl">
                 <div class="grid items-center gap-14 md:grid-cols-2">
                     <div class="reveal">
@@ -354,7 +354,7 @@
                             alt="Tim Green Deahan Sedang Bekerja"
                             class="aspect-[4/3] w-full rounded-2xl border border-stone-200 object-cover"
                         />
-                        <div class="rounded-2xl border border-stone-200 bg-[#f7f5f2] p-5">
+                        <div class="rounded-2xl border border-stone-200 bg-[#f5f5f5] p-5">
                             <p class="mb-4 text-xs font-bold uppercase tracking-widest text-stone-400">Cakupan Wilayah Layanan</p>
                             <div class="grid grid-cols-2 gap-2">
                                 @foreach (['Jabodetabek', 'Jawa Tengah & Jawa Timur', 'Seluruh wilayah Sumatera', 'Seluruh wilayah Kalimantan', 'Seluruh wilayah Sulawesi', 'Bali & Nusa Tenggara (NTB & NTT)', 'Maluku & Papua'] as $wilayah)
@@ -393,7 +393,7 @@
                     ['foto' => 'https://cdn.libradigital.id/site-assets/foto2.jpg', 'nama' => 'Ahmad Wijaya', 'peran' => 'Pengusaha, Surabaya', 'ulasan' => 'Tim yang sangat responsif! Konsultasi gratisnya detail banget, bantu pilih material sesuai budget. Lapangan mini soccer saya jadi yang paling ramai di daerah. Recommended 100%!'],
                     ['foto' => 'https://cdn.libradigital.id/site-assets/foto3.jpg', 'nama' => 'Ricky Pratama', 'peran' => 'Investor, Medan', 'ulasan' => 'Proyek lapangan padel pertama di kota kami dikerjakan GreenDeahan. Dari desain sampai konstruksi standar internasional. Garansi dan after sales service-nya juga top!'],
                 ] as $testimoni)
-                    <div class="reveal rounded-2xl border border-stone-200 bg-white p-6 transition-shadow hover:shadow-lg">
+                    <div class="reveal rounded-2xl border border-stone-200 bg-[#f5f5f5] p-6 transition-shadow hover:shadow-lg">
                         <div class="mb-4 flex items-center gap-0.5 text-yellow-400">
                             @for ($i = 0; $i < 5; $i++)
                                 <x-icon name="star" size="16" />
@@ -413,7 +413,7 @@
         </section>
 
         <!-- ══════════════ FAQ ══════════════ -->
-        <section class="border-y border-stone-200 bg-white px-6 py-20">
+        <section class="border-y border-stone-200 bg-[#f5f5f5] px-6 py-20">
             <div class="mx-auto max-w-3xl">
                 <div class="reveal mb-12 text-center">
                     <span class="mb-4 inline-block rounded-full bg-brand-100 px-3 py-1.5 text-xs font-bold tracking-wide text-brand">FAQ</span>
@@ -433,7 +433,7 @@
                         ['q' => 'Bagaimana sistem pembayarannya?', 'a' => 'Sistem pembayaran kami aman dan transparan. Bayar uang muka (DP) setelah sepakat di kontrak, lalu progress payment sesuai milestone pengerjaan (opsional untuk proyek besar). <strong>Pelunasan dilakukan SETELAH lapangan selesai 100% dan Anda puas.</strong> Tidak ada biaya tersembunyi.'],
                         ['q' => 'Apakah melayani daerah luar Jawa?', 'a' => 'Kami melayani seluruh Indonesia, meliputi Jabodetabek, Jawa Tengah & Timur, Sumatera, Kalimantan, Sulawesi, Bali, NTB, dan wilayah lainnya. Tim lapangan kami akan bergerak ke lokasi Anda. Konsultasikan dulu kebutuhan dan lokasi Anda via WhatsApp.'],
                     ] as $i => $faq)
-                        <div class="overflow-hidden rounded-xl border border-stone-200 bg-[#f7f5f2]">
+                        <div class="overflow-hidden rounded-xl border border-stone-200 bg-[#f5f5f5]">
                             <button
                                 type="button"
                                 class="flex w-full items-center justify-between p-5 text-left text-sm font-semibold text-stone-900"
@@ -474,7 +474,7 @@
                     </p>
                     <div class="mb-6 flex flex-wrap gap-4">
                         @foreach ([['16+', 'Tahun Pengalaman'], ['100+', 'Proyek Selesai'], ['15+', 'Kota di Indonesia']] as [$angka, $label])
-                            <div class="rounded-xl border border-stone-200 bg-[#f7f5f2] px-5 py-3 text-center">
+                            <div class="rounded-xl border border-stone-200 bg-[#f5f5f5] px-5 py-3 text-center">
                                 <div class="font-marketing-display text-3xl font-black text-brand">{{ $angka }}</div>
                                 <div class="text-xs font-semibold text-stone-500">{{ $label }}</div>
                             </div>
@@ -500,7 +500,7 @@
                         href="https://wa.me/6281357570064?text={{ urlencode('Halo GreenDeahan, saya ingin konsultasi pembuatan lapangan') }}"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-sm font-black text-brand shadow-xl transition-colors hover:bg-brand-50"
+                        class="flex items-center justify-center gap-2 rounded-xl bg-[#f5f5f5] px-8 py-4 text-sm font-black text-brand shadow-xl transition-colors hover:bg-brand-50"
                     >
                         <x-icon name="whatsapp-logo" size="16" class="text-brand" />
                         Chat WhatsApp Sekarang

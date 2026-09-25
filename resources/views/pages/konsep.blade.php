@@ -15,7 +15,7 @@
             .reveal.visible { opacity: 1; transform: translateY(0); }
         </style>
     </head>
-    <body class="bg-[#f7f5f2] font-marketing text-stone-900 antialiased" x-data="{}" x-init="
+    <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="{}" x-init="
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
@@ -76,7 +76,7 @@
                         'poin' => ['Ada pendapatan tambahan dari F&B', 'Nilai sewa tempat untuk event lebih tinggi', 'Butuh perencanaan desain lebih matang'],
                     ],
                 ] as $konsep)
-                    <div class="reveal rounded-2xl border border-stone-200 bg-white p-6">
+                    <div class="reveal rounded-2xl border border-stone-200 bg-[#f5f5f5] p-6">
                         <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-100">
                             <x-icon :name="$konsep['icon']" size="22" class="text-brand" />
                         </div>
@@ -97,7 +97,7 @@
         </section>
 
         <!-- Kebutuhan Lahan -->
-        <section class="bg-white px-6 py-16">
+        <section class="bg-[#f5f5f5] px-6 py-16">
             <div class="mx-auto max-w-6xl">
                 <div class="reveal mb-10 text-center">
                     <span class="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-brand">Perencanaan Lahan</span>
@@ -139,7 +139,7 @@
                     ['icon' => 'user-group', 'judul' => 'Komunitas yang Loyal', 'deskripsi' => 'Olahraga seperti padel, futsal, dan badminton punya komunitas rutin yang booking jadwal tetap tiap minggu.'],
                     ['icon' => 'wallet', 'judul' => 'Bisa Mulai Bertahap', 'deskripsi' => 'Anda bisa mulai dari satu lapangan dulu, lalu tambah cabang atau jenis lapangan lain setelah bisnis berjalan.'],
                 ] as $alasan)
-                    <div class="reveal flex gap-4 rounded-2xl border border-stone-200 bg-white p-6">
+                    <div class="reveal flex gap-4 rounded-2xl border border-stone-200 bg-[#f5f5f5] p-6">
                         <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-brand-100">
                             <x-icon :name="$alasan['icon']" size="20" class="text-brand" />
                         </div>
@@ -170,7 +170,7 @@
                         href="https://wa.me/6281357570064?text={{ urlencode('Halo, saya ingin konsultasi konsep sport center untuk lokasi saya') }}"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand-50"
+                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#f5f5f5] px-7 py-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand-50"
                     >
                         <x-icon name="whatsapp-logo" size="16" class="text-brand" />
                         Konsultasi Gratis

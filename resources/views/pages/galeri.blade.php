@@ -32,7 +32,7 @@
             .tab-scroll::-webkit-scrollbar-thumb:hover { background: #004d00; }
         </style>
     </head>
-    <body class="bg-[#f7f5f2] font-marketing text-stone-900 antialiased" x-data="galeriApp()" x-init="initReveal()">
+    <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="galeriApp()" x-init="initReveal()">
 
         <x-site-nav />
 
@@ -61,7 +61,7 @@
                                 <x-icon name="expand" size="16" />
                             </a>
                         </div>
-                        <div class="bg-white p-5">
+                        <div class="bg-[#f5f5f5] p-5">
                             <div class="flex items-start justify-between gap-4">
                                 <div>
                                     <span class="mb-2 inline-block rounded-full border px-2.5 py-1 text-xs font-bold" :class="current.badgeClass" x-text="current.badgeLabel"></span>
@@ -86,21 +86,21 @@
                 <button
                     type="button"
                     x-on:click="closeLightbox()"
-                    class="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-white"
+                    class="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-[#f5f5f5]"
                 >
                     <x-icon name="x-close" size="16" />
                 </button>
                 <button
                     type="button"
                     x-on:click.stop="nav(-1)"
-                    class="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-white"
+                    class="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-[#f5f5f5]"
                 >
                     <x-icon name="chevron-left" size="18" />
                 </button>
                 <button
                     type="button"
                     x-on:click.stop="nav(1)"
-                    class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-white"
+                    class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 hover:bg-[#f5f5f5]"
                 >
                     <x-icon name="chevron-right" size="18" />
                 </button>
@@ -121,11 +121,11 @@
                         </p>
                     </div>
                     <div class="flex flex-shrink-0 gap-4">
-                        <div class="rounded-xl border border-stone-200 bg-white px-5 py-3 text-center">
+                        <div class="rounded-xl border border-stone-200 bg-[#f5f5f5] px-5 py-3 text-center">
                             <div class="font-marketing-display text-2xl font-black text-brand">100+</div>
                             <div class="mt-0.5 text-xs font-semibold text-stone-400">Proyek</div>
                         </div>
-                        <div class="rounded-xl border border-stone-200 bg-white px-5 py-3 text-center">
+                        <div class="rounded-xl border border-stone-200 bg-[#f5f5f5] px-5 py-3 text-center">
                             <div class="font-marketing-display text-2xl font-black text-brand">15+</div>
                             <div class="mt-0.5 text-xs font-semibold text-stone-400">Kota</div>
                         </div>
@@ -135,7 +135,7 @@
         </section>
 
         <!-- Tabs -->
-        <section class="sticky top-[65px] z-40 border-b border-stone-200 bg-[#f7f5f2] px-6 py-3">
+        <section class="sticky top-[65px] z-40 border-b border-stone-200 bg-[#f5f5f5] px-6 py-3">
             <div class="mx-auto max-w-6xl">
                 <div class="tab-scroll flex gap-2 overflow-x-auto pb-1">
                     @foreach ($kategoriTab as $key => $tab)
@@ -144,7 +144,7 @@
                             x-on:click="activeFilter = '{{ $key }}'"
                             :class="activeFilter === '{{ $key }}'
                                 ? 'bg-brand text-white border-brand shadow-md shadow-brand-dark/20'
-                                : 'bg-white text-stone-600 border-stone-200 hover:border-brand hover:text-brand'"
+                                : 'bg-[#f5f5f5] text-stone-600 border-stone-200 hover:border-brand hover:text-brand'"
                             class="flex flex-shrink-0 items-center gap-1.5 rounded-xl border-2 px-5 py-2.5 text-sm font-bold transition-all"
                         >
                             <x-icon :name="$tab['icon']" size="15" />
@@ -199,7 +199,7 @@
                         href="https://wa.me/6281357570064?text={{ urlencode('Halo, saya tertarik membangun lapangan setelah lihat galeri') }}"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand-50"
+                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#f5f5f5] px-7 py-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand-50"
                     >
                         <x-icon name="whatsapp-logo" size="16" class="text-brand" />
                         Konsultasi Gratis

@@ -194,7 +194,7 @@ export default function SportsPlanner() {
                 </p>
             </Reveal>
 
-            <Reveal className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm md:p-8">
+            <Reveal className="rounded-3xl border border-stone-200 bg-[#f5f5f5] p-5 shadow-sm md:p-8">
                 {/* Progress bar */}
                 <div className="mb-8 flex items-center justify-between">
                     {stepLabels.map((label, i) => (
@@ -268,7 +268,7 @@ export default function SportsPlanner() {
                                         value={panjang}
                                         onChange={(e) => setPanjang(e.target.value === '' ? '' : Number(e.target.value))}
                                         placeholder="45"
-                                        className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                        className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
                                     />
                                 </div>
                                 <div>
@@ -279,7 +279,7 @@ export default function SportsPlanner() {
                                         value={lebar}
                                         onChange={(e) => setLebar(e.target.value === '' ? '' : Number(e.target.value))}
                                         placeholder="35"
-                                        className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                        className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
                                     />
                                 </div>
                             </div>
@@ -339,7 +339,7 @@ export default function SportsPlanner() {
                                     value={budgetCustom}
                                     onChange={(e) => setBudgetCustom(e.target.value === '' ? '' : Number(e.target.value))}
                                     placeholder="2000000000"
-                                    className="w-full rounded-xl border-2 border-brand bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                    className="w-full rounded-xl border-2 border-brand bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
                                 />
                             </div>
                         )}
@@ -397,7 +397,7 @@ export default function SportsPlanner() {
                                     value={sportLainnyaText}
                                     onChange={(e) => setSportLainnyaText(e.target.value)}
                                     placeholder="Contoh: Voli, Tenis, Panjat Tebing"
-                                    className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                    className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
                                 />
                             </div>
                         )}
@@ -460,7 +460,7 @@ export default function SportsPlanner() {
                                     value={facilityLainnyaText}
                                     onChange={(e) => setFacilityLainnyaText(e.target.value)}
                                     placeholder="Contoh: Mushola, Ruang Tunggu VIP"
-                                    className="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                    className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
                                 />
                             </div>
                         )}
@@ -564,12 +564,12 @@ export default function SportsPlanner() {
                                             <p className="text-xs font-bold uppercase tracking-wide text-stone-400">Tata Letak Konseptual</p>
                                             <p className="text-[11px] italic text-stone-400">Bukan gambar teknik</p>
                                         </div>
-                                        <div className="flex min-h-[220px] flex-wrap gap-1.5 rounded-2xl border-2 border-dashed border-stone-200 bg-[#f7f5f2] p-1.5">
+                                        <div className="flex min-h-[220px] flex-wrap gap-1.5 rounded-2xl border-2 border-dashed border-stone-200 bg-[#f5f5f5] p-1.5">
                                             {aktif.layout.map((blok, i) => (
                                                 <div
                                                     key={i}
                                                     className={`flex min-h-[90px] flex-col items-center justify-center gap-1 rounded-xl border p-2 text-center ${
-                                                        blok.tipe === 'lapangan' ? 'border-brand-300 bg-brand-100' : 'border-stone-200 bg-white'
+                                                        blok.tipe === 'lapangan' ? 'border-brand-300 bg-brand-100' : 'border-stone-200 bg-[#f5f5f5]'
                                                     }`}
                                                     style={{ flexBasis: `${blok.persen}%`, flexGrow: 1 }}
                                                 >
@@ -621,28 +621,28 @@ export default function SportsPlanner() {
                                             value={leadNama}
                                             onChange={(e) => setLeadNama(e.target.value)}
                                             placeholder="Nama Lengkap"
-                                            className="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                            className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
                                         />
                                         <input
                                             type="text"
                                             value={leadWa}
                                             onChange={(e) => setLeadWa(e.target.value)}
                                             placeholder="Nomor WhatsApp"
-                                            className="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                            className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
                                         />
                                         <input
                                             type="email"
                                             value={leadEmail}
                                             onChange={(e) => setLeadEmail(e.target.value)}
                                             placeholder="Email (opsional)"
-                                            className="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                            className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
                                         />
                                         <input
                                             type="text"
                                             value={leadLokasi}
                                             onChange={(e) => setLeadLokasi(e.target.value)}
                                             placeholder="Lokasi Proyek (kota)"
-                                            className="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
+                                            className="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none"
                                         />
                                     </div>
 

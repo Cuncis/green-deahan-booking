@@ -20,7 +20,7 @@
             .artikel-konten blockquote p { margin-bottom: 0; color: inherit; }
         </style>
     </head>
-    <body class="bg-[#f7f5f2] font-marketing text-stone-900 antialiased">
+    <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased">
 
         <x-site-nav :nav-links="[
             ['label' => 'Beranda', 'href' => '/'],
@@ -75,7 +75,7 @@
                     <h2 class="font-marketing-display mb-4 text-lg font-black text-stone-900">Artikel Terkait</h2>
                     <div class="grid gap-4 sm:grid-cols-3">
                         @foreach ($terkait as $item)
-                            <a href="/blog/{{ $item->slug }}" class="block overflow-hidden rounded-xl border border-stone-200 bg-white transition-colors hover:border-brand">
+                            <a href="/blog/{{ $item->slug }}" class="block overflow-hidden rounded-xl border border-stone-200 bg-[#f5f5f5] transition-colors hover:border-brand">
                                 @if ($item->foto_url)
                                     <div class="aspect-[16/9] overflow-hidden">
                                         <img src="{{ $item->foto_url }}" alt="{{ $item->judul }}" class="h-full w-full object-cover">

@@ -64,7 +64,7 @@ export default function V2Blog({ artikel }: V2BlogProps) {
 
             <PageStyles />
 
-            <div className="bg-white text-stone-600 antialiased">
+            <div className="bg-[#f5f5f5] text-stone-600 antialiased">
                 <Nav />
 
                 {/* HERO */}
@@ -82,7 +82,7 @@ export default function V2Blog({ artikel }: V2BlogProps) {
                         <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-stone-500">
                             Tips membangun lapangan, panduan memilih material, estimasi biaya, dan insight bisnis lapangan olahraga di Indonesia.
                         </p>
-                        <div className="mx-auto mt-6 flex max-w-md items-center gap-2 rounded-full bg-white p-1.5 shadow-sm">
+                        <div className="mx-auto mt-6 flex max-w-md items-center gap-2 rounded-full bg-[#f5f5f5] p-1.5 shadow-sm">
                             <span className="pl-2.5 text-stone-400">
                                 <Icon name="search" size={16} />
                             </span>
@@ -173,7 +173,7 @@ export default function V2Blog({ artikel }: V2BlogProps) {
                                                 <span className="absolute left-4 top-4 rounded bg-stone-900 px-2 py-1 text-xs font-semibold text-white">
                                                     {post.kategori}
                                                 </span>
-                                                <span className="absolute left-4 top-12 rounded bg-white px-2 py-1 text-xs font-semibold text-stone-700 shadow-sm">
+                                                <span className="absolute left-4 top-12 rounded bg-[#f5f5f5] px-2 py-1 text-xs font-semibold text-stone-700 shadow-sm">
                                                     {post.tanggal}
                                                 </span>
                                                 <img

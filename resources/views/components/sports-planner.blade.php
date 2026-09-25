@@ -57,7 +57,7 @@
         <p class="mx-auto mt-3 max-w-xl text-sm text-stone-500">Isi ukuran lahan, budget, dan kebutuhan Anda. Kami bantu hitung konfigurasi yang mungkin cocok untuk lokasi Anda.</p>
     </div>
 
-    <div class="reveal rounded-3xl border border-stone-200 bg-white p-5 shadow-sm md:p-8">
+    <div class="reveal rounded-3xl border border-stone-200 bg-[#f5f5f5] p-5 shadow-sm md:p-8">
 
         <!-- Progress bar -->
         <div class="mb-8 flex items-center justify-between">
@@ -103,12 +103,12 @@
                 <div>
                     <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Panjang (meter)</label>
                     <input type="number" min="1" x-model.number="panjang" placeholder="45"
-                           class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
+                           class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
                 </div>
                 <div>
                     <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Lebar (meter)</label>
                     <input type="number" min="1" x-model.number="lebar" placeholder="35"
-                           class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
+                           class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
                 </div>
             </div>
 
@@ -143,7 +143,7 @@
             <div class="mt-3" x-show="budgetKey === 'custom'" x-cloak>
                 <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Masukkan budget spesifik (Rp)</label>
                 <input type="number" min="0" x-model.number="budgetCustom" placeholder="2000000000"
-                       class="w-full rounded-xl border-2 border-brand bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
+                       class="w-full rounded-xl border-2 border-brand bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
             </div>
         </div>
 
@@ -186,7 +186,7 @@
             <div class="mt-5 rounded-xl border border-stone-200 p-4" x-show="selectedSports.includes('lainnya')" x-cloak>
                 <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Sebutkan jenis olahraga lainnya</label>
                 <input type="text" x-model="sportLainnyaText" placeholder="Contoh: Voli, Tenis, Panjat Tebing"
-                       class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
+                       class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
             </div>
         </div>
 
@@ -224,7 +224,7 @@
             <div class="mt-5 rounded-xl border border-stone-200 p-4" x-show="selectedFacilities.includes('lainnya')" x-cloak>
                 <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-600">Sebutkan fasilitas lainnya</label>
                 <input type="text" x-model="facilityLainnyaText" placeholder="Contoh: Mushola, Ruang Tunggu VIP"
-                       class="w-full rounded-xl border-2 border-stone-200 bg-[#f7f5f2] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
+                       class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
             </div>
         </div>
 
@@ -312,11 +312,11 @@
                                 <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Tata Letak Konseptual</p>
                                 <p class="text-[11px] italic text-stone-400">Bukan gambar teknik</p>
                             </div>
-                            <div class="flex min-h-[220px] flex-wrap gap-1.5 rounded-2xl border-2 border-dashed border-stone-200 bg-[#f7f5f2] p-1.5">
+                            <div class="flex min-h-[220px] flex-wrap gap-1.5 rounded-2xl border-2 border-dashed border-stone-200 bg-[#f5f5f5] p-1.5">
                                 <template x-for="(blok, i) in aktif.layout" :key="i">
                                     <div
                                         class="flex min-h-[90px] flex-col items-center justify-center gap-1 rounded-xl border p-2 text-center"
-                                        :class="blok.tipe === 'lapangan' ? 'border-brand-300 bg-brand-100' : 'border-stone-200 bg-white'"
+                                        :class="blok.tipe === 'lapangan' ? 'border-brand-300 bg-brand-100' : 'border-stone-200 bg-[#f5f5f5]'"
                                         :style="'flex-basis: ' + blok.persen + '%; flex-grow: 1;'"
                                     >
                                         <span class="flex h-5 w-5 text-brand" x-html="ICON_SVG[blok.key]"></span>
@@ -361,13 +361,13 @@
 
                     <div class="grid gap-3 sm:grid-cols-2">
                         <input type="text" x-model="leadNama" placeholder="Nama Lengkap"
-                               class="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
+                               class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
                         <input type="text" x-model="leadWa" placeholder="Nomor WhatsApp"
-                               class="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
+                               class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
                         <input type="email" x-model="leadEmail" placeholder="Email (opsional)"
-                               class="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
+                               class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
                         <input type="text" x-model="leadLokasi" placeholder="Lokasi Proyek (kota)"
-                               class="w-full rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
+                               class="w-full rounded-xl border-2 border-stone-200 bg-[#f5f5f5] px-4 py-3 text-sm placeholder-stone-400 focus:border-brand focus:outline-none" />
                     </div>
 
                     <small class="mt-2 block text-xs font-semibold text-danger" x-show="leadError" x-cloak x-text="leadError"></small>

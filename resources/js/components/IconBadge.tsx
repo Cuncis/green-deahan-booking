@@ -6,7 +6,7 @@ const toneClass: Record<Tone, string> = {
     light: 'bg-gradient-to-br from-brand-50 to-brand-100 text-brand ring-1 ring-brand-200/70',
     dark: 'bg-white/5 text-brand-300 ring-1 ring-white/10',
     solid: 'bg-gradient-to-br from-brand-400 to-brand-dark text-white shadow-lg shadow-brand-dark/25',
-    white: 'bg-white text-brand shadow-sm ring-1 ring-stone-100',
+    white: 'bg-[#f5f5f5] text-brand shadow-sm ring-1 ring-stone-100',
 };
 
 /** Gradient badge with a soft pulsing glow behind the icon, used for every non-featured icon spot on /v2 pages. */
