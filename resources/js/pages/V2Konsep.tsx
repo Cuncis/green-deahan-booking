@@ -151,7 +151,7 @@ export default function V2Konsep() {
                         </Reveal>
                         <Reveal className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
                             {kebutuhanLahan.map((item) => (
-                                <div key={item.nama} className="rounded-2xl bg-[#f5f5f5] p-5 shadow-sm">
+                                <div key={item.nama} className="rounded-2xl border border-stone-200 bg-[#f5f5f5] p-5 shadow-sm">
                                     <Icon name={item.icon} size={24} className="mx-auto text-brand" />
                                     <p className="mt-2 text-sm font-bold text-stone-900">{item.nama}</p>
                                     <p className="text-xs text-stone-500">{item.ukuran}</p>

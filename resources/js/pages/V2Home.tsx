@@ -79,7 +79,7 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
     }, [isOpen]);
 
     return (
-        <div className="overflow-hidden rounded-xl bg-[#f5f5f5]">
+        <div className="overflow-hidden rounded-xl border border-stone-200 bg-[#f5f5f5]">
             <button
                 type="button"
                 className="flex w-full items-center justify-between p-5 text-left text-sm font-semibold text-stone-900"
@@ -257,7 +257,7 @@ export default function V2Home() {
 
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                         {layanan.map((item) => (
-                            <Reveal key={item.nama} className="rounded-2xl bg-[#f5f5f5] p-6 text-center transition-colors hover:bg-brand-50">
+                            <Reveal key={item.nama} className="rounded-2xl border border-stone-200 bg-[#f5f5f5] p-6 text-center transition-colors hover:bg-brand-50">
                                 <div className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full ${item.color} text-white`}>
                                     <Icon name={item.icon} size={26} />
                                 </div>
@@ -312,7 +312,7 @@ export default function V2Home() {
 
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                         {proses.map((langkah) => (
-                            <Reveal key={langkah.no} className="rounded-2xl bg-[#f5f5f5] p-6 text-center transition-colors hover:bg-brand-50">
+                            <Reveal key={langkah.no} className="rounded-2xl border border-stone-200 bg-[#f5f5f5] p-6 text-center transition-colors hover:bg-brand-50">
                                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">{langkah.no}</div>
                                 <h6 className="mb-1 font-semibold text-stone-900">{langkah.judul}</h6>
                                 <p className="text-xs leading-relaxed text-stone-500">{langkah.deskripsi}</p>
@@ -358,7 +358,7 @@ export default function V2Home() {
                     </Reveal>
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {keunggulan.map((item) => (
-                            <Reveal key={item.judul} className="rounded-2xl bg-[#f5f5f5] p-6 text-center transition-colors hover:bg-brand-50">
+                            <Reveal key={item.judul} className="rounded-2xl border border-stone-200 bg-[#f5f5f5] p-6 text-center transition-colors hover:bg-brand-50">
                                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-brand">
                                     <Icon name={item.icon} size={24} />
                                 </div>
@@ -386,7 +386,7 @@ export default function V2Home() {
 
                         <div className="grid gap-6 md:grid-cols-3">
                             {testimoni.map((item) => (
-                                <Reveal key={item.nama} className="rounded-2xl bg-[#f5f5f5] p-6 shadow-sm">
+                                <Reveal key={item.nama} className="rounded-2xl border border-stone-200 bg-[#f5f5f5] p-6 shadow-sm">
                                     <div className="mb-3 flex items-center gap-0.5 text-yellow-400">
                                         {Array.from({ length: 5 }).map((_, i) => <Icon key={i} name="star" size={14} />)}
                                     </div>
