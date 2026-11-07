@@ -16,10 +16,20 @@
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+            <div class="relative" x-data="{ show: false }">
+                <x-text-input id="password" class="block mt-1 w-full pe-10"
+                                x-bind:type="show ? 'text' : 'password'"
+                                type="password"
+                                name="password"
+                                required autocomplete="current-password" />
+
+                <button type="button" x-on:click="show = !show"
+                        class="absolute inset-y-0 end-0 mt-1 flex items-center px-3 text-ink-mid hover:text-ink focus:outline-none focus:text-green"
+                        x-bind:aria-label="show ? '{{ __('Hide password') }}' : '{{ __('Show password') }}'">
+                    <span x-show="!show"><x-icon name="eye" size="20" /></span>
+                    <span x-show="show" x-cloak><x-icon name="eye-off" size="20" /></span>
+                </button>
+            </div>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
