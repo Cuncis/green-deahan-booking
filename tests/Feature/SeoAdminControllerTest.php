@@ -1,0 +1,113 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Artikel;
+use App\Models\PengaturanSitus;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class SeoAdminControllerTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function superadmin(): User
+    {
+        $user = User::factory()->create();
+        $user->is_superadmin = true;
+        $user->save();
+
+        return $user;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function dataValid(array $override = []): array
+    {
+        return array_merge([
+            'nama_situs' => 'Green Deahan Sport',
+            'meta_deskripsi' => 'Deskripsi situs.',
+            'og_image_url' => 'https://example.com/og.png',
+            'ga4_measurement_id' => 'G-ABC123XYZ9',
+            'gsc_verifikasi' => 'abcdefghij0123456789_-KLMN',
+            'indeks_mesin_pencari' => '1',
+        ], $override);
+    }
+
+    public function test_non_superadmin_tidak_bisa_akses_pengaturan_seo(): void
+    {
+        $this->actingAs(User::factory()->create())->get(route('superadmin.seo'))->assertForbidden();
+    }
+
+    public function test_superadmin_bisa_buka_halaman_pengaturan_seo(): void
+    {
+        $this->actingAs($this->superadmin())->get(route('superadmin.seo'))
+            ->assertOk()
+            ->assertSee('Measurement ID')
+            ->assertSee('Panduan langkah demi langkah');
+    }
+
+    public function test_superadmin_bisa_simpan_pengaturan(): void
+    {
+        $response = $this->actingAs($this->superadmin())->put(route('superadmin.seo.update'), $this->dataValid());
+
+        $response->assertRedirect(route('superadmin.seo'));
+        $response->assertSessionHas('success');
+        $this->assertSame('G-ABC123XYZ9', PengaturanSitus::ambil('ga4_measurement_id'));
+    }
+
+    public function test_format_ga4_dan_gsc_divalidasi(): void
+    {
+        $response = $this->actingAs($this->superadmin())->put(route('superadmin.seo.update'), $this->dataValid([
+            'ga4_measurement_id' => 'UA-12345',
+            'gsc_verifikasi' => '"><script>alert(1)</script>',
+        ]));
+
+        $response->assertSessionHasErrors(['ga4_measurement_id', 'gsc_verifikasi']);
+    }
+
+    public function test_halaman_publik_memuat_ga4_dan_verifikasi_search_console(): void
+    {
+        PengaturanSitus::simpan($this->dataValid());
+
+        $this->get('http://greendeahan.com/blog')
+            ->assertOk()
+            ->assertSee('googletagmanager.com/gtag/js?id=G-ABC123XYZ9', false)
+            ->assertSee('name="google-site-verification" content="abcdefghij0123456789_-KLMN"', false)
+            ->assertSee('property="og:image" content="https://example.com/og.png"', false)
+            ->assertDontSee('noindex');
+    }
+
+    public function test_tanpa_ga4_script_tidak_dirender_dan_noindex_bisa_diaktifkan(): void
+    {
+        PengaturanSitus::simpan($this->dataValid([
+            'ga4_measurement_id' => '',
+            'indeks_mesin_pencari' => '0',
+        ]));
+
+        $this->get('http://greendeahan.com/blog')
+            ->assertOk()
+            ->assertDontSee('googletagmanager', false)
+            ->assertSee('noindex, nofollow', false);
+    }
+
+    public function test_halaman_artikel_memakai_ringkasan_sebagai_deskripsi(): void
+    {
+        $artikel = Artikel::factory()->create(['status_aktif' => true, 'ringkasan' => 'Ringkasan khusus artikel ini.']);
+
+        $this->get(route('blog.show', $artikel->slug))
+            ->assertOk()
+            ->assertSee('name="description" content="Ringkasan khusus artikel ini."', false)
+            ->assertSee('content="article"', false);
+    }
+
+    public function test_halaman_booking_tenant_tidak_memuat_analytics_korporat(): void
+    {
+        $this->assertStringNotContainsString(
+            'seo-head',
+            file_get_contents(resource_path('views/pages/booking.blade.php')),
+        );
+    }
+}

@@ -11,6 +11,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <x-favicon />
+        <x-seo-head />
     </head>
     <body class="font-sans antialiased bg-cream text-ink">
 

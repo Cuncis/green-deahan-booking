@@ -15,6 +15,7 @@
             .reveal.visible { opacity: 1; transform: translateY(0); }
         </style>
         <x-favicon />
+        <x-seo-head />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="{}" x-init="
         const observer = new IntersectionObserver((entries) => {

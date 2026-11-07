@@ -20,6 +20,7 @@
             .artikel-konten blockquote p { margin-bottom: 0; color: inherit; }
         </style>
         <x-favicon />
+        <x-seo-head :deskripsi="$artikel->ringkasan" :image="$artikel->foto_url" tipe="article" />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased">
 

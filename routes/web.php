@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\ArtikelAdminController;
 use App\Http\Controllers\Superadmin\GaleriAdminController;
 use App\Http\Controllers\Superadmin\MediaAdminController;
+use App\Http\Controllers\Superadmin\SeoAdminController;
 use App\Http\Controllers\Superadmin\SuperadminController;
 use App\Http\Controllers\TenantRegistrationController;
 use App\Http\Middleware\IdentifikasiTenant;
@@ -133,6 +134,9 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
         Route::get('/media', [MediaAdminController::class, 'index'])->name('media');
         Route::post('/media', [MediaAdminController::class, 'store'])->name('media.store');
         Route::delete('/media', [MediaAdminController::class, 'destroy'])->name('media.destroy');
+
+        Route::get('/pengaturan-seo', [SeoAdminController::class, 'edit'])->name('seo');
+        Route::put('/pengaturan-seo', [SeoAdminController::class, 'update'])->name('seo.update');
 
         Route::get('/artikel', [ArtikelAdminController::class, 'index'])->name('artikel');
         Route::get('/artikel/tulis', [ArtikelAdminController::class, 'create'])->name('artikel.create');

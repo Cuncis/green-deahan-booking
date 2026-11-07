@@ -80,6 +80,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <x-favicon />
+        <x-seo-head />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased">
 

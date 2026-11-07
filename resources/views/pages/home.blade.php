@@ -22,6 +22,7 @@
             .faq-answer.open { max-height: 300px; }
         </style>
         <x-favicon />
+        <x-seo-head />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="{
         revealObserver: null,
