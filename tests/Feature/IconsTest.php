@@ -26,6 +26,9 @@ class IconsTest extends TestCase
             'location-pin' => ['location-pin'],
             'chart-trend' => ['chart-trend'],
             'globe' => ['globe'],
+            'image' => ['image'],
+            'eye' => ['eye'],
+            'eye-off' => ['eye-off'],
         ];
     }
 

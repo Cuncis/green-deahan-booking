@@ -10,6 +10,7 @@ use App\Http\Controllers\GaleriController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Superadmin\ArtikelAdminController;
 use App\Http\Controllers\Superadmin\GaleriAdminController;
+use App\Http\Controllers\Superadmin\MediaAdminController;
 use App\Http\Controllers\Superadmin\SuperadminController;
 use App\Http\Controllers\TenantRegistrationController;
 use App\Http\Middleware\IdentifikasiTenant;
@@ -127,6 +128,11 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
         Route::get('/galeri/{galeri}/edit', [GaleriAdminController::class, 'edit'])->name('galeri.edit');
         Route::put('/galeri/{galeri}', [GaleriAdminController::class, 'update'])->name('galeri.update');
         Route::delete('/galeri/{galeri}', [GaleriAdminController::class, 'destroy'])->name('galeri.destroy');
+
+        // Pustaka media: semua aset gambar lintas tenant dan situs korporat.
+        Route::get('/media', [MediaAdminController::class, 'index'])->name('media');
+        Route::post('/media', [MediaAdminController::class, 'store'])->name('media.store');
+        Route::delete('/media', [MediaAdminController::class, 'destroy'])->name('media.destroy');
 
         Route::get('/artikel', [ArtikelAdminController::class, 'index'])->name('artikel');
         Route::get('/artikel/tulis', [ArtikelAdminController::class, 'create'])->name('artikel.create');

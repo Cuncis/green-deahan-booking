@@ -54,6 +54,12 @@
                         <x-icon name="newspaper" size="16" />
                         Blog
                     </a>
+
+                    <a href="{{ route('superadmin.media') }}"
+                       class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm {{ $activePage === 'media' ? 'bg-white/15 text-white font-bold' : 'text-white/75 hover:bg-white/10 hover:text-white' }}">
+                        <x-icon name="image" size="16" />
+                        Media
+                    </a>
                 </div>
             </nav>
 
