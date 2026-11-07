@@ -11,6 +11,7 @@
 
         @vite('resources/css/app.css')
         @livewireStyles
+        <x-favicon />
     </head>
     <body class="font-sans antialiased bg-cream text-ink flex min-h-screen">
 

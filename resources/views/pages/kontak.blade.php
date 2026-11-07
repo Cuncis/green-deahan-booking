@@ -18,6 +18,7 @@
             .faq-answer { max-height: 0; overflow: hidden; transition: max-height .4s ease, padding .3s ease; }
             .faq-answer.open { max-height: 300px; }
         </style>
+        <x-favicon />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="kontakApp()" x-init="initReveal()">
 

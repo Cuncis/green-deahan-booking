@@ -211,4 +211,11 @@ class BladeComponentsTest extends TestCase
         $view->assertSee('Staf & Operator', false);
         $view->assertSee('Promo');
     }
+
+    public function test_favicon_component_dan_halaman_utama_memuat_favicon(): void
+    {
+        $this->blade('<x-favicon />')->assertSee('GD-logo-1.png', false);
+
+        $this->get('/login')->assertSee('rel="icon"', false)->assertSee('GD-logo-1.png', false);
+    }
 }

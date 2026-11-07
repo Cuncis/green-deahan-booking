@@ -19,6 +19,7 @@
             .artikel-konten blockquote { background: #f3faf3; border-left: 4px solid #006400; border-radius: 0 12px 12px 0; padding: 1rem 1.25rem; margin: 1.5rem 0; color: #1c1917; font-size: 0.9rem; }
             .artikel-konten blockquote p { margin-bottom: 0; color: inherit; }
         </style>
+        <x-favicon />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased">
 
