@@ -36,3 +36,11 @@
         gtag('config', @js($seo['ga4_measurement_id']));
     </script>
 @endif
+
+@if ($seo['gtm_id'] !== '')
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+    </script>
+    <script async src="https://www.googletagmanager.com/gtm.js?id={{ $seo['gtm_id'] }}"></script>
+@endif

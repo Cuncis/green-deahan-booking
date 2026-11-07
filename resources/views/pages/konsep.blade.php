@@ -28,6 +28,7 @@
         }, { threshold: 0.08 });
         $el.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
     ">
+        <x-seo-body />
 
         <x-site-nav />
 

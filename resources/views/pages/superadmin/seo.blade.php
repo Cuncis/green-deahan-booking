@@ -9,7 +9,7 @@
 
         <div class="mt-3 space-y-4 border-l-2 border-cream-deep pl-4">
             <div>
-                <div class="text-xs font-bold text-ink mb-1">Google Analytics 4</div>
+                <div class="text-xs font-bold text-ink mb-1">Google Analytics 4 (Google tag)</div>
                 <ol class="list-decimal ps-5 space-y-1 text-xs text-ink-soft">
                     <li>Buka <a href="https://analytics.google.com" target="_blank" rel="noopener" class="underline">analytics.google.com</a> dan masuk dengan akun Google.</li>
                     <li>Buat properti baru (Admin, Create, Property), lalu isi nama dan zona waktu.</li>
@@ -17,6 +17,16 @@
                     <li>Setelah stream jadi, salin Measurement ID yang berawalan <code>G-</code> di pojok kanan atas.</li>
                     <li>Tempel di kolom Measurement ID di bawah, lalu simpan.</li>
                     <li>Cek di GA4 bagian Reports, Realtime sambil membuka situs di tab lain. Kunjunganmu akan muncul dalam beberapa detik.</li>
+                </ol>
+            </div>
+
+            <div>
+                <div class="text-xs font-bold text-ink mb-1">Google Tag Manager (opsional)</div>
+                <ol class="list-decimal ps-5 space-y-1 text-xs text-ink-soft">
+                    <li>Buka <a href="https://tagmanager.google.com" target="_blank" rel="noopener" class="underline">tagmanager.google.com</a>, buat akun dan container bertipe Web.</li>
+                    <li>Salin Container ID yang berawalan <code>GTM-</code>, tempel di kolom Container ID, lalu simpan.</li>
+                    <li>Di Tag Manager, buat tag GA4 Configuration dengan trigger All Pages, lalu klik Publish.</li>
+                    <li>Pakai Tag Manager atau Measurement ID langsung, jangan keduanya.</li>
                 </ol>
             </div>
 
@@ -56,7 +66,17 @@
                    value="{{ old('ga4_measurement_id', $pengaturan['ga4_measurement_id']) }}"
                    class="w-full rounded-lg border border-cream-deep bg-white px-3 py-2 text-sm text-ink">
             <x-input-error :messages="$errors->get('ga4_measurement_id')" class="mt-1" />
-            <p class="text-xs text-ink-soft mt-1.5">Ada di GA4: Admin, Data Streams, pilih stream web, lalu salin Measurement ID. Kosongkan untuk mematikan pelacakan.</p>
+            <p class="text-xs text-ink-soft mt-1.5">Ini ID Google tag yang berawalan G- (atau GT-). Ada di GA4: Admin, Data Streams, pilih stream web, lalu salin Measurement ID. Kosongkan untuk mematikan pelacakan.</p>
+        </x-card>
+
+        <x-card>
+            <div class="text-xs font-bold uppercase tracking-wide text-green mb-3">Google Tag Manager</div>
+            <label for="gtm_id" class="block text-xs font-bold uppercase tracking-wide text-ink-soft mb-1">Container ID</label>
+            <input id="gtm_id" name="gtm_id" type="text" placeholder="GTM-XXXXXXX"
+                   value="{{ old('gtm_id', $pengaturan['gtm_id']) }}"
+                   class="w-full rounded-lg border border-cream-deep bg-white px-3 py-2 text-sm text-ink">
+            <x-input-error :messages="$errors->get('gtm_id')" class="mt-1" />
+            <p class="text-xs text-ink-soft mt-1.5">Ada di pojok kanan atas workspace Tag Manager. Kalau GA4 dipasang lewat Tag Manager, kosongkan Measurement ID di atas supaya kunjungan tidak terhitung dua kali.</p>
         </x-card>
 
         <x-card>

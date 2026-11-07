@@ -28,10 +28,12 @@ class SeoAdminController extends Controller
             'nama_situs' => ['required', 'string', 'max:100'],
             'meta_deskripsi' => ['required', 'string', 'max:300'],
             'og_image_url' => ['nullable', 'url', 'max:500'],
-            'ga4_measurement_id' => ['nullable', 'regex:/^G-[A-Z0-9]{6,12}$/'],
+            'ga4_measurement_id' => ['nullable', 'regex:/^(G|GT)-[A-Z0-9]{6,12}$/'],
+            'gtm_id' => ['nullable', 'regex:/^GTM-[A-Z0-9]{4,10}$/'],
             'gsc_verifikasi' => ['nullable', 'regex:/^[A-Za-z0-9_-]{20,100}$/'],
         ], [
-            'ga4_measurement_id.regex' => 'Format Measurement ID harus seperti G-XXXXXXXXXX.',
+            'ga4_measurement_id.regex' => 'Format ID harus seperti G-XXXXXXXXXX atau GT-XXXXXXX.',
+            'gtm_id.regex' => 'Format Container ID harus seperti GTM-XXXXXXX.',
             'gsc_verifikasi.regex' => 'Isi hanya kode verifikasinya saja (nilai content), bukan seluruh tag meta.',
         ]);
 

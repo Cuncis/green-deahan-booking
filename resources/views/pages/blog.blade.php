@@ -26,6 +26,7 @@
         x-data="blogApp()"
         x-init="$nextTick(() => initReveal()); $watch('filteredPosts', () => $nextTick(() => initReveal()))"
     >
+        <x-seo-body />
 
         <x-site-nav :nav-links="[
             ['label' => 'Beranda', 'href' => '/'],

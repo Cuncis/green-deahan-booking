@@ -35,6 +35,7 @@
         <x-seo-head />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="galeriApp()" x-init="initReveal()">
+        <x-seo-body />
 
         <x-site-nav />
 

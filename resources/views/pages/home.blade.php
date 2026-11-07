@@ -55,6 +55,7 @@
             this.$el.querySelectorAll('[data-count]').forEach((el) => counterObserver.observe(el));
         },
     }" x-init="initReveal()">
+        <x-seo-body />
 
         <x-site-nav />
 

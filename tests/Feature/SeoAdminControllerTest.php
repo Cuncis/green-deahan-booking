@@ -31,6 +31,7 @@ class SeoAdminControllerTest extends TestCase
             'meta_deskripsi' => 'Deskripsi situs.',
             'og_image_url' => 'https://example.com/og.png',
             'ga4_measurement_id' => 'G-ABC123XYZ9',
+            'gtm_id' => 'GTM-PM8JCFX6',
             'gsc_verifikasi' => 'abcdefghij0123456789_-KLMN',
             'indeks_mesin_pencari' => '1',
         ], $override);
@@ -58,14 +59,24 @@ class SeoAdminControllerTest extends TestCase
         $this->assertSame('G-ABC123XYZ9', PengaturanSitus::ambil('ga4_measurement_id'));
     }
 
+    public function test_id_google_tag_berawalan_gt_diterima(): void
+    {
+        $this->actingAs($this->superadmin())->put(route('superadmin.seo.update'), $this->dataValid([
+            'ga4_measurement_id' => 'GT-ABC1234',
+        ]))->assertSessionHasNoErrors();
+
+        $this->assertSame('GT-ABC1234', PengaturanSitus::ambil('ga4_measurement_id'));
+    }
+
     public function test_format_ga4_dan_gsc_divalidasi(): void
     {
         $response = $this->actingAs($this->superadmin())->put(route('superadmin.seo.update'), $this->dataValid([
             'ga4_measurement_id' => 'UA-12345',
+            'gtm_id' => 'bukan-gtm',
             'gsc_verifikasi' => '"><script>alert(1)</script>',
         ]));
 
-        $response->assertSessionHasErrors(['ga4_measurement_id', 'gsc_verifikasi']);
+        $response->assertSessionHasErrors(['ga4_measurement_id', 'gtm_id', 'gsc_verifikasi']);
     }
 
     public function test_halaman_publik_memuat_ga4_dan_verifikasi_search_console(): void
@@ -75,6 +86,8 @@ class SeoAdminControllerTest extends TestCase
         $this->get('http://greendeahan.com/blog')
             ->assertOk()
             ->assertSee('googletagmanager.com/gtag/js?id=G-ABC123XYZ9', false)
+            ->assertSee('gtm.js?id=GTM-PM8JCFX6', false)
+            ->assertSee('ns.html?id=GTM-PM8JCFX6', false)
             ->assertSee('name="google-site-verification" content="abcdefghij0123456789_-KLMN"', false)
             ->assertSee('property="og:image" content="https://example.com/og.png"', false)
             ->assertDontSee('noindex');
@@ -84,12 +97,14 @@ class SeoAdminControllerTest extends TestCase
     {
         PengaturanSitus::simpan($this->dataValid([
             'ga4_measurement_id' => '',
+            'gtm_id' => '',
             'indeks_mesin_pencari' => '0',
         ]));
 
         $this->get('http://greendeahan.com/blog')
             ->assertOk()
             ->assertDontSee('googletagmanager', false)
+            ->assertDontSee('gtm.js', false)
             ->assertSee('noindex, nofollow', false);
     }
 

@@ -25,6 +25,7 @@ class PengaturanSitus extends Model
         'meta_deskripsi' => 'Jasa pembuatan lapangan futsal, mini soccer, padel dan badminton se-Indonesia, lengkap dengan website booking lapangan.',
         'og_image_url' => '',
         'ga4_measurement_id' => '',
+        'gtm_id' => '',
         'gsc_verifikasi' => '',
         'indeks_mesin_pencari' => '1',
     ];

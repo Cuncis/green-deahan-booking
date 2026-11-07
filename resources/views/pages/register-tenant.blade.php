@@ -14,6 +14,7 @@
         <x-seo-head />
     </head>
     <body class="font-sans antialiased bg-cream text-ink">
+        <x-seo-body />
 
         <nav class="sticky top-0 z-40 h-16 border-b border-cream-deep bg-cream/95 backdrop-blur">
             <div class="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
