@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\GaleriController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Superadmin\ArtikelAdminController;
 use App\Http\Controllers\Superadmin\GaleriAdminController;
 use App\Http\Controllers\Superadmin\MediaAdminController;
@@ -50,6 +51,8 @@ $situsKorporat = function () {
     // (TenantRegistrationController), yang sengaja TIDAK dibatasi domain
     // supaya tetap bisa dibuka langsung dari luar situs korporat.
     Route::get('/harga', fn () => view('pages.pricing'))->name('pricing');
+
+    Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 };
 
 Route::withoutMiddleware(IdentifikasiTenant::class)->domain('greendeahan.com')->group($situsKorporat);
