@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Staf;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -37,6 +39,48 @@ class AuthenticationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('admin.dashboard', absolute: false));
+    }
+
+    public function test_staf_tenant_yang_login_di_domain_platform_diarahkan_ke_domain_bisnisnya(): void
+    {
+        $tenant = Tenant::factory()->create(['domain' => 'bisnis.test', 'status_aktif' => true]);
+        $user = User::factory()->create();
+        Staf::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $user->id, 'role' => 'owner']);
+
+        $response = $this->post('http://platform.test/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+        $response->assertSessionHasErrors('email');
+        $this->assertStringContainsString('http://bisnis.test/login', session('errors')->first('email'));
+    }
+
+    public function test_user_tanpa_bisnis_aktif_ditolak_di_domain_platform(): void
+    {
+        $user = User::factory()->create();
+
+        $this->post('http://platform.test/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertSessionHasErrors('email');
+
+        $this->assertGuest();
+    }
+
+    public function test_superadmin_tetap_bisa_login_di_domain_platform(): void
+    {
+        $user = User::factory()->create();
+        $user->is_superadmin = true;
+        $user->save();
+
+        $this->post('http://platform.test/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertRedirect(route('superadmin.dashboard', absolute: false));
+
+        $this->assertAuthenticated();
     }
 
     public function test_superadmin_diarahkan_ke_superadmin_dashboard_setelah_login(): void
