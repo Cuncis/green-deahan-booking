@@ -214,8 +214,24 @@ class BladeComponentsTest extends TestCase
 
     public function test_favicon_component_dan_halaman_utama_memuat_favicon(): void
     {
-        $this->blade('<x-favicon />')->assertSee('GD-logo-1.png', false);
+        $this->blade('<x-favicon />')
+            ->assertSee(asset('favicon.ico'), false)
+            ->assertSee(asset('favicon-192.png'), false)
+            ->assertSee(asset('apple-touch-icon.png'), false)
+            ->assertDontSee('r2.dev', false);
 
-        $this->get('/login')->assertSee('rel="icon"', false)->assertSee('GD-logo-1.png', false);
+        $this->get('/login')->assertSee('rel="icon"', false)->assertSee('favicon.ico', false);
+    }
+
+    public function test_file_favicon_ada_dan_tidak_kosong(): void
+    {
+        foreach (['favicon.ico', 'favicon-192.png', 'favicon-512.png', 'apple-touch-icon.png'] as $file) {
+            $path = public_path($file);
+
+            $this->assertFileExists($path);
+            $this->assertGreaterThan(0, filesize($path), "{$file} kosong");
+        }
+
+        $this->assertSame([192, 192], array_slice(getimagesize(public_path('favicon-192.png')), 0, 2));
     }
 }
