@@ -32,12 +32,27 @@ use Inertia\Inertia;
 // galeri & blog dikelola lewat /superadmin, lihat Superadmin\GaleriAdminController
 // dan Superadmin\ArtikelAdminController.
 $situsKorporat = function () {
-    // Homepage dibangun dengan Inertia + React (resources/js/pages/Home.tsx),
-    // porting dari template Fuzio "Home (Gulf)". Homepage Blade lama tetap
-    // bisa dibuka di /v2 (noindex). Halaman lain semua Blade + Livewire + Alpine.
-    Route::get('/', fn () => Inertia::render('Home'))->name('home');
+    // Homepage dan Tentang Kami dibangun dengan Inertia + React
+    // (resources/js/pages/), porting dari template Fuzio. Prop `meta`
+    // dipakai resources/views/app.blade.php untuk <title> dan meta
+    // description. Homepage Blade lama tetap bisa dibuka di /v2 (noindex).
+    // Halaman lain semua Blade + Livewire + Alpine.
+    Route::get('/', fn () => Inertia::render('Home', [
+        'meta' => [
+            'title' => 'Green Deahan Sport - Jasa Pembuatan Lapangan Olahraga Se-Indonesia',
+            'description' => 'Jasa pembuatan lapangan futsal, mini soccer, padel, dan badminton profesional sejak 2010. Survey, desain, konstruksi, hingga serah terima. Melayani seluruh Indonesia.',
+        ],
+    ]))->name('home');
     Route::get('/v2', fn () => view('pages.home'))->name('home.v2');
-    Route::get('/konsep', fn () => view('pages.konsep'))->name('konsep');
+    Route::get('/tentang-kami', fn () => Inertia::render('TentangKami', [
+        'meta' => [
+            'title' => 'Tentang Kami - Green Deahan Sport',
+            'description' => 'Green Deahan Sport, jasa pembuatan lapangan futsal, mini soccer, padel, dan badminton profesional sejak 2010. Melayani seluruh Indonesia.',
+        ],
+    ]))->name('tentang_kami');
+    // Halaman Konsep sudah diganti Tentang Kami, 301 supaya link lama dan
+    // posisi di Google pindah ke halaman baru.
+    Route::permanentRedirect('/konsep', '/tentang-kami');
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');

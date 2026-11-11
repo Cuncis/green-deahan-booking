@@ -67,7 +67,7 @@ export interface MenuItem {
 /** Same pages as the Blade site nav (resources/views/components/site-nav.blade.php). */
 export const menuData: MenuItem[] = [
     { label: 'Beranda', path: '/' },
-    { label: 'Konsep', path: '/konsep' },
+    { label: 'Tentang Kami', path: '/tentang-kami' },
     { label: 'Galeri', path: '/galeri' },
     { label: 'Blog', path: '/blog' },
     { label: 'Harga', path: '/harga' },

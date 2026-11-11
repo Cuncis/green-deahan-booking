@@ -490,20 +490,19 @@ body:has(header.header-football) .btn-dark {
   background: #004d00;
 }
 
-/* 9. WhatsApp buttons: light brand green with dark-green text + icon
+/* 9. WhatsApp buttons: brand green #006400 with white text + icon
 ---------------------------------------------------------------
-   brand-300 #94c99a background, brand-dark #004d00 text (~6:1 contrast);
-   hover goes one step lighter (brand-200). */
+   white on #006400 is ~7.5:1 contrast; hover goes darker (#004d00). */
 .btn.btn-whatsapp {
-  --bs-btn-color: #004d00;
-  --bs-btn-bg: #94c99a;
-  --bs-btn-border-color: #94c99a;
-  --bs-btn-hover-color: #004d00;
-  --bs-btn-hover-bg: #c8e6c9;
-  --bs-btn-hover-border-color: #c8e6c9;
-  --bs-btn-active-color: #004d00;
-  --bs-btn-active-bg: #c8e6c9;
-  --bs-btn-active-border-color: #c8e6c9;
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #006400;
+  --bs-btn-border-color: #006400;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #004d00;
+  --bs-btn-hover-border-color: #004d00;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #004d00;
+  --bs-btn-active-border-color: #004d00;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -512,8 +511,8 @@ body:has(header.header-football) .btn-dark {
 .btn.btn-whatsapp:hover,
 .btn.btn-whatsapp:focus,
 .btn.btn-whatsapp:active {
-  background-color: #c8e6c9;
-  color: #004d00;
+  background-color: #004d00;
+  color: #fff;
 }
 
 .btn.btn-whatsapp svg {
@@ -592,7 +591,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 .tab-txt a.btn.btn-whatsapp,
 .tab-txt a.btn.btn-whatsapp:hover,
 .tab-txt a.btn.btn-whatsapp:focus {
-  color: #004d00;
+  color: #fff;
 }
 
 /* 15. Contact form: keep the field icons visible on the two dropdowns
@@ -626,4 +625,434 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 .why-us-list p {
   font-size: 17px;
   margin-bottom: 0;
+}
+
+/* 17. About "Cakupan Wilayah" tab: Indonesia map with project markers */
+.wilayah-map-canvas {
+  background-color: #f4faf4;
+  border-radius: var(--bs-border-radius-xl, 1rem);
+  padding: 6% 4%;
+}
+
+.wilayah-map-inner {
+  position: relative;
+}
+
+.wilayah-map-inner > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.wilayah-map-canvas .map-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background-color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.wilayah-map-canvas .map-marker::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  animation: map-pulse 2.4s ease-out infinite;
+  z-index: -1;
+}
+
+.wilayah-map-canvas .map-marker.is-office {
+  width: 18px;
+  height: 18px;
+  background-color: #fbb044;
+  border-width: 3px;
+  z-index: 2;
+}
+
+.wilayah-map-canvas .map-marker.is-office::after {
+  background-color: #fbb044;
+}
+
+@keyframes map-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wilayah-map-canvas .map-marker::after {
+    animation: none;
+    display: none;
+  }
+}
+
+.wilayah-map-canvas .map-tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  border-radius: 6px;
+  background-color: #004d00;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+  z-index: 5;
+}
+
+.wilayah-map-canvas .map-tip strong {
+  display: block;
+  font-weight: 700;
+}
+
+.wilayah-map-canvas .map-marker:hover,
+.wilayah-map-canvas .map-marker:focus-visible,
+.wilayah-map-canvas .map-marker:focus {
+  z-index: 6;
+  outline: none;
+}
+
+.wilayah-map-canvas .map-marker:hover .map-tip,
+.wilayah-map-canvas .map-marker:focus .map-tip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wilayah-map-stats {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 12px;
+  margin: 18px 0 0;
+  font-size: 17px;
+  color: #696969;
+}
+
+.wilayah-map-stats strong {
+  color: var(--primary);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+@media (max-width: 991.98px) {
+  .wilayah-map {
+    margin-bottom: 30px;
+  }
+}
+
+.wilayah-map-canvas .map-marker.tip-start .map-tip {
+  left: -6px;
+  transform: none;
+}
+
+.wilayah-map-canvas .map-marker.tip-end .map-tip {
+  left: auto;
+  right: -6px;
+  transform: none;
+}
+
+/* 18. About "Cara Kerja" tab: 5-step zigzag road timeline
+   The road has its own lane (--kerja-lane wide) on the left; cards sit in
+   the column to its right. Badge `left` values (25% / 75% of the lane)
+   match X_LEFT/X_RIGHT in CaraKerjaTimeline.tsx. */
+.kerja-road {
+  --kerja-row: 104px;
+  --kerja-lane: 140px;
+  --kerja-badge: 48px;
+  padding: 20px 20px 20px 12px;
+  background-color: #f4faf4;
+  border-radius: var(--bs-border-radius-xl, 1rem);
+}
+
+.kerja-road-inner {
+  position: relative;
+}
+
+.kerja-road-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--kerja-lane);
+  height: 100%;
+  overflow: visible;
+}
+
+.kerja-road-svg path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.kerja-road-svg .road-edge {
+  stroke: #94c99a;
+  stroke-width: 30;
+}
+
+.kerja-road-svg .road-surface {
+  stroke: #c8e6c9;
+  stroke-width: 24;
+}
+
+/* dashed centre line, slowly moving along the road */
+.kerja-road-svg .road-line {
+  stroke: #fff;
+  stroke-width: 2.5;
+  stroke-dasharray: 10 10;
+  animation: road-move 1.6s linear infinite;
+}
+
+@keyframes road-move {
+  to { stroke-dashoffset: -20; }
+}
+
+.kerja-step {
+  display: flex;
+  align-items: center;
+  height: var(--kerja-row);
+}
+
+.kerja-lane {
+  position: relative;
+  flex: 0 0 var(--kerja-lane);
+  align-self: stretch;
+}
+
+.kerja-badge {
+  position: absolute;
+  top: 50%;
+  left: 25%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--kerja-badge);
+  height: var(--kerja-badge);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background-color: var(--primary);
+  box-shadow: 0 2px 6px rgba(0, 77, 0, 0.25);
+  color: #fff;
+  font-family: "DM Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.kerja-step.is-right .kerja-badge {
+  left: 75%;
+}
+
+.kerja-step.is-done .kerja-badge {
+  background-color: #fbb044;
+  color: #004d00;
+  font-size: 20px;
+}
+
+.kerja-card {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: 6px;
+  padding: 10px 14px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 77, 0, 0.1);
+}
+
+/* Steps 1, 3, 5 (badge on the left of the lane): pull the card in so it
+   starts near its badge. Card left edge = badge edge + 24px. */
+.kerja-step:not(.is-right) .kerja-card {
+  margin-left: calc(var(--kerja-badge) / 2 + 24px - var(--kerja-lane) * 0.75);
+}
+
+.kerja-card h4 {
+  font-family: "DM Sans", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: none;
+  margin: 0 0 2px;
+}
+
+.kerja-card p {
+  font-size: 14px;
+  line-height: 1.45;
+  margin-bottom: 0;
+}
+
+/* fade in one by one each time the tab is opened */
+.tab-pane.active .kerja-step {
+  animation: kerja-in 0.5s ease-out both;
+}
+
+@keyframes kerja-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-pane.active .kerja-step,
+  .kerja-road-svg .road-line {
+    animation: none;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .kerja-road {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .kerja-road {
+    --kerja-row: 120px;
+    --kerja-lane: 104px;
+    --kerja-badge: 42px;
+    padding: 16px 12px 16px 6px;
+  }
+
+  .kerja-card {
+    padding: 8px 12px;
+  }
+
+  .kerja-card h4 {
+    font-size: 16px;
+  }
+}
+
+/* 19. About "Kenapa Kami" tab: Green Deahan vs Kontraktor Biasa table */
+.compare-card {
+  padding: 20px;
+  background-color: #f4faf4;
+  border-radius: var(--bs-border-radius-xl, 1rem);
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 77, 0, 0.1);
+}
+
+.compare-table th,
+.compare-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e8f2e8;
+  vertical-align: middle;
+}
+
+.compare-table tbody tr:last-child th,
+.compare-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.compare-table thead th {
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  color: #696969;
+  background-color: #fff;
+  width: 26%;
+}
+
+.compare-table thead th:first-child {
+  width: auto;
+}
+
+/* our column: brand green header, light green cells */
+.compare-table thead th.is-us {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.compare-table td.is-us {
+  background-color: #f4faf4;
+}
+
+.compare-table tbody th {
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #1b1b1b;
+}
+
+.compare-table td {
+  text-align: center;
+}
+
+.compare-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+.compare-icon.is-yes {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.compare-icon.is-no {
+  background-color: #f0f0f0;
+  color: #9a9a9a;
+}
+
+/* rows fade in one by one each time the tab is opened */
+.tab-pane.active .compare-table tbody tr {
+  animation: kerja-in 0.5s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-pane.active .compare-table tbody tr {
+    animation: none;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .compare-card {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .compare-card {
+    padding: 12px;
+  }
+
+  .compare-table th,
+  .compare-table td {
+    padding: 12px 8px;
+  }
+
+  .compare-table thead th {
+    font-size: 12px;
+  }
+
+  .compare-table tbody th {
+    font-size: 14px;
+  }
+
+  .compare-icon {
+    width: 26px;
+    height: 26px;
+    font-size: 14px;
+  }
 }

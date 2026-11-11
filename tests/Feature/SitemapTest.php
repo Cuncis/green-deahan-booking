@@ -19,7 +19,7 @@ class SitemapTest extends TestCase
 
         $response->assertOk();
         $this->assertStringContainsString('application/xml', $response->headers->get('Content-Type'));
-        $response->assertSee('<loc>http://greendeahan.com/konsep</loc>', false);
+        $response->assertSee('<loc>http://greendeahan.com/tentang-kami</loc>', false);
         $response->assertSee('<loc>http://greendeahan.com/blog/'.$aktif->slug.'</loc>', false);
         $response->assertDontSee('artikel-draft');
         $response->assertDontSee('/v2');

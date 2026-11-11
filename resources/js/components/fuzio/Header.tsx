@@ -19,12 +19,21 @@ function MenuList({ onNavigate }: { onNavigate: () => void }) {
     );
 }
 
+interface HeaderProps {
+    /**
+     * 'home': Fuzio's HeaderOne, a transparent navbar with the white logo over the hero.
+     * 'pages': Fuzio's PagesHeader, a light navbar with the coloured logo for inner pages.
+     */
+    variant?: 'home' | 'pages';
+}
+
 /**
- * Port of Fuzio's HeaderOne (homepage header): green top bar, transparent
- * navbar over the hero that becomes a sticky bar after scrolling past it,
- * and off-canvas mobile menu.
+ * Port of Fuzio's HeaderOne / PagesHeader: green top bar, navbar that
+ * becomes a sticky bar after scrolling past the header, and off-canvas
+ * mobile menu.
  */
-export default function Header() {
+export default function Header({ variant = 'home' }: HeaderProps) {
+    const isHome = variant === 'home';
     const [isSticky, setIsSticky] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const headerRef = useRef<HTMLElement>(null);
@@ -53,7 +62,7 @@ export default function Header() {
     }, []);
 
     return (
-        <header ref={headerRef} className="header header-1">
+        <header ref={headerRef} className={isHome ? 'header header-1' : 'header'}>
             <div className="top-bar bg-primary py-1">
                 <div className="container">
                     <div className="row">
@@ -81,12 +90,12 @@ export default function Header() {
             <nav className={`navbar navbar-expand-lg ${isSticky ? 'scroll-on' : ''}`}>
                 <div className="container px-lg-0">
                     <a href="/" className="navbar-brand">
-                        <img src={isSticky ? GD_LOGO : GD_LOGO_LIGHT} width={150} height={60} alt="Green Deahan Sport" />
+                        <img src={isHome && !isSticky ? GD_LOGO_LIGHT : GD_LOGO} width={150} height={60} alt="Green Deahan Sport" />
                     </a>
                     <button onClick={() => setIsMobile((previous) => !previous)} className="navbar-toggler offcanvas-nav-btn" type="button" aria-label="Menu">
                         <span className="feather-icon icon-menu"></span>
                     </button>
-                    <div className={`offcanvas bg-dark offcanvas-start offcanvas-nav ${isMobile ? 'show' : ''}`}>
+                    <div className={`offcanvas${isHome ? ' bg-dark' : ''} offcanvas-start offcanvas-nav ${isMobile ? 'show' : ''}`}>
                         <div className="offcanvas-header">
                             <a href="/" className="text-inverse">
                                 <img src={GD_LOGO} width={150} height={60} alt="Green Deahan Sport" />

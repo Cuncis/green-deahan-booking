@@ -1,7 +1,7 @@
 <x-layouts::superadmin active-page="seo" judul="SEO dan Analytics">
     <div class="mb-6">
         <h1 class="font-display text-xl font-semibold text-ink">SEO dan Analytics</h1>
-        <p class="text-sm text-ink-soft mt-0.5">Berlaku untuk situs korporat (beranda, konsep, galeri, blog, harga, kontak, daftar). Halaman booking tenant tidak ikut dilacak.</p>
+        <p class="text-sm text-ink-soft mt-0.5">Berlaku untuk situs korporat (beranda, tentang kami, galeri, blog, harga, kontak, daftar). Halaman booking tenant tidak ikut dilacak.</p>
     </div>
 
     <details class="max-w-2xl mb-5 group text-sm text-ink-mid">

@@ -2,28 +2,7 @@ import FadeIn from '../elements/FadeIn';
 import RevealAnimation from '../elements/RevealAnimation';
 import TextAnimation from '../elements/TextAnimation';
 import { GD_CDN } from '../../../data/greendeahan';
-
-/** Shield with a check, same icon as resources/views/icons/shield.blade.php. */
-function ShieldCheckIcon() {
-    return (
-        <svg viewBox="0 0 24 24" width={34} height={34} fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
-            <path d="M9 12l2 2 4-4" />
-        </svg>
-    );
-}
-
-/** Itemized receipt (outline from Lucide "receipt", ISC license), for a detailed price breakdown (RAB). */
-function ReceiptIcon() {
-    return (
-        <svg viewBox="0 0 24 24" width={30} height={30} fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z" />
-            <path d="M8 8h8" />
-            <path d="M8 12h8" />
-            <path d="M8 16h5" />
-        </svg>
-    );
-}
+import { ReceiptIcon, ShieldCheckIcon } from '../icons';
 
 export default function SecPadding() {
     return (

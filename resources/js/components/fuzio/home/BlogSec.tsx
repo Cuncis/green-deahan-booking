@@ -1,17 +1,6 @@
-import FadeIn from '../elements/FadeIn';
-import Slider from '../elements/Slider';
+import BrandStrip from '../BrandStrip';
 import TextAnimation from '../elements/TextAnimation';
 import { GD_CDN } from '../../../data/greendeahan';
-import Br1 from '../../../../fuzio/images/br1.png';
-import Br1Hover from '../../../../fuzio/images/br1-hover.png';
-import Br2 from '../../../../fuzio/images/br2.png';
-import Br2Hover from '../../../../fuzio/images/br2-hover.png';
-import Br3 from '../../../../fuzio/images/br3.png';
-import Br3Hover from '../../../../fuzio/images/br3-hover.png';
-import Br4 from '../../../../fuzio/images/br4.png';
-import Br4Hover from '../../../../fuzio/images/br4-hover.png';
-import Br5 from '../../../../fuzio/images/br5.png';
-import Br5Hover from '../../../../fuzio/images/br5-hover.png';
 
 /** 3 artikel panduan dari blog Green Deahan. Evergreen content, so cards show reading time instead of a date. */
 const artikel = [
@@ -44,43 +33,11 @@ const artikel = [
 /** Same image ratio as the /blog page cards (550x360). */
 const blogThumbStyle = { aspectRatio: '550 / 360', objectFit: 'cover' } as const;
 
-/** 5 logos in order, doubled, so each logo reappears only after the other four. */
-const brandLogos = [
-    { image: Br1, hoverImage: Br1Hover },
-    { image: Br2, hoverImage: Br2Hover },
-    { image: Br3, hoverImage: Br3Hover },
-    { image: Br4, hoverImage: Br4Hover },
-    { image: Br5, hoverImage: Br5Hover },
-];
-const brandSlides = [...brandLogos, ...brandLogos].map((brand, index) => (
-    <div key={index} className="single-brand">
-        {/* <a> without href: not clickable/focusable, but the template's hover CSS (.single-brand a img) still applies */}
-        <a>
-            <img src={brand.image} alt="Brand" />
-            <img className="hover-img" src={brand.hoverImage} alt="Brand" />
-        </a>
-    </div>
-));
-
-/** Swiper-style breakpoints: min window width => slides per view. */
-const brandBreakpoints = { 320: 1, 480: 2, 768: 3, 992: 5 };
 
 export default function BlogSec() {
     return (
         <>
-            <div className="brand-sec bg-primary">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-lg-12">
-                            <div className="swiper brand-slider">
-                                <FadeIn delay={100}>
-                                    <Slider slides={brandSlides} autoplayDelay={1500} speed={600} spaceBetween={20} breakpoints={brandBreakpoints} />
-                                </FadeIn>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <BrandStrip speed={600} fadeIn />
 
             <section className="blog-sec sec-padding">
                 <div className="container">

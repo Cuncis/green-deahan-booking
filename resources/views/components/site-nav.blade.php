@@ -1,6 +1,6 @@
 @props(['navLinks' => [
     ['label' => 'Beranda', 'href' => '/'],
-    ['label' => 'Konsep', 'href' => '/konsep'],
+    ['label' => 'Tentang Kami', 'href' => '/tentang-kami'],
     ['label' => 'Galeri', 'href' => '/galeri'],
     ['label' => 'Blog', 'href' => '/blog'],
     ['label' => 'Kontak', 'href' => '/kontak'],

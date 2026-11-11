@@ -45,6 +45,9 @@ header.header .top-bar .top-meta {
    #004d00 (~6.3:1 contrast on #FEB046). Hover goes one step darker. */
 .golf-banner .banner-txt .btn.btn-whatsapp,
 .cta-sec .cta-txt .btn.btn-whatsapp {
+  --bs-btn-color: #004d00;
+  --bs-btn-hover-color: #004d00;
+  --bs-btn-active-color: #004d00;
   --bs-btn-bg: #feb046;
   --bs-btn-border-color: #feb046;
   --bs-btn-hover-bg: #f59f24;
@@ -53,6 +56,7 @@ header.header .top-bar .top-meta {
   --bs-btn-active-border-color: #f59f24;
   background-color: #feb046;
   border-color: #feb046;
+  color: #004d00;
 }
 
 .golf-banner .banner-txt .btn.btn-whatsapp:hover,
@@ -63,6 +67,7 @@ header.header .top-bar .top-meta {
 .cta-sec .cta-txt .btn.btn-whatsapp:active {
   background-color: #f59f24;
   border-color: #f59f24;
+  color: #004d00;
 }
 
 /* Hero heading: the template sizes (110/85/65px) are made for Fuzio's
@@ -92,4 +97,40 @@ header.header .top-bar .top-meta {
   .golf-banner .banner-txt h1 {
     font-size: 90px;
   }
+}
+
+/* Tentang Kami tabs: the template keeps 40px labels below 576px (and on
+   tablets), so "Cakupan Wilayah" wraps and the stacked tabs fill the
+   screen on phones. Smaller labels on smaller screens. */
+@media (max-width: 991.98px) {
+  .about-tab .nav-tabs li {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .about-tab .nav-tabs li {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .about-tab .nav-tabs li .nav-link {
+    padding: 10px 0;
+    margin-bottom: 4px;
+  }
+}
+
+/* Brand logo strip: less vertical padding on phones (2 logos per view,
+   see BrandStrip.tsx). */
+@media (max-width: 575.98px) {
+  .brand-sec {
+    padding: 40px 0;
+  }
+}
+
+/* Keep each brand logo inside its slide when 2 share a phone screen. */
+.brand-sec .single-brand img {
+  max-width: 100%;
+  height: auto;
 }
