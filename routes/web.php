@@ -32,10 +32,11 @@ use Inertia\Inertia;
 // galeri & blog dikelola lewat /superadmin, lihat Superadmin\GaleriAdminController
 // dan Superadmin\ArtikelAdminController.
 $situsKorporat = function () {
-    // Homepage dan Tentang Kami dibangun dengan Inertia + React
+    // Homepage, Tentang Kami dan Kontak dibangun dengan Inertia + React
     // (resources/js/pages/), porting dari template Fuzio. Prop `meta`
     // dipakai resources/views/app.blade.php untuk <title> dan meta
-    // description. Homepage Blade lama tetap bisa dibuka di /v2 (noindex).
+    // description. Homepage & Kontak Blade lama tetap bisa dibuka di /v2 dan
+    // /v2/kontak (noindex).
     // Halaman lain semua Blade + Livewire + Alpine.
     Route::get('/', fn () => Inertia::render('Home', [
         'meta' => [
@@ -56,7 +57,14 @@ $situsKorporat = function () {
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
-    Route::get('/kontak', fn () => view('pages.kontak'))->name('kontak');
+    Route::get('/kontak', fn () => Inertia::render('Kontak', [
+        'meta' => [
+            'title' => 'Kontak Kami - Green Deahan Sport',
+            'description' => 'Hubungi Green Deahan Sport untuk konsultasi gratis pembuatan lapangan futsal, mini soccer, padel, dan badminton. Tim kami respon dalam 1 jam.',
+        ],
+    ]))->name('kontak');
+    // Halaman Kontak Blade lama, noindex (lihat pages/kontak.blade.php).
+    Route::get('/v2/kontak', fn () => view('pages.kontak'))->name('kontak.v2');
 
     // Paket berlangganan situs booking, cross-sell dari layanan konstruksi
     // lapangan ke produk SaaS booking. CTA per paket mengarah ke /daftar

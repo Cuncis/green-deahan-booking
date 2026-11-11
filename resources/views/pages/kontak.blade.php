@@ -19,6 +19,10 @@
             .faq-answer.open { max-height: 300px; }
         </style>
         <x-favicon />
+        @if (request()->routeIs('kontak.v2', '*.kontak.v2'))
+            {{-- Halaman Kontak lama yang dipindah ke /v2/kontak, jangan diindeks supaya tidak bersaing dengan /kontak --}}
+            <meta name="robots" content="noindex, nofollow">
+        @endif
         <x-seo-head />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="kontakApp()" x-init="initReveal()">

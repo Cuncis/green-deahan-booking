@@ -13,6 +13,8 @@ export const GD_PHONE_DISPLAY = '+62 813-5757-0064';
 export const GD_PHONE_TEL = '+6281357570064';
 export const GD_EMAIL = 'rumput1927@gmail.com';
 export const GD_HOURS = 'Senin-Sabtu, 06.00-23.00 WIB';
+/** From the Green Deahan Google Maps listing (maps.app.goo.gl/Quq9TPPDzsaqynhE7). */
+export const GD_ADDRESS = 'Jl. Pd. Benowo Indah Blok UU No. 6A, Babat Jerawat, Pakal, Surabaya, Jawa Timur 60197';
 
 const GD_WA_NUMBER = '6281357570064';
 
@@ -62,6 +64,8 @@ export const gdTestimonials: Testimonial[] = [
 export interface MenuItem {
     label: string;
     path: string;
+    /** hidden from the header nav (still listed in the footer "Halaman" column) */
+    hideInHeader?: boolean;
 }
 
 /** Same pages as the Blade site nav (resources/views/components/site-nav.blade.php). */
@@ -70,7 +74,7 @@ export const menuData: MenuItem[] = [
     { label: 'Tentang Kami', path: '/tentang-kami' },
     { label: 'Galeri', path: '/galeri' },
     { label: 'Blog', path: '/blog' },
-    { label: 'Harga', path: '/harga' },
+    { label: 'Harga', path: '/harga', hideInHeader: true },
     { label: 'Kontak', path: '/kontak' },
 ];
 

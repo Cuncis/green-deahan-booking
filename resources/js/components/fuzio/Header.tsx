@@ -2,13 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import WhatsAppIcon from './elements/WhatsAppIcon';
 import { GD_LOGO, GD_LOGO_LIGHT, GD_PHONE_DISPLAY, GD_PHONE_TEL, menuData, waLink } from '../../data/greendeahan';
 
+/** Header links; items flagged hideInHeader (e.g. Harga) only appear in the footer. */
+const headerMenu = menuData.filter((item) => !item.hideInHeader);
+
 function MenuList({ onNavigate }: { onNavigate: () => void }) {
     const currentPath = window.location.pathname;
     const isActive = (path: string) => (path === '/' ? currentPath === '/' : currentPath === path || currentPath.startsWith(`${path}/`));
 
     return (
         <ul className="navbar-nav mx-auto align-items-lg-center">
-            {menuData.map((item) => (
+            {headerMenu.map((item) => (
                 <li key={item.path} className={`nav-item${isActive(item.path) ? ' current' : ''}`}>
                     <a href={item.path} className="nav-link" onClick={onNavigate}>
                         {item.label}
@@ -69,7 +72,7 @@ export default function Header({ variant = 'home' }: HeaderProps) {
                         <div className="col-lg-12">
                             <div className="d-sm-flex justify-content-between align-items-center">
                                 <p className="d-none d-sm-block">
-                                    <i className="feather-icon icon-headphones me-2"></i> <a href={`tel:${GD_PHONE_TEL}`}>{GD_PHONE_DISPLAY}</a>
+                                    <i className="feather-icon icon-phone me-2" aria-hidden="true"></i> <a href={`tel:${GD_PHONE_TEL}`}>{GD_PHONE_DISPLAY}</a>
                                 </p>
                                 <p className="d-none d-lg-block">Konsultasi Gratis &middot; Garansi Resmi &middot; Melayani Seluruh Indonesia</p>
                                 <div className="top-meta d-flex align-items-center justify-content-between">

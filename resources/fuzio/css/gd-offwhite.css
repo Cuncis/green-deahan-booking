@@ -16,6 +16,8 @@ header.header {
   background: #f5f5f5;
 }
 
+/* Sticky navbar after scrolling, homepage and inner pages */
+header nav.navbar.scroll-on,
 .header-1 .navbar.scroll-on {
   background-color: #f5f5f5;
 }
@@ -50,5 +52,46 @@ header.header {
 
 .kerja-card,
 .compare-table {
+  border: 1px solid #e7e5e4;
+}
+
+/* Kontak page: the 3 contact cards are a touch whiter (#FAFAFA) than
+   the #F5F5F5 page so they stand out (user's choice, cards only). */
+.contact-card {
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+}
+
+.contact-form .nice-select {
+  background: #f5f5f5;
+}
+
+.contact-form .nice-select .list {
+  background: #f5f5f5 !important;
+}
+
+/* Homepage feature icon circles (were pure white). */
+.feature-entry .icon.bg-info {
+  background-color: #f5f5f5 !important;
+}
+
+/* Homepage blog cards (template --mute #F6F6F6): one off-white, with a
+   border so they keep an edge on the #F5F5F5 page. */
+.single-entry2.bg-mute {
+  background-color: #f5f5f5 !important;
+  border: 1px solid #e7e5e4;
+}
+
+/* FAQ accordion (Kontak): template uses #F6F6F6 items and pure white for
+   the open question and the +/- circle. Items are #FAFAFA like the contact
+   cards; the circle stays #F5F5F5 with a border so it shows on them. */
+.faq-item.bg-mute,
+.faq-item .accordion-button.bg-mute,
+.faq-item .accordion-button:not(.collapsed) {
+  background-color: #fafafa !important;
+}
+
+.faq-item .accordion-button::after {
+  background-color: #f5f5f5;
   border: 1px solid #e7e5e4;
 }
