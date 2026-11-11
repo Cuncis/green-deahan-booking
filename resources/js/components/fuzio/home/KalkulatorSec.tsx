@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import TextAnimation from '../elements/TextAnimation';
-import CustomFormSelect from '../elements/CustomFormSelect';
-import WhatsAppIcon from '../elements/WhatsAppIcon';
+import ComboField from '../elements/ComboField';
 import {
-   KALKULATOR_DAYS, KALKULATOR_MONTHS, kalkulatorDefaults, kalkulatorSteps, kalkulatorText, kalkulatorTypes,
+   KALKULATOR_DAYS, KALKULATOR_MAX_COURTS, KALKULATOR_MONTHS, kalkulatorCourtOptions, kalkulatorDefaults, kalkulatorSteps, kalkulatorText, kalkulatorTypes,
 } from '../../../data/kalkulator';
-import { waLink } from '../../../data/greendeahan';
 
 /**
  * Homepage "Kalkulator" section, ported from the Fuzio clone
@@ -14,6 +12,10 @@ import { waLink } from '../../../data/greendeahan';
  */
 
 const rupiah = (n: number) => `Rp${Math.round(n).toLocaleString('id-ID')}`;
+/** Keep only digits (typed rent like "150.000" or "Rp150000" becomes "150000"), max 9 digits. */
+const digitsOnly = (typed: string) => typed.replace(/\D/g, '').slice(0, 9);
+/** "150000" -> "150.000" while typing; empty stays empty. */
+const thousands = (value: string) => (value === '' ? '' : Number(value).toLocaleString('id-ID'));
 const toNumber = (s: string) => {
    const n = Number(s);
    return Number.isFinite(n) && n > 0 ? n : 0;
@@ -70,7 +72,7 @@ export default function KalkulatorSec() {
    const [ops, setOps] = useState(kalkulatorDefaults.ops);
 
    const t = kalkulatorTypes.find((k) => k.value === type) ?? initialType;
-   const nCourts = Math.min(toNumber(courts), 20);
+   const nCourts = Math.min(toNumber(courts), KALKULATOR_MAX_COURTS);
    const nPrice = toNumber(price);
 
    const build = t.buildCost * nCourts;
@@ -86,9 +88,6 @@ export default function KalkulatorSec() {
       ? `± ${(payback / 12).toLocaleString('id-ID', { maximumFractionDigits: 1 })} tahun`
       : null;
 
-   const waMessage =
-      `Halo Green Deahan, hasil kalkulator saya: ${nCourts}x ${t.label}, sewa ${rupiah(nPrice)}/jam, ` +
-      `${hours} jam/hari, biaya operasional ${ops}%, perkiraan balik modal ${paybackText}. Mohon dihitung lebih detail.`;
 
    const onType = (v: string) => {
       setType(v);
@@ -101,57 +100,53 @@ export default function KalkulatorSec() {
          <div className="container">
             <div className="row">
                <div className="col-lg-8 mx-auto text-center mb-5">
-                  <p className="calc-eyebrow">Kalkulator</p>
                   <TextAnimation>
                      <h2 className="sec-title text-info">{kalkulatorText.title}</h2>
                   </TextAnimation>
-                  <p className="calc-intro">{kalkulatorText.intro}</p>
                </div>
             </div>
 
             <div className="row g-4 align-items-stretch">
                {/* inputs */}
                <div className="col-lg-6">
-                  <div className="calc-box contact-form">
+                  <div className="calc-box contact-form gd-form">
                      <div className="row">
-                        <div className="col-12 form-group">
-                           <label className="calc-label">Jenis lapangan</label>
-                           <i className="feather-icon icon-clipboard"></i>
-                           <CustomFormSelect
-                              optionArray={kalkulatorTypes}
-                              value={type}
-                              onChange={onType}
-                              aria-label="Jenis lapangan"
-                           />
-                        </div>
-                        <div className="col-sm-6 form-group">
-                           <label className="calc-label" htmlFor="calc-courts">Jumlah lapangan</label>
-                           <i className="feather-icon icon-grid"></i>
-                           <input
-                              id="calc-courts"
-                              className="form-control"
-                              type="number"
-                              inputMode="numeric"
-                              min={1}
-                              max={20}
-                              value={courts}
-                              onChange={(e) => setCourts(e.target.value)}
-                           />
-                        </div>
-                        <div className="col-sm-6 form-group">
-                           <label className="calc-label" htmlFor="calc-price">Sewa per jam (Rp)</label>
-                           <i className="feather-icon icon-tag"></i>
-                           <input
-                              id="calc-price"
-                              className="form-control"
-                              type="number"
-                              inputMode="numeric"
-                              min={0}
-                              step={10000}
-                              value={price}
-                              onChange={(e) => setPrice(e.target.value)}
-                           />
-                        </div>
+                        <ComboField
+                           id="calc-type"
+                           className="col-12"
+                           label="Jenis lapangan"
+                           icon="icon-clipboard"
+                           value={type}
+                           onChange={onType}
+                           options={kalkulatorTypes.map((k) => ({ value: k.value, label: k.label }))}
+                        />
+                        <ComboField
+                           id="calc-courts"
+                           className="col-sm-6"
+                           label="Jumlah lapangan"
+                           icon="icon-grid"
+                           editable
+                           inputMode="numeric"
+                           maxLength={2}
+                           value={courts}
+                           onChange={setCourts}
+                           parse={digitsOnly}
+                           options={kalkulatorCourtOptions.map((n) => ({ value: String(n), label: `${n} lapangan` }))}
+                        />
+                        <ComboField
+                           id="calc-price"
+                           className="col-sm-6"
+                           label="Sewa per jam (Rp)"
+                           icon="icon-tag"
+                           editable
+                           inputMode="numeric"
+                           maxLength={11}
+                           value={price}
+                           onChange={setPrice}
+                           parse={digitsOnly}
+                           format={thousands}
+                           options={t.rentOptions.map((n) => ({ value: String(n), label: rupiah(n) }))}
+                        />
                         <div className="col-12 calc-range">
                            <label htmlFor="calc-hours">Jam terisi per hari: <strong>{hours} jam</strong></label>
                            <input id="calc-hours" type="range" min={1} max={17} value={hours} onChange={(e) => setHours(Number(e.target.value))} />
@@ -184,10 +179,6 @@ export default function KalkulatorSec() {
                      </dl>
                      <PaybackChart profit={profit} build={build} payback={payback} />
                      <p className="calc-fine">{kalkulatorText.disclaimer}</p>
-                     <a href={waLink(waMessage)} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-whatsapp calc-send">
-                        <WhatsAppIcon className="me-2" />
-                        Kirim hasil ke WhatsApp
-                     </a>
                   </div>
                </div>
             </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import CustomFormSelect from '../elements/CustomFormSelect';
+import ComboField from '../elements/ComboField';
 import TextAnimation from '../elements/TextAnimation';
 import WhatsAppIcon from '../elements/WhatsAppIcon';
 import { contactFormBudgets, contactFormSubjects, contactFormSuccess, contactFormText, contactWaMessage, googleMapsUrl } from '../../../data/kontak';
@@ -69,26 +69,45 @@ export default function ContactFormSec() {
                             </div>
                         </div>
                         <div className="col-lg-6">
-                            <div className="contact-form">
+                            <div className="contact-form gd-form">
                                 <form id="contact-form" className="row" onSubmit={handleSubmit}>
                                     <div className="col-lg-6 form-group">
-                                        <i className="feather-icon icon-user"></i>
-                                        <input className="form-control" name="name" type="text" placeholder="Nama Lengkap *" aria-label="Nama lengkap" autoComplete="name" required />
+                                        <label className="calc-label" htmlFor="kontak-nama">
+                                            Nama lengkap <span className="gd-required">*</span>
+                                        </label>
+                                        <i className="feather-icon icon-user" aria-hidden="true"></i>
+                                        <input id="kontak-nama" className="form-control" name="name" type="text" placeholder="Contoh: Budi Santoso" autoComplete="name" required />
                                     </div>
                                     <div className="col-lg-6 form-group">
-                                        <i className="feather-icon icon-map-pin"></i>
-                                        <input className="form-control" name="city" type="text" placeholder="Kota / Lokasi Proyek *" aria-label="Kota atau lokasi proyek" required />
+                                        <label className="calc-label" htmlFor="kontak-kota">
+                                            Kota / lokasi proyek <span className="gd-required">*</span>
+                                        </label>
+                                        <i className="feather-icon icon-map-pin" aria-hidden="true"></i>
+                                        <input id="kontak-kota" className="form-control" name="city" type="text" placeholder="Contoh: Surabaya" autoComplete="address-level2" required />
                                     </div>
+                                    <ComboField
+                                        id="kontak-lapangan"
+                                        className="col-12"
+                                        label="Jenis lapangan"
+                                        icon="icon-clipboard"
+                                        value={selectedSubject}
+                                        onChange={setSelectedSubject}
+                                        options={contactFormSubjects.map((item) => ({ value: item.value, label: item.label }))}
+                                    />
+                                    <ComboField
+                                        id="kontak-budget"
+                                        className="col-12"
+                                        label="Estimasi budget"
+                                        icon="icon-credit-card"
+                                        value={selectedBudget}
+                                        onChange={setSelectedBudget}
+                                        options={contactFormBudgets.map((item) => ({ value: item.value, label: item.label }))}
+                                    />
                                     <div className="col-12 form-group">
-                                        <i className="feather-icon icon-clipboard"></i>
-                                        <CustomFormSelect optionArray={contactFormSubjects} value={selectedSubject} onChange={setSelectedSubject} aria-label="Jenis lapangan yang diminati" />
-                                    </div>
-                                    <div className="col-12 form-group">
-                                        <i className="feather-icon icon-credit-card"></i>
-                                        <CustomFormSelect optionArray={contactFormBudgets} value={selectedBudget} onChange={setSelectedBudget} aria-label="Estimasi budget" />
-                                    </div>
-                                    <div className="col-lg-12 form-group">
-                                        <textarea className="form-control" name="message" rows={6} placeholder="Pesan / detail kebutuhan (opsional)" aria-label="Pesan atau detail kebutuhan"></textarea>
+                                        <label className="calc-label" htmlFor="kontak-pesan">
+                                            Pesan / detail kebutuhan <span className="gd-optional">(opsional)</span>
+                                        </label>
+                                        <textarea id="kontak-pesan" className="form-control" name="message" rows={5} placeholder="Contoh: lahan 20 x 40 meter, ingin lapangan futsal indoor"></textarea>
                                     </div>
                                     <div className="col-lg-12">
                                         <button type="submit" className="btn btn-primary btn-whatsapp mt-4">

@@ -51,10 +51,16 @@ export default function FeatureSec() {
                                 <FadeIn delay={100}>
                                     <span className="lead text-primary">Sejak 2010 &middot; Melayani Seluruh Indonesia</span>
                                     <h1 className="text-uppercase text-info mt-3 mb-5">Bangun Lapangan Olahraga dari Nol</h1>
-                                    <a href={waLink()} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-whatsapp">
-                                        <WhatsAppIcon className="me-2" />
-                                        Konsultasi Gratis
-                                    </a>
+                                    <div className="hero-actions">
+                                        <a href={waLink()} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-whatsapp">
+                                            <WhatsAppIcon className="me-2" />
+                                            Konsultasi Gratis
+                                        </a>
+                                        <a href="#kalkulator" className="btn gd-btn-outline">
+                                            <i className="feather-icon icon-bar-chart-2 me-2" aria-hidden="true"></i>
+                                            Hitung Balik Modal
+                                        </a>
+                                    </div>
                                 </FadeIn>
                             </div>
                         </div>

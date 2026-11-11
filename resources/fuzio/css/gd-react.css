@@ -135,12 +135,6 @@ header.header .top-bar .top-meta {
   height: auto;
 }
 
-/* Kontak form: the template's dropdowns use smaller text than the text
-   fields beside them; match the .form-control size. */
-.contact-form .nice-select {
-  font-size: 1.125rem;
-}
-
 /* Kontak form as a card: #F5F5F5 card with a border and soft shadow.
    Fields keep the template's #E8E8E8 border so they stay visible. */
 .contact2-sec .contact-form {
@@ -153,7 +147,7 @@ header.header .top-bar .top-meta {
 
 .contact2-sec .contact-form .form-group input,
 .contact2-sec .contact-form .form-group textarea,
-.contact2-sec .contact-form .form-group .nice-select {
+.contact2-sec .contact-form .form-group .gd-dd-trigger {
   background-color: #f5f5f5;
   border: 1px solid #e7e5e4;
 }
@@ -291,4 +285,196 @@ header.header .top-bar a,
   .feature-sec .feature-entry:hover a {
     color: var(--black);
   }
+}
+
+/* Hero buttons: "Konsultasi Gratis" + "Hitung Balik Modal" (jumps to the
+   Kalkulator section). Side by side, wrapping onto two lines on phones. */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Secondary hero button: white outline, faint see-through fill on hover
+   (no solid white, see the off-white rule). */
+.btn.gd-btn-outline {
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  color: #fff;
+}
+
+.btn.gd-btn-outline:hover,
+.btn.gd-btn-outline:focus-visible {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: #fff;
+  color: #fff;
+}
+
+/* Land the Kalkulator heading below the sticky header, not under it. */
+#kalkulator {
+  scroll-margin-top: 80px;
+}
+
+/* Kalkulator dropdowns (ComboField.tsx): the field keeps the Fuzio rounded
+   style; the choices open as a floating rounded panel just below it, with
+   a border and soft shadow so it never blends into the field. */
+.gd-dd {
+  position: relative;
+}
+
+.gd-dd .gd-dd-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding-left: 45px;
+  padding-right: 56px;
+  color: var(--headings-color);
+  text-align: left;
+  cursor: pointer;
+}
+
+.gd-dd .gd-dd-input {
+  padding-right: 56px;
+  color: var(--headings-color);
+}
+
+.gd-dd .gd-dd-trigger:focus-visible,
+.gd-dd .gd-dd-input:focus,
+.gd-dd.is-open .form-control {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.12);
+  outline: 0;
+}
+
+/* chevron on the right of the field (label 22px + 8px gap, field 60px) */
+.gd-dd .gd-dd-toggle {
+  position: absolute;
+  top: 38px;
+  right: calc(var(--bs-gutter-x, 1.5rem) * 0.5 + 8px);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--headings-color);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+span.gd-dd-toggle {
+  pointer-events: none;
+}
+
+button.gd-dd-toggle:hover {
+  background-color: rgba(0, 100, 0, 0.08);
+}
+
+.gd-dd.is-open .gd-dd-toggle {
+  transform: rotate(180deg);
+}
+
+.gd-dd .gd-dd-list {
+  position: absolute;
+  top: 98px;
+  left: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+  right: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+  z-index: 30;
+  max-height: 272px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+  border-radius: 18px;
+  box-shadow: 0 16px 36px rgba(0, 40, 0, 0.18);
+  animation: gdDropdownIn 0.14s ease-out;
+}
+
+.gd-dd .gd-dd-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: var(--headings-color);
+  font-size: 16px;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.gd-dd .gd-dd-option + .gd-dd-option {
+  margin-top: 2px;
+}
+
+.gd-dd .gd-dd-option.is-active {
+  background-color: #eef6ee;
+}
+
+.gd-dd .gd-dd-option.is-selected {
+  background-color: #e3f1e3;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.gd-dd .gd-dd-option svg {
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+@keyframes gdDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-dd .gd-dd-list {
+    animation: none;
+  }
+}
+
+/* Shared form look (Kalkulator and Kontak, class gd-form): label above each
+   field, Fuzio rounded 60px field with the icon inside, below the label
+   (label 22px + 8px gap). */
+.gd-form .form-group > i.feather-icon {
+  top: 51px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.gd-form .form-control:not(textarea) {
+  height: 60px;
+  border-radius: 32px;
+}
+
+.gd-form textarea.form-control {
+  padding: 16px 20px;
+  border-radius: 24px;
+  resize: vertical;
+}
+
+.gd-form .form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.12);
+}
+
+.gd-form .gd-required {
+  color: #b42318;
+}
+
+.gd-form .gd-optional {
+  color: var(--body-color);
+  font-weight: 400;
 }
