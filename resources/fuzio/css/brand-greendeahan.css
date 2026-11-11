@@ -1,0 +1,629 @@
+/*==============================================================
+  Green Deahan brand colors
+  --------------------------------------------------------------
+  Source: ~/production/green-deahan-booking/tailwind.config.js (brand.*)
+    brand        #006400   main green (backgrounds, buttons)
+    brand-dark   #004d00   hover / pressed
+    brand-400    #4caf50   bright accent (stars, gradients)
+    brand-300    #94c99a   accent for text/icons on DARK backgrounds
+    brand-200    #c8e6c9
+    brand-100    #e8f5e9
+    brand-50     #f3faf3   light section background
+
+  Loaded after style.css (see combined.css). Colors only: no layout,
+  spacing, size or font changes. Remove the import to revert.
+
+  Fuzio's lime was a LIGHT color (dark text on top of it). Green
+  Deahan's green is DARK, so:
+    - lime backgrounds  -> #006400 with white text
+    - lime text on dark -> #94c99a
+==============================================================*/
+
+/* 1. Theme & Bootstrap variables
+---------------------------------------------------------------*/
+:root,
+[data-bs-theme=light] {
+  --gd-accent: #94c99a;
+  --gd-accent-rgb: 148, 201, 154;
+
+  --primary: #006400;
+  --primary-2: #004d00;
+  --primary-rgb: 0, 100, 0;
+  --primary-dark: #004d00;
+  --light: #f3faf3;
+  --gr-txt: linear-gradient(#4caf50, #c8e6c9);
+  --gr-bg: linear-gradient(45deg, #4caf50 0%, #c8e6c9 100%);
+
+  --bs-primary: #006400;
+  --bs-primary-rgb: 0, 100, 0;
+  --bs-light: #f3faf3;
+  --bs-light-rgb: 243, 250, 243;
+  --bs-primary-text-emphasis: #004d00;
+  --bs-primary-bg-subtle: #e8f5e9;
+  --bs-primary-border-subtle: #c8e6c9;
+  --bs-link-color: #006400;
+  --bs-link-color-rgb: 0, 100, 0;
+  --bs-link-hover-color: #004d00;
+  --bs-link-hover-color-rgb: 0, 77, 0;
+  --bs-focus-ring-color: rgba(0, 100, 0, 0.25);
+}
+
+/* 2. Bootstrap components with hard-coded lime
+---------------------------------------------------------------*/
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: #94c99a;
+  box-shadow: 0 0 0 0.25rem rgba(0, 100, 0, 0.25);
+}
+
+.nav-link:focus-visible {
+  box-shadow: 0 0 0 0.25rem rgba(0, 100, 0, 0.25);
+}
+
+.form-check-input:checked,
+.form-check-input[type=checkbox]:indeterminate {
+  background-color: #006400;
+  border-color: #006400;
+}
+
+.form-range::-webkit-slider-thumb {
+  background-color: #006400;
+}
+
+.form-range::-moz-range-thumb {
+  background-color: #006400;
+}
+
+.form-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 0.25rem rgba(0, 100, 0, 0.25);
+}
+
+.form-range:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 0.25rem rgba(0, 100, 0, 0.25);
+}
+
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #006400;
+  --bs-btn-border-color: #006400;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #004d00;
+  --bs-btn-hover-border-color: #004d00;
+  --bs-btn-focus-shadow-rgb: 0, 100, 0;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #004d00;
+  --bs-btn-active-border-color: #004d00;
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #006400;
+  --bs-btn-disabled-border-color: #006400;
+}
+
+/* style.css sets the hover text to the dark heading color */
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: #004d00;
+  color: #fff;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: #006400;
+  --bs-btn-border-color: #006400;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #006400;
+  --bs-btn-hover-border-color: #006400;
+  --bs-btn-focus-shadow-rgb: 0, 100, 0;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #006400;
+  --bs-btn-active-border-color: #006400;
+  --bs-btn-disabled-color: #006400;
+  --bs-btn-disabled-border-color: #006400;
+}
+
+.btn-light {
+  --bs-btn-bg: #f3faf3;
+  --bs-btn-border-color: #f3faf3;
+  --bs-btn-disabled-bg: #f3faf3;
+  --bs-btn-disabled-border-color: #f3faf3;
+}
+
+.btn-outline-light {
+  --bs-btn-color: #f3faf3;
+  --bs-btn-border-color: #f3faf3;
+  --bs-btn-hover-bg: #f3faf3;
+  --bs-btn-hover-border-color: #f3faf3;
+  --bs-btn-active-bg: #f3faf3;
+  --bs-btn-active-border-color: #f3faf3;
+  --bs-btn-disabled-color: #f3faf3;
+  --bs-btn-disabled-border-color: #f3faf3;
+}
+
+.table-light {
+  --bs-table-bg: #f3faf3;
+}
+
+.dropdown-menu,
+.dropdown-menu-dark {
+  --bs-dropdown-link-active-bg: #006400;
+  --bs-dropdown-link-active-color: #fff;
+}
+
+.nav-pills {
+  --bs-nav-pills-link-active-bg: #006400;
+  --bs-nav-pills-link-active-color: #fff;
+}
+
+.accordion {
+  --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(0, 100, 0, 0.25);
+}
+
+.pagination {
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(0, 100, 0, 0.25);
+  --bs-pagination-active-bg: #006400;
+  --bs-pagination-active-border-color: #006400;
+  --bs-pagination-active-color: #fff;
+}
+
+.progress,
+.progress-stacked {
+  --bs-progress-bar-bg: #006400;
+}
+
+.list-group {
+  --bs-list-group-active-bg: #006400;
+  --bs-list-group-active-border-color: #006400;
+  --bs-list-group-active-color: #fff;
+}
+
+.btn-close {
+  --bs-btn-close-focus-shadow: 0 0 0 0.25rem rgba(0, 100, 0, 0.25);
+}
+
+.text-bg-primary {
+  color: #fff !important;
+}
+
+.link-primary:hover,
+.link-primary:focus {
+  color: RGBA(0, 77, 0, var(--bs-link-opacity, 1)) !important;
+  text-decoration-color: RGBA(0, 77, 0, var(--bs-link-underline-opacity, 1)) !important;
+}
+
+/* 3. Template rules with hard-coded lime
+---------------------------------------------------------------*/
+.shop-wrapper .nice-select .list .option.selected,
+.contact-form .nice-select .list .option.selected {
+  background-color: #006400 !important;
+  color: #fff;
+}
+
+.single-entry .entry-content {
+  background-color: #f3faf3;
+}
+
+.promo-sec::after {
+  background: rgb(0, 100, 0);
+  background: linear-gradient(-90deg, rgba(0, 100, 0, 0.90) 10%, rgba(0, 100, 0, 0.7) 30%, rgba(14, 18, 29, 0.9) 60%);
+}
+
+.open-popup .icon,
+.open-popup .icon-sm {
+  color: #94c99a;
+  border-color: #94c99a;
+}
+
+.counter-sec2 .counter-card .display-1 {
+  color: #94c99a;
+  text-shadow: 2px 2px 0 #004d00, -2px 2px 0 #004d00, -2px -2px 0 #004d00, 2px -2px 0 #004d00;
+}
+
+/* Lime decorative circles baked into feature-bg.png -> green */
+.feature-sec::before {
+  filter: hue-rotate(55deg) saturate(0.7) brightness(0.8);
+}
+
+/* 4. Lime TEXT/ICONS on dark backgrounds -> light accent
+---------------------------------------------------------------*/
+/* every .text-primary in the site sits on a dark bg (btn-dark, hero, CTA) */
+.text-primary {
+  color: rgba(var(--gd-accent-rgb), var(--bs-text-opacity)) !important;
+}
+
+/* Only header-1 (homepage) has a dark navbar. The white PagesHeader keeps
+   its own rule (var(--primary-2) = #004d00 now); the football/basketball/
+   cricket headers keep their own accent colors untouched. Desktop only:
+   the template's own mobile-menu rule stays as it is. */
+@media (min-width: 992px) {
+  .header-1 .navbar .navbar-nav .nav-item.current > a.nav-link {
+    color: var(--gd-accent);
+  }
+
+  .header-1 .navbar .navbar-nav .nav-item.current > a.nav-link::after {
+    background-color: var(--gd-accent);
+  }
+}
+
+.footer a:hover,
+.footer a:focus,
+.footer-widget ul li span i,
+.swiper-button-next,
+.swiper-button-prev,
+.product-entry .product-cta a i,
+.product-entry2 .product-cta a i,
+.product-entry3 .product-cta a i,
+ol.breadcrumb .breadcrumb-item::before,
+section.promo-sec .breadcrumb .breadcrumb-item.active,
+.tab-txt a.btn {
+  color: var(--gd-accent);
+}
+
+/* 5. Dark text on (now dark green) backgrounds -> white
+---------------------------------------------------------------*/
+/* Top bar: same treatment as the template's own .header-text-white */
+header.header .top-bar.bg-primary p,
+header.header .top-bar.bg-primary p i,
+header.header .top-bar.bg-primary a:not(.dropdown-item),
+header.header .top-bar.bg-primary .language-select span,
+header.header .top-bar.bg-primary .nice-select .current {
+  color: #fff;
+}
+
+header.header .top-bar.bg-primary .nice-select::after {
+  border-color: #fff;
+}
+
+header.header .top-bar.bg-primary .top-meta::before {
+  background: #fff;
+}
+
+blockquote.bg-primary,
+button.bg-primary,
+.icon-sm.bg-primary,
+.icon-sm.bg-primary i,
+sup.bg-primary,
+.navbar .nav-cta a sup,
+.header-actions .cart-num,
+.product-entry .badge,
+.product-entry2 .badge,
+.product-entry3 .badge,
+.pricing-card .btn,
+.pager a:hover,
+.pager span:hover,
+.header-actions a:hover,
+.widget ul li:hover a,
+.widget_tag_cloud a:hover,
+.social a:hover,
+.social-share2 a:hover,
+.woocommerce td.product-remove a.remove,
+.product-details-tab .nav-tabs li .nav-link.active,
+.product-details-tab .nav-tabs li .nav-link:focus {
+  color: #fff;
+}
+
+.badge.bg-primary.text-dark {
+  color: #fff !important;
+}
+
+/* dark SVG/PNG icons inside green circles -> white */
+.icon-sm.bg-primary img {
+  filter: brightness(0) invert(1);
+}
+
+/* black brand logos on the green strip -> white */
+.brand-sec.bg-primary .single-brand img {
+  filter: brightness(0) invert(1);
+}
+
+/* Hover cards that turn green */
+.feature-entry:hover h3,
+.feature-entry:hover p,
+.feature-entry:hover a {
+  color: #fff;
+}
+
+.single-entry .entry-content.bg-primary h3 a,
+.single-entry .entry-content.bg-primary .entry-meta span,
+.single-entry .entry-content.bg-primary a.read-more,
+.single-entry:hover .entry-content h3 a,
+.single-entry:hover .entry-content .entry-meta span,
+.single-entry:hover .entry-content a,
+.single-entry:hover a.read-more {
+  color: #fff;
+}
+
+/* Contact cards: icon on green circle -> white; hover card turns green */
+.contact-card .icon i,
+.contact-card .icon-sm i {
+  color: #fff;
+}
+
+.contact-card:hover .icon i,
+.contact-card:hover .icon-sm i {
+  color: var(--black);
+}
+
+.contact-card:hover h3,
+.contact-card:hover .h3,
+.contact-card:hover a,
+.contact-card:hover p {
+  color: #fff;
+}
+
+/* Pricing cards (black cards; the active/hovered one turns green) */
+.pricing-card .pricing-header .icon img,
+.pricing-card .pricing-header .icon-sm img {
+  filter: brightness(0) invert(1);
+}
+
+.pricing-card.active .pricing-header .icon img,
+.pricing-card.active .pricing-header .icon-sm img,
+.pricing-card:hover .pricing-header .icon img,
+.pricing-card:hover .pricing-header .icon-sm img {
+  filter: none;
+}
+
+/* lime check image (checkbox-p.png) on the black cards -> green */
+.pricing-card .pricing-body ul li::before {
+  filter: hue-rotate(55deg) saturate(0.7);
+}
+
+.pricing-card.active h2,
+.pricing-card.active .h2,
+.pricing-card.active .price-rate,
+.pricing-card.active .price-rate sub,
+.pricing-card:hover h2,
+.pricing-card:hover .h2,
+.pricing-card:hover .price-rate,
+.pricing-card:hover .price-rate sub,
+.pricing-card.active .pricing-body li,
+.pricing-card:hover .pricing-body li {
+  color: #fff;
+}
+
+/* black check image (checkbox-b.png) on the green card -> white */
+.pricing-card.active .pricing-body li::before,
+.pricing-card:hover .pricing-body li::before {
+  filter: brightness(0) invert(1);
+}
+
+/* 6. Homepage sticky header: white instead of black (like inner pages)
+---------------------------------------------------------------
+   The template turned header-1 black on scroll so its lime accents
+   would show. With the dark brand green, white matches the inner pages
+   (PagesHeader) and keeps the green logo readable. Before scrolling the
+   header stays transparent over the hero with white links. */
+.header-1 .navbar.scroll-on {
+  background-color: var(--white);
+}
+
+/* icons and hamburger sit on the white bar at every width */
+.header-1 .navbar.scroll-on .nav-cta a,
+.header-1 .navbar.scroll-on .navbar-toggler span {
+  color: var(--black);
+}
+
+/* Desktop only: on mobile the links live in the dark slide-out menu */
+@media (min-width: 992px) {
+  .header-1 .navbar.scroll-on .navbar-nav li a.nav-link {
+    color: var(--black);
+  }
+
+  .header-1 .navbar.scroll-on .navbar-nav .nav-item.current > a.nav-link {
+    color: var(--primary-2);
+  }
+
+  .header-1 .navbar.scroll-on .navbar-nav .nav-item.current > a.nav-link::after {
+    background-color: var(--primary);
+  }
+}
+
+/* Mobile: header-1's slide-out menu is dark (bg-dark), so its current
+   item uses the light accent (the template made it lime there). */
+@media (max-width: 991.98px) {
+  .header-1 .navbar .navbar-nav .nav-item.current > a.nav-link {
+    color: var(--gd-accent);
+    border-left-color: var(--gd-accent);
+  }
+}
+
+/* 7. Black buttons (.btn-dark) -> brand green with white text
+---------------------------------------------------------------
+   Matches .btn-primary. The football demo page keeps its own black
+   buttons (teal theme), so it is excluded below. */
+.btn-dark {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #006400;
+  --bs-btn-border-color: #006400;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #004d00;
+  --bs-btn-hover-border-color: #004d00;
+  --bs-btn-focus-shadow-rgb: 0, 100, 0;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #004d00;
+  --bs-btn-active-border-color: #004d00;
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #006400;
+  --bs-btn-disabled-border-color: #006400;
+}
+
+/* text was the pale accent (on black); on green it must be white */
+.btn-dark.text-primary {
+  color: #fff !important;
+}
+
+/* about-page tab buttons got the accent text in section 4 */
+.tab-txt a.btn.btn-dark {
+  color: #fff;
+}
+
+body:has(header.header-football) .btn-dark {
+  --bs-btn-bg: #000;
+  --bs-btn-border-color: #000;
+  --bs-btn-hover-bg: rgb(38.25, 38.25, 38.25);
+  --bs-btn-hover-border-color: rgb(25.5, 25.5, 25.5);
+  --bs-btn-focus-shadow-rgb: 38, 38, 38;
+  --bs-btn-active-bg: #333333;
+  --bs-btn-active-border-color: rgb(25.5, 25.5, 25.5);
+  --bs-btn-disabled-bg: #000;
+  --bs-btn-disabled-border-color: #000;
+}
+
+/* Pricing: the highlighted (green) card's button was black; a green
+   button would vanish there, so it is white with brand-green text. */
+.pricing-card.active .btn,
+.pricing-card:hover .btn {
+  background-color: var(--white);
+  color: #006400;
+}
+
+/* 8. Testimonial slider arrows: black circles -> brand green, white arrow */
+.testimonial-nav .swiper-button-next,
+.testimonial-nav .swiper-button-prev {
+  background: #006400;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.testimonial-nav .swiper-button-next:hover,
+.testimonial-nav .swiper-button-prev:hover {
+  background: #004d00;
+}
+
+/* 9. WhatsApp buttons: light brand green with dark-green text + icon
+---------------------------------------------------------------
+   brand-300 #94c99a background, brand-dark #004d00 text (~6:1 contrast);
+   hover goes one step lighter (brand-200). */
+.btn.btn-whatsapp {
+  --bs-btn-color: #004d00;
+  --bs-btn-bg: #94c99a;
+  --bs-btn-border-color: #94c99a;
+  --bs-btn-hover-color: #004d00;
+  --bs-btn-hover-bg: #c8e6c9;
+  --bs-btn-hover-border-color: #c8e6c9;
+  --bs-btn-active-color: #004d00;
+  --bs-btn-active-bg: #c8e6c9;
+  --bs-btn-active-border-color: #c8e6c9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn.btn-whatsapp:hover,
+.btn.btn-whatsapp:focus,
+.btn.btn-whatsapp:active {
+  background-color: #c8e6c9;
+  color: #004d00;
+}
+
+.btn.btn-whatsapp svg {
+  flex-shrink: 0;
+}
+
+/* WhatsApp icon in the top bar: sit on the text baseline like the old
+   feather icon did */
+.top-bar .topbar-wa-icon {
+  vertical-align: -3px;
+}
+
+/* 10. Brand logo strip: hover panel #FBB044 (was black) with the hover
+   logo in black so it stays readable on the light orange */
+.brand-sec .single-brand::before {
+  background-color: #FBB044;
+}
+
+.brand-sec.bg-primary .single-brand img.hover-img {
+  filter: brightness(0);
+}
+
+/* Top-bar links on the green bar: global a:hover/:focus would turn them
+   dark green (invisible on green), so hover/focus uses a light green. */
+header.header .top-bar.bg-primary a:not(.dropdown-item):hover,
+header.header .top-bar.bg-primary a:not(.dropdown-item):focus {
+  color: #c8e6c9;
+}
+
+/* 11. Homepage blog cards use the /blog page card (.single-entry2).
+   Copies the card spacing/transition that style.css only applies inside
+   .blog-page, so the homepage cards match /blog exactly. */
+.blog-sec .single-entry2 {
+  margin-bottom: 30px;
+  transition: all 0.4s ease-in-out;
+}
+
+/* 12. Blog card hover: teal (--sky, the football accent) -> brand green.
+   Covers the homepage blog cards and all /blog* pages (/blog-list's
+   card used the bright --success green); the football demo keeps teal. */
+.single-entry2:hover h3 a,
+.single-entry2:hover .h3 a,
+.single-entry2:hover .btn-link,
+.blog-page .list-entry:hover h3 a,
+.blog-page .list-entry:hover .h3 a,
+.blog-page .list-entry:hover .btn-link,
+.list-entry2:hover h3 a,
+.list-entry2:hover .h3 a {
+  color: var(--primary);
+}
+
+body:has(header.header-football) .single-entry2:hover h3 a,
+body:has(header.header-football) .single-entry2:hover .h3 a,
+body:has(header.header-football) .single-entry2:hover .btn-link {
+  color: var(--sky);
+}
+
+/* 13. Homepage project cards: location line with map-pin icon,
+   regular weight and slightly smaller than the title. */
+.products-sec .product-entry .price.project-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+  font-size: 14px;
+  color: #696969;
+}
+
+.products-sec .product-entry .project-location .feather-icon {
+  color: var(--primary);
+  font-size: 15px;
+}
+
+/* 14. About tabs: the theme's `.tab-txt a.btn` text color is more specific
+   than the WhatsApp button colors, so restate them here. */
+.tab-txt a.btn.btn-whatsapp,
+.tab-txt a.btn.btn-whatsapp:hover,
+.tab-txt a.btn.btn-whatsapp:focus {
+  color: #004d00;
+}
+
+/* 15. Contact form: keep the field icons visible on the two dropdowns
+   (the open/closed select box was painting over them). */
+.contact-form .form-group > i.feather-icon {
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* 16. About "why us" list: short points, larger readable text */
+.why-us-list li + li {
+  margin-top: 22px;
+}
+
+.why-us-list .feather-icon {
+  color: var(--primary);
+  font-size: 26px;
+  line-height: 1;
+  margin: 2px 16px 0 0;
+  flex-shrink: 0;
+}
+
+.why-us-list h3 {
+  font-family: "DM Sans", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: none;
+  margin-bottom: 4px;
+}
+
+.why-us-list p {
+  font-size: 17px;
+  margin-bottom: 0;
+}

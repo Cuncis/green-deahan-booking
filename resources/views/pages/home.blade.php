@@ -22,6 +22,10 @@
             .faq-answer.open { max-height: 300px; }
         </style>
         <x-favicon />
+        @if (request()->routeIs('home.v2', '*.home.v2'))
+            {{-- Homepage lama yang dipindah ke /v2, jangan diindeks supaya tidak bersaing dengan / --}}
+            <meta name="robots" content="noindex, nofollow">
+        @endif
         <x-seo-head />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="{

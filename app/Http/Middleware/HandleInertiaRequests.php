@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 /**
- * Standard Inertia root-view middleware, added only so the /v2 React page
- * (resources/js/pages/V2Home.tsx) can render. It does not affect any other
+ * Standard Inertia root-view middleware, added only so the React homepage
+ * (resources/js/pages/Home.tsx) can render. It does not affect any other
  * route: routes that never call Inertia::render() are unaffected by this
  * middleware being present in the 'web' group.
  */

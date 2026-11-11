@@ -7,8 +7,9 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
-        // /v2 is the only page built with React (Inertia), see resources/js/pages/V2Home.tsx.
-        './resources/js/**/*.tsx',
+        // resources/js/**/*.tsx is deliberately NOT scanned: the React
+        // homepage (resources/js/pages/Home.tsx) is styled by the Fuzio
+        // template CSS in resources/fuzio/, not Tailwind.
     ],
 
     theme: {

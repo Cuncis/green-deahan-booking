@@ -2,7 +2,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
 
 /**
- * Entry point for the /v2 Inertia + React page only. Every other route in
+ * Entry point for the Inertia + React homepage only. Every other route in
  * this app is server-rendered Blade + Livewire + Alpine (resources/js/app.js)
  * and never loads this bundle.
  */

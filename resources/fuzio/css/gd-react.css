@@ -1,0 +1,95 @@
+/* Animations used by the React ports of Fuzio's animation components
+   (resources/js/components/fuzio/elements). */
+.gd-reveal-hidden {
+  opacity: 0;
+}
+
+.gd-reveal-left {
+  animation-name: gdRevealLeftToRight;
+  animation-timing-function: ease;
+  animation-fill-mode: both;
+}
+
+@keyframes gdRevealLeftToRight {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-reveal-left {
+    animation: none;
+  }
+}
+
+/* The top bar divider separated "Chat WhatsApp" from the language
+   selector, which was removed, so hide it. */
+header.header .top-bar .top-meta::before {
+  display: none;
+}
+
+/* Fuzio's top bar got its height (46px: 4px + 38px + 4px) from the 38px
+   language selector. That selector was removed, so keep the same row
+   height here to match the template. */
+header.header .top-bar .top-meta {
+  min-height: 38px;
+}
+
+/* Hero "Konsultasi Gratis" and CTA section "Chat WhatsApp Sekarang"
+   buttons: amber instead of the light brand green. Text stays brand-dark
+   #004d00 (~6.3:1 contrast on #FEB046). Hover goes one step darker. */
+.golf-banner .banner-txt .btn.btn-whatsapp,
+.cta-sec .cta-txt .btn.btn-whatsapp {
+  --bs-btn-bg: #feb046;
+  --bs-btn-border-color: #feb046;
+  --bs-btn-hover-bg: #f59f24;
+  --bs-btn-hover-border-color: #f59f24;
+  --bs-btn-active-bg: #f59f24;
+  --bs-btn-active-border-color: #f59f24;
+  background-color: #feb046;
+  border-color: #feb046;
+}
+
+.golf-banner .banner-txt .btn.btn-whatsapp:hover,
+.golf-banner .banner-txt .btn.btn-whatsapp:focus,
+.golf-banner .banner-txt .btn.btn-whatsapp:active,
+.cta-sec .cta-txt .btn.btn-whatsapp:hover,
+.cta-sec .cta-txt .btn.btn-whatsapp:focus,
+.cta-sec .cta-txt .btn.btn-whatsapp:active {
+  background-color: #f59f24;
+  border-color: #f59f24;
+}
+
+/* Hero heading: the template sizes (110/85/65px) are made for Fuzio's
+   short title. "Bangun Lapangan Olahraga dari Nol" is longer and ran
+   under the photo on the right (.golfer-img, 45% or 660px wide, shown
+   from 768px). These sizes keep the longest line inside the dark panel.
+   Below 768px the photo is hidden, so the template sizes still apply. */
+@media (min-width: 768px) {
+  .golf-banner .banner-txt h1 {
+    font-size: 46px;
+  }
+}
+
+@media (min-width: 992px) {
+  .golf-banner .banner-txt h1 {
+    font-size: 62px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .golf-banner .banner-txt h1 {
+    font-size: 76px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .golf-banner .banner-txt h1 {
+    font-size: 90px;
+  }
+}

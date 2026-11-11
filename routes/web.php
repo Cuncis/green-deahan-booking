@@ -32,19 +32,16 @@ use Inertia\Inertia;
 // galeri & blog dikelola lewat /superadmin, lihat Superadmin\GaleriAdminController
 // dan Superadmin\ArtikelAdminController.
 $situsKorporat = function () {
-    Route::get('/', fn () => view('pages.home'))->name('home');
-    // Halaman yang dibangun dengan Inertia + React, lihat resources/js/pages/.
-    // Halaman lain semua Blade + Livewire + Alpine.
-    Route::get('/v2', fn () => Inertia::render('V2Home'))->name('home.v2');
-    Route::get('/v2/konsep', fn () => Inertia::render('V2Konsep'))->name('home.v2.konsep');
+    // Homepage dibangun dengan Inertia + React (resources/js/pages/Home.tsx),
+    // porting dari template Fuzio "Home (Gulf)". Homepage Blade lama tetap
+    // bisa dibuka di /v2 (noindex). Halaman lain semua Blade + Livewire + Alpine.
+    Route::get('/', fn () => Inertia::render('Home'))->name('home');
+    Route::get('/v2', fn () => view('pages.home'))->name('home.v2');
     Route::get('/konsep', fn () => view('pages.konsep'))->name('konsep');
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
-    Route::get('/v2/galeri', [GaleriController::class, 'v2'])->name('home.v2.galeri');
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
-    Route::get('/v2/blog', [BlogController::class, 'v2'])->name('home.v2.blog');
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
     Route::get('/kontak', fn () => view('pages.kontak'))->name('kontak');
-    Route::get('/v2/kontak', fn () => Inertia::render('V2Kontak'))->name('home.v2.kontak');
 
     // Paket berlangganan situs booking, cross-sell dari layanan konstruksi
     // lapangan ke produk SaaS booking. CTA per paket mengarah ke /daftar

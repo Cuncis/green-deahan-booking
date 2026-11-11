@@ -1,0 +1,41 @@
+/*==============================================================
+  Green Deahan: satu warna off-white saja (#F5F5F5)
+  --------------------------------------------------------------
+  Situs korporat tidak boleh memakai background putih murni
+  (#FFFFFF). File ini dimuat paling akhir dan hanya mengganti
+  background putih solid dari template Fuzio menjadi #F5F5F5.
+  Warna teks/border putih dan overlay transparan tidak diubah.
+==============================================================*/
+:root,
+[data-bs-theme=light] {
+  --bs-body-bg: #f5f5f5;
+  --bs-body-bg-rgb: 245, 245, 245;
+}
+
+header.header {
+  background: #f5f5f5;
+}
+
+.header-1 .navbar.scroll-on {
+  background-color: #f5f5f5;
+}
+
+.bg-white {
+  background-color: #f5f5f5 !important;
+}
+
+.nice-select .list,
+.nice-select .nice-select-dropdown {
+  background-color: #f5f5f5;
+}
+
+.form-control,
+.form-control:focus {
+  background-color: #f5f5f5;
+}
+
+@media (max-width: 991.98px) {
+  .navbar .offcanvas.bg-dark .dropdown-menu {
+    background-color: #f5f5f5;
+  }
+}

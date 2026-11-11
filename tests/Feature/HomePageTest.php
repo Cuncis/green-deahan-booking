@@ -6,20 +6,19 @@ use App\Models\Cabang;
 use App\Models\Lapangan;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class HomePageTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_homepage_bisa_diakses_di_domain_utama(): void
+    public function test_homepage_merender_halaman_react_fuzio_di_domain_utama(): void
     {
         $response = $this->get('http://greendeahan.com/');
 
         $response->assertOk();
-        $response->assertViewIs('pages.home');
-        $response->assertSee('Green Deahan Sport');
-        $response->assertSee('Bangun Lapangan Olahraga dari', false);
+        $response->assertInertia(fn (Assert $page) => $page->component('Home'));
     }
 
     public function test_homepage_bisa_diakses_lewat_www(): void
@@ -27,12 +26,40 @@ class HomePageTest extends TestCase
         $response = $this->get('http://www.greendeahan.com/');
 
         $response->assertOk();
-        $response->assertViewIs('pages.home');
+        $response->assertInertia(fn (Assert $page) => $page->component('Home'));
     }
 
-    public function test_homepage_tidak_mengandung_emoji_mentah(): void
+    public function test_homepage_bisa_diindeks_dan_memuat_seo_favicon(): void
     {
         $response = $this->get('http://greendeahan.com/');
+
+        $response->assertDontSee('<meta name="robots" content="noindex, nofollow">', false);
+        $response->assertSee('<link rel="canonical" href="http://greendeahan.com">', false);
+        $response->assertSee('<meta name="description" content="Jasa pembuatan lapangan futsal', false);
+        $response->assertSee('rel="icon"', false);
+        $response->assertSee('Jasa Pembuatan Lapangan Olahraga Se-Indonesia</title>', false);
+    }
+
+    public function test_homepage_blade_lama_pindah_ke_v2_dengan_noindex(): void
+    {
+        $response = $this->get('http://greendeahan.com/v2');
+
+        $response->assertOk();
+        $response->assertViewIs('pages.home');
+        $response->assertSee('Bangun Lapangan Olahraga dari', false);
+        $response->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+    }
+
+    public function test_halaman_v2_lama_lainnya_sudah_dihapus(): void
+    {
+        foreach (['/v2/konsep', '/v2/galeri', '/v2/blog', '/v2/kontak'] as $path) {
+            $this->get('http://greendeahan.com'.$path)->assertNotFound();
+        }
+    }
+
+    public function test_homepage_v2_tidak_mengandung_emoji_mentah(): void
+    {
+        $response = $this->get('http://greendeahan.com/v2');
 
         $response->assertDontSee('⚽');
         $response->assertDontSee('🏗');

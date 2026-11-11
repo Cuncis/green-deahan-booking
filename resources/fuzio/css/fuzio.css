@@ -1,0 +1,18 @@
+/*==============================================================
+  Fuzio template CSS, dipakai hanya oleh homepage React
+  (resources/js/pages/Home.tsx). Disalin dari ~/remove-later/fuzio
+  (src/css/combined.css) plus swiper-bundle.css (MIT) untuk gaya
+  slider. Halaman Blade lain tetap memakai Tailwind (resources/css/app.css).
+==============================================================*/
+@import './swiper-bundle.css';
+@import './feather.css';
+@import './nice-select2.css';
+@import './venobox.min.css';
+@import './animate.css';
+@import './jarallax.min.css';
+@import './style.css';
+
+/* Green Deahan brand colors (overrides only colors) */
+@import './brand-greendeahan.css';
+@import './gd-offwhite.css';
+@import './gd-react.css';

@@ -4,12 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Artikel;
 use Illuminate\View\View;
-use Inertia\Inertia;
-use Inertia\Response;
 
 /**
- * Halaman /blog (Blade) dan /v2/blog (Inertia + React) di situs korporat
- * (greendeahan.com). Datanya dikelola lewat /superadmin/artikel, lihat
+ * Halaman /blog di situs korporat (greendeahan.com). Datanya dikelola lewat /superadmin/artikel, lihat
  * Superadmin\ArtikelAdminController.
  */
 class BlogController extends Controller
@@ -17,13 +14,6 @@ class BlogController extends Controller
     public function index(): View
     {
         return view('pages.blog', [
-            'artikel' => $this->artikelAktif(),
-        ]);
-    }
-
-    public function v2(): Response
-    {
-        return Inertia::render('V2Blog', [
             'artikel' => $this->artikelAktif(),
         ]);
     }

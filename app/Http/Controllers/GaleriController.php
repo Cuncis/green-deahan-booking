@@ -4,12 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\GaleriItem;
 use Illuminate\View\View;
-use Inertia\Inertia;
-use Inertia\Response;
 
 /**
- * Halaman /galeri (Blade) dan /v2/galeri (Inertia + React) di situs
- * korporat (greendeahan.com). Datanya dikelola lewat /superadmin/galeri,
+ * Halaman /galeri di situs korporat (greendeahan.com). Datanya dikelola lewat /superadmin/galeri,
  * lihat Superadmin\GaleriAdminController.
  */
 class GaleriController extends Controller
@@ -29,11 +26,6 @@ class GaleriController extends Controller
     public function index(): View
     {
         return view('pages.galeri', $this->data());
-    }
-
-    public function v2(): Response
-    {
-        return Inertia::render('V2Galeri', $this->data());
     }
 
     /**
