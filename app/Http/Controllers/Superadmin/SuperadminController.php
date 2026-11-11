@@ -8,6 +8,7 @@ use App\Models\Cabang;
 use App\Models\Tenant;
 use App\Models\TenantFitur;
 use App\Models\TenantInvitation;
+use App\Services\StatistikPengunjungService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -16,9 +17,10 @@ use Illuminate\View\View;
 
 class SuperadminController extends Controller
 {
-    public function dashboard(): View
+    public function dashboard(Request $request, StatistikPengunjungService $statistikPengunjung): View
     {
         return view('pages.superadmin.dashboard', [
+            'statistikPengunjung' => $statistikPengunjung->ringkasan((int) $request->query('rentang', 30)),
             'totalTenant' => Tenant::count(),
             'tenantAktif' => Tenant::where('status_aktif', true)->count(),
             'bookingHariIni' => Booking::where('status_booking', '!=', 'dibatalkan')

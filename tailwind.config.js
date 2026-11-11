@@ -7,9 +7,11 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
-        // resources/js/**/*.tsx is deliberately NOT scanned: the React
-        // homepage (resources/js/pages/Home.tsx) is styled by the Fuzio
-        // template CSS in resources/fuzio/, not Tailwind.
+        // React admin widgets (superadmin visitor charts) use Tailwind.
+        './resources/js/admin/**/*.tsx',
+        // The rest of resources/js/**/*.tsx is deliberately NOT scanned: the
+        // public React pages are styled by the Fuzio template CSS in
+        // resources/fuzio/, not Tailwind.
     ],
 
     theme: {

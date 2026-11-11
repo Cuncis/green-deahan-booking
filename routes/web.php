@@ -15,6 +15,7 @@ use App\Http\Controllers\Superadmin\MediaAdminController;
 use App\Http\Controllers\Superadmin\SeoAdminController;
 use App\Http\Controllers\Superadmin\SuperadminController;
 use App\Http\Controllers\TenantRegistrationController;
+use App\Http\Middleware\CatatKunjungan;
 use App\Http\Middleware\IdentifikasiTenant;
 use App\Models\Lapangan;
 use Illuminate\Http\Request;
@@ -80,8 +81,8 @@ $situsKorporat = function () {
     Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 };
 
-Route::withoutMiddleware(IdentifikasiTenant::class)->domain('greendeahan.com')->group($situsKorporat);
-Route::withoutMiddleware(IdentifikasiTenant::class)->domain('www.greendeahan.com')->name('www.')->group($situsKorporat);
+Route::withoutMiddleware(IdentifikasiTenant::class)->middleware(CatatKunjungan::class)->domain('greendeahan.com')->group($situsKorporat);
+Route::withoutMiddleware(IdentifikasiTenant::class)->middleware(CatatKunjungan::class)->domain('www.greendeahan.com')->name('www.')->group($situsKorporat);
 
 // Preview situs korporat lokal tanpa mengganggu tenant 'localhost' yang
 // sudah dipakai TestCase & seeder untuk uji coba booking (lihat
@@ -90,6 +91,7 @@ Route::withoutMiddleware(IdentifikasiTenant::class)->domain('www.greendeahan.com
 // lingkungan local, tidak akan pernah ada di production.
 if (app()->environment('local')) {
     Route::withoutMiddleware(IdentifikasiTenant::class)
+        ->middleware(CatatKunjungan::class)
         ->domain('greendeahan.localhost')
         ->name('local.')
         ->group($situsKorporat);

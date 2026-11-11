@@ -19,6 +19,18 @@
         </x-card>
     </div>
 
+    @push('head')
+        @viteReactRefresh
+        @vite('resources/js/admin/statistik-pengunjung.tsx')
+    @endpush
+
+    {{-- Grafik pengunjung situs korporat (React + Recharts), data dari StatistikPengunjungService --}}
+    <section class="mb-6" aria-labelledby="judul-statistik-pengunjung">
+        <div id="statistik-pengunjung" data-statistik='@json($statistikPengunjung)'>
+            <div class="rounded-card border border-cream-deep bg-white p-6 text-sm text-ink-soft">Memuat statistik pengunjung...</div>
+        </div>
+    </section>
+
     <x-card class="!p-0 overflow-hidden">
         <div class="px-5 py-4 border-b border-cream-dark flex items-center justify-between gap-3">
             <div class="text-xs font-bold uppercase tracking-wide text-green">5 Tenant Terbaru</div>

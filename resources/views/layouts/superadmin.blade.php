@@ -13,6 +13,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <x-favicon />
+        @stack('head')
     </head>
     <body class="font-sans antialiased bg-cream text-ink flex min-h-screen">
 
