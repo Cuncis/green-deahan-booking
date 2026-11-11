@@ -13,6 +13,7 @@ use App\Models\TenantFitur;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class BookingAdminControllerTest extends TestCase
@@ -217,8 +218,14 @@ class BookingAdminControllerTest extends TestCase
         $response = $this->actingAs($user)->get(route('admin.booking'));
 
         $response->assertOk();
-        $response->assertViewIs('pages.admin.bookings.index');
-        $response->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 2);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('admin/Booking')
+            ->where('booking.total', 2)
+            ->has('booking.data', 2)
+            ->has('booking.data.0', fn (Assert $baris) => $baris
+                ->hasAll(['id', 'kode', 'customer', 'telepon', 'waUrl', 'lapangan', 'jadwal', 'status', 'total', 'bisaDikonfirmasi', 'bisaDibatalkan', 'konfirmasiUrl', 'batalkanUrl'])
+            )
+        );
     }
 
     public function test_daftar_booking_tidak_menampilkan_booking_tenant_lain(): void
@@ -231,7 +238,7 @@ class BookingAdminControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('admin.booking'));
 
-        $response->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 1);
+        $response->assertInertia(fn (Assert $page) => $page->where('booking.total', 1));
     }
 
     public function test_daftar_booking_bisa_difilter_status(): void
@@ -243,8 +250,11 @@ class BookingAdminControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('admin.booking', ['status' => 'dibatalkan']));
 
-        $response->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 1
-            && $bookings->first()->status_booking === 'dibatalkan');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('booking.total', 1)
+            ->where('booking.data.0.status', 'dibatalkan')
+            ->where('filter.status', 'dibatalkan')
+        );
     }
 
     public function test_daftar_booking_bisa_dicari_lewat_kode_booking(): void
@@ -256,8 +266,10 @@ class BookingAdminControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('admin.booking', ['cari' => $booking->kode_booking]));
 
-        $response->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 1
-            && $bookings->first()->is($booking));
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('booking.total', 1)
+            ->where('booking.data.0.id', $booking->id)
+        );
     }
 
     public function test_admin_bisa_export_booking_ke_csv(): void

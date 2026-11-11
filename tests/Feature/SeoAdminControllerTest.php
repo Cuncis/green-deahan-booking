@@ -6,6 +6,7 @@ use App\Models\Artikel;
 use App\Models\PengaturanSitus;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class SeoAdminControllerTest extends TestCase
@@ -46,8 +47,13 @@ class SeoAdminControllerTest extends TestCase
     {
         $this->actingAs($this->superadmin())->get(route('superadmin.seo'))
             ->assertOk()
-            ->assertSee('Measurement ID')
-            ->assertSee('Panduan langkah demi langkah');
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('superadmin/Seo')
+                ->where('pengaturan.nama_situs', 'Green Deahan Sport')
+                ->where('pengaturan.indeks_mesin_pencari', true)
+                ->where('pengaturan.ga4_measurement_id', '')
+                ->where('simpanUrl', route('superadmin.seo.update'))
+            );
     }
 
     public function test_superadmin_bisa_simpan_pengaturan(): void

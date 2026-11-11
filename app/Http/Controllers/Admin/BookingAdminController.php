@@ -13,12 +13,18 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/**
+ * Halaman "Semua Booking" (React, resources/js/admin/pages/admin/Booking.tsx)
+ * plus aksi konfirmasi/batal yang juga dipakai dashboard. Setelah aksi,
+ * admin kembali ke halaman asalnya (dashboard atau daftar booking).
+ */
 class BookingAdminController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $tenant = app('tenant');
 
@@ -26,16 +32,34 @@ class BookingAdminController extends Controller
             ->with(['slot.lapangan', 'customer'])
             ->latest()
             ->paginate(15)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(fn (Booking $booking) => [
+                'id' => $booking->id,
+                'kode' => $booking->kode_booking,
+                'customer' => $booking->customer->nama,
+                'telepon' => $booking->customer->no_telepon,
+                'waUrl' => 'https://wa.me/'.preg_replace('/[^0-9]/', '', (string) $booking->customer->no_telepon),
+                'lapangan' => $booking->slot->lapangan->nama,
+                'jadwal' => $booking->slot->tanggal->format('d/m/Y').', '.substr($booking->slot->jam_mulai, 0, 5),
+                'status' => $booking->status_booking,
+                'total' => (int) $booking->total_bayar,
+                'bisaDikonfirmasi' => $booking->status_booking === 'menunggu',
+                'bisaDibatalkan' => in_array($booking->status_booking, ['menunggu', 'dikonfirmasi'], true),
+                'konfirmasiUrl' => route('admin.booking.confirm', $booking),
+                'batalkanUrl' => route('admin.booking.cancel', $booking),
+            ]);
 
-        return view('pages.admin.bookings.index', [
-            'tenant' => $tenant,
-            'bookings' => $bookings,
-            'daftarLapangan' => Lapangan::where('tenant_id', $tenant->id)->orderBy('nama')->get(),
-            'filterStatus' => $request->query('status'),
-            'filterTanggal' => $request->query('tanggal'),
-            'filterLapangan' => $request->query('lapangan'),
-            'cari' => $request->query('cari'),
+        return Inertia::render('admin/Booking', [
+            'booking' => $bookings,
+            'daftarLapangan' => Lapangan::where('tenant_id', $tenant->id)->orderBy('nama')->get(['id', 'nama'])
+                ->map(fn (Lapangan $lapangan) => ['id' => $lapangan->id, 'nama' => $lapangan->nama])->all(),
+            'filter' => [
+                'status' => $request->query('status'),
+                'tanggal' => $request->query('tanggal'),
+                'lapangan' => $request->query('lapangan'),
+                'cari' => $request->query('cari'),
+            ],
+            'exportUrl' => route('admin.booking.export', $request->query()),
         ]);
     }
 
@@ -105,7 +129,7 @@ class BookingAdminController extends Controller
         abort_unless($booking->tenant_id === $tenant->id, 404);
 
         if ($booking->status_booking !== 'menunggu') {
-            return redirect()->route('admin.dashboard')
+            return back(fallback: route('admin.dashboard'))
                 ->with('error', 'Booking ini sudah tidak dalam status menunggu konfirmasi.');
         }
 
@@ -133,7 +157,7 @@ class BookingAdminController extends Controller
 
         KirimNotifikasiWhatsApp::dispatch($booking->fresh(), 'dikonfirmasi');
 
-        return redirect()->route('admin.dashboard')
+        return back(fallback: route('admin.dashboard'))
             ->with('success', "Booking {$booking->kode_booking} berhasil dikonfirmasi.");
     }
 
@@ -144,7 +168,7 @@ class BookingAdminController extends Controller
         abort_unless($booking->tenant_id === $tenant->id, 404);
 
         if (! in_array($booking->status_booking, ['menunggu', 'dikonfirmasi'], true)) {
-            return redirect()->route('admin.dashboard')
+            return back(fallback: route('admin.dashboard'))
                 ->with('error', 'Booking ini sudah tidak bisa dibatalkan.');
         }
 
@@ -167,7 +191,7 @@ class BookingAdminController extends Controller
 
         KirimNotifikasiWhatsApp::dispatch($booking->fresh(), 'dibatalkan');
 
-        return redirect()->route('admin.dashboard')
+        return back(fallback: route('admin.dashboard'))
             ->with('success', "Booking {$booking->kode_booking} berhasil dibatalkan.");
     }
 }

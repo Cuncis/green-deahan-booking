@@ -13,44 +13,76 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class SuperadminController extends Controller
 {
-    public function dashboard(Request $request, StatistikPengunjungService $statistikPengunjung): View
+    public function dashboard(Request $request, StatistikPengunjungService $statistikPengunjung): Response
     {
-        return view('pages.superadmin.dashboard', [
+        return Inertia::render('superadmin/Dashboard', [
             'statistikPengunjung' => $statistikPengunjung->ringkasan((int) $request->query('rentang', 30)),
-            'totalTenant' => Tenant::count(),
-            'tenantAktif' => Tenant::where('status_aktif', true)->count(),
-            'bookingHariIni' => Booking::where('status_booking', '!=', 'dibatalkan')
-                ->whereHas('slot', fn ($q) => $q->whereDate('tanggal', today()))
-                ->count(),
-            'tenantTerbaru' => Tenant::latest()->take(5)->get(),
+            'ringkasan' => [
+                'totalTenant' => Tenant::count(),
+                'tenantAktif' => Tenant::where('status_aktif', true)->count(),
+                'bookingHariIni' => Booking::where('status_booking', '!=', 'dibatalkan')
+                    ->whereHas('slot', fn ($q) => $q->whereDate('tanggal', today()))
+                    ->count(),
+            ],
+            'tenantTerbaru' => Tenant::latest()->take(5)->get()->map(fn (Tenant $tenant) => [
+                'id' => $tenant->id,
+                'namaBisnis' => $tenant->nama_bisnis,
+                'domain' => $tenant->domain,
+                'paket' => $tenant->paket,
+                'aktif' => (bool) $tenant->status_aktif,
+                'url' => route('superadmin.tenants.show', $tenant),
+            ])->all(),
+            'semuaTenantUrl' => route('superadmin.tenants'),
         ]);
     }
 
-    public function tenants(Request $request): View
+    public function tenants(Request $request): Response
     {
-        $tenants = Tenant::withCount('bookings')
-            ->when($request->query('paket'), fn ($q, $paket) => $q->where('paket', $paket))
-            ->when($request->query('status'), fn ($q, $status) => $q->where('status_aktif', $status === 'aktif'))
-            ->latest()
-            ->get();
+        $filterPaket = in_array($request->query('paket'), ['basic', 'pro', 'premium'], true) ? $request->query('paket') : null;
+        $filterStatus = in_array($request->query('status'), ['aktif', 'nonaktif'], true) ? $request->query('status') : null;
 
-        return view('pages.superadmin.tenants', [
-            'tenants' => $tenants,
-            'filterPaket' => $request->query('paket'),
-            'filterStatus' => $request->query('status'),
+        return Inertia::render('superadmin/Tenants/Index', [
+            'daftarTenant' => Tenant::withCount('bookings')
+                ->when($filterPaket, fn ($q, $paket) => $q->where('paket', $paket))
+                ->when($filterStatus, fn ($q, $status) => $q->where('status_aktif', $status === 'aktif'))
+                ->latest()
+                ->latest('id')
+                ->get()
+                ->map(fn (Tenant $tenant) => [
+                    'id' => $tenant->id,
+                    'namaBisnis' => $tenant->nama_bisnis,
+                    'domain' => $tenant->domain,
+                    'paket' => $tenant->paket,
+                    'aktif' => (bool) $tenant->status_aktif,
+                    'berakhir' => $tenant->tanggal_berakhir?->format('d/m/Y'),
+                    'jumlahBooking' => $tenant->bookings_count,
+                    'punyaEmail' => (bool) $tenant->email_admin,
+                    ...$this->urlAksi($tenant),
+                ])
+                ->all(),
+            'filter' => ['paket' => $filterPaket, 'status' => $filterStatus],
         ]);
     }
 
-    public function create(): View
+    public function create(): Response
     {
-        return view('superadmin.tenants.create');
+        return Inertia::render('superadmin/Tenants/Form', [
+            'pilihanPaket' => [
+                ['nilai' => 'basic', 'nama' => 'Basic', 'harga' => 'Rp299rb', 'deskripsi' => 'Booking online dasar, 1 lapangan, notifikasi WhatsApp manual.'],
+                ['nilai' => 'pro', 'nama' => 'Pro', 'harga' => 'Rp599rb', 'deskripsi' => 'Sampai 3 lapangan, pembayaran online, kode promo, laporan pendapatan.'],
+                ['nilai' => 'premium', 'nama' => 'Premium', 'harga' => 'Rp1.199rb', 'deskripsi' => 'Lapangan tanpa batas, multi cabang, membership, staf, reminder otomatis.'],
+            ],
+            'simpanUrl' => route('superadmin.tenants.store'),
+            'kembaliUrl' => route('superadmin.tenants'),
+        ]);
     }
 
-    public function store(Request $request): View
+    public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'nama_bisnis' => ['required', 'string', 'max:150'],
@@ -103,19 +135,38 @@ class SuperadminController extends Controller
 
         $invitation->kirimEmail($data['nama_pic']);
 
-        return view('superadmin.tenants.success', [
-            'tenant' => $tenant,
-            'namaPic' => $data['nama_pic'],
-            'invitationLink' => $invitation->link(),
-        ]);
+        return redirect()->route('superadmin.tenants.show', $tenant)
+            ->with('success', "Tenant \"{$tenant->nama_bisnis}\" berhasil dibuat. Kirim link undangan ke {$data['nama_pic']}.")
+            ->with('invitation_link', $invitation->link())
+            ->with('invitation_tenant', $tenant->nama_bisnis);
     }
 
-    public function show(Tenant $tenant): View
+    /**
+     * Status custom domain dikirim sebagai deferred prop: pengecekannya
+     * memanggil domain tenant (timeout 3 detik), jadi halaman tampil dulu.
+     */
+    public function show(Tenant $tenant): Response
     {
-        return view('superadmin.tenants.show', [
-            'tenant' => $tenant,
-            'statusCustomDomain' => $this->cekStatusCustomDomain($tenant),
+        return Inertia::render('superadmin/Tenants/Show', [
+            'detail' => [
+                'id' => $tenant->id,
+                'namaBisnis' => $tenant->nama_bisnis,
+                'domain' => $tenant->domain,
+                'paket' => $tenant->paket,
+                'aktif' => (bool) $tenant->status_aktif,
+                'mulai' => $tenant->tanggal_mulai?->format('d/m/Y'),
+                'berakhir' => $tenant->tanggal_berakhir?->format('d/m/Y'),
+                'whatsapp' => $tenant->whatsapp_admin,
+                'email' => $tenant->email_admin,
+                'customDomain' => $tenant->custom_domain,
+                'customDomainDiminta' => $tenant->custom_domain_diminta,
+                ...$this->urlAksi($tenant),
+                'simpanDomainUrl' => route('superadmin.tenants.custom-domain.store', $tenant),
+                'hapusDomainUrl' => route('superadmin.tenants.custom-domain.destroy', $tenant),
+            ],
+            'statusCustomDomain' => Inertia::defer(fn () => $this->cekStatusCustomDomain($tenant)),
             'perintahServer' => $tenant->custom_domain ? $this->perintahNginxDanSsl($tenant->custom_domain) : [],
+            'kembaliUrl' => route('superadmin.tenants'),
         ]);
     }
 
@@ -164,7 +215,7 @@ class SuperadminController extends Controller
     {
         $tenant->update(['status_aktif' => true]);
 
-        return redirect()->route('superadmin.tenants')
+        return back(fallback: route('superadmin.tenants'))
             ->with('success', "Tenant \"{$tenant->nama_bisnis}\" diaktifkan.");
     }
 
@@ -172,14 +223,14 @@ class SuperadminController extends Controller
     {
         $tenant->update(['status_aktif' => false]);
 
-        return redirect()->route('superadmin.tenants')
+        return back(fallback: route('superadmin.tenants'))
             ->with('success', "Tenant \"{$tenant->nama_bisnis}\" dinonaktifkan.");
     }
 
     public function inviteOwner(Tenant $tenant): RedirectResponse
     {
         if (! $tenant->email_admin) {
-            return redirect()->route('superadmin.tenants')
+            return back(fallback: route('superadmin.tenants'))
                 ->with('error', "Tenant \"{$tenant->nama_bisnis}\" belum punya email PIC, tidak bisa kirim invitation.");
         }
 
@@ -187,10 +238,23 @@ class SuperadminController extends Controller
 
         $invitation->kirimEmail();
 
-        return redirect()->route('superadmin.tenants')
+        return back(fallback: route('superadmin.tenants'))
             ->with('success', "Invitation owner untuk \"{$tenant->nama_bisnis}\" berhasil dibuat.")
             ->with('invitation_link', $invitation->link())
             ->with('invitation_tenant', $tenant->nama_bisnis);
+    }
+
+    /**
+     * @return array{url: string, aktifkanUrl: string, nonaktifkanUrl: string, undangUrl: string}
+     */
+    private function urlAksi(Tenant $tenant): array
+    {
+        return [
+            'url' => route('superadmin.tenants.show', $tenant),
+            'aktifkanUrl' => route('superadmin.tenants.activate', $tenant),
+            'nonaktifkanUrl' => route('superadmin.tenants.deactivate', $tenant),
+            'undangUrl' => route('superadmin.tenants.invite', $tenant),
+        ];
     }
 
     /**

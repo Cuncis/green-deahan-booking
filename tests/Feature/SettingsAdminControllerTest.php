@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class SettingsAdminControllerTest extends TestCase
@@ -43,7 +44,13 @@ class SettingsAdminControllerTest extends TestCase
         $response = $this->actingAs($user)->get(route('admin.pengaturan'));
 
         $response->assertOk();
-        $response->assertSee($tenant->nama_bisnis);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('admin/Pengaturan')
+            ->where('profil.nama_bisnis', $tenant->nama_bisnis)
+            ->where('simpanUrl', route('admin.pengaturan.update'))
+            ->has('cabang')
+            ->has('multiCabang')
+        );
     }
 
     public function test_admin_bisa_update_profil_bisnis_dan_cabang_default(): void
@@ -85,7 +92,9 @@ class SettingsAdminControllerTest extends TestCase
         $user = $this->staf($tenant);
         Cabang::factory()->create(['tenant_id' => $tenant->id]);
 
-        $response = $this->actingAs($user)->put(route('admin.pengaturan.update'), [
+        // Form React mengirim multipart POST dengan _method=put (method spoofing).
+        $response = $this->actingAs($user)->post(route('admin.pengaturan.update'), [
+            '_method' => 'put',
             'nama_bisnis' => $tenant->nama_bisnis,
             'whatsapp_admin' => $tenant->whatsapp_admin ?? '628111222333',
             'jam_buka' => '08:00',

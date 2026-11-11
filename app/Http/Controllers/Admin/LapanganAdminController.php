@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class LapanganAdminController extends Controller
 {
@@ -25,28 +26,36 @@ class LapanganAdminController extends Controller
 
     public function __construct(private readonly FotoUploadService $fotoUploadService) {}
 
-    public function index(): View
+    public function index(): Response
     {
         $tenant = app('tenant');
 
-        return view('pages.admin.lapangan.index', [
-            'tenant' => $tenant,
-            'daftarLapangan' => Lapangan::where('tenant_id', $tenant->id)->with('cabang')->orderBy('nama')->get(),
+        return Inertia::render('admin/Lapangan/Index', [
+            'lapangan' => Lapangan::where('tenant_id', $tenant->id)->with('cabang')->orderBy('nama')->get()
+                ->map(fn (Lapangan $lapangan) => [
+                    'id' => $lapangan->id,
+                    'nama' => $lapangan->nama,
+                    'jenis' => $lapangan->jenis_olahraga,
+                    'cabang' => $lapangan->cabang?->nama_cabang,
+                    'hargaPerJam' => (int) $lapangan->harga_per_jam,
+                    'fotoUrl' => $lapangan->foto_url,
+                    'aktif' => (bool) $lapangan->status_aktif,
+                    'editUrl' => route('admin.lapangan.edit', $lapangan),
+                    'hapusUrl' => route('admin.lapangan.destroy', $lapangan),
+                ])->all(),
             'batasLapangan' => $tenant->fitur?->batas_lapangan,
             'jumlahLapangan' => Lapangan::where('tenant_id', $tenant->id)->count(),
+            'paketUpgrade' => $this->paketUpgradeTersedia($tenant->paket),
         ]);
     }
 
-    public function create(): View
+    public function create(): Response
     {
         $tenant = app('tenant');
 
-        return view('pages.admin.lapangan.create', [
-            'tenant' => $tenant,
-            'daftarCabang' => $tenant->punyaFitur('multi_cabang')
-                ? Cabang::where('tenant_id', $tenant->id)->orderBy('nama_cabang')->get()
-                : collect(),
-            'jenisOlahraga' => self::JENIS_OLAHRAGA,
+        return Inertia::render('admin/Lapangan/Form', [
+            'lapangan' => null,
+            ...$this->dataForm($tenant),
         ]);
     }
 
@@ -81,7 +90,7 @@ class LapanganAdminController extends Controller
 
     /**
      * Tenant Basic/Pro minta upgrade paket lewat tombol di halaman Lapangan
-     * Saya (lihat pages.admin.lapangan.index). Tidak ada upgrade otomatis,
+     * Saya (lihat admin/Lapangan/Index.tsx). Tidak ada upgrade otomatis,
      * cuma kirim email permintaan ke admin_email (sama seperti
      * TenantRegistrationController::kirimNotifikasiPendaftaran()), tim yang
      * proses manual lewat `php artisan tenant:activate --paket=`.
@@ -150,20 +159,45 @@ class LapanganAdminController extends Controller
         }
     }
 
-    public function edit(Lapangan $lapangan): View
+    public function edit(Lapangan $lapangan): Response
     {
         $tenant = app('tenant');
 
         abort_unless($lapangan->tenant_id === $tenant->id, 404);
 
-        return view('pages.admin.lapangan.edit', [
-            'tenant' => $tenant,
-            'lapangan' => $lapangan,
+        return Inertia::render('admin/Lapangan/Form', [
+            'lapangan' => [
+                'id' => $lapangan->id,
+                'nama' => $lapangan->nama,
+                'jenis_olahraga' => $lapangan->jenis_olahraga,
+                'harga_per_jam' => (int) $lapangan->harga_per_jam,
+                'harga_jam_sibuk' => $lapangan->harga_jam_sibuk !== null ? (int) $lapangan->harga_jam_sibuk : null,
+                'deskripsi' => $lapangan->deskripsi,
+                'cabang_id' => $lapangan->cabang_id,
+                'status_aktif' => (bool) $lapangan->status_aktif,
+                'fotoUrl' => $lapangan->foto_url,
+                'updateUrl' => route('admin.lapangan.update', $lapangan),
+            ],
+            ...$this->dataForm($tenant),
+        ]);
+    }
+
+    /**
+     * Pilihan untuk form tambah/edit lapangan.
+     *
+     * @return array{jenisOlahraga: array<int, string>, daftarCabang: array<int, array{id: int, nama: string}>, simpanUrl: string, kembaliUrl: string}
+     */
+    private function dataForm(Tenant $tenant): array
+    {
+        return [
+            'jenisOlahraga' => self::JENIS_OLAHRAGA,
             'daftarCabang' => $tenant->punyaFitur('multi_cabang')
                 ? Cabang::where('tenant_id', $tenant->id)->orderBy('nama_cabang')->get()
-                : collect(),
-            'jenisOlahraga' => self::JENIS_OLAHRAGA,
-        ]);
+                    ->map(fn (Cabang $cabang) => ['id' => $cabang->id, 'nama' => $cabang->nama_cabang])->all()
+                : [],
+            'simpanUrl' => route('admin.lapangan.store'),
+            'kembaliUrl' => route('admin.lapangan'),
+        ];
     }
 
     public function update(Request $request, Lapangan $lapangan): RedirectResponse

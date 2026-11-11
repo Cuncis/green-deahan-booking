@@ -8,7 +8,8 @@ use App\Services\FotoUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Kelola artikel di halaman /blog (situs korporat greendeahan.com). Bukan
@@ -19,21 +20,37 @@ class ArtikelAdminController extends Controller
 {
     public function __construct(private readonly FotoUploadService $fotoUploadService) {}
 
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
-        $artikel = Artikel::orderByDesc('tanggal_terbit')
-            ->when($request->query('cari'), fn ($q, $cari) => $q->where('judul', 'like', "%{$cari}%"))
-            ->get();
+        $cari = is_string($request->query('cari')) ? trim($request->query('cari')) : null;
 
-        return view('pages.superadmin.artikel.index', [
-            'artikel' => $artikel,
-            'cari' => $request->query('cari'),
+        return Inertia::render('superadmin/Artikel/Index', [
+            'artikel' => Artikel::orderByDesc('tanggal_terbit')
+                ->orderByDesc('id')
+                ->when($cari, fn ($q, $cari) => $q->where('judul', 'like', "%{$cari}%"))
+                ->get()
+                ->map(fn (Artikel $artikel) => [
+                    'id' => $artikel->id,
+                    'judul' => $artikel->judul,
+                    'kategori' => $artikel->kategori,
+                    'terbit' => $artikel->tanggal_terbit->format('d/m/Y'),
+                    'aktif' => (bool) $artikel->status_aktif,
+                    'fotoUrl' => $artikel->foto_url,
+                    'publikUrl' => route('blog.show', ['slug' => $artikel->slug]),
+                    'editUrl' => route('superadmin.artikel.edit', $artikel),
+                    'hapusUrl' => route('superadmin.artikel.destroy', $artikel),
+                ])
+                ->all(),
+            'cari' => $cari ?: null,
         ]);
     }
 
-    public function create(): View
+    public function create(): Response
     {
-        return view('pages.superadmin.artikel.create');
+        return Inertia::render('superadmin/Artikel/Form', [
+            'artikel' => null,
+            ...$this->dataForm(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -52,10 +69,22 @@ class ArtikelAdminController extends Controller
             ->with('success', "Artikel \"{$artikel->judul}\" berhasil dibuat.");
     }
 
-    public function edit(Artikel $artikel): View
+    public function edit(Artikel $artikel): Response
     {
-        return view('pages.superadmin.artikel.edit', [
-            'artikel' => $artikel,
+        return Inertia::render('superadmin/Artikel/Form', [
+            'artikel' => [
+                'judul' => $artikel->judul,
+                'kategori' => $artikel->kategori,
+                'ringkasan' => $artikel->ringkasan,
+                'konten' => $artikel->konten,
+                'tanggal_terbit' => $artikel->tanggal_terbit->toDateString(),
+                'status_aktif' => (bool) $artikel->status_aktif,
+                'slug' => $artikel->slug,
+                'fotoUrl' => $artikel->foto_url,
+                'publikUrl' => route('blog.show', ['slug' => $artikel->slug]),
+                'updateUrl' => route('superadmin.artikel.update', $artikel),
+            ],
+            ...$this->dataForm(),
         ]);
     }
 
@@ -83,6 +112,19 @@ class ArtikelAdminController extends Controller
 
         return redirect()->route('superadmin.artikel')
             ->with('success', "Artikel \"{$judul}\" berhasil dihapus.");
+    }
+
+    /**
+     * @return array{kategoriDipakai: array<int, string>, tanggalHariIni: string, simpanUrl: string, kembaliUrl: string}
+     */
+    private function dataForm(): array
+    {
+        return [
+            'kategoriDipakai' => Artikel::query()->distinct()->orderBy('kategori')->pluck('kategori')->all(),
+            'tanggalHariIni' => now()->toDateString(),
+            'simpanUrl' => route('superadmin.artikel.store'),
+            'kembaliUrl' => route('superadmin.artikel'),
+        ];
     }
 
     /**

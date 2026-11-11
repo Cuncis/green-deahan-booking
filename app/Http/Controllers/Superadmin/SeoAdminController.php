@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\PengaturanSitus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Pengaturan GA4, Search Console, dan SEO default untuk situs korporat
@@ -15,10 +16,17 @@ use Illuminate\View\View;
  */
 class SeoAdminController extends Controller
 {
-    public function edit(): View
+    public function edit(): Response
     {
-        return view('pages.superadmin.seo', [
-            'pengaturan' => PengaturanSitus::semua(),
+        $pengaturan = PengaturanSitus::semua();
+
+        return Inertia::render('superadmin/Seo', [
+            'pengaturan' => [
+                ...$pengaturan,
+                'indeks_mesin_pencari' => $pengaturan['indeks_mesin_pencari'] === '1',
+            ],
+            'simpanUrl' => route('superadmin.seo.update'),
+            'mediaUrl' => route('superadmin.media'),
         ]);
     }
 

@@ -14,6 +14,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class LapanganAdminControllerTest extends TestCase
@@ -49,7 +50,11 @@ class LapanganAdminControllerTest extends TestCase
         $response = $this->actingAs($user)->get(route('admin.lapangan'));
 
         $response->assertOk();
-        $response->assertViewHas('daftarLapangan', fn ($daftar) => $daftar->count() === 1);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('admin/Lapangan/Index')
+            ->has('lapangan', 1)
+            ->where('jumlahLapangan', 1)
+        );
     }
 
     public function test_daftar_lapangan_tidak_menampilkan_lapangan_tenant_lain(): void
@@ -63,7 +68,26 @@ class LapanganAdminControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('admin.lapangan'));
 
-        $response->assertViewHas('daftarLapangan', fn ($daftar) => $daftar->isEmpty());
+        $response->assertInertia(fn (Assert $page) => $page->has('lapangan', 0)->where('jumlahLapangan', 0));
+    }
+
+    public function test_halaman_edit_lapangan_mengirim_data_form(): void
+    {
+        $tenant = $this->tenant();
+        $user = $this->staf($tenant);
+        $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        $lapangan = Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id, 'harga_per_jam' => 150000]);
+
+        $this->actingAs($user)->get(route('admin.lapangan.edit', $lapangan))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('admin/Lapangan/Form')
+                ->where('lapangan.id', $lapangan->id)
+                ->where('lapangan.harga_per_jam', 150000)
+                ->where('lapangan.updateUrl', route('admin.lapangan.update', $lapangan))
+                ->where('simpanUrl', route('admin.lapangan.store'))
+                ->has('jenisOlahraga', 5)
+            );
     }
 
     public function test_admin_bisa_tambah_lapangan_dengan_foto(): void
@@ -153,8 +177,11 @@ class LapanganAdminControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('admin.lapangan'));
 
-        $response->assertSee('Upgrade ke Pro');
-        $response->assertSee('Upgrade ke Premium');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('batasLapangan', 1)
+            ->where('jumlahLapangan', 1)
+            ->where('paketUpgrade', ['pro', 'premium'])
+        );
     }
 
     public function test_halaman_lapangan_pro_yang_capai_batas_hanya_menampilkan_tombol_upgrade_premium(): void
@@ -171,8 +198,10 @@ class LapanganAdminControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('admin.lapangan'));
 
-        $response->assertDontSee('Upgrade ke Pro');
-        $response->assertSee('Upgrade ke Premium');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('jumlahLapangan', 3)
+            ->where('paketUpgrade', ['premium'])
+        );
     }
 
     public function test_tenant_basic_bisa_minta_upgrade_ke_pro_atau_premium(): void

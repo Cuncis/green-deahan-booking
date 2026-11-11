@@ -8,7 +8,8 @@ use App\Services\FotoUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Kelola portofolio proyek di halaman /galeri (situs korporat
@@ -22,26 +23,50 @@ class GaleriAdminController extends Controller
      */
     private const KATEGORI = ['futsal', 'minisoccer', 'padel', 'badminton', 'proses'];
 
+    /**
+     * @var array<string, string>
+     */
+    private const LABEL_KATEGORI = [
+        'futsal' => 'Futsal',
+        'minisoccer' => 'Mini Soccer',
+        'padel' => 'Padel',
+        'badminton' => 'Badminton',
+        'proses' => 'Proses Konstruksi',
+    ];
+
     public function __construct(private readonly FotoUploadService $fotoUploadService) {}
 
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
-        $items = GaleriItem::orderBy('urutan')
-            ->orderByDesc('id')
-            ->when($request->query('kategori'), fn ($q, $kategori) => $q->where('kategori', $kategori))
-            ->get();
+        $filterKategori = in_array($request->query('kategori'), self::KATEGORI, true) ? $request->query('kategori') : null;
 
-        return view('pages.superadmin.galeri.index', [
-            'items' => $items,
-            'filterKategori' => $request->query('kategori'),
-            'kategoriList' => self::KATEGORI,
+        return Inertia::render('superadmin/Galeri/Index', [
+            'item' => GaleriItem::orderBy('urutan')
+                ->orderByDesc('id')
+                ->when($filterKategori, fn ($q, $kategori) => $q->where('kategori', $kategori))
+                ->get()
+                ->map(fn (GaleriItem $item) => [
+                    'id' => $item->id,
+                    'judul' => $item->judul,
+                    'kategori' => self::LABEL_KATEGORI[$item->kategori] ?? $item->kategori,
+                    'kota' => $item->kota,
+                    'fotoUrl' => $item->foto_url,
+                    'tampil' => (bool) $item->status_aktif,
+                    'besar' => (bool) $item->tampilan_besar,
+                    'editUrl' => route('superadmin.galeri.edit', $item),
+                    'hapusUrl' => route('superadmin.galeri.destroy', $item),
+                ])
+                ->all(),
+            'filterKategori' => $filterKategori,
+            'pilihanKategori' => $this->pilihanKategori(),
         ]);
     }
 
-    public function create(): View
+    public function create(): Response
     {
-        return view('pages.superadmin.galeri.create', [
-            'kategoriList' => self::KATEGORI,
+        return Inertia::render('superadmin/Galeri/Form', [
+            'item' => null,
+            ...$this->dataForm(),
         ]);
     }
 
@@ -58,11 +83,22 @@ class GaleriAdminController extends Controller
             ->with('success', "Item galeri \"{$item->judul}\" berhasil ditambahkan.");
     }
 
-    public function edit(GaleriItem $galeri): View
+    public function edit(GaleriItem $galeri): Response
     {
-        return view('pages.superadmin.galeri.edit', [
-            'item' => $galeri,
-            'kategoriList' => self::KATEGORI,
+        return Inertia::render('superadmin/Galeri/Form', [
+            'item' => [
+                'judul' => $galeri->judul,
+                'kategori' => $galeri->kategori,
+                'kota' => $galeri->kota,
+                'material' => $galeri->material,
+                'deskripsi' => $galeri->deskripsi,
+                'urutan' => (int) $galeri->urutan,
+                'tampilan_besar' => (bool) $galeri->tampilan_besar,
+                'status_aktif' => (bool) $galeri->status_aktif,
+                'fotoUrl' => $galeri->foto_url,
+                'updateUrl' => route('superadmin.galeri.update', $galeri),
+            ],
+            ...$this->dataForm(),
         ]);
     }
 
@@ -91,6 +127,26 @@ class GaleriAdminController extends Controller
 
         return redirect()->route('superadmin.galeri')
             ->with('success', "Item galeri \"{$judul}\" berhasil dihapus.");
+    }
+
+    /**
+     * @return array<int, array{nilai: string, label: string}>
+     */
+    private function pilihanKategori(): array
+    {
+        return collect(self::KATEGORI)->map(fn (string $kategori) => ['nilai' => $kategori, 'label' => self::LABEL_KATEGORI[$kategori]])->all();
+    }
+
+    /**
+     * @return array{pilihanKategori: array<int, array{nilai: string, label: string}>, simpanUrl: string, kembaliUrl: string}
+     */
+    private function dataForm(): array
+    {
+        return [
+            'pilihanKategori' => $this->pilihanKategori(),
+            'simpanUrl' => route('superadmin.galeri.store'),
+            'kembaliUrl' => route('superadmin.galeri'),
+        ];
     }
 
     /**

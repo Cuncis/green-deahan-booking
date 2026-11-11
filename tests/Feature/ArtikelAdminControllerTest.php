@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ArtikelAdminControllerTest extends TestCase
@@ -39,7 +40,13 @@ class ArtikelAdminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.artikel'));
 
         $response->assertOk();
-        $response->assertViewHas('artikel', fn ($artikel) => $artikel->count() === 1);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('superadmin/Artikel/Index')
+            ->has('artikel', 1)
+            ->has('artikel.0', fn (Assert $baris) => $baris
+                ->hasAll(['id', 'judul', 'kategori', 'terbit', 'aktif', 'fotoUrl', 'publikUrl', 'editUrl', 'hapusUrl'])
+            )
+        );
     }
 
     public function test_daftar_artikel_bisa_dicari_lewat_judul(): void
@@ -50,8 +57,11 @@ class ArtikelAdminControllerTest extends TestCase
 
         $response = $this->actingAs($superadmin)->get(route('superadmin.artikel', ['cari' => 'Rumput']));
 
-        $response->assertViewHas('artikel', fn ($artikel) => $artikel->count() === 1
-            && $artikel->first()->judul === 'Cara Merawat Rumput Sintetis');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('cari', 'Rumput')
+            ->has('artikel', 1)
+            ->where('artikel.0.judul', 'Cara Merawat Rumput Sintetis')
+        );
     }
 
     public function test_superadmin_bisa_tulis_artikel_baru_dengan_slug_otomatis(): void
@@ -112,6 +122,48 @@ class ArtikelAdminControllerTest extends TestCase
         $artikel->refresh();
         $this->assertSame('Judul Baru', $artikel->judul);
         $this->assertFalse($artikel->status_aktif);
+    }
+
+    public function test_form_tulis_dan_edit_artikel_bisa_dibuka(): void
+    {
+        $superadmin = $this->superadmin();
+        $artikel = Artikel::factory()->create(['judul' => 'Tips Lapangan Padel', 'kategori' => 'Panduan Bisnis']);
+
+        $this->actingAs($superadmin)->get(route('superadmin.artikel.create'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('superadmin/Artikel/Form')
+                ->where('artikel', null)
+                ->where('kategoriDipakai', ['Panduan Bisnis'])
+                ->where('tanggalHariIni', now()->toDateString())
+            );
+
+        $this->actingAs($superadmin)->get(route('superadmin.artikel.edit', $artikel))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('artikel.judul', 'Tips Lapangan Padel')
+                ->where('artikel.slug', $artikel->slug)
+                ->where('artikel.tanggal_terbit', $artikel->tanggal_terbit->toDateString())
+                ->where('artikel.updateUrl', route('superadmin.artikel.update', $artikel))
+            );
+    }
+
+    public function test_update_artikel_lewat_post_method_put_bisa_jadi_draft(): void
+    {
+        $superadmin = $this->superadmin();
+        $artikel = Artikel::factory()->create(['status_aktif' => true]);
+
+        $this->actingAs($superadmin)->post(route('superadmin.artikel.update', $artikel), [
+            '_method' => 'put',
+            'judul' => $artikel->judul,
+            'kategori' => $artikel->kategori,
+            'ringkasan' => $artikel->ringkasan,
+            'konten' => $artikel->konten,
+            'tanggal_terbit' => $artikel->tanggal_terbit->toDateString(),
+            'status_aktif' => '0',
+        ])->assertRedirect(route('superadmin.artikel'));
+
+        $this->assertFalse($artikel->fresh()->status_aktif);
     }
 
     public function test_superadmin_bisa_hapus_artikel(): void

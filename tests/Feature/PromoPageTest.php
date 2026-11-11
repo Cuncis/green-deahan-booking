@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use App\Models\TenantFitur;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class PromoPageTest extends TestCase
@@ -58,7 +59,10 @@ class PromoPageTest extends TestCase
         $response = $this->actingAs($user)->get(route('admin.promo'));
 
         $response->assertOk();
-        $response->assertSee('Kode Promo');
-        $response->assertSee('Tambah Kode Baru');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('admin/Promo')
+            ->has('promo', 0)
+            ->where('bawaan.tanggal_mulai', now()->toDateString())
+        );
     }
 }

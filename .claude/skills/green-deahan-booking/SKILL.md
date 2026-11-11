@@ -17,6 +17,19 @@ Skill ini adalah index. Baca reference file yang relevan sebelum mengerjakan tug
 - **Icon:** SVG inline atau Blade component, TIDAK PERNAH emoji mentah di kode produksi
 - **Notifikasi:** WhatsApp via `wa.me` link manual untuk sekarang (lihat `references/notifikasi-whatsapp.md` untuk rencana migrasi ke WhatsApp Business API)
 
+### Pengecualian: Area Admin = React + TypeScript (Inertia)
+
+Dashboard admin tenant (`/admin`) dan superadmin (`/superadmin`) sedang dipindah dari Blade + Livewire ke **React + TypeScript lewat Inertia**, dengan komponen **shadcn/ui** (Radix UI, lucide-react, sonner) yang diwarnai pakai token admin di `tailwind.config.js` (`primary` = green, `background` = cream, dst). Halaman booking customer (KalenderBooking, RingkasanBooking) tetap Livewire.
+
+- Kode: `resources/js/admin/` (entry `app.tsx`, halaman di `pages/admin/*` dan `pages/superadmin/*`, komponen shadcn di `components/ui/`, layout di `components/layout/AdminLayout.tsx`). Root view `resources/views/admin.blade.php`, dipilih di `HandleInertiaRequests::rootView()`.
+- Controller me-return `Inertia::render('admin/Nama', [...])`. Aturan bisnis TETAP di server: filter `tenant_id`, `lockForUpdate()`, dan `punyaFitur()` (data panel fitur berbayar dikirim `null` kalau tenant tidak punya fiturnya, jangan dikirim lalu disembunyikan di React).
+- Menu sidebar dibangun di `App\Services\NavigasiAdminService`. Halaman yang sudah React ditandai `inertia: true` di sana; halaman yang masih Blade dibuka dengan reload biasa.
+- Status migrasi: seluruh halaman admin tenant (Dashboard, Booking, Lapangan, Jadwal, Laporan, Promo, Pengaturan) dan superadmin (Dashboard, Tenant, Galeri, Blog, Media, SEO) sudah React. Yang masih Blade hanya Profil (`/profile`, pakai `<x-admin-sidebar>`).
+- Jangan pakai nama prop halaman yang sama dengan shared prop (`auth`, `area`, `tenant`, `navigasi`, `flash`, `errors`), karena prop halaman menimpa shared prop dan merusak sidebar.
+- Aksi yang dulu method Livewire sekarang route HTTP biasa yang `return back()->with('success'|'error', ...)`; layout menampilkan flash itu sebagai toast. Form dengan upload file kirim `POST` + `_method: 'put'` + `forceFormData`.
+- Mobile wajib: tabel jadi kartu di layar kecil, target sentuh minimal 44px, form muat di layar HP.
+- Test pakai `assertInertia()`, bukan `Livewire::test()`.
+
 ## Aturan Mutlak: Baca Sebelum Menulis Kode Apapun
 
 1. **Setiap query database yang menyentuh data milik klien WAJIB difilter `tenant_id`.** Tidak ada pengecualian. Lihat `references/multi-tenant.md`.

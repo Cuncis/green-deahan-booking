@@ -2,23 +2,59 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\KodePromoManager;
 use App\Models\KodePromo;
+use App\Models\Staf;
 use App\Models\Tenant;
+use App\Models\TenantFitur;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
+/**
+ * Kelola kode promo lewat PromoAdminController (sebelumnya Livewire
+ * KodePromoManager).
+ */
 class KodePromoManagerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function tenant(): Tenant
+    private function tenant(string $paket = 'pro'): Tenant
     {
         $tenant = Tenant::where('domain', 'localhost')->firstOrFail();
-        app()->instance('tenant', $tenant);
+        TenantFitur::create(array_merge(['tenant_id' => $tenant->id], TenantFitur::presetUntukPaket($paket)));
 
         return $tenant;
+    }
+
+    private function staf(Tenant $tenant): User
+    {
+        $user = User::factory()->create();
+
+        Staf::create([
+            'tenant_id' => $tenant->id,
+            'user_id' => $user->id,
+            'role' => 'owner',
+            'status_aktif' => true,
+        ]);
+
+        return $user;
+    }
+
+    /**
+     * @param  array<string, mixed>  $override
+     * @return array<string, mixed>
+     */
+    private function dataPromo(array $override = []): array
+    {
+        return array_merge([
+            'kode' => 'sepi20',
+            'tipe_diskon' => 'persen',
+            'nilai' => 20,
+            'tanggal_mulai' => now()->toDateString(),
+            'tanggal_berakhir' => now()->addMonth()->toDateString(),
+            'kuota' => '',
+        ], $override);
     }
 
     public function test_daftar_kode_promo_hanya_milik_tenant_sendiri(): void
@@ -29,30 +65,28 @@ class KodePromoManagerTest extends TestCase
         KodePromo::factory()->create(['tenant_id' => $tenant->id, 'kode' => 'MILIKKU']);
         KodePromo::factory()->create(['tenant_id' => $tenantLain->id, 'kode' => 'MILIKORANG']);
 
-        Livewire::test(KodePromoManager::class)
-            ->assertSee('MILIKKU')
-            ->assertDontSee('MILIKORANG');
+        $this->actingAs($this->staf($tenant))
+            ->get(route('admin.promo'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('promo', 1)
+                ->where('promo.0.kode', 'MILIKKU')
+            );
     }
 
     public function test_tambah_kode_promo_baru_berhasil(): void
     {
         $tenant = $this->tenant();
 
-        Livewire::test(KodePromoManager::class)
-            ->call('bukaForm')
-            ->set('kode', 'sepi20')
-            ->set('tipeDiskon', 'persen')
-            ->set('nilai', 20)
-            ->set('tanggalMulai', now()->toDateString())
-            ->set('tanggalBerakhir', now()->addMonth()->toDateString())
-            ->call('simpan')
-            ->assertSet('tampilkanForm', false)
-            ->assertSee('SEPI20');
+        $this->actingAs($this->staf($tenant))
+            ->post(route('admin.promo.store'), $this->dataPromo())
+            ->assertRedirect()
+            ->assertSessionHas('success', 'Kode promo SEPI20 ditambahkan.');
 
         $this->assertDatabaseHas('kode_promo', [
             'tenant_id' => $tenant->id,
             'kode' => 'SEPI20',
             'nilai' => 20,
+            'kuota' => null,
         ]);
     }
 
@@ -61,16 +95,52 @@ class KodePromoManagerTest extends TestCase
         $tenant = $this->tenant();
         KodePromo::factory()->create(['tenant_id' => $tenant->id, 'kode' => 'SEPI20']);
 
-        Livewire::test(KodePromoManager::class)
-            ->call('bukaForm')
-            ->set('kode', 'sepi20')
-            ->set('nilai', 10)
-            ->set('tanggalMulai', now()->toDateString())
-            ->set('tanggalBerakhir', now()->addMonth()->toDateString())
-            ->call('simpan')
-            ->assertSet('pesanError', 'Kode promo ini sudah dipakai, coba kode lain.')
-            ->assertSet('tampilkanForm', true);
+        $this->actingAs($this->staf($tenant))
+            ->post(route('admin.promo.store'), $this->dataPromo(['nilai' => 10]))
+            ->assertSessionHasErrors(['kode' => 'Kode promo ini sudah dipakai, coba kode lain.']);
 
         $this->assertDatabaseCount('kode_promo', 1);
+    }
+
+    public function test_kode_yang_sama_boleh_dipakai_tenant_lain(): void
+    {
+        $tenant = $this->tenant();
+        $tenantLain = Tenant::factory()->create(['domain' => 'lain.test']);
+        KodePromo::factory()->create(['tenant_id' => $tenantLain->id, 'kode' => 'SEPI20']);
+
+        $this->actingAs($this->staf($tenant))
+            ->post(route('admin.promo.store'), $this->dataPromo())
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseCount('kode_promo', 2);
+    }
+
+    public function test_diskon_persen_tidak_boleh_lebih_dari_100_dan_tanggal_berakhir_tidak_sebelum_mulai(): void
+    {
+        $tenant = $this->tenant();
+
+        $this->actingAs($this->staf($tenant))
+            ->post(route('admin.promo.store'), $this->dataPromo([
+                'nilai' => 150,
+                'tanggal_berakhir' => now()->subDay()->toDateString(),
+            ]))
+            ->assertSessionHasErrors(['nilai', 'tanggal_berakhir']);
+
+        $this->actingAs($this->staf($tenant))
+            ->post(route('admin.promo.store'), $this->dataPromo(['tipe_diskon' => 'nominal', 'nilai' => 150000]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseCount('kode_promo', 1);
+    }
+
+    public function test_tenant_basic_tidak_bisa_tambah_kode_promo(): void
+    {
+        $tenant = $this->tenant('basic');
+
+        $this->actingAs($this->staf($tenant))
+            ->post(route('admin.promo.store'), $this->dataPromo())
+            ->assertNotFound();
+
+        $this->assertDatabaseCount('kode_promo', 0);
     }
 }

@@ -8,19 +8,37 @@ use App\Models\Tenant;
 use App\Services\FotoUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class SettingsAdminController extends Controller
 {
     public function __construct(private readonly FotoUploadService $fotoUploadService) {}
 
-    public function show(): View
+    public function show(): Response
     {
         $tenant = app('tenant');
+        $jam = fn (?string $nilai) => $nilai ? substr($nilai, 0, 5) : '';
 
-        return view('pages.admin.settings.show', [
-            'tenant' => $tenant,
-            'daftarCabang' => Cabang::where('tenant_id', $tenant->id)->orderBy('nama_cabang')->get(),
+        return Inertia::render('admin/Pengaturan', [
+            'profil' => [
+                'nama_bisnis' => $tenant->nama_bisnis,
+                'whatsapp_admin' => $tenant->whatsapp_admin,
+                'email_admin' => $tenant->email_admin,
+                'warna_utama' => $tenant->warna_utama ?: '#3A6B4A',
+                'logoUrl' => $tenant->logo_url,
+            ],
+            'multiCabang' => $tenant->punyaFitur('multi_cabang'),
+            'cabang' => Cabang::where('tenant_id', $tenant->id)->orderBy('nama_cabang')->get()
+                ->map(fn (Cabang $cabang) => [
+                    'id' => $cabang->id,
+                    'nama_cabang' => $cabang->nama_cabang,
+                    'alamat' => $cabang->alamat,
+                    'kota' => $cabang->kota,
+                    'jam_buka' => $jam($cabang->jam_buka),
+                    'jam_tutup' => $jam($cabang->jam_tutup),
+                ])->all(),
+            'simpanUrl' => route('admin.pengaturan.update'),
         ]);
     }
 

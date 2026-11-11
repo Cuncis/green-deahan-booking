@@ -13,6 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class SuperadminControllerTest extends TestCase
@@ -45,10 +46,12 @@ class SuperadminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.dashboard'));
 
         $response->assertOk();
-        $response->assertViewHas('totalTenant', 1);
-        $response->assertViewHas('tenantAktif', 1);
-        $response->assertViewHas('bookingHariIni', 1);
-        $response->assertSee($tenant->nama_bisnis);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('superadmin/Dashboard')
+            ->where('ringkasan.totalTenant', 1)
+            ->where('ringkasan.tenantAktif', 1)
+            ->where('ringkasan.bookingHariIni', 1)
+            ->where('tenantTerbaru.0.namaBisnis', $tenant->nama_bisnis));
     }
 
     public function test_tenants_menampilkan_semua_tenant(): void
@@ -59,7 +62,13 @@ class SuperadminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.tenants'));
 
         $response->assertOk();
-        $response->assertSee('Tenant Kedua');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('superadmin/Tenants/Index')
+            ->has('daftarTenant', 2)
+            ->where('daftarTenant.0.namaBisnis', 'Tenant Kedua')
+            ->where('daftarTenant.0.jumlahBooking', 0)
+            ->where('daftarTenant.0.url', route('superadmin.tenants.show', Tenant::where('domain', 'kedua.test')->first()))
+        );
     }
 
     public function test_tenants_bisa_difilter_berdasarkan_paket(): void
@@ -71,8 +80,11 @@ class SuperadminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.tenants', ['paket' => 'pro']));
 
         $response->assertOk();
-        $response->assertSee('Tenant Pro Satu');
-        $response->assertDontSee('Tenant Premium Satu');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('filter.paket', 'pro')
+            ->where('daftarTenant', fn ($daftar) => collect($daftar)->pluck('namaBisnis')->contains('Tenant Pro Satu')
+                && collect($daftar)->every(fn ($tenant) => $tenant['paket'] === 'pro'))
+        );
     }
 
     public function test_tenants_bisa_difilter_berdasarkan_status(): void
@@ -84,8 +96,11 @@ class SuperadminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.tenants', ['status' => 'nonaktif']));
 
         $response->assertOk();
-        $response->assertSee('Tenant Nonaktif');
-        $response->assertDontSee('Tenant Aktif');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('filter.status', 'nonaktif')
+            ->has('daftarTenant', 1)
+            ->where('daftarTenant.0.namaBisnis', 'Tenant Nonaktif')
+        );
     }
 
     public function test_form_tambah_tenant_bisa_dibuka(): void
@@ -95,15 +110,12 @@ class SuperadminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.create'));
 
         $response->assertOk();
-        $response->assertSee('Tambah Tenant Baru');
-        $response->assertSee('Info Bisnis');
-        $response->assertSee('Info PIC');
-        $response->assertSee('.greendeahan.com');
-        $response->assertSee('Buat Tenant dan Generate Invitation Link');
-        $response->assertSee('Basic');
-        $response->assertSee('Pro');
-        $response->assertSee('Premium');
-        $response->assertDontSee('💬');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('superadmin/Tenants/Form')
+            ->has('pilihanPaket', 3)
+            ->where('pilihanPaket.1.nilai', 'pro')
+            ->where('simpanUrl', route('superadmin.tenants.store'))
+        );
     }
 
     public function test_store_membuat_tenant_fitur_cabang_dan_invitation(): void
@@ -141,15 +153,10 @@ class SuperadminControllerTest extends TestCase
         $this->assertSame('budi@arenabaru.com', $invitation->email);
         $this->assertSame('owner', $invitation->role);
 
-        $response->assertOk();
-        $response->assertSee('Tenant Berhasil Dibuat');
-        $response->assertSee('Arena Sport Baru');
-        $response->assertSee($invitation->token, false);
-        $response->assertSee('Budi PIC');
-        $response->assertSee('Kopi Link');
-        $response->assertSee('Buat Tenant Lain');
-        $response->assertSee('Kembali ke Daftar Tenant');
-        $response->assertDontSee('💬');
+        $response->assertRedirect(route('superadmin.tenants.show', $tenant));
+        $response->assertSessionHas('invitation_link', $invitation->link());
+        $response->assertSessionHas('invitation_tenant', 'Arena Sport Baru');
+        $response->assertSessionHas('success', fn (string $pesan) => str_contains($pesan, 'Budi PIC'));
     }
 
     public function test_store_gagal_kalau_subdomain_sudah_dipakai(): void
@@ -259,6 +266,35 @@ class SuperadminControllerTest extends TestCase
         $this->assertDatabaseCount('tenant_invitations', 0);
     }
 
+    public function test_aksi_dari_halaman_detail_kembali_ke_halaman_detail(): void
+    {
+        $superadmin = $this->superadmin();
+        $tenant = Tenant::factory()->create(['domain' => 'dari-detail.test', 'status_aktif' => true]);
+        $halamanDetail = route('superadmin.tenants.show', $tenant);
+
+        $this->actingAs($superadmin)
+            ->from($halamanDetail)
+            ->post(route('superadmin.tenants.deactivate', $tenant))
+            ->assertRedirect($halamanDetail)
+            ->assertSessionHas('success');
+
+        $this->assertFalse($tenant->fresh()->status_aktif);
+    }
+
+    public function test_filter_tenant_yang_tidak_dikenal_diabaikan(): void
+    {
+        $superadmin = $this->superadmin();
+        Tenant::factory()->create(['domain' => 'lain.test']);
+
+        $this->actingAs($superadmin)
+            ->get(route('superadmin.tenants', ['paket' => 'emas', 'status' => 'hapus']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('filter', ['paket' => null, 'status' => null])
+                ->has('daftarTenant', 2)
+            );
+    }
+
     public function test_bukan_superadmin_ditolak_dari_semua_route_superadmin(): void
     {
         $user = User::factory()->create();
@@ -278,9 +314,15 @@ class SuperadminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.show', $tenant));
 
         $response->assertOk();
-        $response->assertSee($tenant->domain);
-        $response->assertSee('Belum dikonfigurasi');
-        $response->assertDontSee('💬');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('superadmin/Tenants/Show')
+            ->where('area', 'superadmin')
+            ->where('tenant', null)
+            ->where('detail.domain', $tenant->domain)
+            ->missing('statusCustomDomain')
+            ->where('perintahServer', [])
+            ->loadDeferredProps(fn (Assert $reload) => $reload->where('statusCustomDomain', 'belum_dikonfigurasi'))
+        );
     }
 
     public function test_show_menampilkan_dan_prefill_custom_domain_yang_diminta_saat_daftar(): void
@@ -295,8 +337,10 @@ class SuperadminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.show', $tenant));
 
         $response->assertOk();
-        $response->assertSee('diminta-pelanggan.com');
-        $response->assertSee('value="diminta-pelanggan.com"', false);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('detail.customDomain', null)
+            ->where('detail.customDomainDiminta', 'diminta-pelanggan.com')
+        );
     }
 
     public function test_show_untuk_paket_basic_menampilkan_pesan_upgrade_bukan_form(): void
@@ -307,8 +351,7 @@ class SuperadminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.show', $tenant));
 
         $response->assertOk();
-        $response->assertSee('Custom domain hanya tersedia untuk paket Pro dan Premium');
-        $response->assertDontSee('name="custom_domain"', false);
+        $response->assertInertia(fn (Assert $page) => $page->where('detail.paket', 'basic'));
     }
 
     public function test_show_status_aktif_kalau_domain_bisa_dijangkau(): void
@@ -321,8 +364,10 @@ class SuperadminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.show', $tenant));
 
         $response->assertOk();
-        $response->assertSeeInOrder(['Status Verifikasi', 'Aktif']);
-        $response->assertSee('sudo certbot --nginx -d sudah-hidup.com', false);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('perintahServer.3', 'sudo certbot --nginx -d sudah-hidup.com -d www.sudah-hidup.com')
+            ->loadDeferredProps(fn (Assert $reload) => $reload->where('statusCustomDomain', 'aktif'))
+        );
     }
 
     public function test_show_status_ssl_pending_kalau_domain_belum_bisa_dijangkau(): void
@@ -337,7 +382,9 @@ class SuperadminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.tenants.show', $tenant));
 
         $response->assertOk();
-        $response->assertSee('SSL Pending');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->loadDeferredProps(fn (Assert $reload) => $reload->where('statusCustomDomain', 'ssl_pending'))
+        );
     }
 
     public function test_set_custom_domain_berhasil_untuk_paket_pro(): void

@@ -1,5 +1,6 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import animate from 'tailwindcss-animate';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -7,8 +8,8 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
-        // React admin widgets (superadmin visitor charts) use Tailwind.
-        './resources/js/admin/**/*.tsx',
+        // React admin app (tenant admin + superadmin, Inertia) uses Tailwind.
+        './resources/js/admin/**/*.{ts,tsx}',
         // The rest of resources/js/**/*.tsx is deliberately NOT scanned: the
         // public React pages are styled by the Fuzio template CSS in
         // resources/fuzio/, not Tailwind.
@@ -30,6 +31,22 @@ export default {
                 // beda dari palet 'green' di atas yang dipakai khusus untuk
                 // demo dashboard booking). Dipakai untuk homepage utama
                 // platform di resources/views/pages/home.blade.php.
+                // shadcn/ui semantic colors for the React admin app
+                // (resources/js/admin/components/ui), mapped onto the admin
+                // palette above so shadcn components look like the existing
+                // dashboard: cream page, white cards, green primary.
+                background: '#F5F0E8',
+                foreground: '#2A2018',
+                card: { DEFAULT: '#FFFFFF', foreground: '#2A2018' },
+                popover: { DEFAULT: '#FFFFFF', foreground: '#2A2018' },
+                primary: { DEFAULT: '#3A6B4A', foreground: '#FFFFFF' },
+                secondary: { DEFAULT: '#EDE5D5', foreground: '#2A2018' },
+                muted: { DEFAULT: '#F5F0E8', foreground: '#8A7260' },
+                accent: { DEFAULT: '#F5F0E8', foreground: '#2A2018' },
+                destructive: { DEFAULT: '#C0392B', foreground: '#FFFFFF' },
+                border: '#E0D5C0',
+                input: '#E0D5C0',
+                ring: '#3A6B4A',
                 brand: {
                     50: '#f3faf3',
                     100: '#e8f5e9',
@@ -56,5 +73,5 @@ export default {
     },
 
     // TIDAK ADA require('daisyui') DI SINI
-    plugins: [forms],
+    plugins: [forms, animate],
 };

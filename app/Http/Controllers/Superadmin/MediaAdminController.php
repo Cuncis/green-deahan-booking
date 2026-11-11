@@ -11,10 +11,12 @@ use App\Services\FotoUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Pustaka media (mirip WordPress): semua gambar di disk upload, lintas
@@ -34,13 +36,13 @@ class MediaAdminController extends Controller
 
     public function __construct(private readonly FotoUploadService $fotoUploadService) {}
 
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $semua = $this->semuaMedia();
         $folderList = $semua->pluck('folder')->unique()->sort()->values();
 
         $keyword = trim((string) $request->query('q'));
-        $folder = $request->query('folder');
+        $folder = is_string($request->query('folder')) && $folderList->contains($request->query('folder')) ? $request->query('folder') : null;
 
         $disaring = $semua
             ->when($folder, fn (Collection $c) => $c->where('folder', $folder))
@@ -58,11 +60,18 @@ class MediaAdminController extends Controller
             ['path' => $request->url(), 'query' => $request->query()],
         );
 
-        return view('pages.superadmin.media.index', [
-            'items' => $items,
-            'folderList' => $folderList,
-            'filterFolder' => $folder,
-            'keyword' => $keyword,
+        return Inertia::render('superadmin/Media', [
+            'media' => $items->through(fn (array $media) => [
+                'path' => $media['path'],
+                'nama' => $media['nama'],
+                'folder' => $media['folder'],
+                'url' => $media['url'],
+                'ukuran' => $media['ukuran'],
+                'diubah' => Carbon::createFromTimestamp($media['diubah'], config('app.timezone'))->format('d/m/Y H:i'),
+                'dipakai' => $media['dipakai'],
+            ]),
+            'daftarFolder' => $folderList->all(),
+            'filter' => ['folder' => $folder, 'q' => $keyword !== '' ? $keyword : null],
             'totalMedia' => $semua->count(),
             'totalUkuran' => $semua->sum('ukuran'),
         ]);

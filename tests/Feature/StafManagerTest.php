@@ -2,22 +2,30 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\StafManager;
 use App\Models\Staf;
 use App\Models\Tenant;
+use App\Models\TenantFitur;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class StafManagerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function tenant(): Tenant
+    /**
+     * Tenant "localhost" dengan paket Premium (fitur manajemen_staf), plus
+     * owner yang sedang login.
+     */
+    private function tenant(string $paket = 'premium'): Tenant
     {
         $tenant = Tenant::where('domain', 'localhost')->firstOrFail();
-        app()->instance('tenant', $tenant);
+        TenantFitur::create(array_merge(['tenant_id' => $tenant->id], TenantFitur::presetUntukPaket($paket)));
+
+        $owner = User::factory()->create(['name' => 'Pemilik Lapangan']);
+        Staf::create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'role' => 'owner', 'status_aktif' => true]);
+        $this->actingAs($owner);
 
         return $tenant;
     }
@@ -33,9 +41,11 @@ class StafManagerTest extends TestCase
         Staf::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $userSendiri->id]);
         Staf::factory()->create(['tenant_id' => $tenantLain->id, 'user_id' => $userLain->id]);
 
-        Livewire::test(StafManager::class)
-            ->assertSee('Budi Staf')
-            ->assertDontSee('Orang Lain');
+        $this->get('/admin')->assertInertia(fn (Assert $page) => $page->where('staf', function ($staf) {
+            $nama = collect($staf)->pluck('nama');
+
+            return $nama->contains('Budi Staf') && ! $nama->contains('Orang Lain');
+        }));
     }
 
     public function test_tambah_staf_berhasil_untuk_user_terdaftar(): void
@@ -43,12 +53,10 @@ class StafManagerTest extends TestCase
         $tenant = $this->tenant();
         $user = User::factory()->create(['email' => 'calon-staf@example.com']);
 
-        Livewire::test(StafManager::class)
-            ->call('bukaForm')
-            ->set('email', 'calon-staf@example.com')
-            ->set('role', 'manager')
-            ->call('tambah')
-            ->assertSet('tampilkanForm', false);
+        $this->from('/admin')
+            ->post(route('admin.staf.store'), ['email' => 'calon-staf@example.com', 'role' => 'manager'])
+            ->assertRedirect('/admin')
+            ->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('staf', [
             'tenant_id' => $tenant->id,
@@ -59,16 +67,14 @@ class StafManagerTest extends TestCase
 
     public function test_tambah_staf_gagal_kalau_email_belum_terdaftar(): void
     {
-        $this->tenant();
+        $tenant = $this->tenant();
 
-        Livewire::test(StafManager::class)
-            ->call('bukaForm')
-            ->set('email', 'belum-ada@example.com')
-            ->set('role', 'staff')
-            ->call('tambah')
-            ->assertSet('pesanError', 'Belum ada akun terdaftar dengan email ini, minta orangnya daftar dulu.');
+        $this->from('/admin')
+            ->post(route('admin.staf.store'), ['email' => 'belum-ada@example.com', 'role' => 'staff'])
+            ->assertSessionHasErrors(['email' => 'Belum ada akun terdaftar dengan email ini, minta orangnya daftar dulu.']);
 
-        $this->assertDatabaseCount('staf', 0);
+        // Hanya owner yang login yang tercatat sebagai staf.
+        $this->assertSame(1, Staf::where('tenant_id', $tenant->id)->count());
     }
 
     public function test_ubah_role_staf_berhasil(): void
@@ -77,12 +83,41 @@ class StafManagerTest extends TestCase
         $user = User::factory()->create();
         $staf = Staf::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $user->id, 'role' => 'staff']);
 
-        Livewire::test(StafManager::class)
-            ->call('ubahRole', $staf->id, 'owner');
+        $this->from('/admin')->put(route('admin.staf.role', $staf->id), ['role' => 'owner'])->assertRedirect('/admin');
 
         $this->assertDatabaseHas('staf', [
             'id' => $staf->id,
             'role' => 'owner',
         ]);
+    }
+
+    public function test_tambah_staf_ditolak_kalau_sudah_terdaftar(): void
+    {
+        $tenant = $this->tenant();
+        $user = User::factory()->create(['email' => 'sudah@example.com']);
+        Staf::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $user->id]);
+
+        $this->from('/admin')
+            ->post(route('admin.staf.store'), ['email' => 'sudah@example.com', 'role' => 'staff'])
+            ->assertSessionHasErrors(['email' => 'Orang ini sudah terdaftar sebagai staf.']);
+    }
+
+    public function test_ubah_role_staf_tenant_lain_ditolak(): void
+    {
+        $this->tenant();
+        $stafLain = Staf::factory()->create(['tenant_id' => Tenant::factory()->create()->id, 'role' => 'staff']);
+
+        $this->put(route('admin.staf.role', $stafLain->id), ['role' => 'owner'])->assertNotFound();
+
+        $this->assertSame('staff', $stafLain->fresh()->role);
+    }
+
+    public function test_kelola_staf_ditolak_untuk_paket_tanpa_manajemen_staf(): void
+    {
+        $this->tenant('pro');
+        User::factory()->create(['email' => 'calon@example.com']);
+
+        $this->post(route('admin.staf.store'), ['email' => 'calon@example.com', 'role' => 'staff'])->assertNotFound();
+        $this->get('/admin')->assertInertia(fn (Assert $page) => $page->where('staf', null));
     }
 }

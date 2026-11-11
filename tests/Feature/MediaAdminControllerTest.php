@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class MediaAdminControllerTest extends TestCase
@@ -39,7 +40,13 @@ class MediaAdminControllerTest extends TestCase
         $response = $this->actingAs($this->superadmin())->get(route('superadmin.media'));
 
         $response->assertOk();
-        $response->assertViewHas('items', fn ($items) => $items->total() === 2);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('superadmin/Media')
+            ->where('media.total', 2)
+            ->where('totalMedia', 2)
+            ->where('daftarFolder', ['galeri', 'lapangan'])
+            ->has('media.data.0', fn (Assert $item) => $item->hasAll(['path', 'nama', 'folder', 'url', 'ukuran', 'diubah', 'dipakai']))
+        );
     }
 
     public function test_media_bisa_difilter_folder_dan_nama(): void
@@ -50,10 +57,21 @@ class MediaAdminControllerTest extends TestCase
         $superadmin = $this->superadmin();
 
         $this->actingAs($superadmin)->get(route('superadmin.media', ['folder' => 'lapangan']))
-            ->assertViewHas('items', fn ($items) => $items->total() === 1 && $items->first()['nama'] === 'b.png');
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('filter.folder', 'lapangan')
+                ->where('media.total', 1)
+                ->where('media.data.0.nama', 'b.png')
+            );
 
         $this->actingAs($superadmin)->get(route('superadmin.media', ['q' => 'a.jpg']))
-            ->assertViewHas('items', fn ($items) => $items->total() === 1 && $items->first()['folder'] === 'galeri');
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('filter.q', 'a.jpg')
+                ->where('media.total', 1)
+                ->where('media.data.0.folder', 'galeri')
+            );
+
+        $this->actingAs($superadmin)->get(route('superadmin.media', ['folder' => '../rahasia']))
+            ->assertInertia(fn (Assert $page) => $page->where('filter.folder', null)->where('media.total', 2));
     }
 
     public function test_superadmin_bisa_upload_beberapa_gambar(): void

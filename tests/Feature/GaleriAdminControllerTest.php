@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class GaleriAdminControllerTest extends TestCase
@@ -39,7 +40,11 @@ class GaleriAdminControllerTest extends TestCase
         $response = $this->actingAs($superadmin)->get(route('superadmin.galeri'));
 
         $response->assertOk();
-        $response->assertViewHas('items', fn ($items) => $items->count() === 1);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('superadmin/Galeri/Index')
+            ->has('item', 1)
+            ->has('pilihanKategori', 5)
+        );
     }
 
     public function test_daftar_galeri_bisa_difilter_kategori(): void
@@ -50,7 +55,11 @@ class GaleriAdminControllerTest extends TestCase
 
         $response = $this->actingAs($superadmin)->get(route('superadmin.galeri', ['kategori' => 'padel']));
 
-        $response->assertViewHas('items', fn ($items) => $items->count() === 1 && $items->first()->kategori === 'padel');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('filterKategori', 'padel')
+            ->has('item', 1)
+            ->where('item.0.kategori', 'Padel')
+        );
     }
 
     public function test_superadmin_bisa_tambah_item_galeri_dengan_foto(): void
@@ -113,6 +122,49 @@ class GaleriAdminControllerTest extends TestCase
         $item->refresh();
         $this->assertSame('Judul Baru', $item->judul);
         $this->assertFalse($item->status_aktif);
+    }
+
+    public function test_form_tambah_dan_edit_galeri_bisa_dibuka(): void
+    {
+        $superadmin = $this->superadmin();
+        $item = GaleriItem::factory()->create(['judul' => 'Lapangan Padel Bekasi', 'tampilan_besar' => true]);
+
+        $this->actingAs($superadmin)->get(route('superadmin.galeri.create'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('superadmin/Galeri/Form')->where('item', null));
+
+        $this->actingAs($superadmin)->get(route('superadmin.galeri.edit', $item))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('superadmin/Galeri/Form')
+                ->where('item.judul', 'Lapangan Padel Bekasi')
+                ->where('item.tampilan_besar', true)
+                ->where('item.updateUrl', route('superadmin.galeri.update', $item))
+            );
+    }
+
+    public function test_update_galeri_lewat_post_method_put_dengan_foto_baru(): void
+    {
+        Storage::fake('public');
+        $superadmin = $this->superadmin();
+        $item = GaleriItem::factory()->create(['tampilan_besar' => true]);
+
+        $this->actingAs($superadmin)->post(route('superadmin.galeri.update', $item), [
+            '_method' => 'put',
+            'kategori' => $item->kategori,
+            'judul' => $item->judul,
+            'kota' => $item->kota,
+            'material' => $item->material,
+            'deskripsi' => $item->deskripsi,
+            'tampilan_besar' => '0',
+            'status_aktif' => '1',
+            'foto' => UploadedFile::fake()->image('baru.jpg'),
+        ])->assertRedirect(route('superadmin.galeri'));
+
+        $item->refresh();
+        $this->assertFalse($item->tampilan_besar);
+        $this->assertTrue($item->status_aktif);
+        $this->assertStringContainsString('galeri', $item->foto_url);
     }
 
     public function test_superadmin_bisa_hapus_item_galeri(): void

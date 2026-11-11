@@ -1,9 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\BookingAdminController;
+use App\Http\Controllers\Admin\DashboardAdminController;
 use App\Http\Controllers\Admin\JadwalAdminController;
 use App\Http\Controllers\Admin\LapanganAdminController;
+use App\Http\Controllers\Admin\LaporanAdminController;
+use App\Http\Controllers\Admin\PromoAdminController;
 use App\Http\Controllers\Admin\SettingsAdminController;
+use App\Http\Controllers\Admin\StafAdminController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\GaleriController;
@@ -177,25 +181,15 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
     });
 
 Route::middleware(['auth', 'verified', 'check.tenant.staf'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', function () {
-        return view('pages.admin.dashboard', [
-            'tenant' => app('tenant'),
-        ]);
-    })->name('dashboard');
+    Route::get('/', [DashboardAdminController::class, 'index'])->name('dashboard');
+    Route::post('/reminder/{reminderLog}/terkirim', [DashboardAdminController::class, 'tandaiReminderTerkirim'])
+        ->whereNumber('reminderLog')->name('reminder.terkirim');
+    Route::post('/staf', [StafAdminController::class, 'store'])->name('staf.store');
+    Route::put('/staf/{staf}/role', [StafAdminController::class, 'ubahRole'])->whereNumber('staf')->name('staf.role');
 
-    Route::get('/laporan', function () {
-        $tenant = app('tenant');
-        abort_unless($tenant->punyaFitur('laporan_pendapatan'), 404);
-
-        return view('pages.admin.laporan', ['tenant' => $tenant]);
-    })->name('laporan');
-
-    Route::get('/promo', function () {
-        $tenant = app('tenant');
-        abort_unless($tenant->punyaFitur('kode_promo'), 404);
-
-        return view('pages.admin.promo', ['tenant' => $tenant]);
-    })->name('promo');
+    Route::get('/laporan', [LaporanAdminController::class, 'index'])->name('laporan');
+    Route::get('/promo', [PromoAdminController::class, 'index'])->name('promo');
+    Route::post('/promo', [PromoAdminController::class, 'store'])->name('promo.store');
 
     Route::get('/booking', [BookingAdminController::class, 'index'])->name('booking');
     Route::get('/booking/export', [BookingAdminController::class, 'export'])->name('booking.export');
@@ -211,6 +205,9 @@ Route::middleware(['auth', 'verified', 'check.tenant.staf'])->prefix('admin')->n
     Route::post('/lapangan/minta-upgrade', [LapanganAdminController::class, 'mintaUpgrade'])->name('lapangan.minta-upgrade');
 
     Route::get('/jadwal', [JadwalAdminController::class, 'index'])->name('jadwal');
+    Route::post('/jadwal/generate', [JadwalAdminController::class, 'generate'])->name('jadwal.generate');
+    Route::put('/jadwal/slot/{slot}/harga', [JadwalAdminController::class, 'ubahHarga'])->whereNumber('slot')->name('jadwal.harga');
+    Route::post('/jadwal/slot/{slot}/status', [JadwalAdminController::class, 'toggleStatus'])->whereNumber('slot')->name('jadwal.status');
 
     Route::get('/pengaturan', [SettingsAdminController::class, 'show'])->name('pengaturan');
     Route::put('/pengaturan', [SettingsAdminController::class, 'update'])->name('pengaturan.update');

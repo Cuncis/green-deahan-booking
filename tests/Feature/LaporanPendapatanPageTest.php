@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use App\Models\TenantFitur;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class LaporanPendapatanPageTest extends TestCase
@@ -58,8 +59,10 @@ class LaporanPendapatanPageTest extends TestCase
         $response = $this->actingAs($user)->get(route('admin.laporan'));
 
         $response->assertOk();
-        $response->assertSee('Laporan Pendapatan');
-        $response->assertSee('Jam Ramai');
-        $response->assertSee('Pendapatan 7 Hari Terakhir');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('admin/Laporan')
+            ->has('pendapatanMingguan', 7)
+            ->has('jamRamai', 24)
+        );
     }
 }

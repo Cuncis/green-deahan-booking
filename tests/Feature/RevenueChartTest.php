@@ -2,27 +2,52 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\RevenueChart;
 use App\Models\Booking;
 use App\Models\Cabang;
 use App\Models\JadwalSlot;
 use App\Models\Lapangan;
+use App\Models\Staf;
 use App\Models\Tenant;
 use App\Models\TenantFitur;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
+use Illuminate\Testing\TestResponse;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
+/**
+ * Halaman Laporan Pendapatan (LaporanAdminController, sebelumnya Livewire
+ * RevenueChart).
+ */
 class RevenueChartTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function tenant(): Tenant
+    private function tenant(string $paket = 'pro'): Tenant
     {
         $tenant = Tenant::where('domain', 'localhost')->firstOrFail();
-        app()->instance('tenant', $tenant);
+        TenantFitur::create(array_merge(['tenant_id' => $tenant->id], TenantFitur::presetUntukPaket($paket)));
 
         return $tenant;
+    }
+
+    /**
+     * @param  array<string, mixed>  $query
+     */
+    private function bukaLaporan(Tenant $tenant, array $query = []): TestResponse
+    {
+        $user = User::factory()->create();
+        Staf::create(['tenant_id' => $tenant->id, 'user_id' => $user->id, 'role' => 'owner', 'status_aktif' => true]);
+
+        return $this->actingAs($user)->get(route('admin.laporan', $query));
+    }
+
+    /**
+     * @return array<int, array{tanggal: string, hari: string, pendapatan: int}>
+     */
+    private function pendapatan(TestResponse $response): array
+    {
+        return $response->inertiaProps('pendapatanMingguan');
     }
 
     public function test_pendapatan_hanya_menghitung_booking_dikonfirmasi_atau_selesai(): void
@@ -51,14 +76,15 @@ class RevenueChartTest extends TestCase
             'total_bayar' => 50000,
         ]);
 
-        $hasil = Livewire::test(RevenueChart::class)->instance()->pendapatanMingguan();
+        $hasil = $this->pendapatan($this->bukaLaporan($tenant)->assertOk());
 
-        $this->assertSame(100000, array_sum($hasil));
+        $this->assertCount(7, $hasil);
+        $this->assertSame(100000, array_sum(array_column($hasil, 'pendapatan')));
     }
 
     public function test_pendapatan_bisa_difilter_per_cabang(): void
     {
-        $tenant = $this->tenant();
+        $tenant = $this->tenant('premium');
         $cabangA = Cabang::factory()->create(['tenant_id' => $tenant->id]);
         $cabangB = Cabang::factory()->create(['tenant_id' => $tenant->id]);
         $lapanganA = Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabangA->id]);
@@ -80,9 +106,10 @@ class RevenueChartTest extends TestCase
             'total_bayar' => 90000,
         ]);
 
-        $hasil = Livewire::test(RevenueChart::class, ['cabangId' => $cabangA->id])->instance()->pendapatanMingguan();
+        $response = $this->bukaLaporan($tenant, ['cabang' => $cabangA->id]);
 
-        $this->assertSame(70000, array_sum($hasil));
+        $response->assertInertia(fn (Assert $page) => $page->where('filterCabang.terpilih', $cabangA->id));
+        $this->assertSame(70000, array_sum(array_column($this->pendapatan($response), 'pendapatan')));
     }
 
     public function test_jam_ramai_menghitung_slot_booked_per_jam(): void
@@ -113,33 +140,45 @@ class RevenueChartTest extends TestCase
             'status' => 'kosong',
         ]);
 
-        Livewire::test(RevenueChart::class)
-            ->assertSee('Jam Ramai')
-            ->assertViewHas('jamRamai', fn ($jamRamai) => $jamRamai[19] === 2 && $jamRamai[8] === 0);
+        $this->bukaLaporan($tenant)->assertInertia(fn (Assert $page) => $page
+            ->component('admin/Laporan')
+            ->has('jamRamai', 24)
+            ->where('jamRamai.19', 2)
+            ->where('jamRamai.8', 0)
+        );
     }
 
     public function test_filter_cabang_tampil_kalau_tenant_punya_fitur_multi_cabang(): void
     {
-        $tenant = $this->tenant();
-        TenantFitur::create(array_merge(
-            ['tenant_id' => $tenant->id],
-            TenantFitur::presetUntukPaket('premium'),
-        ));
+        $tenant = $this->tenant('premium');
         Cabang::factory()->count(2)->create(['tenant_id' => $tenant->id]);
 
-        Livewire::test(RevenueChart::class)
-            ->assertViewHas('daftarCabang', fn ($daftar) => $daftar->count() === 2)
-            ->assertSee('Filter Cabang');
+        $this->bukaLaporan($tenant)->assertInertia(fn (Assert $page) => $page
+            ->has('filterCabang.pilihan', 2)
+            ->where('filterCabang.terpilih', null)
+        );
     }
 
     public function test_filter_cabang_tersembunyi_kalau_tenant_tidak_punya_fitur_multi_cabang(): void
     {
-        $tenant = $this->tenant();
-        TenantFitur::create(array_merge(
-            ['tenant_id' => $tenant->id],
-            TenantFitur::presetUntukPaket('pro'),
-        ));
+        $tenant = $this->tenant('pro');
+        Cabang::factory()->count(2)->create(['tenant_id' => $tenant->id]);
 
-        Livewire::test(RevenueChart::class)->assertDontSee('Filter Cabang');
+        $this->bukaLaporan($tenant, ['cabang' => 1])->assertInertia(fn (Assert $page) => $page->where('filterCabang', null));
+    }
+
+    public function test_filter_cabang_milik_tenant_lain_diabaikan(): void
+    {
+        $tenant = $this->tenant('premium');
+        Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        $cabangLain = Cabang::factory()->create(['tenant_id' => Tenant::factory()->create(['domain' => 'lain.test'])->id]);
+
+        $this->bukaLaporan($tenant, ['cabang' => $cabangLain->id])
+            ->assertInertia(fn (Assert $page) => $page->where('filterCabang.terpilih', null));
+    }
+
+    public function test_laporan_404_untuk_tenant_basic(): void
+    {
+        $this->bukaLaporan($this->tenant('basic'))->assertNotFound();
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Artikel;
 use App\Models\KunjunganHalaman;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class StatistikPengunjungTest extends TestCase
@@ -97,8 +98,8 @@ class StatistikPengunjungTest extends TestCase
         $this->actingAs($this->superadmin())
             ->get(route('superadmin.dashboard', ['rentang' => 7]))
             ->assertOk()
-            ->assertSee('id="statistik-pengunjung"', false)
-            ->assertViewHas('statistikPengunjung', function (array $statistik): bool {
+            ->assertInertia(fn (Assert $page) => $page->component('superadmin/Dashboard')->where('statistikPengunjung', function ($statistik): bool {
+                $statistik = collect($statistik)->toArray();
                 $this->assertSame(7, $statistik['rentang']);
                 $this->assertCount(7, $statistik['harian']);
                 $this->assertSame(['pengunjung' => 3, 'tampilan' => 4, 'pengunjungHariIni' => 3], array_intersect_key($statistik['ringkasan'], array_flip(['pengunjung', 'tampilan', 'pengunjungHariIni'])));
@@ -109,19 +110,22 @@ class StatistikPengunjungTest extends TestCase
                 $this->assertSame(['Mobile', 'Desktop'], array_column($statistik['perangkat'], 'nama'));
 
                 return true;
-            });
+            }));
 
         $this->actingAs($this->superadmin())
             ->get(route('superadmin.dashboard', ['rentang' => 30]))
-            ->assertViewHas('statistikPengunjung', fn (array $statistik) => $statistik['ringkasan']['tampilan'] === 5
-                && in_array('Kontak', array_column($statistik['halamanTeratas'], 'nama'), true));
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('statistikPengunjung.ringkasan.tampilan', 5)
+                ->where('statistikPengunjung.halamanTeratas', fn ($halaman) => in_array('Kontak', collect($halaman)->pluck('nama')->all(), true)));
     }
 
     public function test_rentang_tidak_valid_kembali_ke_30_hari(): void
     {
         $this->actingAs($this->superadmin())
             ->get(route('superadmin.dashboard', ['rentang' => 365]))
-            ->assertViewHas('statistikPengunjung', fn (array $statistik) => $statistik['rentang'] === 30 && count($statistik['harian']) === 30);
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('statistikPengunjung.rentang', 30)
+                ->has('statistikPengunjung.harian', 30));
     }
 
     public function test_dashboard_tetap_hanya_untuk_superadmin(): void
