@@ -126,9 +126,13 @@ class SeoAdminControllerTest extends TestCase
 
     public function test_halaman_booking_tenant_tidak_memuat_analytics_korporat(): void
     {
-        $this->assertStringNotContainsString(
-            'seo-head',
-            file_get_contents(resource_path('views/pages/booking.blade.php')),
-        );
+        PengaturanSitus::simpan(['ga4_measurement_id' => 'G-ABC123XYZ9', 'gtm_id' => 'GTM-PM8JCFX6']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertViewIs('booking')
+            ->assertDontSee('googletagmanager', false)
+            ->assertDontSee('G-ABC123XYZ9', false)
+            ->assertDontSee('GTM-PM8JCFX6', false);
     }
 }

@@ -12,7 +12,15 @@ Route::middleware(IdentifikasiTenant::class)->group(function () {
     Route::post('/booking/slot/{slotId}/hold', [BookingController::class, 'holdSlot'])
         ->middleware('throttle:booking-hold')
         ->name('booking.hold_slot');
-    Route::post('/booking/cek-membership', [BookingController::class, 'cekMembership'])->name('booking.cek_membership');
+    Route::delete('/booking/slot/{slotId}/hold', [BookingController::class, 'lepasHold'])
+        ->middleware('throttle:booking-hold')
+        ->name('booking.lepas_hold');
+    Route::post('/booking/harga', [BookingController::class, 'hitungHarga'])
+        ->middleware('throttle:booking-slot')
+        ->name('booking.harga');
+    Route::post('/booking/cek-membership', [BookingController::class, 'cekMembership'])
+        ->middleware('throttle:booking-slot')
+        ->name('booking.cek_membership');
     Route::post('/booking', [BookingController::class, 'buatBooking'])
         ->middleware('throttle:booking-store')
         ->name('booking.buat');

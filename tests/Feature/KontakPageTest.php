@@ -79,6 +79,6 @@ class KontakPageTest extends TestCase
         $response = $this->get('http://arena-uji-kontak.greendeahan.com/');
 
         $response->assertOk();
-        $response->assertViewIs('pages.booking');
+        $response->assertViewIs('booking');
     }
 }

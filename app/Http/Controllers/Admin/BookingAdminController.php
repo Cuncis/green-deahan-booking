@@ -141,7 +141,7 @@ class BookingAdminController extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            $slot?->update(['status' => 'booked', 'hold_sampai' => null]);
+            $slot?->update(['status' => 'booked', 'hold_sampai' => null, 'hold_token' => null]);
 
             if ($slot && $tenant->punyaFitur('reminder_otomatis')) {
                 $waktuMain = Carbon::parse($slot->tanggal->format('Y-m-d').' '.$slot->jam_mulai);
@@ -186,7 +186,7 @@ class BookingAdminController extends Controller
                 ->where('id', $booking->slot_id)
                 ->lockForUpdate()
                 ->first()
-                ?->update(['status' => 'kosong', 'hold_sampai' => null]);
+                ?->update(['status' => 'kosong', 'hold_sampai' => null, 'hold_token' => null]);
         });
 
         KirimNotifikasiWhatsApp::dispatch($booking->fresh(), 'dibatalkan');

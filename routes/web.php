@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\StafAdminController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\GaleriController;
+use App\Http\Controllers\HalamanBookingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Superadmin\ArtikelAdminController;
@@ -21,8 +22,6 @@ use App\Http\Controllers\Superadmin\SuperadminController;
 use App\Http\Controllers\TenantRegistrationController;
 use App\Http\Middleware\CatatKunjungan;
 use App\Http\Middleware\IdentifikasiTenant;
-use App\Models\Lapangan;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -42,7 +41,7 @@ $situsKorporat = function () {
     // dipakai resources/views/app.blade.php untuk <title> dan meta
     // description. Homepage & Kontak Blade lama tetap bisa dibuka di /v2 dan
     // /v2/kontak (noindex).
-    // Halaman lain semua Blade + Livewire + Alpine.
+    // Halaman situs korporat lain masih Blade + Alpine.
     Route::get('/', fn () => Inertia::render('Home', [
         'meta' => [
             'title' => 'Green Deahan Sport - Jasa Pembuatan Lapangan Olahraga Se-Indonesia',
@@ -101,23 +100,7 @@ if (app()->environment('local')) {
         ->group($situsKorporat);
 }
 
-Route::get('/', function (Request $request) {
-    $tenant = app('tenant');
-
-    $lapangan = Lapangan::with('cabang')
-        ->where('tenant_id', $tenant->id)
-        ->where('status_aktif', true)
-        ->get();
-
-    $lapanganAktif = $lapangan->firstWhere('id', (int) $request->query('lapangan'))
-        ?? $lapangan->first();
-
-    return view('pages.booking', [
-        'tenant' => $tenant,
-        'lapangan' => $lapangan,
-        'lapanganAktif' => $lapanganAktif,
-    ]);
-})->name('booking.index');
+Route::get('/', [HalamanBookingController::class, 'index'])->name('booking.index');
 
 Route::middleware('guest')->group(function () {
     Route::get('/invite/{token}', [InvitationController::class, 'showInvite'])->name('invite.show');

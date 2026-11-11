@@ -83,7 +83,7 @@ class PembayaranController extends Controller
             ->lockForUpdate()
             ->first();
 
-        $slot?->update(['status' => 'booked', 'hold_sampai' => null]);
+        $slot?->update(['status' => 'booked', 'hold_sampai' => null, 'hold_token' => null]);
 
         $tenant = Tenant::find($booking->tenant_id);
 
@@ -110,7 +110,7 @@ class PembayaranController extends Controller
             ->lockForUpdate()
             ->first();
 
-        $slot?->update(['status' => 'kosong', 'hold_sampai' => null]);
+        $slot?->update(['status' => 'kosong', 'hold_sampai' => null, 'hold_token' => null]);
     }
 
     /**

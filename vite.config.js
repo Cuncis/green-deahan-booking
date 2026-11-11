@@ -8,7 +8,7 @@ export default defineConfig({
             // resources/js/inertia.tsx: public React pages (Fuzio CSS).
             // resources/js/admin/app.tsx: React admin app (tenant admin +
             // superadmin, Tailwind + shadcn/ui). app.js: Blade/Alpine pages.
-            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/inertia.tsx', 'resources/js/admin/app.tsx'],
+            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/inertia.tsx', 'resources/js/admin/app.tsx', 'resources/js/booking/app.tsx'],
             refresh: true,
         }),
         react(),

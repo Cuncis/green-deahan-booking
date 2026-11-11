@@ -22,7 +22,11 @@ class HandleInertiaRequests extends Middleware
 
     public function rootView(Request $request): string
     {
-        return $this->halamanAdmin($request) ? 'admin' : 'app';
+        if ($this->halamanAdmin($request)) {
+            return 'admin';
+        }
+
+        return $request->routeIs('booking.index') ? 'booking' : 'app';
     }
 
     /**

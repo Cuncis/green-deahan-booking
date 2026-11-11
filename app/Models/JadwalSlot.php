@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\BelongsToTenant;
 use Database\Factories\JadwalSlotFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,7 +23,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'harga',
     'status',
     'hold_sampai',
+    'hold_token',
 ])]
+#[Hidden(['hold_token'])]
 class JadwalSlot extends Model
 {
     /** @use HasFactory<JadwalSlotFactory> */

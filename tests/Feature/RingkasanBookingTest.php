@@ -2,15 +2,19 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\RingkasanBooking;
 use App\Models\Cabang;
+use App\Models\JadwalSlot;
 use App\Models\KodePromo;
 use App\Models\Lapangan;
 use App\Models\Tenant;
+use App\Models\TenantFitur;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
 use Tests\TestCase;
 
+/**
+ * Ringkasan harga di halaman booking (kode promo, DP). Dulu Livewire
+ * RingkasanBooking; sekarang POST /api/booking/harga (HargaBookingService).
+ */
 class RingkasanBookingTest extends TestCase
 {
     use RefreshDatabase;
@@ -18,79 +22,66 @@ class RingkasanBookingTest extends TestCase
     private function tenant(): Tenant
     {
         $tenant = Tenant::where('domain', 'localhost')->firstOrFail();
-        app()->instance('tenant', $tenant);
+        TenantFitur::create(array_merge(['tenant_id' => $tenant->id], TenantFitur::presetUntukPaket('premium')));
 
         return $tenant;
     }
 
-    private function buatLapangan(Tenant $tenant): Lapangan
+    private function slot(Tenant $tenant, int $harga): JadwalSlot
     {
         $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
+        $lapangan = Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
 
-        return Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
+        return JadwalSlot::factory()->create(['tenant_id' => $tenant->id, 'lapangan_id' => $lapangan->id, 'harga' => $harga]);
     }
 
-    public function test_cek_promo_valid_menghitung_diskon_dan_dispatch_event(): void
+    public function test_cek_promo_valid_menghitung_diskon(): void
     {
         $tenant = $this->tenant();
-        $lapangan = $this->buatLapangan($tenant);
+        $slot = $this->slot($tenant, 100000);
+        KodePromo::factory()->create(['tenant_id' => $tenant->id, 'kode' => 'HEMAT10', 'tipe_diskon' => 'persen', 'nilai' => 10]);
 
-        KodePromo::factory()->create([
-            'tenant_id' => $tenant->id,
-            'kode' => 'HEMAT10',
-            'tipe_diskon' => 'persen',
-            'nilai' => 10,
-        ]);
-
-        Livewire::test(RingkasanBooking::class, ['lapanganId' => $lapangan->id])
-            ->dispatch('slot-dipilih', slotId: 1, tanggal: now()->toDateString(), jamMulai: '10:00', jamSelesai: '11:00', harga: 100000)
-            ->set('kodePromo', 'hemat10')
-            ->call('cekPromo')
-            ->assertSet('promoValid', true)
-            ->assertSet('diskonJumlah', 10000)
-            ->assertDispatched('ringkasan-berubah', diskonJumlah: 10000, totalBayar: 90000);
+        $this->postJson('/api/booking/harga', ['slot_id' => $slot->id, 'kode_promo' => 'hemat10', 'tipe_pembayaran' => 'lunas'])
+            ->assertOk()
+            ->assertJsonPath('data.status_promo', 'valid')
+            ->assertJsonPath('data.kode_promo', 'HEMAT10')
+            ->assertJsonPath('data.diskon_promo', 10000)
+            ->assertJsonPath('data.total_bayar', 90000);
     }
 
     public function test_cek_promo_tidak_valid_mengembalikan_status_gagal(): void
     {
         $tenant = $this->tenant();
-        $lapangan = $this->buatLapangan($tenant);
+        $slot = $this->slot($tenant, 100000);
 
-        Livewire::test(RingkasanBooking::class, ['lapanganId' => $lapangan->id])
-            ->set('kodePromo', 'TIDAKADA')
-            ->call('cekPromo')
-            ->assertSet('promoValid', false)
-            ->assertSet('diskonJumlah', 0);
+        $this->postJson('/api/booking/harga', ['slot_id' => $slot->id, 'kode_promo' => 'TIDAKADA', 'tipe_pembayaran' => 'lunas'])
+            ->assertOk()
+            ->assertJsonPath('data.status_promo', 'tidak_valid')
+            ->assertJsonPath('data.diskon_promo', 0)
+            ->assertJsonPath('data.total_bayar', 100000);
     }
 
     public function test_pilih_tipe_pembayaran_dp_menghitung_setengah_harga(): void
     {
         $tenant = $this->tenant();
-        $lapangan = $this->buatLapangan($tenant);
+        $slot = $this->slot($tenant, 100000);
 
-        Livewire::test(RingkasanBooking::class, ['lapanganId' => $lapangan->id])
-            ->dispatch('slot-dipilih', slotId: 1, tanggal: now()->toDateString(), jamMulai: '10:00', jamSelesai: '11:00', harga: 100000)
-            ->call('pilihTipePembayaran', 'dp')
-            ->assertDispatched('ringkasan-berubah', tipePembayaran: 'dp', totalBayar: 50000);
+        $this->postJson('/api/booking/harga', ['slot_id' => $slot->id, 'tipe_pembayaran' => 'dp'])
+            ->assertOk()
+            ->assertJsonPath('data.total_setelah_diskon', 100000)
+            ->assertJsonPath('data.total_bayar', 50000);
     }
 
-    public function test_pindah_lapangan_mereset_promo_dan_harga(): void
+    public function test_harga_selalu_dari_slot_yang_dipilih_bukan_dari_browser(): void
     {
         $tenant = $this->tenant();
-        $lapanganA = $this->buatLapangan($tenant);
-        $lapanganB = $this->buatLapangan($tenant);
+        $slotMurah = $this->slot($tenant, 80000);
+        $slotMahal = $this->slot($tenant, 150000);
 
-        KodePromo::factory()->create(['tenant_id' => $tenant->id, 'kode' => 'HEMAT10', 'tipe_diskon' => 'persen', 'nilai' => 10]);
-
-        Livewire::test(RingkasanBooking::class, ['lapanganId' => $lapanganA->id])
-            ->dispatch('slot-dipilih', slotId: 1, tanggal: now()->toDateString(), jamMulai: '10:00', jamSelesai: '11:00', harga: 100000)
-            ->set('kodePromo', 'hemat10')
-            ->call('cekPromo')
-            ->assertSet('promoValid', true)
-            ->dispatch('lapangan-dipilih', lapanganId: $lapanganB->id, nama: 'Lain', jenisOlahraga: 'futsal', hargaPerJam: 80000, cabangNama: 'X', cabangAlamat: 'Y', jamBuka: '08:00', jamTutup: '22:00')
-            ->assertSet('lapanganId', $lapanganB->id)
-            ->assertSet('harga', 0)
-            ->assertSet('promoValid', null)
-            ->assertSet('diskonJumlah', 0);
+        $this->postJson('/api/booking/harga', ['slot_id' => $slotMurah->id, 'tipe_pembayaran' => 'lunas', 'harga' => 1])
+            ->assertJsonPath('data.harga_normal', 80000)
+            ->assertJsonPath('data.total_bayar', 80000);
+        $this->postJson('/api/booking/harga', ['slot_id' => $slotMahal->id, 'tipe_pembayaran' => 'lunas'])
+            ->assertJsonPath('data.total_bayar', 150000);
     }
 }

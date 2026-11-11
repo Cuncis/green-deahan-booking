@@ -41,10 +41,10 @@ class BookingApiRateLimitTest extends TestCase
         $lapangan = $this->buatLapangan($tenant);
 
         for ($i = 0; $i < 60; $i++) {
-            $this->getJson("/api/booking/lapangan/{$lapangan->id}/slot?tanggal=2026-08-01")->assertOk();
+            $this->getJson("/api/booking/lapangan/{$lapangan->id}/slot?tanggal=".now()->addDay()->toDateString())->assertOk();
         }
 
-        $response = $this->getJson("/api/booking/lapangan/{$lapangan->id}/slot?tanggal=2026-08-01");
+        $response = $this->getJson("/api/booking/lapangan/{$lapangan->id}/slot?tanggal=".now()->addDay()->toDateString());
 
         $response->assertStatus(429);
         $response->assertJson(['message' => 'Terlalu banyak permintaan, coba lagi sebentar lagi.']);

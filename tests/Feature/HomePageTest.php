@@ -89,7 +89,7 @@ class HomePageTest extends TestCase
         $response = $this->get('http://localhost/');
 
         $response->assertOk();
-        $response->assertViewIs('pages.booking');
+        $response->assertViewIs('booking');
     }
 
     public function test_domain_tenant_greendeahan_subdomain_tetap_menampilkan_halaman_booking(): void
@@ -104,6 +104,6 @@ class HomePageTest extends TestCase
         $response = $this->get('http://arena-uji.greendeahan.com/');
 
         $response->assertOk();
-        $response->assertViewIs('pages.booking');
+        $response->assertViewIs('booking');
     }
 }

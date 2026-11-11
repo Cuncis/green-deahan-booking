@@ -114,6 +114,6 @@ class GaleriPageTest extends TestCase
         $response = $this->get('http://arena-uji-galeri.greendeahan.com/');
 
         $response->assertOk();
-        $response->assertViewIs('pages.booking');
+        $response->assertViewIs('booking');
     }
 }

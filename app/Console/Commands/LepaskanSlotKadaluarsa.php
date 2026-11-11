@@ -40,6 +40,7 @@ class LepaskanSlotKadaluarsa extends Command
                 $slot->update([
                     'status' => 'kosong',
                     'hold_sampai' => null,
+                    'hold_token' => null,
                 ]);
 
                 Booking::withoutGlobalScopes()

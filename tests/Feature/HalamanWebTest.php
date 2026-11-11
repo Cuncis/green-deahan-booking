@@ -9,6 +9,7 @@ use App\Models\Tenant;
 use App\Models\TenantFitur;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class HalamanWebTest extends TestCase
@@ -48,7 +49,11 @@ class HalamanWebTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertSee('Lapangan A');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Booking')
+            ->has('lapangan', 1)
+            ->where('lapangan.0.nama', 'Lapangan A')
+        );
     }
 
     public function test_halaman_booking_menampilkan_pesan_kosong_kalau_belum_ada_lapangan(): void
@@ -56,7 +61,7 @@ class HalamanWebTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertSee('Belum ada lapangan tersedia untuk booking saat ini.');
+        $response->assertInertia(fn (Assert $page) => $page->has('lapangan', 0)->where('lapanganAwal', null));
     }
 
     public function test_halaman_booking_bisa_pindah_lapangan_lewat_query_string(): void
@@ -77,7 +82,7 @@ class HalamanWebTest extends TestCase
         $response = $this->get('/?lapangan='.$lapanganB->id);
 
         $response->assertOk();
-        $response->assertSee('Lapangan B');
+        $response->assertInertia(fn (Assert $page) => $page->where('lapanganAwal', $lapanganB->id));
     }
 
     public function test_halaman_booking_menampilkan_input_promo_hanya_kalau_fitur_aktif(): void
@@ -94,7 +99,7 @@ class HalamanWebTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertDontSee('Kode promo, misal SEPI20');
+        $response->assertInertia(fn (Assert $page) => $page->where('fitur.kodePromo', false));
     }
 
     public function test_halaman_booking_menampilkan_input_promo_kalau_fitur_kode_promo_aktif(): void
@@ -111,7 +116,7 @@ class HalamanWebTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertSee('Kode promo, misal SEPI20');
+        $response->assertInertia(fn (Assert $page) => $page->where('fitur.kodePromo', true));
     }
 
     public function test_halaman_booking_tidak_mengandung_emoji_mentah(): void
@@ -144,9 +149,7 @@ class HalamanWebTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertSee('Metode Pembayaran');
-        $response->assertSee('QRIS');
-        $response->assertDontSee('Transfer Manual');
+        $response->assertInertia(fn (Assert $page) => $page->where('fitur.tipePembayaran', ['lunas']));
     }
 
     public function test_halaman_booking_menampilkan_toggle_reminder_kalau_fitur_aktif(): void
@@ -163,7 +166,7 @@ class HalamanWebTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertSee('Kirim pengingat WhatsApp 2 jam sebelum jadwal main');
+        $response->assertInertia(fn (Assert $page) => $page->where('fitur.reminder', true));
     }
 
     public function test_halaman_booking_tidak_menampilkan_toggle_reminder_kalau_fitur_tidak_aktif(): void
@@ -180,7 +183,7 @@ class HalamanWebTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertDontSee('Kirim pengingat WhatsApp 2 jam sebelum jadwal main');
+        $response->assertInertia(fn (Assert $page) => $page->where('fitur.reminder', false));
     }
 
     public function test_admin_dashboard_mengarahkan_guest_ke_login(): void

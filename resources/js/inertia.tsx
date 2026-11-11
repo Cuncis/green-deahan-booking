@@ -2,9 +2,10 @@ import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
 
 /**
- * Entry point for the Inertia + React homepage only. Every other route in
- * this app is server-rendered Blade + Livewire + Alpine (resources/js/app.js)
- * and never loads this bundle.
+ * Entry point for the public corporate-site React pages (resources/js/pages).
+ * The admin area (resources/js/admin) and the tenant booking page
+ * (resources/js/booking) have their own entries; remaining Blade pages use
+ * Alpine from resources/js/app.js.
  */
 createInertiaApp({
     resolve: (name) => {

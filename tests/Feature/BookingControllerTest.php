@@ -19,6 +19,8 @@ class BookingControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const TOKEN = 'token-hold-milik-customer-ini-0123456789';
+
     /**
      * Semua test di sini bukan tentang integrasi Mayar-nya sendiri (lihat
      * PaymentServiceTest untuk itu), jadi createInvoice() di-mock supaya
@@ -63,16 +65,16 @@ class BookingControllerTest extends TestCase
         $slotSesuai = JadwalSlot::factory()->create([
             'tenant_id' => $tenant->id,
             'lapangan_id' => $lapangan->id,
-            'tanggal' => '2026-08-01',
+            'tanggal' => now()->addDay()->toDateString(),
         ]);
 
         JadwalSlot::factory()->create([
             'tenant_id' => $tenant->id,
             'lapangan_id' => $lapangan->id,
-            'tanggal' => '2026-08-02',
+            'tanggal' => now()->addDays(2)->toDateString(),
         ]);
 
-        $response = $this->getJson("/api/booking/lapangan/{$lapangan->id}/slot?tanggal=2026-08-01");
+        $response = $this->getJson("/api/booking/lapangan/{$lapangan->id}/slot?tanggal=".now()->addDay()->toDateString());
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
@@ -107,6 +109,7 @@ class BookingControllerTest extends TestCase
             'lapangan_id' => $lapangan->id,
             'status' => 'hold',
             'hold_sampai' => now()->addMinutes(10),
+            'hold_token' => self::TOKEN,
         ]);
 
         $response = $this->postJson("/api/booking/slot/{$slot->id}/hold");
@@ -125,11 +128,13 @@ class BookingControllerTest extends TestCase
             'lapangan_id' => $lapangan->id,
             'status' => 'hold',
             'hold_sampai' => now()->addMinutes(10),
+            'hold_token' => self::TOKEN,
             'harga' => 100000,
         ]);
 
         $response = $this->postJson('/api/booking', [
             'slot_id' => $slot->id,
+            'hold_token' => self::TOKEN,
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
@@ -159,21 +164,25 @@ class BookingControllerTest extends TestCase
             'lapangan_id' => $lapangan->id,
             'status' => 'hold',
             'hold_sampai' => $holdSampaiAwal,
+            'hold_token' => self::TOKEN,
             'harga' => 100000,
         ]);
 
         $response = $this->postJson('/api/booking', [
             'slot_id' => $slot->id,
+            'hold_token' => self::TOKEN,
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
         ]);
 
         $response->assertCreated();
+        $this->assertSame('hold', $slot->fresh()->status);
         $this->assertSame(
             $holdSampaiAwal->format('Y-m-d H:i:s'),
             $slot->fresh()->hold_sampai->format('Y-m-d H:i:s'),
         );
+        $this->assertNull($slot->fresh()->hold_token, 'Token harus dihapus supaya hold yang sama tidak bisa dipakai booking kedua.');
     }
 
     public function test_buat_booking_gagal_409_kalau_slot_bukan_hold(): void
@@ -189,6 +198,7 @@ class BookingControllerTest extends TestCase
 
         $response = $this->postJson('/api/booking', [
             'slot_id' => $slot->id,
+            'hold_token' => self::TOKEN,
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
@@ -220,11 +230,13 @@ class BookingControllerTest extends TestCase
             'lapangan_id' => $lapangan->id,
             'status' => 'hold',
             'hold_sampai' => now()->addMinutes(10),
+            'hold_token' => self::TOKEN,
             'harga' => 100000,
         ]);
 
         $response = $this->postJson('/api/booking', [
             'slot_id' => $slot->id,
+            'hold_token' => self::TOKEN,
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'kode_promo' => 'HEMAT10',
@@ -259,11 +271,13 @@ class BookingControllerTest extends TestCase
             'lapangan_id' => $lapangan->id,
             'status' => 'hold',
             'hold_sampai' => now()->addMinutes(10),
+            'hold_token' => self::TOKEN,
             'harga' => 100000,
         ]);
 
         $response = $this->postJson('/api/booking', [
             'slot_id' => $slot->id,
+            'hold_token' => self::TOKEN,
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'kode_promo' => 'HEMAT10',
@@ -279,6 +293,7 @@ class BookingControllerTest extends TestCase
     public function test_buat_booking_dp_menghasilkan_total_setengah_harga(): void
     {
         $tenant = $this->tenant();
+        TenantFitur::create(array_merge(['tenant_id' => $tenant->id], TenantFitur::presetUntukPaket('pro')));
         $lapangan = $this->buatLapangan($tenant);
 
         $slot = JadwalSlot::factory()->create([
@@ -286,11 +301,13 @@ class BookingControllerTest extends TestCase
             'lapangan_id' => $lapangan->id,
             'status' => 'hold',
             'hold_sampai' => now()->addMinutes(10),
+            'hold_token' => self::TOKEN,
             'harga' => 100000,
         ]);
 
         $response = $this->postJson('/api/booking', [
             'slot_id' => $slot->id,
+            'hold_token' => self::TOKEN,
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'dp',
@@ -315,10 +332,12 @@ class BookingControllerTest extends TestCase
             'lapangan_id' => $lapangan->id,
             'status' => 'hold',
             'hold_sampai' => now()->addMinutes(10),
+            'hold_token' => self::TOKEN,
         ]);
 
         $response = $this->postJson('/api/booking', [
             'slot_id' => $slot->id,
+            'hold_token' => self::TOKEN,
             'nama' => 'Nama Baru Diabaikan',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
@@ -452,10 +471,12 @@ class BookingControllerTest extends TestCase
             'lapangan_id' => $lapangan->id,
             'status' => 'hold',
             'hold_sampai' => now()->addMinutes(10),
+            'hold_token' => self::TOKEN,
         ]);
 
         $response = $this->postJson('/api/booking', [
             'slot_id' => $slot->id,
+            'hold_token' => self::TOKEN,
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',
@@ -479,10 +500,12 @@ class BookingControllerTest extends TestCase
             'lapangan_id' => $lapangan->id,
             'status' => 'hold',
             'hold_sampai' => now()->addMinutes(10),
+            'hold_token' => self::TOKEN,
         ]);
 
         $response = $this->postJson('/api/booking', [
             'slot_id' => $slot->id,
+            'hold_token' => self::TOKEN,
             'nama' => 'Budi',
             'whatsapp' => '081234567890',
             'tipe_pembayaran' => 'lunas',

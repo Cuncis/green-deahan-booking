@@ -10,6 +10,8 @@ export default {
         './resources/views/**/*.blade.php',
         // React admin app (tenant admin + superadmin, Inertia) uses Tailwind.
         './resources/js/admin/**/*.{ts,tsx}',
+        // React customer booking page (tenant domain).
+        './resources/js/booking/**/*.{ts,tsx}',
         // The rest of resources/js/**/*.tsx is deliberately NOT scanned: the
         // public React pages are styled by the Fuzio template CSS in
         // resources/fuzio/, not Tailwind.
