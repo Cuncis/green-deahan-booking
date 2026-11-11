@@ -39,7 +39,7 @@
 
         <div class="hidden items-center gap-7 text-sm font-semibold text-stone-500 md:flex">
             @foreach ($navLinks as $link)
-                <a href="{{ $link['href'] }}" class="transition-colors hover:text-brand">{{ $link['label'] }}</a>
+                <a href="{{ $link['href'] }}" class="-my-2 inline-block py-2 transition-colors hover:text-brand">{{ $link['label'] }}</a>
             @endforeach
         </div>
 
@@ -55,7 +55,7 @@
 
         <button
             type="button"
-            class="flex flex-col gap-1.5 p-1 md:hidden"
+            class="-mr-3 flex flex-col gap-1.5 p-3 md:hidden"
             :aria-expanded="mobileOpen"
             aria-label="Toggle menu"
             x-on:click="mobileOpen = !mobileOpen"

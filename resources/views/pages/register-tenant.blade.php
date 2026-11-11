@@ -25,7 +25,7 @@
                         class="h-9 w-auto object-contain"
                     />
                 </a>
-                <a href="/harga" class="text-sm text-ink-mid hover:text-brown">Lihat Harga</a>
+                <a href="/harga" class="-my-2 inline-block py-2 text-sm text-ink-mid hover:text-brown">Lihat Harga</a>
             </div>
         </nav>
 

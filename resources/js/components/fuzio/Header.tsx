@@ -2,16 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import WhatsAppIcon from './elements/WhatsAppIcon';
 import { GD_LOGO, GD_LOGO_LIGHT, GD_PHONE_DISPLAY, GD_PHONE_TEL, menuData, waLink } from '../../data/greendeahan';
 
-/** Header links; items flagged hideInHeader (e.g. Harga) only appear in the footer. */
-const headerMenu = menuData.filter((item) => !item.hideInHeader);
-
 function MenuList({ onNavigate }: { onNavigate: () => void }) {
     const currentPath = window.location.pathname;
     const isActive = (path: string) => (path === '/' ? currentPath === '/' : currentPath === path || currentPath.startsWith(`${path}/`));
 
     return (
         <ul className="navbar-nav mx-auto align-items-lg-center">
-            {headerMenu.map((item) => (
+            {menuData.map((item) => (
                 <li key={item.path} className={`nav-item${isActive(item.path) ? ' current' : ''}`}>
                     <a href={item.path} className="nav-link" onClick={onNavigate}>
                         {item.label}

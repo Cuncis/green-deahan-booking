@@ -52,7 +52,7 @@ class HomePageTest extends TestCase
 
     public function test_halaman_v2_lama_lainnya_sudah_dihapus(): void
     {
-        foreach (['/v2/konsep', '/v2/galeri', '/v2/blog'] as $path) {
+        foreach (['/v2/konsep'] as $path) {
             $this->get('http://greendeahan.com'.$path)->assertNotFound();
         }
     }

@@ -64,8 +64,6 @@ export const gdTestimonials: Testimonial[] = [
 export interface MenuItem {
     label: string;
     path: string;
-    /** hidden from the header nav (still listed in the footer "Halaman" column) */
-    hideInHeader?: boolean;
 }
 
 /** Same pages as the Blade site nav (resources/views/components/site-nav.blade.php). */
@@ -74,7 +72,6 @@ export const menuData: MenuItem[] = [
     { label: 'Tentang Kami', path: '/tentang-kami' },
     { label: 'Galeri', path: '/galeri' },
     { label: 'Blog', path: '/blog' },
-    { label: 'Harga', path: '/harga', hideInHeader: true },
     { label: 'Kontak', path: '/kontak' },
 ];
 

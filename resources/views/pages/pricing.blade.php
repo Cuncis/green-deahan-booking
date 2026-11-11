@@ -107,7 +107,7 @@
                 @foreach ($paketList as $paket)
                     <div class="relative flex flex-col rounded-2xl border bg-[#f5f5f5] p-6 {{ $paket['featured'] ? 'border-2 border-brand shadow-xl shadow-brand-dark/10' : 'border-stone-200' }}">
                         @if ($paket['featured'])
-                            <span class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-4 py-1 text-[0.65rem] font-extrabold uppercase tracking-wide text-white">Paling Populer</span>
+                            <span class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-4 py-1 text-xs font-extrabold uppercase tracking-wide text-white">Paling Populer</span>
                         @endif
 
                         <div class="mb-2 text-xs font-bold uppercase tracking-wide text-stone-400">{{ $paket['nama'] }}</div>
@@ -135,7 +135,7 @@
                                 <th class="px-3 py-4 text-center text-xs font-bold">Basic</th>
                                 <th class="bg-brand-dark px-3 py-4 text-center text-xs font-bold">
                                     Pro
-                                    <span class="mt-0.5 block text-[0.62rem] font-semibold opacity-85">Populer</span>
+                                    <span class="mt-0.5 block text-xs font-semibold opacity-85">Populer</span>
                                 </th>
                                 <th class="px-3 py-4 text-center text-xs font-bold">Premium</th>
                             </tr>

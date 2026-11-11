@@ -20,6 +20,8 @@
             .artikel-konten blockquote p { margin-bottom: 0; color: inherit; }
         </style>
         <x-favicon />
+        {{-- Halaman artikel lama di /v2/blog/{slug}, jangan diindeks supaya tidak bersaing dengan /blog/{slug} --}}
+        <meta name="robots" content="noindex, nofollow">
         <x-seo-head :deskripsi="$artikel->ringkasan" :image="$artikel->foto_url" tipe="article" />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased">
@@ -34,7 +36,7 @@
         ]" />
 
         <article class="mx-auto max-w-3xl px-6 pb-16 pt-28">
-            <a href="/blog" class="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:underline">
+            <a href="/v2/blog" class="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:underline">
                 <x-icon name="chevron-left" size="14" />
                 Kembali ke Blog
             </a>
@@ -78,7 +80,7 @@
                     <h2 class="font-marketing-display mb-4 text-lg font-black text-stone-900">Artikel Terkait</h2>
                     <div class="grid gap-4 sm:grid-cols-3">
                         @foreach ($terkait as $item)
-                            <a href="/blog/{{ $item->slug }}" class="block overflow-hidden rounded-xl border border-stone-200 bg-[#f5f5f5] transition-colors hover:border-brand">
+                            <a href="/v2/blog/{{ $item->slug }}" class="block overflow-hidden rounded-xl border border-stone-200 bg-[#f5f5f5] transition-colors hover:border-brand">
                                 @if ($item->foto_url)
                                     <div class="aspect-[16/9] overflow-hidden">
                                         <img src="{{ $item->foto_url }}" alt="{{ $item->judul }}" class="h-full w-full object-cover">

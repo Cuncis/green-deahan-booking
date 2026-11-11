@@ -6,6 +6,7 @@ import FeatureSec from '../components/fuzio/home/FeatureSec';
 import SecPadding from '../components/fuzio/home/SecPadding';
 import CtaSec from '../components/fuzio/home/CtaSec';
 import ProductsSec from '../components/fuzio/home/ProductsSec';
+import KalkulatorSec from '../components/fuzio/home/KalkulatorSec';
 import TestimonialSec from '../components/fuzio/home/TestimonialSec';
 import BlogSec from '../components/fuzio/home/BlogSec';
 import { GD_CDN, gdTestimonials } from '../data/greendeahan';
@@ -22,6 +23,7 @@ export default function Home() {
             <SecPadding />
             <CtaSec />
             <ProductsSec />
+            <KalkulatorSec />
             <TestimonialSec title="Apa Kata Klien Kami?" testimonials={gdTestimonials} media={`${GD_CDN}/hero-img2.png`} mediaAlt="Tim Green Deahan sedang bekerja" />
             <BlogSec />
             <Footer />

@@ -7,64 +7,83 @@ use App\Models\GaleriItem;
 use App\Models\Lapangan;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class GaleriPageTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_galeri_bisa_diakses_di_domain_utama(): void
+    public function test_galeri_merender_halaman_react_dengan_meta(): void
     {
         $response = $this->get('http://greendeahan.com/galeri');
 
         $response->assertOk();
-        $response->assertViewIs('pages.galeri');
-        $response->assertSee('Galeri Proyek');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Galeri')
+            ->where('meta.title', 'Galeri Proyek - Green Deahan Sport')
+        );
+        $response->assertSee('<title inertia>Galeri Proyek - Green Deahan Sport</title>', false);
+        $response->assertDontSee('<meta name="robots" content="noindex, nofollow">', false);
     }
 
     public function test_galeri_bisa_diakses_lewat_www(): void
     {
-        $response = $this->get('http://www.greendeahan.com/galeri');
-
-        $response->assertOk();
-        $response->assertViewIs('pages.galeri');
+        $this->get('http://www.greendeahan.com/galeri')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('Galeri'));
     }
 
-    public function test_galeri_menampilkan_semua_kategori_dan_item_dari_database(): void
+    public function test_galeri_mengirim_semua_kategori_dan_item_dari_database(): void
     {
-        GaleriItem::factory()->create(['kategori' => 'futsal', 'judul' => 'Futsal Indoor Jakarta Selatan']);
-        GaleriItem::factory()->create(['kategori' => 'minisoccer', 'judul' => 'Mini Soccer Outdoor Bali']);
-        GaleriItem::factory()->create(['kategori' => 'padel', 'judul' => 'Padel Premium Medan']);
-        GaleriItem::factory()->create(['kategori' => 'badminton', 'judul' => 'Badminton 3 Court Bandung']);
-        GaleriItem::factory()->create(['kategori' => 'proses', 'judul' => 'Survey Lokasi Sebelum Mulai']);
+        GaleriItem::factory()->create(['kategori' => 'futsal', 'judul' => 'Futsal Indoor Jakarta Selatan', 'urutan' => 1, 'tampilan_besar' => true]);
+        GaleriItem::factory()->create(['kategori' => 'proses', 'judul' => 'Survey Lokasi Sebelum Mulai', 'urutan' => 2]);
 
-        $response = $this->get('http://greendeahan.com/galeri');
-
-        $response->assertSee('Futsal');
-        $response->assertSee('Mini Soccer');
-        $response->assertSee('Padel');
-        $response->assertSee('Badminton');
-        $response->assertSee('Proses Konstruksi');
-        $response->assertSee('Futsal Indoor Jakarta Selatan');
-        $response->assertSee('Survey Lokasi Sebelum Mulai');
+        $this->get('http://greendeahan.com/galeri')
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('kategori', 6)
+                ->where('kategori.0', ['id' => 'semua', 'label' => 'Semua'])
+                ->where('kategori.5', ['id' => 'proses', 'label' => 'Proses Konstruksi'])
+                ->has('items', 2)
+                ->where('items.0.judul', 'Futsal Indoor Jakarta Selatan')
+                ->where('items.0.besar', true)
+                ->where('items.1.kategori', 'proses')
+            );
     }
 
-    public function test_galeri_tidak_menampilkan_item_yang_nonaktif(): void
+    public function test_galeri_tidak_menampilkan_item_nonaktif_atau_yang_masih_dikerjakan(): void
+    {
+        GaleriItem::factory()->create(['judul' => 'Item Tampil', 'status_aktif' => true, 'kota' => 'Surabaya']);
+        GaleriItem::factory()->create(['judul' => 'Item Disembunyikan', 'status_aktif' => false]);
+        GaleriItem::factory()->create(['judul' => 'Proyek Berjalan', 'status_aktif' => true, 'kota' => 'On Progress']);
+
+        $this->get('http://greendeahan.com/galeri')
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('items', 1)
+                ->where('items.0.judul', 'Item Tampil')
+            );
+    }
+
+    public function test_galeri_blade_lama_pindah_ke_v2_dengan_noindex(): void
     {
         GaleriItem::factory()->create(['judul' => 'Item Tampil', 'status_aktif' => true]);
         GaleriItem::factory()->create(['judul' => 'Item Disembunyikan', 'status_aktif' => false]);
 
-        $response = $this->get('http://greendeahan.com/galeri');
+        $response = $this->get('http://greendeahan.com/v2/galeri');
 
+        $response->assertOk();
+        $response->assertViewIs('pages.galeri');
+        $response->assertSee('Galeri Proyek');
         $response->assertSee('Item Tampil');
         $response->assertDontSee('Item Disembunyikan');
+        $response->assertSee('<meta name="robots" content="noindex, nofollow">', false);
     }
 
     public function test_galeri_tidak_mengandung_emoji_mentah(): void
     {
         GaleriItem::factory()->create();
 
-        $response = $this->get('http://greendeahan.com/galeri');
+        $response = $this->get('http://greendeahan.com/v2/galeri');
 
         $response->assertDontSee('⚽');
         $response->assertDontSee('🟢');

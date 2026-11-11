@@ -13,13 +13,17 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Teko:wght@600&display=swap" rel="stylesheet">
 
-        {{-- Sengaja tanpa resources/css/app.css: halaman Inertia (homepage, Tentang Kami, Kontak) memakai CSS template Fuzio, lihat resources/fuzio/ --}}
+        {{-- Sengaja tanpa resources/css/app.css: halaman Inertia (homepage, Tentang Kami, Kontak, Blog, Galeri) memakai CSS template Fuzio, lihat resources/fuzio/ --}}
         @viteReactRefresh
         @vite('resources/js/inertia.tsx')
         @inertiaHead
 
         <x-favicon />
-        <x-seo-head :deskripsi="$page['props']['meta']['description'] ?? null" />
+        <x-seo-head
+            :deskripsi="$page['props']['meta']['description'] ?? null"
+            :image="$page['props']['meta']['image'] ?? null"
+            :tipe="$page['props']['meta']['type'] ?? 'website'"
+        />
     </head>
     <body>
         <x-seo-body />

@@ -525,10 +525,10 @@ body:has(header.header-football) .btn-dark {
   vertical-align: -3px;
 }
 
-/* 10. Brand logo strip: hover panel #FBB044 (was black) with the hover
+/* 10. Brand logo strip: hover panel #feb046 (was black) with the hover
    logo in black so it stays readable on the light orange */
 .brand-sec .single-brand::before {
-  background-color: #FBB044;
+  background-color: #feb046;
 }
 
 .brand-sec.bg-primary .single-brand img.hover-img {
@@ -670,13 +670,13 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 .wilayah-map-canvas .map-marker.is-office {
   width: 18px;
   height: 18px;
-  background-color: #fbb044;
+  background-color: #feb046;
   border-width: 3px;
   z-index: 2;
 }
 
 .wilayah-map-canvas .map-marker.is-office::after {
-  background-color: #fbb044;
+  background-color: #feb046;
 }
 
 @keyframes map-pulse {
@@ -855,7 +855,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 }
 
 .kerja-step.is-done .kerja-badge {
-  background-color: #fbb044;
+  background-color: #feb046;
   color: #004d00;
   font-size: 20px;
 }
@@ -1054,5 +1054,848 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
     width: 26px;
     height: 26px;
     font-size: 14px;
+  }
+}
+
+/* 20. Blog article page (/blog/[slug]): body text from the CMS
+   (h2, p, ul, strong, blockquote), styled like the template's
+   /single-post-no-sidebar */
+.single-post .post-body {
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.single-post .post-body h2 {
+  font-size: 30px;
+  text-transform: uppercase;
+  margin: 40px 0 16px;
+}
+
+.single-post .post-body > :first-child {
+  margin-top: 0;
+}
+
+.single-post .post-body strong {
+  color: var(--headings-color);
+}
+
+/* bullets: the template's check icon list (.content-list), one column */
+.single-post .post-body ul {
+  list-style: none;
+  margin: 20px 0 30px;
+  padding: 0;
+}
+
+.single-post .post-body ul li {
+  position: relative;
+  padding-left: 30px;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.single-post .post-body ul li::before {
+  content: "\f12d";
+  font-family: "feather-icons";
+  position: absolute;
+  left: 0;
+  top: 1px;
+  color: var(--primary);
+}
+
+/* quote box: template blockquote (green panel + quote mark), white text */
+.single-post .post-body blockquote {
+  background-color: var(--primary);
+  border-radius: var(--bs-border-radius-lg, 0.5rem);
+  color: #fff;
+  font-size: 19px;
+  line-height: 1.6;
+  padding: 25px 90px 25px 25px;
+}
+
+.single-post .post-body blockquote p,
+.single-post .post-body blockquote strong {
+  color: #fff;
+  margin-bottom: 0;
+}
+
+/* share icons: WhatsApp svg sized like the feather icons */
+.single-post .article-share .social a {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.single-post .article-share .social a svg {
+  display: block;
+}
+
+.single-post .article-share .social a:hover {
+  color: #fff;
+}
+
+/* WhatsApp box under the article (from blog-show.blade.php) */
+.single-post .post-cta {
+  padding: 30px 20px;
+  background-color: #f4faf4;
+  border: 1px solid #c8e6c9;
+  border-radius: var(--bs-border-radius-xl, 1rem);
+}
+
+.single-post .post-cta p {
+  margin-bottom: 16px;
+  color: var(--headings-color);
+}
+
+@media (max-width: 575.98px) {
+  .single-post .post-body {
+    font-size: 16px;
+  }
+
+  .single-post .post-body h2 {
+    font-size: 24px;
+  }
+
+  .single-post .post-body blockquote {
+    font-size: 17px;
+    padding: 20px 20px 70px;
+  }
+}
+
+/* related cards sit in a narrower column: keep "1 Menit Baca" on one line */
+.related-posts .entry-meta span {
+  white-space: nowrap;
+}
+
+/* Article title in the page banner (/blog/[slug]): long text, so smaller
+   than the normal banner title on tablets and phones */
+@media (max-width: 991.98px) {
+  .promo-txt h1.long-title {
+    font-size: 40px;
+    line-height: 1.15;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .promo-txt h1.long-title {
+    font-size: 30px;
+  }
+}
+
+/* 21. Galeri page (/galeri): category filter, photo grid with big tiles,
+   green hover caption (from green-deahan-booking galeri.blade.php) */
+.galeri-filter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.galeri-filter button {
+  padding: 10px 20px;
+  border: 1px solid #c8e6c9;
+  border-radius: 50rem;
+  background-color: #fff;
+  color: #004d00;
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.galeri-filter button .count {
+  display: inline-block;
+  min-width: 24px;
+  margin-left: 4px;
+  padding: 1px 7px;
+  border-radius: 50rem;
+  background-color: #f4faf4;
+  font-size: 12px;
+}
+
+.galeri-filter button:hover {
+  border-color: var(--primary);
+}
+
+.galeri-filter button.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.galeri-filter button.active .count {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.galeri-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 260px;
+  grid-auto-flow: dense;
+  gap: 24px;
+}
+
+.galeri-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: #c8e6c9;
+  cursor: zoom-in;
+  animation: kerja-in 0.5s ease-out both;
+}
+
+.galeri-item.is-big {
+  grid-row: span 2;
+}
+
+.galeri-item img {
+  transition: transform 0.5s ease;
+}
+
+.galeri-item:hover img,
+.galeri-item:focus-visible img {
+  transform: scale(1.05);
+}
+
+.galeri-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px;
+  background-color: rgba(0, 100, 0, 0.78);
+  color: #fff;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.galeri-overlay .feather-icon {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+
+.galeri-overlay strong {
+  font-family: "DM Sans", sans-serif;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.galeri-overlay span {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.galeri-item:hover .galeri-overlay,
+.galeri-item:focus-visible .galeri-overlay {
+  opacity: 1;
+}
+
+.galeri-item:focus-visible {
+  outline: 3px solid #feb046;
+  outline-offset: 3px;
+}
+
+.galeri-cta {
+  margin-top: 60px;
+  padding: 30px 20px;
+  background-color: #f4faf4;
+  border: 1px solid #c8e6c9;
+  border-radius: var(--bs-border-radius-xl, 1rem);
+}
+
+.galeri-cta p {
+  margin-bottom: 16px;
+  color: var(--headings-color);
+  font-size: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galeri-item {
+    animation: none;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .galeri-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 200px;
+    gap: 16px;
+  }
+}
+
+/* phones: one column, caption always visible (no hover on touch) */
+@media (max-width: 575.98px) {
+  .galeri-filter {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    margin: 0 -12px 28px;
+    padding: 0 12px 6px;
+  }
+
+  .galeri-filter button {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .galeri-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 220px;
+  }
+
+  .galeri-item.is-big {
+    grid-row: span 1;
+  }
+
+  .galeri-overlay {
+    top: auto;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 30px 14px 12px;
+    background: linear-gradient(transparent, rgba(0, 50, 0, 0.85));
+    text-align: left;
+    opacity: 1;
+  }
+
+  .galeri-overlay .feather-icon {
+    display: none;
+  }
+
+  .galeri-overlay strong {
+    font-size: 16px;
+  }
+
+  .galeri-overlay span {
+    font-size: 13px;
+  }
+}
+
+/* 22. Galeri project detail popup (GaleriModal.tsx) */
+.galeri-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.galeri-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 20, 0, 0.88);
+  backdrop-filter: blur(4px);
+  animation: gm-fade 0.25s ease-out both;
+}
+
+.galeri-modal-dialog {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-rows: auto auto;
+  width: 100%;
+  max-width: 1180px;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+  border-radius: 18px;
+  background-color: #fff;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  animation: gm-pop 0.3s ease-out both;
+}
+
+@keyframes gm-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes gm-pop {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+/* photo */
+.gm-media {
+  position: relative;
+  min-height: 300px;
+  height: min(68vh, 620px);
+  background-color: #0b1a0b;
+  touch-action: pan-y;
+}
+
+.gm-photo {
+  animation: gm-fade 0.35s ease-out both;
+}
+
+.gm-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.92);
+  color: #004d00;
+  font-size: 22px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.gm-nav:hover,
+.gm-nav:focus-visible {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.gm-nav.is-prev { left: 16px; }
+.gm-nav.is-next { right: 16px; }
+
+.gm-counter {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  padding: 4px 12px;
+  border-radius: 50rem;
+  background-color: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* info panel */
+.gm-info {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 36px 28px 28px;
+  overflow-y: auto;
+}
+
+.gm-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background-color: #f4faf4;
+  color: #004d00;
+  font-size: 20px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.gm-close:hover,
+.gm-close:focus-visible {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.gm-badge {
+  align-self: flex-start;
+  margin-bottom: 14px;
+  padding: 4px 12px;
+  border: 1px solid #c8e6c9;
+  border-radius: 50rem;
+  background-color: #f4faf4;
+  color: #004d00;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.gm-info h3 {
+  font-family: "DM Sans", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-transform: none;
+  margin: 0 40px 18px 0;
+}
+
+.gm-meta {
+  margin: 0 0 18px;
+  padding: 14px 0;
+  border-top: 1px solid #e8f2e8;
+  border-bottom: 1px solid #e8f2e8;
+}
+
+.gm-meta li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--headings-color);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.gm-meta li + li {
+  margin-top: 8px;
+}
+
+.gm-meta .feather-icon {
+  margin-top: 3px;
+  color: var(--primary);
+}
+
+.gm-info p {
+  font-size: 15px;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+.gm-cta {
+  margin-top: auto;
+  width: 100%;
+}
+
+/* thumbnails */
+.gm-thumbs {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  background-color: #f4faf4;
+  border-top: 1px solid #e8f2e8;
+  scrollbar-width: thin;
+  scrollbar-color: #94c99a transparent;
+}
+
+.gm-thumbs button {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 3px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  background: none;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.gm-thumbs button img {
+  display: block;
+  width: 80px;
+  height: 54px;
+}
+
+.gm-thumbs button:hover,
+.gm-thumbs button:focus-visible {
+  opacity: 1;
+}
+
+.gm-thumbs button.active {
+  border-color: var(--primary);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galeri-modal-backdrop,
+  .galeri-modal-dialog,
+  .gm-photo {
+    animation: none;
+  }
+}
+
+/* tablets and phones: photo on top, details below, whole popup scrolls */
+@media (max-width: 991.98px) {
+  .galeri-modal {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .galeri-modal-dialog {
+    display: flex;
+    flex-direction: column;
+    max-height: none;
+    height: 100%;
+    border-radius: 0;
+    overflow-y: auto;
+  }
+
+  .gm-media {
+    flex: 0 0 auto;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+
+  .gm-thumbs {
+    order: 2;
+    flex: 0 0 auto;
+  }
+
+  .gm-info {
+    order: 3;
+    flex: 1 0 auto;
+    overflow: visible;
+    padding: 24px 20px 28px;
+  }
+
+  /* close button stays on the photo, always reachable */
+  .gm-close {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  }
+
+  .gm-info h3 {
+    font-size: 21px;
+    margin-right: 0;
+  }
+
+  .gm-nav {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .gm-nav.is-prev { left: 10px; }
+  .gm-nav.is-next { right: 10px; }
+}
+
+/* 23. Homepage "Kalkulator" (KalkulatorSec.tsx): the template's default
+   green section background (abstruct.jpg, as on its CTA section), white
+   input card (Fuzio contact-form fields), darker results card */
+.calc-sec {
+  background-color: #004d00;
+  /* soft green tint on top: the section is much taller than the
+     template's CTA, so the image (and its grain) is scaled up a lot */
+  background-image: linear-gradient(rgba(0, 60, 20, 0.45), rgba(0, 60, 20, 0.45)), url("../images/abstruct.jpg");
+  background-size: cover;
+  background-position: center;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.calc-eyebrow {
+  margin-bottom: 8px;
+  color: #feb046;
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.calc-intro {
+  margin: 16px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 18px;
+}
+
+.calc-box {
+  padding: 32px 28px 20px;
+  background-color: #fff;
+  border-radius: var(--bs-border-radius-xl, 1rem);
+  color: var(--bs-body-color);
+}
+
+.calc-label,
+.calc-range label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--headings-color);
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+}
+
+/* field icon sits inside the input, below the label (22px + 8px) */
+.calc-box.contact-form .form-group > i.feather-icon {
+  top: 51px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.calc-box .form-control {
+  height: 60px;
+  border-radius: 32px;
+  background-color: var(--mute);
+}
+
+.calc-range {
+  margin: 4px 0 18px;
+}
+
+.calc-range strong {
+  color: var(--primary);
+}
+
+.calc-range input[type="range"] {
+  width: 100%;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.calc-note {
+  margin: 0;
+  font-size: 14px;
+}
+
+.calc-out {
+  display: flex;
+  flex-direction: column;
+  padding: 32px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--bs-border-radius-xl, 1rem);
+  background-color: rgba(0, 0, 0, 0.25);
+  color: #fff;
+}
+
+.calc-out-label {
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+.calc-big {
+  margin: 2px 0 18px;
+  color: #feb046;
+  font-family: var(--headings-font, inherit);
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.calc-big small {
+  color: #fff;
+  font-size: 22px;
+  opacity: 0.85;
+}
+
+.calc-list {
+  margin: 0 0 18px;
+}
+
+.calc-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.calc-list dt {
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.calc-list dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.calc-list .is-total {
+  border-bottom: 0;
+}
+
+.calc-list .is-total dd {
+  color: #feb046;
+}
+
+.calc-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 12px;
+}
+
+.calc-fine {
+  margin-bottom: 18px;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.calc-send {
+  margin-top: auto;
+  width: 100%;
+}
+
+/* white-on-green results card: button keeps brand green but lighter edge */
+.calc-out .btn.btn-whatsapp {
+  border-color: #94c99a;
+}
+
+.calc-steps {
+  margin-top: 60px;
+}
+
+.calc-steps h3 {
+  margin-bottom: 24px;
+  color: #fff;
+  text-align: center;
+}
+
+.calc-step {
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--bs-border-radius-xl, 1rem);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.calc-step-no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  background-color: #feb046;
+  color: #004d00;
+  font-weight: 700;
+}
+
+.calc-step h4 {
+  margin-bottom: 6px;
+  color: #fff;
+  font-family: "DM Sans", sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.calc-step p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+@media (max-width: 575.98px) {
+  .calc-box,
+  .calc-out {
+    padding: 24px 18px;
+  }
+
+  .calc-big {
+    font-size: 48px;
+  }
+
+  /* the chart scales down on phones: enlarge its labels (SVG units) */
+  .calc-chart text {
+    font-size: 20px;
+  }
+
+  .calc-list > div {
+    font-size: 15px;
   }
 }

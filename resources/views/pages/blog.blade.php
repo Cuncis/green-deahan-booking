@@ -19,6 +19,8 @@
             .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         </style>
         <x-favicon />
+        {{-- Halaman Blog lama yang dipindah ke /v2/blog, jangan diindeks supaya tidak bersaing dengan /blog --}}
+        <meta name="robots" content="noindex, nofollow">
         <x-seo-head />
     </head>
     <body
@@ -86,7 +88,7 @@
             <!-- Featured post -->
             <div class="reveal mb-12" x-show="filteredPosts.length > 0 && !searchQuery && activeCategory === 'semua'">
                 <template x-if="filteredPosts[0]">
-                    <a :href="'/blog/' + filteredPosts[0].slug" class="group block overflow-hidden rounded-2xl border-2 border-stone-200 bg-[#f5f5f5] transition-colors hover:border-brand">
+                    <a :href="'/v2/blog/' + filteredPosts[0].slug" class="group block overflow-hidden rounded-2xl border-2 border-stone-200 bg-[#f5f5f5] transition-colors hover:border-brand">
                         <div class="grid md:grid-cols-2">
                             <div class="relative overflow-hidden" style="min-height:280px">
                                 <img :src="filteredPosts[0].fotoUrl" :alt="filteredPosts[0].judul" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
@@ -112,7 +114,7 @@
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" x-show="filteredPosts.length > 0">
                 <template x-for="post in (searchQuery || activeCategory !== 'semua' ? filteredPosts : filteredPosts.slice(1))" :key="post.slug">
                     <div class="reveal">
-                        <a :href="'/blog/' + post.slug" class="blog-card block overflow-hidden rounded-2xl border-2 border-stone-200 bg-[#f5f5f5]">
+                        <a :href="'/v2/blog/' + post.slug" class="blog-card block overflow-hidden rounded-2xl border-2 border-stone-200 bg-[#f5f5f5]">
                             <div class="aspect-[16/9] overflow-hidden">
                                 <img :src="post.fotoUrl" :alt="post.judul" class="h-full w-full object-cover">
                             </div>

@@ -32,6 +32,10 @@
             .tab-scroll::-webkit-scrollbar-thumb:hover { background: #004d00; }
         </style>
         <x-favicon />
+        @if (request()->routeIs('galeri.v2', '*.galeri.v2'))
+            {{-- Halaman Galeri lama yang dipindah ke /v2/galeri, jangan diindeks supaya tidak bersaing dengan /galeri --}}
+            <meta name="robots" content="noindex, nofollow">
+        @endif
         <x-seo-head />
     </head>
     <body class="bg-[#f5f5f5] font-marketing text-stone-900 antialiased" x-data="galeriApp()" x-init="initReveal()">
@@ -178,9 +182,9 @@
                             <span class="text-xs text-brand-200">Klik untuk detail &rarr;</span>
                         </div>
                         <div class="absolute inset-x-0 bottom-0 bg-white/95 px-3 py-2 backdrop-blur">
-                            <span class="text-[10px] font-bold text-brand">{{ $kategoriTab[$item['cat']]['label'] }}</span>
+                            <span class="text-xs font-bold text-brand">{{ $kategoriTab[$item['cat']]['label'] }}</span>
                             <p class="mt-0.5 truncate text-xs font-semibold leading-tight text-stone-800">{{ $item['title'] }}</p>
-                            <p class="mt-0.5 flex items-center gap-1 text-[10px] text-stone-400">
+                            <p class="mt-0.5 flex items-center gap-1 text-xs text-stone-400">
                                 <x-icon name="location-pin" size="10" />
                                 {{ $item['kota'] }}
                             </p>

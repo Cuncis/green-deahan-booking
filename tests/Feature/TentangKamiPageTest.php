@@ -45,7 +45,7 @@ class TentangKamiPageTest extends TestCase
 
     public function test_navigasi_blade_menautkan_tentang_kami_bukan_konsep(): void
     {
-        $response = $this->get('http://greendeahan.com/galeri');
+        $response = $this->get('http://greendeahan.com/harga');
 
         $response->assertOk();
         $response->assertSee('href="/tentang-kami"', false);

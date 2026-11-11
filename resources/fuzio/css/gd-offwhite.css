@@ -95,3 +95,50 @@ header nav.navbar.scroll-on,
   background-color: #f5f5f5;
   border: 1px solid #e7e5e4;
 }
+
+/* Blog: pager buttons, article tag and share buttons used the template
+   --mute #F6F6F6. One off-white (#F5F5F5) with a border so they keep an
+   edge on the #F5F5F5 page. Hover colors from the template stay. */
+.pager a,
+.pager span,
+.widget_tag_cloud a,
+.social a {
+  background-color: #f5f5f5;
+  border: 1px solid #e7e5e4;
+}
+
+.pager a:hover,
+.pager span:hover,
+.pager a.current,
+.widget_tag_cloud a:hover,
+.social a:hover {
+  border-color: transparent;
+}
+
+/* Galeri: category filter pills and the project popup panel (template
+   brand CSS uses pure white). Hover/active colors from the template stay. */
+.galeri-filter button:not(.active) {
+  background-color: #f5f5f5;
+}
+
+.galeri-modal-dialog {
+  background-color: #f5f5f5;
+}
+
+/* Homepage Kalkulator: the input card is a small card on the dark green
+   band, so #FAFAFA (not pure white); its fields stay #F5F5F5 with a border. */
+.calc-box {
+  background-color: #fafafa;
+}
+
+.calc-box .form-control,
+.calc-box .nice-select {
+  background-color: #f5f5f5;
+  border: 1px solid #e7e5e4;
+}
+
+/* Kalkulator sliders inherit a white input background from the form styles;
+   the slider draws its own track, so no background is needed. */
+.calc-range input[type="range"] {
+  background-color: transparent;
+}

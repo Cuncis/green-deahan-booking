@@ -15,7 +15,7 @@
                 </div>
                 <div>
                     <div class="font-marketing-display text-base font-black leading-none text-white">Green Deahan Sport</div>
-                    <div class="mt-0.5 text-[10px] font-semibold uppercase leading-none tracking-widest text-stone-500">Sejak 2010</div>
+                    <div class="mt-0.5 text-xs font-semibold uppercase leading-none tracking-widest text-stone-500">Sejak 2010</div>
                 </div>
             </div>
             <p class="mb-5 max-w-xs text-sm leading-relaxed text-stone-500">
@@ -24,11 +24,11 @@
             <div class="space-y-2 text-sm">
                 <p class="flex items-center gap-2">
                     <x-icon name="phone-call" size="14" class="text-stone-500" />
-                    <a href="tel:+{{ $waNumber }}" class="transition-colors hover:text-white">+62 813-5757-0064</a>
+                    <a href="tel:+{{ $waNumber }}" class="-my-2 inline-block py-2 transition-colors hover:text-white">+62 813-5757-0064</a>
                 </p>
                 <p class="flex items-center gap-2">
                     <x-icon name="mail-envelope" size="14" class="text-stone-500" />
-                    <a href="mailto:rumput1927@gmail.com" class="transition-colors hover:text-white">rumput1927@gmail.com</a>
+                    <a href="mailto:rumput1927@gmail.com" class="-my-2 inline-block py-2 transition-colors hover:text-white">rumput1927@gmail.com</a>
                 </p>
                 <p class="flex items-center gap-2">
                     <x-icon name="clock" size="14" class="text-stone-500" />
@@ -72,7 +72,7 @@
                             href="https://wa.me/{{ $waNumber }}?text={{ urlencode("Halo, saya ingin konsultasi {$topik}") }}"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="transition-colors hover:text-white"
+                            class="-my-2 inline-block py-2 transition-colors hover:text-white"
                         >{{ $label }}</a>
                     </li>
                 @endforeach
@@ -82,13 +82,12 @@
         <div>
             <h4 class="mb-4 text-sm font-bold uppercase tracking-widest text-white">Halaman</h4>
             <ul class="space-y-2 text-sm">
-                <li><a href="/" class="transition-colors hover:text-white">Beranda</a></li>
-                <li><a href="/tentang-kami" class="transition-colors hover:text-white">Tentang Kami</a></li>
-                <li><a href="/galeri" class="transition-colors hover:text-white">Galeri Proyek</a></li>
-                <li><a href="/blog" class="transition-colors hover:text-white">Blog & Tips</a></li>
-                <li><a href="/harga" class="transition-colors hover:text-white">Website Booking</a></li>
-                <li><a href="/#layanan" class="transition-colors hover:text-white">Layanan</a></li>
-                <li><a href="/kontak" class="transition-colors hover:text-white">Kontak Kami</a></li>
+                <li><a href="/" class="-my-2 inline-block py-2 transition-colors hover:text-white">Beranda</a></li>
+                <li><a href="/tentang-kami" class="-my-2 inline-block py-2 transition-colors hover:text-white">Tentang Kami</a></li>
+                <li><a href="/galeri" class="-my-2 inline-block py-2 transition-colors hover:text-white">Galeri Proyek</a></li>
+                <li><a href="/blog" class="-my-2 inline-block py-2 transition-colors hover:text-white">Blog & Tips</a></li>
+                <li><a href="/#layanan" class="-my-2 inline-block py-2 transition-colors hover:text-white">Layanan</a></li>
+                <li><a href="/kontak" class="-my-2 inline-block py-2 transition-colors hover:text-white">Kontak Kami</a></li>
             </ul>
         </div>
     </div>

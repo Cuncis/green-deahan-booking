@@ -32,7 +32,7 @@ use Inertia\Inertia;
 // galeri & blog dikelola lewat /superadmin, lihat Superadmin\GaleriAdminController
 // dan Superadmin\ArtikelAdminController.
 $situsKorporat = function () {
-    // Homepage, Tentang Kami dan Kontak dibangun dengan Inertia + React
+    // Homepage, Tentang Kami, Kontak, Galeri dan Blog dibangun dengan Inertia + React
     // (resources/js/pages/), porting dari template Fuzio. Prop `meta`
     // dipakai resources/views/app.blade.php untuk <title> dan meta
     // description. Homepage & Kontak Blade lama tetap bisa dibuka di /v2 dan
@@ -55,8 +55,13 @@ $situsKorporat = function () {
     // posisi di Google pindah ke halaman baru.
     Route::permanentRedirect('/konsep', '/tentang-kami');
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
+    // Desain Galeri Blade lama, noindex (lihat pages/galeri.blade.php).
+    Route::get('/v2/galeri', [GaleriController::class, 'indexV2'])->name('galeri.v2');
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+    // Desain Blog Blade lama, noindex (lihat pages/blog*.blade.php).
+    Route::get('/v2/blog', [BlogController::class, 'indexV2'])->name('blog.v2');
+    Route::get('/v2/blog/{slug}', [BlogController::class, 'showV2'])->name('blog.v2.show');
     Route::get('/kontak', fn () => Inertia::render('Kontak', [
         'meta' => [
             'title' => 'Kontak Kami - Green Deahan Sport',

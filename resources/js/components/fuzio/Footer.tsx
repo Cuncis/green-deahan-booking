@@ -1,4 +1,5 @@
-import { GD_EMAIL, GD_HOURS, GD_PHONE_DISPLAY, GD_PHONE_TEL, menuData, socialLinks } from '../../data/greendeahan';
+import WhatsAppIcon from './elements/WhatsAppIcon';
+import { GD_EMAIL, GD_HOURS, GD_PHONE_DISPLAY, menuData, socialLinks, waLink } from '../../data/greendeahan';
 
 /** Port of Fuzio's Footer, as customized in the Fuzio clone. */
 export default function Footer() {
@@ -13,9 +14,13 @@ export default function Footer() {
                             <ul className="mt-4">
                                 <li className="d-flex align-items-center">
                                     <span>
-                                        <i className="feather-icon icon-phone-call"></i>
+                                        <i>
+                                            <WhatsAppIcon size={18} />
+                                        </i>
                                     </span>
-                                    <a href={`tel:${GD_PHONE_TEL}`}>{GD_PHONE_DISPLAY}</a>
+                                    <a href={waLink()} target="_blank" rel="noopener noreferrer" aria-label={`Chat WhatsApp ${GD_PHONE_DISPLAY}`}>
+                                        {GD_PHONE_DISPLAY}
+                                    </a>
                                 </li>
                                 <li className="d-flex align-items-center">
                                     <span>

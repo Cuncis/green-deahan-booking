@@ -199,3 +199,96 @@ header.header .top-bar .top-meta {
 .back-top:hover {
   background: #f59f24;
 }
+
+/* Blog cards: some summaries in the database are long; clamp to 3 lines
+   so the cards line up (full text is on the article page). */
+.blog-page .single-entry2 .entry-content p,
+.related-posts .single-entry2 .entry-content p {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Mobile tap targets: small inline links get a bigger invisible hit area
+   (padding + equal negative margin, so nothing moves), and the menu
+   button is at least 44x44. Found by the mobile audit (min 24px, aim 40+). */
+header.header .top-bar a,
+.breadcrumb-item a,
+.entry-meta a,
+.contact-card li a,
+.footer-widget ul li a,
+.single-entry2 .btn-link {
+  display: inline-block;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  margin-top: -9px;
+  margin-bottom: -9px;
+}
+
+.single-entry2 .entry-media a {
+  display: block;
+}
+
+.navbar-toggler {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* FAQ questions: at least 44px tall to tap (the accordion icon is 50px). */
+.faq-item .accordion-button {
+  min-height: 44px;
+}
+
+/* Header logo: on phones the template narrows the logo (125px, 115px in
+   the slide-out menu) but keeps the 60px height from the img attribute,
+   which squashed it. Keep the real proportions. */
+.navbar-brand img,
+.offcanvas-header img {
+  height: auto;
+}
+
+/* Homepage service cards (Futsal, Mini Soccer, Padel, Badminton) on phones:
+   light cards, a touch lighter (#FAFAFA) than the #F3FAF3 section, with a
+   soft green border. The "Tanya Harga" link only appears on hover in the
+   template, which phones don't have, so it is always shown here. */
+@media (max-width: 767.98px) {
+  .feature-sec .feature-entry {
+    background-color: #fafafa;
+    border: 1px solid #dfeedf;
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin-bottom: 16px;
+  }
+
+  .feature-sec .feature-entry::before {
+    display: none;
+  }
+
+  .feature-sec .feature-entry a {
+    opacity: 1;
+    display: inline-block;
+    margin-top: 11px;
+    padding: 9px 0;
+    margin-bottom: -9px;
+  }
+
+  .feature-sec .feature-entry:hover {
+    transform: none;
+    background-color: #fafafa;
+  }
+
+  /* A tap counts as hover on phones; the template's hover turns the text
+     white for a green card, so keep the normal dark text on the light card. */
+  .feature-sec .feature-entry:hover h3 {
+    color: var(--headings-color);
+  }
+
+  .feature-sec .feature-entry:hover p {
+    color: var(--body-color);
+  }
+
+  .feature-sec .feature-entry:hover a {
+    color: var(--black);
+  }
+}

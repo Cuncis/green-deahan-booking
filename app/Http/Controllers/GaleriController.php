@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\GaleriItem;
 use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
- * Halaman /galeri di situs korporat (greendeahan.com). Datanya dikelola lewat /superadmin/galeri,
+ * Halaman /galeri di situs korporat (greendeahan.com), Inertia + React dengan
+ * desain template Fuzio (resources/js/pages/Galeri.tsx). Desain Blade lama
+ * ada di /v2/galeri (noindex). Datanya dikelola lewat /superadmin/galeri,
  * lihat Superadmin\GaleriAdminController.
  */
 class GaleriController extends Controller
@@ -23,7 +27,48 @@ class GaleriController extends Controller
         'proses' => ['label' => 'Proses Konstruksi', 'icon' => 'build-hammer', 'badgeClass' => 'text-stone-700 bg-stone-50 border-stone-200'],
     ];
 
-    public function index(): View
+    /**
+     * Proyek yang masih dikerjakan (kota "On Progress") tidak ditampilkan di
+     * galeri baru, sama seperti versi Fuzio.
+     */
+    private const KOTA_DALAM_PENGERJAAN = 'On Progress';
+
+    public function index(): Response
+    {
+        $items = GaleriItem::where('status_aktif', true)
+            ->where('kota', '!=', self::KOTA_DALAM_PENGERJAAN)
+            ->orderBy('urutan')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (GaleriItem $item) => [
+                'id' => $item->id,
+                'kategori' => $item->kategori,
+                'judul' => $item->judul,
+                'kota' => $item->kota,
+                'material' => $item->material,
+                'deskripsi' => $item->deskripsi,
+                'foto' => $item->foto_url,
+                'besar' => (bool) $item->tampilan_besar,
+            ])
+            ->all();
+
+        return Inertia::render('Galeri', [
+            'meta' => [
+                'title' => 'Galeri Proyek - Green Deahan Sport',
+                'description' => 'Portofolio lapangan futsal, mini soccer, padel, dan badminton yang sudah dikerjakan Green Deahan Sport di seluruh Indonesia.',
+            ],
+            'kategori' => collect(self::KATEGORI_TAB)
+                ->map(fn (array $tab, string $id) => ['id' => $id, 'label' => $tab['label']])
+                ->values()
+                ->all(),
+            'items' => $items,
+        ]);
+    }
+
+    /**
+     * Desain Blade lama, dipindah ke /v2/galeri (noindex).
+     */
+    public function indexV2(): View
     {
         return view('pages.galeri', $this->data());
     }
