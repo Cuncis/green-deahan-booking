@@ -23,7 +23,7 @@ class KeranjangController extends Controller
         return Inertia::render('toko/Keranjang', [
             'keranjang' => $this->keranjang->ringkasan(),
             'maksQty' => (int) config('toko.maks_qty_per_produk'),
-            'meta' => ['title' => 'Keranjang | Toko Green Deahan Sport'],
+            'meta' => ['title' => 'Keranjang | Toko Green Deahan Sport', 'noindex' => true],
         ]);
     }
 

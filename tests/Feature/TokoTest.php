@@ -89,6 +89,32 @@ class TokoTest extends TestCase
             ->assertDontSee('rahasia-supplier');
     }
 
+    public function test_toko_tersembunyi_tapi_tetap_bisa_dibuka_selama_belum_publik(): void
+    {
+        config(['toko.publik' => false]);
+        $produk = $this->produk();
+
+        $this->get(self::SITUS.'/')->assertOk()->assertInertia(fn (Assert $page) => $page->where('tokoPublik', false));
+        $this->get(self::SITUS.'/toko')
+            ->assertOk()
+            ->assertSee('<meta name="robots" content="noindex, nofollow">', false)
+            ->assertInertia(fn (Assert $page) => $page->where('tokoPublik', false)->where('meta.noindex', true));
+        $this->get(self::SITUS.'/toko/'.$produk->slug)->assertOk()->assertSee('noindex, nofollow', false);
+        $this->get(self::SITUS.'/sitemap.xml')->assertOk()->assertDontSee('/toko');
+    }
+
+    public function test_toko_publik_muncul_di_menu_dan_boleh_diindeks(): void
+    {
+        config(['toko.publik' => true]);
+
+        $this->get(self::SITUS.'/')->assertInertia(fn (Assert $page) => $page->where('tokoPublik', true));
+        $this->get(self::SITUS.'/toko')
+            ->assertInertia(fn (Assert $page) => $page->where('meta.noindex', false))
+            ->assertDontSee('<meta name="robots"', false);
+        // Keranjang dan checkout tidak pernah diindeks.
+        $this->get(self::SITUS.'/keranjang')->assertSee('noindex, nofollow', false);
+    }
+
     public function test_filter_kategori_dan_produk_nonaktif_404(): void
     {
         $this->produk(['category' => 'padel']);

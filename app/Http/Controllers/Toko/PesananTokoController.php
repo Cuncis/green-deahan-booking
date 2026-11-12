@@ -47,7 +47,7 @@ class PesananTokoController extends Controller
                 'dibayar' => $order->paid_at?->timezone('Asia/Jakarta')->format('d/m/Y H:i'),
             ],
             'langkah' => collect(self::LANGKAH)->map(fn (OrderStatus $status) => ['nilai' => $status->value, 'label' => $status->label()])->all(),
-            'meta' => ['title' => "Pesanan {$order->code} | Toko Green Deahan Sport"],
+            'meta' => ['title' => "Pesanan {$order->code} | Toko Green Deahan Sport", 'noindex' => true],
         ]);
     }
 }

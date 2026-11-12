@@ -9,6 +9,14 @@
 return [
 
     /*
+     * false = toko belum dibuka untuk umum: halamannya tetap bisa dibuka
+     * lewat alamat langsung (/toko) untuk uji internal, tapi menu "Toko" dan
+     * ikon keranjang disembunyikan di situs, dan semua halaman toko diberi
+     * noindex supaya tidak muncul di Google. Buka untuk umum: TOKO_PUBLIK=true.
+     */
+    'publik' => (bool) env('TOKO_PUBLIK', false),
+
+    /*
      * Ongkir tarif flat untuk versi pertama (rupiah). Nanti bisa diganti
      * perhitungan ongkir per kota/berat.
      */

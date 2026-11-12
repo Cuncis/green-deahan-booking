@@ -37,7 +37,7 @@ class CheckoutController extends Controller
         return Inertia::render('toko/Checkout', [
             'keranjang' => $ringkasan,
             'sandbox' => $this->mayar->modeSandbox(),
-            'meta' => ['title' => 'Checkout | Toko Green Deahan Sport'],
+            'meta' => ['title' => 'Checkout | Toko Green Deahan Sport', 'noindex' => true],
         ]);
     }
 

@@ -1,15 +1,15 @@
 import { usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import WhatsAppIcon from './elements/WhatsAppIcon';
-import { GD_LOGO, GD_LOGO_LIGHT, GD_PHONE_DISPLAY, GD_PHONE_TEL, menuData, waLink } from '../../data/greendeahan';
+import { GD_LOGO, GD_LOGO_LIGHT, GD_PHONE_DISPLAY, GD_PHONE_TEL, menuSitus, PATH_TOKO, waLink } from '../../data/greendeahan';
 
-function MenuList({ onNavigate }: { onNavigate: () => void }) {
+function MenuList({ onNavigate, tokoPublik }: { onNavigate: () => void; tokoPublik: boolean }) {
     const currentPath = window.location.pathname;
     const isActive = (path: string) => (path === '/' ? currentPath === '/' : currentPath === path || currentPath.startsWith(`${path}/`));
 
     return (
         <ul className="navbar-nav mx-auto align-items-lg-center">
-            {menuData.map((item) => (
+            {menuSitus(tokoPublik).map((item) => (
                 <li key={item.path} className={`nav-item${isActive(item.path) ? ' current' : ''}`}>
                     <a href={item.path} className="nav-link" onClick={onNavigate}>
                         {item.label}
@@ -38,7 +38,11 @@ export default function Header({ variant = 'home' }: HeaderProps) {
     const [isSticky, setIsSticky] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const headerRef = useRef<HTMLElement>(null);
-    const jumlahKeranjang = Number(usePage<{ jumlahKeranjang?: number }>().props.jumlahKeranjang ?? 0);
+    const { jumlahKeranjang: jumlahMentah, tokoPublik = false } = usePage<{ jumlahKeranjang?: number; tokoPublik?: boolean }>().props;
+    const jumlahKeranjang = Number(jumlahMentah ?? 0);
+    // While the shop is internal, the cart icon only shows on the shop pages themselves.
+    const diHalamanToko = PATH_TOKO.some((path) => window.location.pathname === path || window.location.pathname.startsWith(`${path}/`));
+    const tampilkanKeranjang = tokoPublik || diHalamanToko;
 
     useEffect(() => {
         let ticking = false;
@@ -94,10 +98,12 @@ export default function Header({ variant = 'home' }: HeaderProps) {
                     <a href="/" className="navbar-brand">
                         <img src={isHome && !isSticky ? GD_LOGO_LIGHT : GD_LOGO} width={150} height={60} alt="Green Deahan Sport" />
                     </a>
-                    <a href="/keranjang" className="gd-keranjang-link order-lg-last" aria-label={`Keranjang belanja, ${jumlahKeranjang} barang`}>
-                        <i className="feather-icon icon-shopping-bag" aria-hidden="true"></i>
-                        {jumlahKeranjang > 0 && <span className="gd-keranjang-jumlah">{jumlahKeranjang > 99 ? '99+' : jumlahKeranjang}</span>}
-                    </a>
+                    {tampilkanKeranjang && (
+                        <a href="/keranjang" className="gd-keranjang-link order-lg-last" aria-label={`Keranjang belanja, ${jumlahKeranjang} barang`}>
+                            <i className="feather-icon icon-shopping-bag" aria-hidden="true"></i>
+                            {jumlahKeranjang > 0 && <span className="gd-keranjang-jumlah">{jumlahKeranjang > 99 ? '99+' : jumlahKeranjang}</span>}
+                        </a>
+                    )}
                     <button onClick={() => setIsMobile((previous) => !previous)} className="navbar-toggler offcanvas-nav-btn" type="button" aria-label="Menu">
                         <span className="feather-icon icon-menu"></span>
                     </button>
@@ -109,7 +115,7 @@ export default function Header({ variant = 'home' }: HeaderProps) {
                             <button onClick={() => setIsMobile(false)} type="button" className="btn-close" aria-label="Close"></button>
                         </div>
                         <div className="offcanvas-body pt-0 align-items-center">
-                            <MenuList onNavigate={() => setIsMobile(false)} />
+                            <MenuList onNavigate={() => setIsMobile(false)} tokoPublik={tokoPublik} />
                         </div>
                     </div>
                     {isMobile && <div onClick={() => setIsMobile(false)} className="offcanvas-backdrop fade show"></div>}

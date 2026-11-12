@@ -18,6 +18,11 @@
         @vite('resources/js/inertia.tsx')
         @inertiaHead
 
+        {{-- Halaman yang tidak boleh diindeks (mis. toko yang belum dibuka untuk umum, keranjang, status pesanan) --}}
+        @if (! empty($page['props']['meta']['noindex']))
+            <meta name="robots" content="noindex, nofollow">
+        @endif
+
         <x-favicon />
         <x-seo-head
             :deskripsi="$page['props']['meta']['description'] ?? null"

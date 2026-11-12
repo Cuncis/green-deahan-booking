@@ -32,6 +32,7 @@ class TokoController extends Controller
             'meta' => [
                 'title' => 'Toko Perlengkapan Olahraga | Green Deahan Sport',
                 'description' => 'Belanja bola padel, shuttlecock, bola futsal, grip, dan perlengkapan tim. Bayar online, dikirim ke seluruh Indonesia.',
+                'noindex' => ! config('toko.publik'),
             ],
         ]);
     }
@@ -58,6 +59,7 @@ class TokoController extends Controller
                 'title' => "{$product->name} | Toko Green Deahan Sport",
                 'description' => (string) str($product->description ?: $product->name)->limit(155),
                 'image' => $product->image_path,
+                'noindex' => ! config('toko.publik'),
             ],
         ]);
     }
