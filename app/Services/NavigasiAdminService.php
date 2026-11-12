@@ -26,7 +26,7 @@ class NavigasiAdminService
      *
      * @var array<int, string>
      */
-    private const RUTE_REACT_SUPERADMIN = ['superadmin.dashboard', 'superadmin.tenants', 'superadmin.tenants.create', 'superadmin.galeri', 'superadmin.artikel', 'superadmin.media', 'superadmin.seo'];
+    private const RUTE_REACT_SUPERADMIN = ['superadmin.dashboard', 'superadmin.tenants', 'superadmin.tenants.create', 'superadmin.galeri', 'superadmin.artikel', 'superadmin.media', 'superadmin.seo', 'superadmin.toko.pesanan', 'superadmin.toko.produk', 'superadmin.toko.supplier'];
 
     /**
      * @return array<int, array{grup: string|null, item: array<int, array{label: string, href: string, ikon: string, rute: string|null, inertia: bool}>}>
@@ -84,6 +84,11 @@ class NavigasiAdminService
                 $this->item('Dashboard', 'superadmin.dashboard', 'layout-dashboard', self::RUTE_REACT_SUPERADMIN),
                 $this->item('Semua Tenant', 'superadmin.tenants', 'building', self::RUTE_REACT_SUPERADMIN),
                 $this->item('Tambah Tenant', 'superadmin.tenants.create', 'user-plus', self::RUTE_REACT_SUPERADMIN),
+            ]],
+            ['grup' => 'Toko Online', 'item' => [
+                $this->item('Pesanan Toko', 'superadmin.toko.pesanan', 'shopping-bag', self::RUTE_REACT_SUPERADMIN),
+                $this->item('Produk', 'superadmin.toko.produk', 'package', self::RUTE_REACT_SUPERADMIN),
+                $this->item('Supplier', 'superadmin.toko.supplier', 'truck', self::RUTE_REACT_SUPERADMIN),
             ]],
             ['grup' => 'Situs Korporat', 'item' => [
                 $this->item('Galeri', 'superadmin.galeri', 'images', self::RUTE_REACT_SUPERADMIN),

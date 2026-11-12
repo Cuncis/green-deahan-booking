@@ -1,0 +1,473 @@
+/* Toko online (resources/js/pages/toko). Builds on Fuzio's shop/cart/
+   checkout classes in style.css, recoloured to the site palette:
+   sections #F5F5F5, cards #FAFAFA with a #e7e5e4 border (no pure white),
+   green #006400 / #004d00, accent #feb046, DM Sans. */
+
+/* Header cart icon (all pages) */
+.gd-keranjang-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
+  margin-right: 8px;
+  border-radius: 999px;
+  color: #004d00;
+  font-size: 22px;
+}
+.header-1 .navbar:not(.scroll-on) .gd-keranjang-link {
+  color: #fff;
+}
+.gd-keranjang-link:hover {
+  color: #006400;
+  background: rgba(0, 100, 0, 0.08);
+}
+.gd-keranjang-jumlah {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #feb046;
+  color: #1a1a1a;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+}
+@media (min-width: 992px) {
+  .gd-keranjang-link {
+    margin-left: 12px;
+    margin-right: 0;
+  }
+}
+
+/* Sections */
+.gd-toko {
+  background: #f5f5f5;
+  padding: 64px 0 88px;
+}
+@media (max-width: 767px) {
+  .gd-toko {
+    padding: 40px 0 64px;
+  }
+}
+
+/* Category filter */
+.gd-toko-kategori {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 32px;
+  scrollbar-width: none;
+}
+.gd-toko-kategori a {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid #e7e5e4;
+  border-radius: 999px;
+  background: #fafafa;
+  color: #3a3a3a;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.gd-toko-kategori a.aktif,
+.gd-toko-kategori a:hover {
+  background: #006400;
+  border-color: #006400;
+  color: #fff;
+}
+
+/* Product cards (Fuzio .product-entry, recoloured) */
+.gd-toko .product-entry {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+  border: 1px solid #e7e5e4;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: none !important;
+}
+.gd-toko .product-entry .product-thumb {
+  aspect-ratio: 1 / 1;
+  background: #eef5ee;
+}
+.gd-toko .product-entry .product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gd-toko .product-entry .product-txt {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px 18px;
+}
+.gd-toko .product-entry .product-txt h3 {
+  font-size: 18px;
+  line-height: 1.35;
+  margin: 0;
+  white-space: normal;
+}
+.gd-toko .product-entry .product-txt h3 a {
+  color: #1a1a1a;
+}
+.gd-toko .product-entry .kategori {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #006400;
+}
+.gd-toko .product-entry .price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #004d00;
+  margin-top: auto;
+}
+.gd-toko .product-entry .btn {
+  width: 100%;
+  margin-top: 10px;
+  min-height: 44px;
+}
+
+/* Placeholder image when a product has no photo */
+.gd-toko-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #e8f2e8, #c8e6c9);
+  color: #006400;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+.gd-toko-placeholder svg {
+  width: 56px;
+  height: 56px;
+  opacity: 0.7;
+}
+
+/* Product detail */
+.gd-toko-detail-media {
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #e7e5e4;
+  background: #fafafa;
+}
+.gd-toko-detail-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gd-toko .product-info h1 {
+  font-size: clamp(26px, 4vw, 38px);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.gd-toko .product-info .product-price {
+  color: #004d00;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 8px 0 16px;
+}
+.gd-toko .cart-counter {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #e7e5e4;
+  border-radius: 999px;
+  background: #fafafa;
+  overflow: hidden;
+}
+.gd-toko .cart-counter button {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: #004d00;
+  font-size: 18px;
+}
+.gd-toko .cart-counter button:disabled {
+  opacity: 0.35;
+}
+.gd-toko .cart-counter input {
+  width: 48px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font-weight: 700;
+}
+.gd-toko-aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 24px 0;
+}
+.gd-toko-aksi .btn {
+  min-height: 48px;
+}
+.btn-aksen {
+  background: #feb046;
+  border-color: #feb046;
+  color: #1a1a1a;
+}
+.btn-aksen:hover,
+.btn-aksen:focus {
+  background: #f59f24;
+  border-color: #f59f24;
+  color: #1a1a1a;
+}
+
+/* Cards: cart list, summary, checkout form, order status */
+.gd-kartu {
+  background: #fafafa;
+  border: 1px solid #e7e5e4;
+  border-radius: 16px;
+  padding: 24px;
+}
+@media (max-width: 575px) {
+  .gd-kartu {
+    padding: 18px 16px;
+  }
+}
+.gd-kartu h2,
+.gd-kartu h3 {
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+.gd-keranjang-baris {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #e7e5e4;
+}
+.gd-keranjang-baris:last-child {
+  border-bottom: 0;
+}
+.gd-keranjang-baris .thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.gd-keranjang-baris .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gd-keranjang-baris .nama {
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.35;
+}
+.gd-keranjang-baris .harga {
+  color: #555;
+  font-size: 15px;
+}
+.gd-keranjang-baris .kanan {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.gd-keranjang-baris .subtotal {
+  font-weight: 700;
+  color: #004d00;
+}
+.gd-hapus {
+  border: 0;
+  background: transparent;
+  color: #b42318;
+  font-size: 14px;
+  min-height: 36px;
+  padding: 0;
+  text-decoration: underline;
+}
+@media (max-width: 575px) {
+  .gd-keranjang-baris {
+    grid-template-columns: 60px minmax(0, 1fr);
+  }
+  .gd-keranjang-baris .thumb {
+    width: 60px;
+    height: 60px;
+  }
+  .gd-keranjang-baris .kanan {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+.gd-ringkasan-baris {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 16px;
+}
+.gd-ringkasan-baris.total {
+  border-top: 2px solid #e7e5e4;
+  margin-top: 8px;
+  padding-top: 14px;
+  font-size: 19px;
+  font-weight: 700;
+  color: #004d00;
+}
+.gd-ringkasan-aksi .btn {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 16px;
+}
+
+/* Checkout form fields */
+.gd-form-toko label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1a1a1a;
+}
+.gd-form-toko input,
+.gd-form-toko textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid #e7e5e4;
+  border-radius: 10px;
+  background: #f5f5f5;
+  font-size: 16px;
+}
+.gd-form-toko textarea {
+  min-height: 96px;
+}
+.gd-form-toko input:focus,
+.gd-form-toko textarea:focus {
+  outline: none;
+  border-color: #006400;
+  box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.15);
+}
+.gd-form-toko .galat {
+  color: #b42318;
+  font-size: 14px;
+  margin-top: 4px;
+}
+.gd-form-toko .is-invalid {
+  border-color: #b42318;
+}
+
+/* Notices */
+.gd-sandbox {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  border: 1px dashed #f59f24;
+  border-radius: 12px;
+  background: #fff6e6;
+  color: #7a4b00;
+  font-weight: 600;
+}
+.gd-pesan {
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.gd-pesan.sukses {
+  background: #e8f2e8;
+  color: #004d00;
+}
+.gd-pesan.galat {
+  background: #fdecea;
+  color: #b42318;
+}
+.gd-kosong {
+  text-align: center;
+  padding: 48px 16px;
+}
+
+/* Order status steps */
+.gd-langkah {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 0 24px;
+  padding: 0;
+  list-style: none;
+}
+.gd-langkah li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #888;
+}
+.gd-langkah .titik {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e7e5e4;
+  color: #666;
+  font-weight: 700;
+}
+.gd-langkah li.selesai .titik {
+  background: #006400;
+  color: #fff;
+}
+.gd-langkah li.selesai,
+.gd-langkah li.sekarang {
+  color: #004d00;
+}
+.gd-langkah li.sekarang .titik {
+  background: #feb046;
+  color: #1a1a1a;
+}
+@media (max-width: 575px) {
+  .gd-langkah {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .gd-langkah li {
+    flex-direction: row;
+    text-align: left;
+  }
+}
+.gd-status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #e8f2e8;
+  color: #004d00;
+  font-weight: 700;
+  font-size: 14px;
+}
+.gd-status-badge.batal {
+  background: #fdecea;
+  color: #b42318;
+}

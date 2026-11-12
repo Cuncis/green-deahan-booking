@@ -19,7 +19,14 @@ use App\Http\Controllers\Superadmin\GaleriAdminController;
 use App\Http\Controllers\Superadmin\MediaAdminController;
 use App\Http\Controllers\Superadmin\SeoAdminController;
 use App\Http\Controllers\Superadmin\SuperadminController;
+use App\Http\Controllers\Superadmin\Toko\PesananTokoAdminController;
+use App\Http\Controllers\Superadmin\Toko\ProdukTokoController;
+use App\Http\Controllers\Superadmin\Toko\SupplierTokoController;
 use App\Http\Controllers\TenantRegistrationController;
+use App\Http\Controllers\Toko\CheckoutController;
+use App\Http\Controllers\Toko\KeranjangController;
+use App\Http\Controllers\Toko\PesananTokoController;
+use App\Http\Controllers\Toko\TokoController;
 use App\Http\Middleware\CatatKunjungan;
 use App\Http\Middleware\IdentifikasiTenant;
 use Illuminate\Support\Facades\Route;
@@ -82,6 +89,20 @@ $situsKorporat = function () {
     Route::get('/harga', fn () => view('pages.pricing'))->name('pricing');
 
     Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+
+    // Toko online (dropship), lihat App\Http\Controllers\Toko. Keranjang di
+    // session, harga selalu dihitung ulang di server, bayar lewat Mayar.
+    Route::get('/toko', [TokoController::class, 'index'])->name('toko');
+    Route::get('/toko/{slug}', [TokoController::class, 'show'])->name('toko.produk');
+    Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang');
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::post('/keranjang', [KeranjangController::class, 'store'])->name('keranjang.tambah');
+        Route::patch('/keranjang/{product}', [KeranjangController::class, 'update'])->whereNumber('product')->name('keranjang.ubah');
+        Route::delete('/keranjang/{product}', [KeranjangController::class, 'destroy'])->whereNumber('product')->name('keranjang.hapus');
+    });
+    Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:checkout-toko')->name('checkout.store');
+    Route::get('/pesanan/{code}', [PesananTokoController::class, 'show'])->name('toko.pesanan');
 };
 
 Route::withoutMiddleware(IdentifikasiTenant::class)->middleware(CatatKunjungan::class)->domain('greendeahan.com')->group($situsKorporat);
@@ -161,6 +182,26 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
         Route::get('/artikel/{artikel}/edit', [ArtikelAdminController::class, 'edit'])->name('artikel.edit');
         Route::put('/artikel/{artikel}', [ArtikelAdminController::class, 'update'])->name('artikel.update');
         Route::delete('/artikel/{artikel}', [ArtikelAdminController::class, 'destroy'])->name('artikel.destroy');
+
+        // Toko online (dropship) di situs korporat.
+        Route::prefix('toko')->name('toko.')->group(function () {
+            Route::get('/pesanan', [PesananTokoAdminController::class, 'index'])->name('pesanan');
+            Route::get('/pesanan/{order}', [PesananTokoAdminController::class, 'show'])->name('pesanan.show');
+            Route::post('/pesanan/{order}/status', [PesananTokoAdminController::class, 'ubahStatus'])->name('pesanan.status');
+            Route::put('/pesanan/{order}/catatan', [PesananTokoAdminController::class, 'simpanCatatan'])->name('pesanan.catatan');
+
+            Route::get('/produk', [ProdukTokoController::class, 'index'])->name('produk');
+            Route::get('/produk/tambah', [ProdukTokoController::class, 'create'])->name('produk.create');
+            Route::post('/produk', [ProdukTokoController::class, 'store'])->name('produk.store');
+            Route::get('/produk/{product}/edit', [ProdukTokoController::class, 'edit'])->name('produk.edit');
+            Route::put('/produk/{product}', [ProdukTokoController::class, 'update'])->name('produk.update');
+            Route::delete('/produk/{product}', [ProdukTokoController::class, 'destroy'])->name('produk.destroy');
+
+            Route::get('/supplier', [SupplierTokoController::class, 'index'])->name('supplier');
+            Route::post('/supplier', [SupplierTokoController::class, 'store'])->name('supplier.store');
+            Route::put('/supplier/{supplier}', [SupplierTokoController::class, 'update'])->name('supplier.update');
+            Route::delete('/supplier/{supplier}', [SupplierTokoController::class, 'destroy'])->name('supplier.destroy');
+        });
     });
 
 Route::middleware(['auth', 'verified', 'check.tenant.staf'])->prefix('admin')->name('admin.')->group(function () {

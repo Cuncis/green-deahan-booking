@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Jobs\KirimNotifikasiWhatsApp;
 use App\Models\Booking;
 use App\Models\JadwalSlot;
+use App\Models\MayarWebhookLog;
 use App\Models\Pembayaran;
 use App\Models\ReminderLog;
 use App\Models\Tenant;
 use App\Models\TenantInvitation;
 use App\Models\TenantTagihanPerpanjangan;
 use App\Services\TenantActivationService;
+use App\Services\WebhookTokoService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +21,10 @@ use Illuminate\Support\Facades\Log;
 
 class PembayaranController extends Controller
 {
-    public function __construct(private readonly TenantActivationService $tenantActivationService) {}
+    public function __construct(
+        private readonly TenantActivationService $tenantActivationService,
+        private readonly WebhookTokoService $webhookToko,
+    ) {}
 
     /**
      * Endpoint webhook dari Mayar. Tidak lewat middleware IdentifikasiTenant
@@ -32,6 +37,24 @@ class PembayaranController extends Controller
         if (! $this->verifyMayarToken($request)) {
             return $this->tolakWebhook($request);
         }
+
+        // Semua webhook yang lolos token dicatat. Isinya dari body JSON saja,
+        // token (query string) tidak ikut tersimpan.
+        $payload = $request->json()->all();
+        $log = MayarWebhookLog::create([
+            'event' => is_string($payload['event'] ?? null) ? $payload['event'] : null,
+            'payment_id' => is_string($payload['data']['id'] ?? null) ? $payload['data']['id'] : null,
+            'payload' => $payload,
+        ]);
+
+        // Satu URL webhook Mayar dipakai bersama: pembayaran pesanan toko diteruskan ke WebhookTokoService.
+        $pesananToko = $this->webhookToko->cariPesanan($payload);
+
+        if ($pesananToko) {
+            return $this->webhookToko->terima($log, $pesananToko);
+        }
+
+        $log->update(['result' => 'booking', 'processed_at' => now()]);
 
         $data = $this->parseMayarPayload($request);
 
@@ -250,7 +273,7 @@ class PembayaranController extends Controller
      */
     private function verifyMayarToken(Request $request): bool
     {
-        $expectedToken = config('services.mayar.webhook_token');
+        $expectedToken = config('mayar.webhook_token');
         $token = (string) $request->query('token');
 
         if (empty($expectedToken) || $token === '') {

@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import WhatsAppIcon from './elements/WhatsAppIcon';
 import { GD_LOGO, GD_LOGO_LIGHT, GD_PHONE_DISPLAY, GD_PHONE_TEL, menuData, waLink } from '../../data/greendeahan';
@@ -37,6 +38,7 @@ export default function Header({ variant = 'home' }: HeaderProps) {
     const [isSticky, setIsSticky] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const headerRef = useRef<HTMLElement>(null);
+    const jumlahKeranjang = Number(usePage<{ jumlahKeranjang?: number }>().props.jumlahKeranjang ?? 0);
 
     useEffect(() => {
         let ticking = false;
@@ -91,6 +93,10 @@ export default function Header({ variant = 'home' }: HeaderProps) {
                 <div className="container px-lg-0">
                     <a href="/" className="navbar-brand">
                         <img src={isHome && !isSticky ? GD_LOGO_LIGHT : GD_LOGO} width={150} height={60} alt="Green Deahan Sport" />
+                    </a>
+                    <a href="/keranjang" className="gd-keranjang-link order-lg-last" aria-label={`Keranjang belanja, ${jumlahKeranjang} barang`}>
+                        <i className="feather-icon icon-shopping-bag" aria-hidden="true"></i>
+                        {jumlahKeranjang > 0 && <span className="gd-keranjang-jumlah">{jumlahKeranjang > 99 ? '99+' : jumlahKeranjang}</span>}
                     </a>
                     <button onClick={() => setIsMobile((previous) => !previous)} className="navbar-toggler offcanvas-nav-btn" type="button" aria-label="Menu">
                         <span className="feather-icon icon-menu"></span>

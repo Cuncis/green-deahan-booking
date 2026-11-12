@@ -60,6 +60,9 @@ class AppServiceProvider extends ServiceProvider
                 'message' => 'Terlalu banyak percobaan pilih jam, tunggu sebentar sebelum coba lagi.',
             ], 429, $headers)));
 
+        // Checkout toko membuat pesanan dan payment request Mayar: batasi per IP.
+        RateLimiter::for('checkout-toko', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
+
         RateLimiter::for('booking-store', fn (Request $request) => Limit::perMinute(5)
             ->by($request->ip())
             ->response(fn (Request $request, array $headers) => response()->json([

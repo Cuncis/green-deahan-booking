@@ -8,6 +8,7 @@ use App\Models\Cabang;
 use App\Models\Tenant;
 use App\Models\TenantFitur;
 use App\Models\TenantInvitation;
+use App\Services\RingkasanTokoService;
 use App\Services\StatistikPengunjungService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,9 +19,11 @@ use Inertia\Response;
 
 class SuperadminController extends Controller
 {
-    public function dashboard(Request $request, StatistikPengunjungService $statistikPengunjung): Response
+    public function dashboard(Request $request, StatistikPengunjungService $statistikPengunjung, RingkasanTokoService $ringkasanToko): Response
     {
         return Inertia::render('superadmin/Dashboard', [
+            'toko' => $ringkasanToko->ringkasan(),
+            'pesananTokoUrl' => route('superadmin.toko.pesanan'),
             'statistikPengunjung' => $statistikPengunjung->ringkasan((int) $request->query('rentang', 30)),
             'ringkasan' => [
                 'totalTenant' => Tenant::count(),

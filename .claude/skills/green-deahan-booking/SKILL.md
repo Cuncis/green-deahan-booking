@@ -59,6 +59,13 @@ Baca file yang relevan dengan tugas yang sedang dikerjakan:
 | `references/struktur-project.md` | Bikin file baru, bingung taruh di folder mana |
 | `references/database-mysql.md` | Bikin migration atau query, termasuk catatan penyesuaian dari skema awal yang sempat dirancang pakai PostgreSQL |
 
+### Toko Online (dropship, situs korporat)
+
+- Pelanggan: `/toko`, `/toko/{slug}`, `/keranjang`, `/checkout`, `/pesanan/{code}` di domain greendeahan.com (closure `$situsKorporat`), React di `resources/js/pages/toko/`, gaya di `resources/fuzio/css/gd-toko.css`. Admin: `/superadmin/toko/*`.
+- Tabel `suppliers`, `products`, `orders`, `order_items`, `mayar_webhook_logs` (nama Inggris sesuai spesifikasi pemilik; bukan fitur tenant, tanpa `tenant_id`). Status pesanan: enum `App\Enums\OrderStatus`.
+- `cost_price`, `supplier_id`, `supplier_product_url` PRIVAT: halaman pelanggan hanya menerima `Product::dataPublik()`. Harga, modal, dan total SELALU dihitung ulang di server (`KeranjangService`, `CheckoutController`); keranjang di session hanya berisi id dan qty.
+- Mayar: `config/mayar.php` (sumber tunggal untuk booking dan toko), `MayarService` (API v2 payment request) menolak server produksi selama `MAYAR_ENV` bukan production. Satu URL webhook per akun Mayar: webhook toko masuk lewat `PembayaranController` lalu `WebhookTokoService`; job `ProsesPembayaranToko` cek ulang status dan nominal ke API Mayar sebelum menandai dibayar, idempotent.
+
 ## Alur Kerja Singkat Saat Diminta Bikin Fitur Baru
 
 1. Cek apakah fitur ini milik paket tertentu (Basic/Pro/Premium) → baca `references/fitur-per-paket.md`

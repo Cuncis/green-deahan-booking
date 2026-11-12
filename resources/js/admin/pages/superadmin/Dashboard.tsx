@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import StatistikPengunjung, { type Statistik } from '../../components/StatistikPengunjung';
+import RingkasanToko, { type DataRingkasanToko } from '../../components/toko/RingkasanToko';
 import { Badge, varianPaket } from '../../components/ui/badge';
 import { Card, CardHeader, CardTitle } from '../../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
@@ -25,6 +26,8 @@ interface Props {
     };
     tenantTerbaru: TenantRingkas[];
     semuaTenantUrl: string;
+    toko: DataRingkasanToko;
+    pesananTokoUrl: string;
 }
 
 function AngkaRingkas({ label, nilai }: { label: string; nilai: number }) {
@@ -40,7 +43,7 @@ function StatusTenant({ aktif }: { aktif: boolean }) {
     return <Badge variant={aktif ? 'confirmed' : 'cancelled'}>{aktif ? 'Aktif' : 'Nonaktif'}</Badge>;
 }
 
-export default function Dashboard({ statistikPengunjung, ringkasan, tenantTerbaru, semuaTenantUrl }: Props) {
+export default function Dashboard({ statistikPengunjung, ringkasan, tenantTerbaru, semuaTenantUrl, toko, pesananTokoUrl }: Props) {
     return (
         <AdminLayout judul="Dashboard" deskripsi="Ringkasan seluruh tenant dan pengunjung website di platform.">
             <Head title="Dashboard" />
@@ -52,6 +55,8 @@ export default function Dashboard({ statistikPengunjung, ringkasan, tenantTerbar
                     <AngkaRingkas label="Booking Hari Ini (Semua Tenant)" nilai={ringkasan.bookingHariIni} />
                 </div>
             </div>
+
+            <RingkasanToko data={toko} pesananUrl={pesananTokoUrl} />
 
             <section className="mb-6" aria-labelledby="judul-statistik-pengunjung">
                 <StatistikPengunjung data={statistikPengunjung} />

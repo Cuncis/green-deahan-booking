@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\KeranjangService;
 use App\Services\NavigasiAdminService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -45,7 +46,19 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         if (! $this->halamanAdmin($request)) {
-            return parent::share($request);
+            if ($request->routeIs('booking.index')) {
+                return parent::share($request);
+            }
+
+            // Situs korporat: jumlah isi keranjang toko untuk ikon di header, dan pesan flash toko.
+            return [
+                ...parent::share($request),
+                'jumlahKeranjang' => fn () => app(KeranjangService::class)->jumlahItem(),
+                'flash' => [
+                    'success' => $request->session()->get('success'),
+                    'error' => $request->session()->get('error'),
+                ],
+            ];
         }
 
         $user = $request->user();

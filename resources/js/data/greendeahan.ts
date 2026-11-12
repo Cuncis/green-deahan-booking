@@ -71,6 +71,7 @@ export const menuData: MenuItem[] = [
     { label: 'Beranda', path: '/' },
     { label: 'Tentang Kami', path: '/tentang-kami' },
     { label: 'Galeri', path: '/galeri' },
+    { label: 'Toko', path: '/toko' },
     { label: 'Blog', path: '/blog' },
     { label: 'Kontak', path: '/kontak' },
 ];

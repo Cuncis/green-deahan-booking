@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 Schedule::command('booking:lepas-slot-kadaluarsa')->everyMinute();
 Schedule::command('tenant:kirim-tagihan-perpanjangan')->daily();
 Schedule::command('tenant:nonaktifkan-tenant-kadaluarsa')->daily();
+Schedule::command('toko:kedaluwarsakan-pesanan')->hourly();

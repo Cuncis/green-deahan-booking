@@ -24,6 +24,9 @@ import {
     UserRound,
     Users,
     type LucideIcon,
+    Package,
+    ShoppingBag,
+    Truck,
 } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
@@ -54,6 +57,9 @@ const IKON: Record<string, LucideIcon> = {
     newspaper: Newspaper,
     'folder-open': FolderOpen,
     'search-check': SearchCheck,
+    'shopping-bag': ShoppingBag,
+    package: Package,
+    truck: Truck,
 };
 
 /** Tenant admin uses a light sidebar, superadmin keeps its plum sidebar. */

@@ -166,7 +166,7 @@ class PaymentService
     protected function createInvoice(array $params): array
     {
         $response = Http::baseUrl($this->baseUrl())
-            ->withToken((string) config('services.mayar.api_key'))
+            ->withToken((string) config('mayar.api_key'))
             ->acceptJson()
             ->post('/hl/v1/invoice/create', $params)
             ->throw();
@@ -175,13 +175,12 @@ class PaymentService
     }
 
     /**
-     * Sandbox Mayar ada di domain terpisah (mayar.club), bukan
-     * subdomain/path dari domain production (mayar.id).
+     * Dari config/mayar.php (MAYAR_ENV / MAYAR_BASE_URL), sama dengan
+     * MayarService, supaya booking dan toko selalu memakai lingkungan Mayar
+     * yang sama.
      */
     private function baseUrl(): string
     {
-        return config('services.mayar.is_production')
-            ? 'https://api.mayar.id'
-            : 'https://api.mayar.club';
+        return (string) config('mayar.base_url');
     }
 }
