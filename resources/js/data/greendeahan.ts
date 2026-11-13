@@ -75,7 +75,7 @@ export const PATH_TOKO = ['/toko', '/keranjang', '/checkout', '/pesanan'];
 
 /**
  * Main menu. "Produk & Layanan" only lists pages that already exist;
- * /perawatan and /sistem-booking are added here once they are built.
+ * /sistem-booking is added here once it is built.
  */
 export const menuData: MenuItem[] = [
     { label: 'Beranda', path: '/' },
@@ -85,6 +85,7 @@ export const menuData: MenuItem[] = [
         path: 'produk-layanan',
         children: [
             { label: 'Bangun Lapangan', path: '/bangun-lapangan' },
+            { label: 'Perawatan', path: '/perawatan' },
             { label: 'Toko', path: '/toko' },
         ],
     },

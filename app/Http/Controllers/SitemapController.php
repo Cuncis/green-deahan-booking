@@ -17,7 +17,7 @@ class SitemapController extends Controller
     /**
      * @var array<int, string>
      */
-    private const HALAMAN_STATIS = ['/', '/tentang-kami', '/bangun-lapangan', '/galeri', '/blog', '/kontak', '/harga', '/daftar'];
+    private const HALAMAN_STATIS = ['/', '/tentang-kami', '/bangun-lapangan', '/perawatan', '/galeri', '/blog', '/kontak', '/harga', '/daftar'];
 
     public function __invoke(): Response
     {

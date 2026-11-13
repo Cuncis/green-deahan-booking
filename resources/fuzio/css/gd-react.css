@@ -510,3 +510,68 @@ button.gd-dd-toggle:hover {
     min-height: 44px;
   }
 }
+
+/* /perawatan: process steps, warranty boxes, care tips. Off-white cards. */
+.gd-langkah-perawatan,
+.gd-kartu-garansi,
+.gd-tip {
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+  border-radius: 16px;
+  padding: 24px;
+}
+.gd-langkah-perawatan .nomor {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 16px;
+  border-radius: 999px;
+  background-color: #006400;
+  color: #fff;
+  font-weight: 700;
+}
+.gd-langkah-perawatan h3,
+.gd-tip h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.gd-kartu-garansi h3 {
+  font-size: 22px;
+}
+.gd-tip {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.gd-tip .nomor {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background-color: #feb046;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+.gd-artikel-perawatan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.gd-artikel-perawatan a {
+  color: #006400;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
