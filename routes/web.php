@@ -65,6 +65,13 @@ $situsKorporat = function () {
     // Halaman Konsep sudah diganti Tentang Kami, 301 supaya link lama dan
     // posisi di Google pindah ke halaman baru.
     Route::permanentRedirect('/konsep', '/tentang-kami');
+    // Produk & Layanan (dropdown di menu). /perawatan dan /sistem-booking menyusul.
+    Route::get('/bangun-lapangan', fn () => Inertia::render('BangunLapangan', [
+        'meta' => [
+            'title' => 'Jasa Bangun Lapangan Futsal, Mini Soccer, Padel & Badminton - Green Deahan Sport',
+            'description' => 'Jasa pembuatan lapangan futsal, mini soccer, padel, dan badminton sejak 2010. Survey, desain, perizinan, konstruksi hingga finishing. Konsultasi, survey & RAB gratis.',
+        ],
+    ]))->name('bangun-lapangan');
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
     // Desain Galeri Blade lama, noindex (lihat pages/galeri.blade.php).
     Route::get('/v2/galeri', [GaleriController::class, 'indexV2'])->name('galeri.v2');

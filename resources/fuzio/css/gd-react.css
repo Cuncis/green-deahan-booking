@@ -478,3 +478,35 @@ button.gd-dd-toggle:hover {
   color: var(--body-color);
   font-weight: 400;
 }
+
+/* "Produk & Layanan" dropdown in the main menu (Header.tsx). Fuzio keeps
+   desktop dropdowns invisible until shown; open them on hover, keyboard
+   focus, or click (.show). Off-white menu card, never pure white. */
+.navbar .navbar-nav .dropdown-menu,
+.navbar .offcanvas.bg-dark .dropdown-menu {
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+}
+.navbar .navbar-nav .dropdown-menu .dropdown-item.active,
+.navbar .navbar-nav .dropdown-menu .dropdown-item:active {
+  background-color: transparent;
+  color: #006400;
+  font-weight: 700;
+}
+@media (min-width: 992px) {
+  .navbar .navbar-nav .dropdown:hover > .dropdown-menu,
+  .navbar .navbar-nav .dropdown:focus-within > .dropdown-menu,
+  .navbar .navbar-nav .dropdown.show > .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+@media (max-width: 991.98px) {
+  .navbar .navbar-nav .dropdown-menu {
+    border: 0;
+    padding: 4px 0 8px 12px;
+  }
+  .navbar .navbar-nav .dropdown-menu .dropdown-item {
+    min-height: 44px;
+  }
+}

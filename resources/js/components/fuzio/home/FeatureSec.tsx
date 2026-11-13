@@ -3,19 +3,8 @@ import FadeIn from '../elements/FadeIn';
 import ParallaxSection from '../elements/ParallaxSection';
 import WhatsAppIcon from '../elements/WhatsAppIcon';
 import { GD_CDN, waLink } from '../../../data/greendeahan';
-import SoccerWhite from '../../../../fuzio/images/icons/soccer-w.png';
-import MiniSoccerIcon from '../../../../fuzio/images/mini-soccer.png';
-import PadelIcon from '../../../../fuzio/images/padel.png';
-import BadmintonIcon from '../../../../fuzio/images/badminton.png';
+import { jenisLapangan as layanan } from '../../../data/jenisLapangan';
 import GolfBg from '../../../../fuzio/images/golf-bg.jpg';
-
-/** 4 jenis lapangan Green Deahan. soccer-w.png is white, so it is inverted to match the other (black) icons. */
-const layanan = [
-    { nama: 'Futsal', icon: SoccerWhite, invert: true, delay: 100, topik: 'pembuatan lapangan futsal', deskripsi: 'Lantai interlock atau rumput sintetis, lengkap dengan LED, pagar, gawang & net.' },
-    { nama: 'Mini Soccer', icon: MiniSoccerIcon, invert: false, delay: 200, topik: 'pembuatan lapangan mini soccer', deskripsi: 'Rumput sintetis premium grade A dengan sistem drainase profesional.' },
-    { nama: 'Padel', icon: PadelIcon, invert: false, delay: 300, topik: 'pembuatan lapangan padel', deskripsi: 'Standar internasional IFF: rangka baja galvanis & kaca tempered.' },
-    { nama: 'Badminton', icon: BadmintonIcon, invert: false, delay: 400, topik: 'pembuatan lapangan badminton', deskripsi: 'Lantai interlock atau kayu keras, non-slip, LED anti-silau.' },
-];
 
 export default function FeatureSec() {
     const [scrollY, setScrollY] = useState(0);

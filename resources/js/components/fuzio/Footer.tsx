@@ -1,6 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import WhatsAppIcon from './elements/WhatsAppIcon';
-import { GD_EMAIL, GD_HOURS, GD_PHONE_DISPLAY, menuSitus, socialLinks, waLink } from '../../data/greendeahan';
+import { GD_EMAIL, GD_HOURS, GD_PHONE_DISPLAY, menuFooter, socialLinks, waLink } from '../../data/greendeahan';
 
 /** Port of Fuzio's Footer, as customized in the Fuzio clone. */
 export default function Footer() {
@@ -44,7 +44,7 @@ export default function Footer() {
                         <div className="footer-widget">
                             <h3 className="widget-title text-uppercase text-white">Halaman</h3>
                             <ul>
-                                {menuSitus(tokoPublik).map((item) => (
+                                {menuFooter(tokoPublik).map((item) => (
                                     <li key={item.path}>
                                         <a href={item.path}>{item.label}</a>
                                     </li>

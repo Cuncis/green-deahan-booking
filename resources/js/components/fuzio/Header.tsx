@@ -3,19 +3,72 @@ import { useEffect, useRef, useState } from 'react';
 import WhatsAppIcon from './elements/WhatsAppIcon';
 import { GD_LOGO, GD_LOGO_LIGHT, GD_PHONE_DISPLAY, GD_PHONE_TEL, menuSitus, PATH_TOKO, waLink } from '../../data/greendeahan';
 
+function aktif(path: string, currentPath: string): boolean {
+    return path === '/' ? currentPath === '/' : currentPath === path || currentPath.startsWith(`${path}/`);
+}
+
+/**
+ * Port of Fuzio's MenuList, one dropdown level. Desktop: the dropdown opens on
+ * hover or keyboard focus (gd-react.css) and on click; phones: tap to expand
+ * inside the off-canvas menu.
+ */
 function MenuList({ onNavigate, tokoPublik }: { onNavigate: () => void; tokoPublik: boolean }) {
     const currentPath = window.location.pathname;
-    const isActive = (path: string) => (path === '/' ? currentPath === '/' : currentPath === path || currentPath.startsWith(`${path}/`));
+    const [terbuka, setTerbuka] = useState<string | null>(null);
 
     return (
         <ul className="navbar-nav mx-auto align-items-lg-center">
-            {menuSitus(tokoPublik).map((item) => (
-                <li key={item.path} className={`nav-item${isActive(item.path) ? ' current' : ''}`}>
-                    <a href={item.path} className="nav-link" onClick={onNavigate}>
-                        {item.label}
-                    </a>
-                </li>
-            ))}
+            {menuSitus(tokoPublik).map((item) => {
+                if (!item.children) {
+                    return (
+                        <li key={item.path} className={`nav-item${aktif(item.path, currentPath) ? ' current' : ''}`}>
+                            <a href={item.path} className="nav-link" onClick={onNavigate}>
+                                {item.label}
+                            </a>
+                        </li>
+                    );
+                }
+
+                const buka = terbuka === item.path;
+                const adaYangAktif = item.children.some((anak) => aktif(anak.path, currentPath));
+                const idMenu = `menu-${item.path}`;
+
+                return (
+                    <li
+                        key={item.path}
+                        className={`nav-item dropdown${adaYangAktif ? ' current' : ''}${buka ? ' show' : ''}`}
+                        onKeyDown={(event) => event.key === 'Escape' && setTerbuka(null)}
+                    >
+                        <a
+                            href={`#${idMenu}`}
+                            role="button"
+                            className="nav-link dropdown-toggle"
+                            aria-expanded={buka}
+                            aria-controls={idMenu}
+                            onClick={(event) => {
+                                event.preventDefault();
+                                setTerbuka(buka ? null : item.path);
+                            }}
+                        >
+                            {item.label}
+                        </a>
+                        <ul id={idMenu} className={`dropdown-menu${buka ? ' show' : ''}`}>
+                            {item.children.map((anak) => (
+                                <li key={anak.path}>
+                                    <a
+                                        href={anak.path}
+                                        className={`dropdown-item${aktif(anak.path, currentPath) ? ' active' : ''}`}
+                                        aria-current={aktif(anak.path, currentPath) ? 'page' : undefined}
+                                        onClick={onNavigate}
+                                    >
+                                        {anak.label}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </li>
+                );
+            })}
         </ul>
     );
 }

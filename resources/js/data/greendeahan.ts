@@ -63,18 +63,32 @@ export const gdTestimonials: Testimonial[] = [
 
 export interface MenuItem {
     label: string;
+    /** For a dropdown parent this is only an id (not a page). */
     path: string;
+    /** Dropdown items (one level, Fuzio's nav-item dropdown). */
+    children?: MenuItem[];
 }
 
 /** Same pages as the Blade site nav (resources/views/components/site-nav.blade.php). */
 /** Shop pages; the "Toko" menu item and cart icon only appear when the shop is public (TOKO_PUBLIK). */
 export const PATH_TOKO = ['/toko', '/keranjang', '/checkout', '/pesanan'];
 
+/**
+ * Main menu. "Produk & Layanan" only lists pages that already exist;
+ * /perawatan and /sistem-booking are added here once they are built.
+ */
 export const menuData: MenuItem[] = [
     { label: 'Beranda', path: '/' },
     { label: 'Tentang Kami', path: '/tentang-kami' },
+    {
+        label: 'Produk & Layanan',
+        path: 'produk-layanan',
+        children: [
+            { label: 'Bangun Lapangan', path: '/bangun-lapangan' },
+            { label: 'Toko', path: '/toko' },
+        ],
+    },
     { label: 'Galeri', path: '/galeri' },
-    { label: 'Toko', path: '/toko' },
     { label: 'Blog', path: '/blog' },
     { label: 'Kontak', path: '/kontak' },
 ];
@@ -121,5 +135,18 @@ export const socialLinks: SocialLink[] = [
     },
 ];
 
-/** Main menu, without "Toko" while the shop is still internal (TOKO_PUBLIK=false). */
-export const menuSitus = (tokoPublik: boolean): MenuItem[] => menuData.filter((item) => tokoPublik || item.path !== '/toko');
+/**
+ * Main menu, without "Toko" while the shop is still internal
+ * (TOKO_PUBLIK=false). A dropdown left with no items is dropped too.
+ */
+export const menuSitus = (tokoPublik: boolean): MenuItem[] => {
+    const tampil = (item: MenuItem) => tokoPublik || item.path !== '/toko';
+
+    return menuData
+        .filter(tampil)
+        .map((item) => (item.children ? { ...item, children: item.children.filter(tampil) } : item))
+        .filter((item) => !item.children || item.children.length > 0);
+};
+
+/** Footer page list: dropdown items are listed individually. */
+export const menuFooter = (tokoPublik: boolean): MenuItem[] => menuSitus(tokoPublik).flatMap((item) => item.children ?? [item]);
