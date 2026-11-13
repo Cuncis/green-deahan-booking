@@ -13,6 +13,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\GaleriController;
 use App\Http\Controllers\HalamanBookingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SistemBookingController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Superadmin\ArtikelAdminController;
 use App\Http\Controllers\Superadmin\GaleriAdminController;
@@ -65,7 +66,7 @@ $situsKorporat = function () {
     // Halaman Konsep sudah diganti Tentang Kami, 301 supaya link lama dan
     // posisi di Google pindah ke halaman baru.
     Route::permanentRedirect('/konsep', '/tentang-kami');
-    // Produk & Layanan (dropdown di menu). /sistem-booking menyusul.
+    // Produk & Layanan (dropdown di menu).
     Route::get('/bangun-lapangan', fn () => Inertia::render('BangunLapangan', [
         'meta' => [
             'title' => 'Jasa Bangun Lapangan Futsal, Mini Soccer, Padel & Badminton - Green Deahan Sport',
@@ -78,6 +79,7 @@ $situsKorporat = function () {
             'description' => 'Perawatan berkala, perbaikan kerusakan, dan renovasi untuk lapangan futsal, mini soccer, padel, dan badminton yang dibangun Green Deahan. Pengecekan gratis.',
         ],
     ]))->name('perawatan');
+    Route::get('/sistem-booking', SistemBookingController::class)->name('sistem-booking');
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
     // Desain Galeri Blade lama, noindex (lihat pages/galeri.blade.php).
     Route::get('/v2/galeri', [GaleriController::class, 'indexV2'])->name('galeri.v2');

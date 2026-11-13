@@ -73,10 +73,7 @@ export interface MenuItem {
 /** Shop pages; the "Toko" menu item and cart icon only appear when the shop is public (TOKO_PUBLIK). */
 export const PATH_TOKO = ['/toko', '/keranjang', '/checkout', '/pesanan'];
 
-/**
- * Main menu. "Produk & Layanan" only lists pages that already exist;
- * /sistem-booking is added here once it is built.
- */
+/** Main menu. "Toko" is filtered out by menuSitus() until the shop is public. */
 export const menuData: MenuItem[] = [
     { label: 'Beranda', path: '/' },
     { label: 'Tentang Kami', path: '/tentang-kami' },
@@ -86,6 +83,7 @@ export const menuData: MenuItem[] = [
         children: [
             { label: 'Bangun Lapangan', path: '/bangun-lapangan' },
             { label: 'Perawatan', path: '/perawatan' },
+            { label: 'Sistem Booking', path: '/sistem-booking' },
             { label: 'Toko', path: '/toko' },
         ],
     },

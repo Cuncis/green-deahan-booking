@@ -575,3 +575,191 @@ button.gd-dd-toggle:hover {
   align-items: center;
   gap: 6px;
 }
+
+/* /sistem-booking: package cards, add-ons, feature comparison. */
+.gd-paket-sec {
+  background-color: #f5f5f5;
+}
+.pricing-card.gd-paket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 28px;
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+  box-shadow: none;
+}
+.pricing-card.gd-paket.unggulan {
+  border: 2px solid #006400;
+}
+.gd-paket-label {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 16px;
+  border-radius: 999px;
+  background-color: #feb046;
+  color: #1a1a1a;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.gd-paket-tagline {
+  color: #555;
+  min-height: 48px;
+}
+.gd-paket-harga {
+  font-size: 34px;
+  font-weight: 700;
+  color: #004d00;
+  line-height: 1.1;
+}
+.gd-paket-harga span {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+.gd-paket-lapangan {
+  margin: 12px 0 8px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.pricing-card.gd-paket ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 24px;
+}
+.pricing-card.gd-paket ul li {
+  position: relative;
+  padding: 6px 0 6px 28px;
+}
+.pricing-card.gd-paket ul li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 12px;
+  width: 14px;
+  height: 8px;
+  border-left: 2px solid #006400;
+  border-bottom: 2px solid #006400;
+  transform: rotate(-45deg);
+}
+.pricing-card.gd-paket .btn {
+  min-height: 48px;
+}
+.gd-addon {
+  padding: 24px;
+  border: 1px dashed #d6d3d1;
+  border-radius: 16px;
+  background-color: #fafafa;
+}
+.gd-addon h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+.gd-addon ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0 32px;
+}
+.gd-addon li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e7e5e4;
+}
+.gd-addon li strong {
+  color: #006400;
+  white-space: nowrap;
+}
+.gd-tabel-fitur {
+  overflow-x: auto;
+  border: 1px solid #e7e5e4;
+  border-radius: 16px;
+  background-color: #fafafa;
+}
+.gd-tabel-fitur table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.gd-tabel-fitur th,
+.gd-tabel-fitur td {
+  padding: 12px 20px;
+  border-bottom: 1px solid #e7e5e4;
+  text-align: center;
+  font-size: 16px;
+}
+.gd-tabel-fitur tbody th[scope="row"] {
+  text-align: left;
+  font-weight: 500;
+}
+.gd-tabel-fitur thead th {
+  background-color: #004d00;
+  color: #fff;
+  font-weight: 700;
+}
+.gd-tabel-fitur thead th:first-child {
+  text-align: left;
+}
+.gd-tabel-fitur tr.grup th {
+  background-color: #e8f2e8;
+  color: #004d00;
+  text-align: left;
+  font-weight: 700;
+}
+.gd-ya {
+  color: #006400;
+  font-size: 20px;
+}
+.gd-tidak {
+  color: #a8a29e;
+  font-size: 20px;
+}
+.gd-teks {
+  font-weight: 600;
+  font-size: 15px;
+}
+.gd-fitur-hp {
+  margin-bottom: 20px;
+  padding: 18px 16px;
+  border: 1px solid #e7e5e4;
+  border-radius: 16px;
+  background-color: #fafafa;
+}
+.gd-fitur-hp h3 {
+  font-size: 19px;
+  color: #004d00;
+  margin-bottom: 8px;
+}
+.gd-fitur-hp .baris {
+  padding: 10px 0;
+  border-bottom: 1px solid #e7e5e4;
+}
+.gd-fitur-hp .baris:last-child {
+  border-bottom: 0;
+}
+.gd-fitur-hp .nama {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.gd-fitur-hp .nilai {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  text-align: center;
+}
+.gd-fitur-hp .label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
