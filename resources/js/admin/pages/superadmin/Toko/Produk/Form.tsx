@@ -13,8 +13,11 @@ interface ProdukEdit {
     name: string;
     slug: string;
     category: string;
+    unit: string;
+    badge: string | null;
     description: string | null;
     sell_price: number;
+    compare_price: number | null;
     cost_price: number;
     supplier_id: number | null;
     supplier_product_url: string | null;
@@ -27,6 +30,7 @@ interface ProdukEdit {
 interface Props {
     produk: ProdukEdit | null;
     pilihanKategori: { nilai: string; label: string }[];
+    pilihanSatuan: string[];
     pilihanSupplier: { id: number; name: string }[];
     simpanUrl: string;
     kembaliUrl: string;
@@ -35,14 +39,17 @@ interface Props {
 const TANPA_SUPPLIER = 'tanpa';
 
 /** Add and edit a shop product (same form). */
-export default function Form({ produk, pilihanKategori, pilihanSupplier, simpanUrl, kembaliUrl }: Props) {
+export default function Form({ produk, pilihanKategori, pilihanSatuan, pilihanSupplier, simpanUrl, kembaliUrl }: Props) {
     const edit = produk !== null;
     const form = useForm({
         name: produk?.name ?? '',
         slug: produk?.slug ?? '',
         category: produk?.category ?? pilihanKategori[0]?.nilai ?? '',
+        unit: produk?.unit ?? 'pcs',
+        badge: produk?.badge ?? '',
         description: produk?.description ?? '',
         sell_price: produk ? String(produk.sell_price) : '',
+        compare_price: produk?.compare_price ? String(produk.compare_price) : '',
         cost_price: produk ? String(produk.cost_price) : '',
         supplier_id: produk?.supplier_id ? String(produk.supplier_id) : TANPA_SUPPLIER,
         supplier_product_url: produk?.supplier_product_url ?? '',
@@ -82,17 +89,53 @@ export default function Form({ produk, pilihanKategori, pilihanSupplier, simpanU
                             </SelectContent>
                         </Select>
                     </Field>
+                    <Field id="unit" label="Satuan jual" error={form.errors.unit} wajib hint="Harga jual dihitung per satuan ini.">
+                        <Select value={form.data.unit} onValueChange={(nilai) => form.setData('unit', nilai)}>
+                            <SelectTrigger id="unit">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {pilihanSatuan.map((satuan) => (
+                                    <SelectItem key={satuan} value={satuan}>
+                                        per {satuan}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field id="badge" label="Badge" error={form.errors.badge} hint="Opsional, misal Terlaris, Baru, Promo.">
+                        <Input id="badge" value={form.data.badge} maxLength={30} onChange={(event) => form.setData('badge', event.target.value)} />
+                    </Field>
                     <Field id="weight" label="Berat (gram)" error={form.errors.weight_gram}>
-                        <Input id="weight" type="number" inputMode="numeric" min={0} value={form.data.weight_gram} onChange={(event) => form.setData('weight_gram', event.target.value)} />
+                        <Input
+                            id="weight"
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            value={form.data.weight_gram}
+                            onChange={(event) => form.setData('weight_gram', event.target.value)}
+                        />
                     </Field>
                     <Field id="description" label="Deskripsi" error={form.errors.description} className="md:col-span-2">
                         <Textarea id="description" rows={4} value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} />
                     </Field>
                     <Field id="slug" label="Alamat halaman (slug)" error={form.errors.slug} hint="Kosongkan untuk dibuat otomatis dari nama." className="md:col-span-2">
-                        <Input id="slug" value={form.data.slug} onChange={(event) => form.setData('slug', event.target.value)} placeholder="bola-padel-isi-3" autoCapitalize="none" />
+                        <Input
+                            id="slug"
+                            value={form.data.slug}
+                            onChange={(event) => form.setData('slug', event.target.value)}
+                            placeholder="bola-padel-isi-3"
+                            autoCapitalize="none"
+                        />
                     </Field>
                     <Field id="foto" label="Foto" error={form.errors.foto} hint="Tanpa foto, halaman toko memakai gambar placeholder." className="md:col-span-2">
-                        <UnggahFoto id="foto" fotoSekarang={produk?.imageUrl ?? null} file={form.data.foto} onPilih={(file) => form.setData('foto', file)} labelTombol={edit ? 'Ganti foto' : 'Pilih foto'} />
+                        <UnggahFoto
+                            id="foto"
+                            fotoSekarang={produk?.imageUrl ?? null}
+                            file={form.data.foto}
+                            onPilih={(file) => form.setData('foto', file)}
+                            labelTombol={edit ? 'Ganti foto' : 'Pilih foto'}
+                        />
                     </Field>
                 </Card>
 
@@ -104,10 +147,41 @@ export default function Form({ produk, pilihanKategori, pilihanSupplier, simpanU
                         </CardHeader>
                         <div className="grid grid-cols-1 gap-4 px-5 pb-5">
                             <Field id="sell" label="Harga jual (Rp)" error={form.errors.sell_price} wajib>
-                                <Input id="sell" type="number" inputMode="numeric" min={0} value={form.data.sell_price} onChange={(event) => form.setData('sell_price', event.target.value)} required />
+                                <Input
+                                    id="sell"
+                                    type="number"
+                                    inputMode="numeric"
+                                    min={0}
+                                    value={form.data.sell_price}
+                                    onChange={(event) => form.setData('sell_price', event.target.value)}
+                                    required
+                                />
+                            </Field>
+                            <Field
+                                id="compare"
+                                label="Harga coret (Rp)"
+                                error={form.errors.compare_price}
+                                hint="Opsional. Harga lama yang dicoret, harus lebih mahal dari harga jual."
+                            >
+                                <Input
+                                    id="compare"
+                                    type="number"
+                                    inputMode="numeric"
+                                    min={0}
+                                    value={form.data.compare_price}
+                                    onChange={(event) => form.setData('compare_price', event.target.value)}
+                                />
                             </Field>
                             <Field id="cost" label="Harga modal (Rp)" error={form.errors.cost_price} wajib>
-                                <Input id="cost" type="number" inputMode="numeric" min={0} value={form.data.cost_price} onChange={(event) => form.setData('cost_price', event.target.value)} required />
+                                <Input
+                                    id="cost"
+                                    type="number"
+                                    inputMode="numeric"
+                                    min={0}
+                                    value={form.data.cost_price}
+                                    onChange={(event) => form.setData('cost_price', event.target.value)}
+                                    required
+                                />
                             </Field>
                             <div className="rounded-lg bg-muted px-3 py-2 text-sm">
                                 Untung per barang: <strong className={jual - modal < 0 ? 'text-destructive' : 'text-green'}>{rupiah(jual - modal)}</strong>

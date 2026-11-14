@@ -33,6 +33,10 @@ return [
      */
     'email_admin' => env('TOKO_EMAIL_ADMIN', env('ADMIN_EMAIL', 'hello@greendeahan.com')),
 
-    'maks_qty_per_produk' => 20,
+    /*
+     * Batas jumlah per produk di keranjang. Material lapangan dijual per m²,
+     * jadi batasnya besar.
+     */
+    'maks_qty_per_produk' => 999,
 
 ];

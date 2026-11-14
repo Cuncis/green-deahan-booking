@@ -58,9 +58,12 @@ class TokoAdminTest extends TestCase
         $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
             'name' => 'Bola Padel Isi 3',
             'slug' => '',
-            'category' => 'padel',
+            'category' => 'olahraga',
+            'unit' => 'tabung',
+            'badge' => 'Baru',
             'description' => 'Tabung isi 3.',
             'sell_price' => 95000,
+            'compare_price' => 110000,
             'cost_price' => 75000,
             'supplier_id' => $supplier->id,
             'supplier_product_url' => 'https://shopee.co.id/produk-supplier',
@@ -71,6 +74,7 @@ class TokoAdminTest extends TestCase
 
         $produk = Product::sole();
         $this->assertSame('bola-padel-isi-3', $produk->slug);
+        $this->assertSame(['tabung', 'Baru', 110000], [$produk->unit, $produk->badge, $produk->compare_price]);
         $this->assertNotNull($produk->image_path);
 
         $this->actingAs($this->superadmin())->get('/superadmin/toko/produk')
@@ -90,13 +94,22 @@ class TokoAdminTest extends TestCase
         $admin = $this->superadmin();
 
         $this->actingAs($admin)->put("/superadmin/toko/produk/{$produk->id}", [
-            'name' => 'Baru', 'slug' => 'lama', 'category' => 'futsal', 'sell_price' => 120000, 'cost_price' => 80000, 'weight_gram' => 0, 'is_active' => '0',
+            'name' => 'Baru', 'slug' => 'lama', 'category' => 'perlengkapan', 'unit' => 'set', 'sell_price' => 120000, 'cost_price' => 80000, 'weight_gram' => 0, 'is_active' => '0',
         ])->assertRedirect(route('superadmin.toko.produk'));
         $this->assertSame(['Baru', 120000, false], [$produk->fresh()->name, $produk->fresh()->sell_price, $produk->fresh()->is_active]);
 
         $this->actingAs($admin)->delete("/superadmin/toko/produk/{$produk->id}")->assertRedirect();
         $this->assertModelMissing($produk);
         $this->assertSame(['Lama', 100000, null], [$order->items()->first()->product_name, $order->items()->first()->unit_price, $order->items()->first()->product_id]);
+    }
+
+    public function test_validasi_satuan_dan_harga_coret(): void
+    {
+        $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
+            'name' => 'Rumput', 'category' => 'rumput', 'unit' => 'karung-ajaib', 'sell_price' => 185000, 'compare_price' => 100000, 'cost_price' => 0, 'weight_gram' => 0, 'is_active' => '1',
+        ])->assertSessionHasErrors(['unit', 'compare_price']);
+
+        $this->assertSame(0, Product::count());
     }
 
     public function test_crud_supplier(): void

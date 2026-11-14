@@ -471,3 +471,296 @@
   background: #fdecea;
   color: #b42318;
 }
+
+/* ------------------------------------------------------------------
+   Toko, Fuzio reference layout (~/remove-later/fuzio: features/toko,
+   brand-greendeahan.css section 24) plus product, cart and checkout
+   ports. Backgrounds stay off-white (#F5F5F5 sections, #FAFAFA cards).
+   ------------------------------------------------------------------ */
+.toko-section .product-thumb {
+  aspect-ratio: 294 / 334;
+}
+.toko-section .product-thumb img {
+  aspect-ratio: 294 / 334;
+  height: auto;
+  object-fit: cover;
+}
+.toko-section .product-entry h3 {
+  min-height: 2.6em;
+  line-height: 1.3;
+}
+.gd-toko .product-entry .price small,
+.gd-toko .product-info .product-price small {
+  color: #696969;
+  font-weight: 400;
+  font-size: 0.7em;
+}
+.gd-toko .product-entry .price del {
+  display: block;
+  color: #8a8a8a;
+  font-weight: 400;
+  font-size: 14px;
+}
+.gd-toko .product-info .product-price del {
+  display: block;
+  margin-top: 4px;
+  color: #8a8a8a;
+  font-size: 18px;
+  font-weight: 400;
+}
+.toko-kategori a {
+  display: flex;
+  justify-content: space-between;
+  min-height: 40px;
+  align-items: center;
+}
+.toko-kategori a.active {
+  color: #006400;
+  font-weight: 700;
+}
+.toko-empty {
+  padding: 40px 20px;
+  text-align: center;
+  background-color: #f4faf4;
+  border-radius: 12px;
+}
+.layanan-cta p {
+  margin-bottom: 16px;
+}
+.gd-toko .widget .widget-inner {
+  background-color: #fafafa;
+  border-color: #e7e5e4;
+}
+.gd-toko .widget.search-widget input {
+  background-color: #fafafa;
+  border-color: #e7e5e4;
+  min-height: 48px;
+}
+.gd-toko .widget.search-widget button {
+  min-width: 48px;
+  min-height: 48px;
+  color: #fff;
+}
+
+/* Hover overlay buttons: Fuzio styles links; the add-to-cart is a button */
+.gd-toko .product-entry .product-cta button {
+  display: table;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 10px;
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--black);
+  text-align: center;
+}
+.gd-toko .product-entry .product-cta button i {
+  color: var(--primary);
+}
+.gd-toko .product-entry .product-cta button:disabled {
+  opacity: 0.6;
+}
+@media (hover: none) {
+  .gd-toko .product-entry .product-cta {
+    display: none;
+  }
+}
+
+/* Sort select */
+.gd-urut {
+  min-height: 44px;
+  padding: 8px 40px 8px 16px;
+  border: 1px solid #e7e5e4;
+  border-radius: 8px;
+  background-color: #fafafa;
+  font-weight: 500;
+}
+
+/* Product page */
+.gd-detail-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: #feb046;
+  color: #1a1a1a;
+  font-size: 13px;
+  font-weight: 700;
+}
+.gd-toko .product-info h2 {
+  font-size: clamp(26px, 4vw, 38px);
+}
+.gd-toko .cart-number label {
+  font-weight: 600;
+}
+.gd-toko .cart-number .cart-counter {
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+}
+.gd-toko .cart-number .cart-counter input,
+.gd-qty input {
+  width: 64px;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font-weight: 700;
+  -moz-appearance: textfield;
+}
+.gd-toko input[type="number"]::-webkit-outer-spin-button,
+.gd-toko input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.gd-toko .cart-number .cart-counter button,
+.gd-qty button {
+  width: 40px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: #004d00;
+}
+.gd-toko .cart-number .cart-counter button:disabled,
+.gd-qty button:disabled {
+  opacity: 0.35;
+}
+.gd-subtotal-produk {
+  font-size: 17px;
+}
+.gd-toko .product-details-tab .tab-content p {
+  max-width: 760px;
+}
+
+/* Cart */
+.gd-qty {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  padding: 0;
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+  border-radius: 999px;
+}
+.gd-tabel-keranjang {
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+}
+.gd-tabel-keranjang .shop_table thead tr th {
+  background-color: #fafafa;
+}
+.gd-tabel-keranjang .shop_table td {
+  vertical-align: middle;
+}
+.gd-thumb-kecil {
+  display: block;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.gd-thumb-kecil img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gd-tabel-keranjang .remove {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #b42318;
+}
+.gd-tabel-keranjang .remove:hover {
+  background-color: #fdecea;
+}
+.gd-cart-totals {
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+}
+.gd-cart-totals table {
+  width: 100%;
+}
+.gd-cart-totals th,
+.gd-cart-totals td {
+  padding: 8px 0;
+  vertical-align: top;
+}
+.gd-cart-totals td {
+  text-align: right;
+  white-space: nowrap;
+}
+.gd-cart-totals tr.total th,
+.gd-cart-totals tr.total td {
+  border-top: 2px solid #e7e5e4;
+  padding-top: 14px;
+  color: #004d00;
+  font-size: 19px;
+}
+.gd-qty-kecil {
+  color: #696969;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+/* Checkout */
+.gd-kartu-form {
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+}
+.gd-form-toko .galat {
+  margin-top: 4px;
+}
+.gd-pembayaran {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background-color: #e8f2e8;
+  color: #004d00;
+  font-size: 15px;
+}
+.gd-pembayaran strong {
+  display: block;
+  margin-bottom: 4px;
+}
+form.form.checkout-form.gd-form-toko input,
+form.form.checkout-form.gd-form-toko textarea {
+  margin-bottom: 0;
+}
+
+/* Fuzio paints each product row in the totals box pure white: keep it
+   off-white with a divider instead. */
+.gd-cart-totals table tr.product-list {
+  background: transparent;
+}
+.gd-cart-totals table tr.product-list th,
+.gd-cart-totals table tr.product-list td {
+  border-bottom: 1px dashed #e7e5e4;
+}
+
+/* Product page: inactive tab was dark green on black (unreadable). */
+.gd-toko .product-details-tab .nav-tabs .nav-link:not(.active) {
+  color: #e8f2e8;
+}
+.gd-toko .product-details-tab .nav-tabs .nav-link:not(.active):hover {
+  color: #feb046;
+}
+
+/* Product page: Fuzio fixes these buttons at 215px with a left margin,
+   too narrow for the Indonesian labels. Let them size to their text. */
+.gd-toko .cart-cta .btn {
+  width: auto;
+  margin: 0;
+  padding-left: 28px;
+  padding-right: 28px;
+  white-space: nowrap;
+  min-height: 52px;
+}
+@media (max-width: 575.98px) {
+  .gd-toko .cart-cta .btn {
+    flex: 1 1 100%;
+    margin-top: 0;
+  }
+}
+.gd-toko .cart-number .cart-counter {
+  width: fit-content;
+}

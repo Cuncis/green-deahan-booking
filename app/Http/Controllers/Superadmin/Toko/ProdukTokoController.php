@@ -29,6 +29,8 @@ class ProdukTokoController extends Controller
                 'kategori' => Product::KATEGORI[$product->category] ?? $product->category,
                 'imageUrl' => $product->image_path,
                 'hargaJual' => $product->sell_price,
+                'satuan' => $product->unit,
+                'badge' => $product->badge,
                 'hargaModal' => $product->cost_price,
                 'margin' => $product->sell_price - $product->cost_price,
                 'supplier' => $product->supplier?->name,
@@ -63,7 +65,7 @@ class ProdukTokoController extends Controller
     {
         return Inertia::render('superadmin/Toko/Produk/Form', [
             'produk' => [
-                ...$product->only(['name', 'slug', 'category', 'description', 'sell_price', 'cost_price', 'supplier_id', 'supplier_product_url', 'weight_gram', 'is_active']),
+                ...$product->only(['name', 'slug', 'category', 'unit', 'badge', 'description', 'sell_price', 'compare_price', 'cost_price', 'supplier_id', 'supplier_product_url', 'weight_gram', 'is_active']),
                 'imageUrl' => $product->image_path,
                 'updateUrl' => route('superadmin.toko.produk.update', $product),
             ],
@@ -123,12 +125,13 @@ class ProdukTokoController extends Controller
     }
 
     /**
-     * @return array{pilihanKategori: array<int, array{nilai: string, label: string}>, pilihanSupplier: array<int, array{id: int, name: string}>, simpanUrl: string, kembaliUrl: string}
+     * @return array{pilihanKategori: array<int, array{nilai: string, label: string}>, pilihanSatuan: array<int, string>, pilihanSupplier: array<int, array{id: int, name: string}>, simpanUrl: string, kembaliUrl: string}
      */
     private function dataForm(): array
     {
         return [
             'pilihanKategori' => collect(Product::KATEGORI)->map(fn (string $label, string $nilai) => ['nilai' => $nilai, 'label' => $label])->values()->all(),
+            'pilihanSatuan' => Product::SATUAN,
             'pilihanSupplier' => Supplier::orderBy('name')->get(['id', 'name'])->map(fn (Supplier $supplier) => ['id' => $supplier->id, 'name' => $supplier->name])->all(),
             'simpanUrl' => route('superadmin.toko.produk.store'),
             'kembaliUrl' => route('superadmin.toko.produk'),

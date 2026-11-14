@@ -16,6 +16,8 @@ interface ProdukBaris {
     kategori: string;
     imageUrl: string | null;
     hargaJual: number;
+    satuan: string;
+    badge: string | null;
     hargaModal: number;
     margin: number;
     supplier: string | null;
@@ -118,11 +120,17 @@ export default function Index({ produk }: { produk: ProdukBaris[] }) {
                                                         <a href={item.publikUrl} target="_blank" rel="noreferrer" className="font-bold hover:text-green hover:underline">
                                                             {item.name}
                                                         </a>
-                                                        <div className="text-xs text-muted-foreground">{item.kategori}</div>
+                                                        <div className="text-xs text-muted-foreground">
+                                                            {item.kategori}
+                                                            {item.badge && `, badge ${item.badge}`}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-right tabular-nums">{rupiah(item.hargaJual)}</TableCell>
+                                            <TableCell className="text-right tabular-nums">
+                                                {rupiah(item.hargaJual)}
+                                                <div className="text-xs text-muted-foreground">per {item.satuan}</div>
+                                            </TableCell>
                                             <TableCell className="text-right tabular-nums text-ink-mid">{rupiah(item.hargaModal)}</TableCell>
                                             <TableCell className="text-right tabular-nums font-semibold text-green">{rupiah(item.margin)}</TableCell>
                                             <TableCell className="text-ink-mid">{item.supplier ?? '-'}</TableCell>
@@ -149,7 +157,7 @@ export default function Index({ produk }: { produk: ProdukBaris[] }) {
                                                 {item.supplier && `, ${item.supplier}`}
                                             </div>
                                             <div className="mt-1 text-sm">
-                                                Jual <strong>{rupiah(item.hargaJual)}</strong>, modal {rupiah(item.hargaModal)},{' '}
+                                                Jual <strong>{rupiah(item.hargaJual)}</strong>/{item.satuan}, modal {rupiah(item.hargaModal)},{' '}
                                                 <span className="font-semibold text-green">untung {rupiah(item.margin)}</span>
                                             </div>
                                         </div>

@@ -5,9 +5,14 @@ export interface ProdukPublik {
     slug: string;
     category: string;
     categoryLabel: string;
+    /** Selling unit: pcs, m², set, sak, ... */
+    unit: string;
+    badge: string | null;
     description: string | null;
     imageUrl: string | null;
     price: number;
+    /** Struck-through "was" price, only when higher than price. */
+    comparePrice: number | null;
 }
 
 export interface BarisKeranjang extends ProdukPublik {

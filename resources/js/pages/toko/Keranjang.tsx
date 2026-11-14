@@ -5,36 +5,91 @@ import Header from '../../components/fuzio/Header';
 import PageHeader from '../../components/fuzio/PageHeader';
 import ScrollToTop from '../../components/fuzio/elements/ScrollToTop';
 import GambarProduk from '../../components/fuzio/toko/GambarProduk';
+import JumlahKeranjang from '../../components/fuzio/toko/JumlahKeranjang';
 import PesanFlash from '../../components/fuzio/toko/PesanFlash';
 import { rupiah, type Keranjang as DataKeranjang } from '../../components/fuzio/toko/types';
 import { GD_CDN } from '../../data/greendeahan';
 
-/** /keranjang: cart (session) with quantity controls and totals. Port of Fuzio's CartSection. */
+/** /keranjang: port of Fuzio's CartSection. Table on desktop, a list on phones, totals on the side. */
 export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeranjang; maksQty: number }) {
-    const ubah = (id: number, qty: number) => router.patch(`/keranjang/${id}`, { qty }, { preserveScroll: true, only: ['keranjang', 'jumlahKeranjang'] });
     const hapus = (id: number) => router.delete(`/keranjang/${id}`, { preserveScroll: true, only: ['keranjang', 'jumlahKeranjang'] });
 
     return (
         <div className="App">
             <Header variant="pages" />
-            <PageHeader title="Keranjang" imgSrc={`${GD_CDN}/padel1-img.png`} crumbs={[{ label: 'Toko', href: '/toko' }, { label: 'Keranjang' }]} />
+            <PageHeader title="Keranjang" imgSrc={`${GD_CDN}/minisoccer1-img.jpeg`} crumbs={[{ label: 'Toko', href: '/toko' }, { label: 'Keranjang' }]} />
 
-            <section className="cart-section gd-toko">
+            <div className="cart-section sec-padding gd-toko">
                 <div className="container">
                     <PesanFlash />
                     {keranjang.items.length === 0 ? (
-                        <div className="gd-kartu gd-kosong">
-                            <h2>Keranjang masih kosong</h2>
-                            <p>Yuk pilih perlengkapan olahraga dulu.</p>
+                        <div className="toko-empty">
+                            <h2 className="h4">Keranjang masih kosong</h2>
+                            <p>Yuk pilih produk dulu.</p>
                             <a href="/toko" className="btn btn-primary">
                                 Belanja di Toko
                             </a>
                         </div>
                     ) : (
-                        <div className="row g-4 align-items-start">
+                        <div className="row g-4">
                             <div className="col-lg-8">
-                                <div className="gd-kartu">
-                                    <h2>{keranjang.jumlahItem} barang</h2>
+                                <div className="woocommerce rounded gd-tabel-keranjang d-none d-md-block">
+                                    <table className="table shop_table cart">
+                                        <thead className="shadow">
+                                            <tr>
+                                                <th className="product-name" colSpan={2}>
+                                                    Produk
+                                                </th>
+                                                <th className="product-price">Harga</th>
+                                                <th className="product-quantity">Jumlah</th>
+                                                <th className="product-subtotal">Total</th>
+                                                <th className="product-remove">
+                                                    <span className="visually-hidden">Hapus</span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {keranjang.items.map((item) => (
+                                                <tr key={item.id} className="cart_item">
+                                                    <td className="product-thumbnail">
+                                                        <a href={`/toko/${item.slug}`} className="gd-thumb-kecil" tabIndex={-1} aria-hidden="true">
+                                                            <GambarProduk src={item.imageUrl} alt={item.name} />
+                                                        </a>
+                                                    </td>
+                                                    <td className="product-name">
+                                                        <a href={`/toko/${item.slug}`}>{item.name}</a>
+                                                    </td>
+                                                    <td className="product-price">
+                                                        {rupiah(item.price)}
+                                                        <small className="d-block">/{item.unit}</small>
+                                                    </td>
+                                                    <td className="product-quantity">
+                                                        <JumlahKeranjang id={item.id} nama={item.name} qty={item.qty} maks={maksQty} />
+                                                    </td>
+                                                    <td className="product-subtotal">
+                                                        <strong>{rupiah(item.subtotal)}</strong>
+                                                    </td>
+                                                    <td className="product-remove">
+                                                        <button type="button" className="remove" onClick={() => hapus(item.id)} aria-label={`Hapus ${item.name}`}>
+                                                            <i className="feather-icon icon-x" aria-hidden="true"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            <tr>
+                                                <td colSpan={6} className="actions cart-form-footer p-3">
+                                                    <div className="d-flex justify-content-end">
+                                                        <a href="/toko" className="btn btn-primary">
+                                                            Lanjut Belanja
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div className="gd-kartu d-md-none">
                                     {keranjang.items.map((item) => (
                                         <div key={item.id} className="gd-keranjang-baris">
                                             <a href={`/toko/${item.slug}`} className="thumb" tabIndex={-1} aria-hidden="true">
@@ -44,18 +99,12 @@ export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeran
                                                 <a href={`/toko/${item.slug}`} className="nama">
                                                     {item.name}
                                                 </a>
-                                                <div className="harga">{rupiah(item.price)} per barang</div>
+                                                <div className="harga">
+                                                    {rupiah(item.price)} /{item.unit}
+                                                </div>
                                             </div>
                                             <div className="kanan">
-                                                <div className="cart-counter" role="group" aria-label={`Jumlah ${item.name}`}>
-                                                    <button type="button" onClick={() => ubah(item.id, item.qty - 1)} disabled={item.qty <= 1} aria-label="Kurangi jumlah">
-                                                        <i className="feather-icon icon-minus" aria-hidden="true"></i>
-                                                    </button>
-                                                    <input value={item.qty} readOnly aria-label="Jumlah" />
-                                                    <button type="button" onClick={() => ubah(item.id, item.qty + 1)} disabled={item.qty >= maksQty} aria-label="Tambah jumlah">
-                                                        <i className="feather-icon icon-plus" aria-hidden="true"></i>
-                                                    </button>
-                                                </div>
+                                                <JumlahKeranjang id={item.id} nama={item.name} qty={item.qty} maks={maksQty} />
                                                 <span className="subtotal">{rupiah(item.subtotal)}</span>
                                                 <button type="button" className="gd-hapus" onClick={() => hapus(item.id)}>
                                                     Hapus
@@ -63,29 +112,53 @@ export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeran
                                             </div>
                                         </div>
                                     ))}
+                                    <a href="/toko" className="btn btn-outline-primary w-100 mt-3">
+                                        Lanjut Belanja
+                                    </a>
                                 </div>
                             </div>
+
                             <div className="col-lg-4">
-                                <aside className="gd-kartu">
-                                    <h2>Ringkasan</h2>
-                                    <div className="gd-ringkasan-baris">
-                                        <span>Subtotal</span>
-                                        <span>{rupiah(keranjang.subtotal)}</span>
-                                    </div>
-                                    <div className="gd-ringkasan-baris">
-                                        <span>Ongkir</span>
-                                        <span>{rupiah(keranjang.ongkir)}</span>
-                                    </div>
-                                    <div className="gd-ringkasan-baris total">
-                                        <span>Total</span>
-                                        <span>{rupiah(keranjang.total)}</span>
-                                    </div>
-                                    <div className="gd-ringkasan-aksi">
-                                        <a href="/checkout" className="btn btn-primary">
+                                <aside className="cart-totals ms-lg-2 p-lg-5 p-4 rounded gd-cart-totals">
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <th>Produk</th>
+                                                <td>Subtotal</td>
+                                            </tr>
+                                            {keranjang.items.map((item) => (
+                                                <tr key={item.id} className="product-list">
+                                                    <th>
+                                                        {item.name} <span className="gd-qty-kecil">x {item.qty}</span>
+                                                    </th>
+                                                    <td>{rupiah(item.subtotal)}</td>
+                                                </tr>
+                                            ))}
+                                            <tr className="subtotal">
+                                                <th>Subtotal</th>
+                                                <td>
+                                                    <span className="amount">{rupiah(keranjang.subtotal)}</span>
+                                                </td>
+                                            </tr>
+                                            <tr className="shipping-cost">
+                                                <th>Ongkir</th>
+                                                <td>
+                                                    <span className="amount">{rupiah(keranjang.ongkir)}</span>
+                                                </td>
+                                            </tr>
+                                            <tr className="total">
+                                                <th>Total</th>
+                                                <td>
+                                                    <strong>
+                                                        <span className="amount">{rupiah(keranjang.total)}</span>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div className="text-center mt-4">
+                                        <a href="/checkout" className="btn btn-primary d-block">
                                             Lanjut ke Checkout
-                                        </a>
-                                        <a href="/toko" className="btn btn-outline-primary">
-                                            Belanja Lagi
                                         </a>
                                     </div>
                                 </aside>
@@ -93,7 +166,7 @@ export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeran
                         </div>
                     )}
                 </div>
-            </section>
+            </div>
 
             <Footer />
             <ScrollToTop />
