@@ -58,10 +58,24 @@ export default function PesananToko({ pesanan, langkah }: Props) {
                                 {!batal && (
                                     <ol className="gd-langkah" aria-label="Tahap pesanan">
                                         {langkah.map((item, index) => (
-                                            <li key={item.nilai} className={index < posisi ? 'selesai' : index === posisi ? (index === langkah.length - 1 ? 'selesai' : 'sekarang') : ''} aria-current={index === posisi ? 'step' : undefined}>
+                                            <li
+                                                key={item.nilai}
+                                                className={index < posisi ? 'selesai' : index === posisi ? (index === langkah.length - 1 ? 'selesai' : 'sekarang') : ''}
+                                                aria-current={index === posisi ? 'step' : undefined}
+                                            >
                                                 <span className="titik">
                                                     {index < posisi || (index === posisi && index === langkah.length - 1) ? (
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                                        <svg
+                                                            width="16"
+                                                            height="16"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="3"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            aria-hidden="true"
+                                                        >
                                                             <path d="M20 6 9 17l-5-5" />
                                                         </svg>
                                                     ) : (
