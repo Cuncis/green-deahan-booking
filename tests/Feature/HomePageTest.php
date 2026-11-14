@@ -57,6 +57,15 @@ class HomePageTest extends TestCase
         }
     }
 
+    public function test_homepage_v2_menyebut_vinyl_pertama_untuk_lantai_badminton(): void
+    {
+        $this->get('http://greendeahan.com/v2')
+            ->assertOk()
+            ->assertSee('lantai <strong>vinyl</strong>, <strong>interlock</strong>, atau <strong>kayu keras</strong>', false)
+            ->assertSee('Lantai vinyl, interlock, atau kayu keras')
+            ->assertDontSee('utama)');
+    }
+
     public function test_homepage_v2_tidak_mengandung_emoji_mentah(): void
     {
         $response = $this->get('http://greendeahan.com/v2');

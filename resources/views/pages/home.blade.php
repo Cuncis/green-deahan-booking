@@ -172,8 +172,8 @@
                         'badge' => 'Indoor Specialist',
                         'badgeClass' => 'text-purple-700 bg-purple-50 border-purple-200',
                         'gambar' => 'https://cdn.libradigital.id/site-assets/badminton2-img-1.png',
-                        'deskripsi' => 'Konstruksi lapangan badminton dengan lantai <strong>interlock</strong> atau <strong>kayu keras</strong> berkualitas. Non-slip, ramah sendi lutut. Pencahayaan LED anti-silau.',
-                        'checklist' => ['Lantai interlock atau kayu keras', 'Non-slip & ramah lutut', 'Pencahayaan LED anti-silau', 'Tiang net & net standar BWF', '1 atau multi-court tersedia'],
+                        'deskripsi' => 'Konstruksi lapangan badminton dengan lantai <strong>vinyl</strong>, <strong>interlock</strong>, atau <strong>kayu keras</strong> berkualitas. Non-slip, ramah sendi lutut. Pencahayaan LED anti-silau.',
+                        'checklist' => ['Lantai vinyl, interlock, atau kayu keras', 'Non-slip & ramah lutut', 'Pencahayaan LED anti-silau', 'Tiang net & net standar BWF', '1 atau multi-court tersedia'],
                         'topik' => 'pembuatan lapangan badminton',
                     ],
                 ] as $layanan)

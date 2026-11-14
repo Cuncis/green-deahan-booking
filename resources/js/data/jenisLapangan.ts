@@ -19,5 +19,5 @@ export const jenisLapangan: JenisLapangan[] = [
     { nama: 'Futsal', icon: SoccerWhite, invert: true, delay: 100, topik: 'pembuatan lapangan futsal', deskripsi: 'Lantai interlock atau rumput sintetis, lengkap dengan LED, pagar, gawang & net.' },
     { nama: 'Mini Soccer', icon: MiniSoccerIcon, invert: false, delay: 200, topik: 'pembuatan lapangan mini soccer', deskripsi: 'Rumput sintetis premium grade A dengan sistem drainase profesional.' },
     { nama: 'Padel', icon: PadelIcon, invert: false, delay: 300, topik: 'pembuatan lapangan padel', deskripsi: 'Standar internasional IFF: rangka baja galvanis & kaca tempered.' },
-    { nama: 'Badminton', icon: BadmintonIcon, invert: false, delay: 400, topik: 'pembuatan lapangan badminton', deskripsi: 'Lantai interlock atau kayu keras, non-slip, LED anti-silau.' },
+    { nama: 'Badminton', icon: BadmintonIcon, invert: false, delay: 400, topik: 'pembuatan lapangan badminton', deskripsi: 'Lantai vinyl, interlock, atau kayu keras. Non-slip, LED anti-silau.' },
 ];
