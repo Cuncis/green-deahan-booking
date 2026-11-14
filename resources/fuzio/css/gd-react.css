@@ -763,3 +763,10 @@ button.gd-dd-toggle:hover {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
+/* Fuzio's header is absolute with z-index 2, so the sticky navbar's z-index
+   only applies inside it and positioned page content (z-2, z-3) painted over
+   it on scroll. Lift the whole header above page content. */
+header.header {
+  z-index: 1030;
+}

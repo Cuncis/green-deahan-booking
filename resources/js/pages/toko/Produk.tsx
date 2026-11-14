@@ -69,7 +69,7 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                                 <GambarProduk src={produk.imageUrl} alt={produk.name} label={produk.categoryLabel} />
                             </div>
                         </div>
-                        <div className="col-xl-6 z-2">
+                        <div className="col-xl-6">
                             <div className="product-info ps-lg-4">
                                 <h2>{produk.name}</h2>
                                 <h3 className="product-price">
