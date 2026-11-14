@@ -37,7 +37,18 @@ class HomePageTest extends TestCase
         $response->assertSee('<link rel="canonical" href="http://greendeahan.com">', false);
         $response->assertSee('<meta name="description" content="Jasa pembuatan lapangan futsal', false);
         $response->assertSee('rel="icon"', false);
-        $response->assertSee('Jasa Pembuatan Lapangan Olahraga Se-Indonesia</title>', false);
+        $response->assertSee('Jasa Pembuatan Lapangan Se-Indonesia</title>', false);
+    }
+
+    public function test_deskripsi_homepage_untuk_google_tanpa_nomor_telepon(): void
+    {
+        $deskripsi = 'Jasa pembuatan lapangan futsal, mini soccer, padel, dan badminton sejak 2010. Survey, desain, konstruksi, hingga serah terima. Melayani seluruh Indonesia.';
+
+        $this->get('http://greendeahan.com/')
+            ->assertOk()
+            ->assertSee('<meta name="description" content="'.$deskripsi.'">', false)
+            ->assertSee('<meta property="og:description" content="'.$deskripsi.'">', false)
+            ->assertDontSee('813-5757-0064');
     }
 
     public function test_homepage_blade_lama_pindah_ke_v2_dengan_noindex(): void

@@ -61,7 +61,7 @@ class TokoController extends Controller
             'pilihanUrutan' => collect(self::URUTAN)->map(fn (string $label, string $nilai) => ['nilai' => $nilai, 'label' => $label])->values()->all(),
             'meta' => [
                 'title' => 'Toko Perlengkapan Lapangan & Olahraga | Green Deahan Sport',
-                'description' => 'Rumput sintetis, lantai interlock, perlengkapan lapangan, lampu, material perawatan, dan perlengkapan olahraga dari Green Deahan Sport. Bayar online, dikirim ke seluruh Indonesia.',
+                'description' => 'Rumput sintetis, lantai interlock, lampu, material perawatan, dan perlengkapan olahraga dari Green Deahan Sport. Bayar online, kirim ke seluruh Indonesia.',
                 'noindex' => ! config('toko.publik'),
             ],
         ]);

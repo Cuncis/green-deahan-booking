@@ -17,11 +17,11 @@ class BangunLapanganPageTest extends TestCase
     {
         $this->get('http://greendeahan.com/bangun-lapangan')
             ->assertOk()
-            ->assertSee('<title inertia>Jasa Bangun Lapangan Futsal, Mini Soccer, Padel &amp; Badminton - Green Deahan Sport</title>', false)
+            ->assertSee('<title inertia>Jasa Bangun Lapangan Futsal &amp; Padel - Green Deahan Sport</title>', false)
             ->assertDontSee('<meta name="robots"', false)
             ->assertInertia(fn (Assert $page) => $page
                 ->component('BangunLapangan')
-                ->where('meta.description', fn (string $deskripsi) => str_contains($deskripsi, 'Konsultasi, survey & RAB gratis'))
+                ->where('meta.description', fn (string $deskripsi) => str_contains($deskripsi, 'Konsultasi dan RAB gratis'))
             );
 
         $this->get('http://www.greendeahan.com/bangun-lapangan')->assertOk();

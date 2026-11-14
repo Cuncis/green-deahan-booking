@@ -17,7 +17,7 @@ class UpgradeLapanganPageTest extends TestCase
     {
         $this->get('http://greendeahan.com/upgrade-lapangan')
             ->assertOk()
-            ->assertSee('<title inertia>Upgrade Lapangan: Lampu LED, Atap, Jaring &amp; Ganti Rumput - Green Deahan Sport</title>', false)
+            ->assertSee('<title inertia>Upgrade Lapangan: Lampu, Atap, Jaring - Green Deahan Sport</title>', false)
             ->assertDontSee('<meta name="robots"', false)
             ->assertInertia(fn (Assert $page) => $page
                 ->component('UpgradeLapangan')

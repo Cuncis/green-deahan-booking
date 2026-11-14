@@ -1,14 +1,16 @@
 import { usePage } from '@inertiajs/react';
 import WhatsAppIcon from './elements/WhatsAppIcon';
-import { GD_EMAIL, GD_HOURS, GD_PHONE_DISPLAY, menuFooter, socialLinks, waLink } from '../../data/greendeahan';
+import { GD_EMAIL, GD_HOURS, GD_PHONE_DISPLAY, menuFooter, menuFooterLayanan, socialLinks, waLink } from '../../data/greendeahan';
 
 /** Port of Fuzio's Footer, as customized in the Fuzio clone. */
 export default function Footer() {
     const { tokoPublik = false, sistemBookingPublik = false } = usePage<{ tokoPublik?: boolean; sistemBookingPublik?: boolean }>().props;
+    const halamanPublik = { tokoPublik, sistemBookingPublik };
 
     return (
         <footer className="footer bg jarallax bg-cover">
-            <div className="container">
+            {/* data-nosnippet: Google builds search snippets from the meta description, not from the footer's contact lines */}
+            <div className="container" data-nosnippet>
                 <div className="row">
                     <div className="col-lg-3 col-sm-6">
                         <div className="footer-widget">
@@ -40,11 +42,23 @@ export default function Footer() {
                             </ul>
                         </div>
                     </div>
-                    <div className="col-lg-3 offset-lg-1 col-sm-6">
+                    <div className="col-lg-2 offset-lg-1 col-sm-6">
                         <div className="footer-widget">
                             <h3 className="widget-title text-uppercase text-white">Halaman</h3>
                             <ul>
-                                {menuFooter({ tokoPublik, sistemBookingPublik }).map((item) => (
+                                {menuFooter(halamanPublik).map((item) => (
+                                    <li key={item.path}>
+                                        <a href={item.path}>{item.label}</a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="col-lg-2 col-sm-6">
+                        <div className="footer-widget">
+                            <h3 className="widget-title text-uppercase text-white">Layanan</h3>
+                            <ul>
+                                {menuFooterLayanan(halamanPublik).map((item) => (
                                     <li key={item.path}>
                                         <a href={item.path}>{item.label}</a>
                                     </li>

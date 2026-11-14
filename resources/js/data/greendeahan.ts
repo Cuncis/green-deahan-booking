@@ -159,5 +159,8 @@ export const menuSitus = ({ tokoPublik, sistemBookingPublik }: HalamanPublik): M
         .filter((item) => !item.children || item.children.length > 0);
 };
 
-/** Footer page list: dropdown items are listed individually. */
-export const menuFooter = (halaman: HalamanPublik): MenuItem[] => menuSitus(halaman).flatMap((item) => item.children ?? [item]);
+/** Footer "Halaman" list: the plain menu items, without the items under the "Layanan" dropdown. */
+export const menuFooter = (halaman: HalamanPublik): MenuItem[] => menuSitus(halaman).filter((item) => !item.children);
+
+/** Footer "Layanan" list: the items under the "Layanan" dropdown (hidden pages stay out until they are public). */
+export const menuFooterLayanan = (halaman: HalamanPublik): MenuItem[] => menuSitus(halaman).flatMap((item) => item.children ?? []);

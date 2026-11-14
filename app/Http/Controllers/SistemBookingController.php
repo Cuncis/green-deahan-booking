@@ -21,8 +21,8 @@ class SistemBookingController extends Controller
             'paket' => $paket->semua(),
             'diskonPerpanjanganPersen' => Tenant::DISKON_PERPANJANGAN_PERSEN,
             'meta' => [
-                'title' => 'Sistem Booking Lapangan Online untuk Futsal, Padel & Badminton - Green Deahan Sport',
-                'description' => 'Website booking lapangan dengan jadwal real-time, anti double-booking, dan pembayaran online QRIS, VA, e-wallet. Paket mulai Rp1,5 juta per tahun, sudah termasuk setup.',
+                'title' => 'Sistem Booking Lapangan Online - Green Deahan Sport',
+                'description' => 'Website booking lapangan dengan jadwal real-time, anti double-booking, dan bayar online QRIS, VA, e-wallet. Paket mulai Rp1,5 juta per tahun, termasuk setup.',
                 'noindex' => ! config('situs.sistem_booking_publik'),
             ],
         ]);

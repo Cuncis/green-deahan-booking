@@ -52,8 +52,8 @@ $situsKorporat = function () {
     // Halaman situs korporat lain masih Blade + Alpine.
     Route::get('/', fn () => Inertia::render('Home', [
         'meta' => [
-            'title' => 'Green Deahan Sport - Jasa Pembuatan Lapangan Olahraga Se-Indonesia',
-            'description' => 'Jasa pembuatan lapangan futsal, mini soccer, padel, dan badminton profesional sejak 2010. Survey, desain, konstruksi, hingga serah terima. Melayani seluruh Indonesia.',
+            'title' => 'Green Deahan Sport - Jasa Pembuatan Lapangan Se-Indonesia',
+            'description' => 'Jasa pembuatan lapangan futsal, mini soccer, padel, dan badminton sejak 2010. Survey, desain, konstruksi, hingga serah terima. Melayani seluruh Indonesia.',
         ],
     ]))->name('home');
     Route::get('/v2', fn () => view('pages.home'))->name('home.v2');
@@ -69,8 +69,8 @@ $situsKorporat = function () {
     // Layanan (dropdown di menu).
     Route::get('/bangun-lapangan', fn () => Inertia::render('BangunLapangan', [
         'meta' => [
-            'title' => 'Jasa Bangun Lapangan Futsal, Mini Soccer, Padel & Badminton - Green Deahan Sport',
-            'description' => 'Jasa pembuatan lapangan futsal, mini soccer, padel, dan badminton sejak 2010. Survey, desain, perizinan, konstruksi hingga finishing. Konsultasi, survey & RAB gratis.',
+            'title' => 'Jasa Bangun Lapangan Futsal & Padel - Green Deahan Sport',
+            'description' => 'Jasa pembuatan lapangan futsal, mini soccer, padel, dan badminton sejak 2010. Survey, desain, perizinan, konstruksi, finishing. Konsultasi dan RAB gratis.',
         ],
     ]))->name('bangun-lapangan');
     Route::get('/perawatan', fn () => Inertia::render('Perawatan', [
@@ -81,8 +81,8 @@ $situsKorporat = function () {
     ]))->name('perawatan');
     Route::get('/upgrade-lapangan', fn () => Inertia::render('UpgradeLapangan', [
         'meta' => [
-            'title' => 'Upgrade Lapangan: Lampu LED, Atap, Jaring & Ganti Rumput - Green Deahan Sport',
-            'description' => 'Upgrade lapangan futsal, mini soccer, padel, dan badminton: lampu LED, atap dan kanopi, pagar dan jaring, ganti permukaan, hingga ubah ke olahraga lain. Untuk semua lapangan, pengecekan gratis.',
+            'title' => 'Upgrade Lapangan: Lampu, Atap, Jaring - Green Deahan Sport',
+            'description' => 'Upgrade lapangan futsal, mini soccer, padel, dan badminton: lampu LED, atap, jaring, ganti permukaan, hingga ubah olahraga. Untuk semua lapangan, cek gratis.',
         ],
     ]))->name('upgrade-lapangan');
     Route::get('/sistem-booking', SistemBookingController::class)->name('sistem-booking');
