@@ -33,6 +33,13 @@ export interface Statistik {
     }[];
     perangkat: { nama: string; jumlah: number }[];
     sumber: { nama: string; jumlah: number }[];
+    lokasi: {
+        indonesia: number;
+        luarNegeri: number;
+        tidakDiketahui: number;
+        provinsi: { nama: string; jumlah: number }[];
+        negara: { kode: string; nama: string; jumlah: number }[];
+    };
 }
 
 /** Superadmin design tokens (tailwind.config.js) */
@@ -102,6 +109,47 @@ function TooltipGrafik({ active, payload, label }: { active?: boolean; payload?:
                     {item.name}: <span className="font-bold text-ink">{angka(item.value)}</span>
                 </div>
             ))}
+        </div>
+    );
+}
+
+/** Indonesia vs abroad vs unknown, as one stacked bar plus a legend. */
+function RingkasanLokasi({ lokasi }: { lokasi: Statistik['lokasi'] }) {
+    const bagian = [
+        { nama: 'Indonesia', nilai: lokasi.indonesia, warna: WARNA.green },
+        { nama: 'Luar Indonesia', nilai: lokasi.luarNegeri, warna: WARNA.gold },
+        { nama: 'Tidak diketahui', nilai: lokasi.tidakDiketahui, warna: WARNA.sand },
+    ];
+    const total = bagian.reduce((jumlah, item) => jumlah + item.nilai, 0);
+
+    if (total === 0) {
+        return <p className="px-5 pb-5 pt-3 text-sm text-ink-soft">Belum ada data.</p>;
+    }
+
+    return (
+        <div className="px-5 pb-5 pt-4">
+            <div
+                className="flex h-3 overflow-hidden rounded-full bg-cream"
+                role="img"
+                aria-label={bagian.map((item) => `${item.nama} ${Math.round((item.nilai / total) * 100)}%`).join(', ')}
+            >
+                {bagian.map((item) => (item.nilai > 0 ? <div key={item.nama} style={{ width: `${(item.nilai / total) * 100}%`, backgroundColor: item.warna }} /> : null))}
+            </div>
+            <ul className="mt-4 space-y-2 text-sm">
+                {bagian.map((item) => (
+                    <li key={item.nama} className="flex items-center justify-between gap-2">
+                        <span className="inline-flex items-center gap-2 text-ink-mid">
+                            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.warna }} />
+                            {item.nama}
+                        </span>
+                        <span className="text-ink">
+                            <span className="font-bold">{angka(item.nilai)}</span>
+                            <span className="ml-1.5 text-xs text-ink-soft">{Math.round((item.nilai / total) * 100)}%</span>
+                        </span>
+                    </li>
+                ))}
+            </ul>
+            {lokasi.tidakDiketahui > 0 && <p className="mt-3 text-xs text-ink-soft">Termasuk kunjungan sebelum pencatatan lokasi aktif.</p>}
         </div>
     );
 }
@@ -285,6 +333,25 @@ export default function StatistikPengunjung({ data }: { data: Statistik }) {
                         />
                     </Kartu>
                 </div>
+            </div>
+
+            <h3 className="mb-3 mt-6 font-display text-base font-semibold text-ink">Lokasi pengunjung</h3>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <Kartu>
+                    <JudulKartu judul="Asal negara" keterangan="Pengunjung unik, dari lokasi IP lewat Cloudflare." />
+                    <RingkasanLokasi lokasi={data.lokasi} />
+                </Kartu>
+                <Kartu>
+                    <JudulKartu judul="Provinsi di Indonesia" keterangan="Perkiraan. Pengguna data seluler sering terbaca DKI Jakarta." />
+                    <DaftarBatang baris={data.lokasi.provinsi.map((item) => ({ nama: item.nama, nilai: item.jumlah }))} kosong="Belum ada data provinsi." />
+                </Kartu>
+                <Kartu>
+                    <JudulKartu judul="Negara lain" keterangan="Pengunjung dari luar Indonesia." />
+                    <DaftarBatang
+                        baris={data.lokasi.negara.map((item) => ({ nama: item.nama, nilai: item.jumlah, sub: item.kode }))}
+                        kosong="Belum ada pengunjung dari luar Indonesia."
+                    />
+                </Kartu>
             </div>
         </div>
     );

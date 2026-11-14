@@ -128,6 +128,85 @@ class StatistikPengunjungTest extends TestCase
                 ->has('statistikPengunjung.harian', 30));
     }
 
+    public function test_lokasi_dari_header_cloudflare_dicatat_tanpa_ip(): void
+    {
+        $this->withHeaders(['User-Agent' => self::UA_IPHONE, 'X-Forwarded-For' => '114.124.1.2', 'CF-IPCountry' => 'ID', 'CF-Region-Code' => 'jb'])
+            ->withServerVariables(['REMOTE_ADDR' => '162.158.10.20'])
+            ->get('http://greendeahan.com/kontak')
+            ->assertOk();
+
+        $kunjungan = KunjunganHalaman::sole();
+        $this->assertSame(['ID', 'JB'], [$kunjungan->negara, $kunjungan->wilayah]);
+        $this->assertStringNotContainsString('114.124.1.2', json_encode($kunjungan->toArray()));
+    }
+
+    public function test_header_lokasi_diabaikan_kalau_request_tidak_lewat_cloudflare(): void
+    {
+        $this->withHeaders(['User-Agent' => self::UA_DESKTOP, 'CF-IPCountry' => 'US', 'CF-Region-Code' => 'CA'])
+            ->withServerVariables(['REMOTE_ADDR' => '203.0.113.7'])
+            ->get('http://greendeahan.com/kontak');
+
+        $this->assertSame([null, null], [KunjunganHalaman::sole()->negara, KunjunganHalaman::sole()->wilayah]);
+    }
+
+    public function test_kode_negara_tidak_dikenal_dan_tor_disimpan_sebagai_tidak_diketahui(): void
+    {
+        foreach (['XX', 'T1', 'indonesia'] as $kode) {
+            $this->withHeaders(['User-Agent' => self::UA_DESKTOP, 'CF-IPCountry' => $kode, 'CF-Region-Code' => 'JB'])
+                ->withServerVariables(['REMOTE_ADDR' => '172.64.1.1'])
+                ->get('http://greendeahan.com/kontak');
+        }
+
+        $this->assertSame(3, KunjunganHalaman::whereNull('negara')->whereNull('wilayah')->count());
+    }
+
+    public function test_ip_asli_hanya_dibaca_dari_cloudflare_untuk_menghitung_pengunjung_unik(): void
+    {
+        foreach (['114.124.1.2', '36.68.5.6'] as $ipPengunjung) {
+            $this->withHeaders(['User-Agent' => self::UA_DESKTOP, 'X-Forwarded-For' => $ipPengunjung])
+                ->withServerVariables(['REMOTE_ADDR' => '104.16.0.1'])
+                ->get('http://greendeahan.com/kontak');
+        }
+        $this->assertSame(2, KunjunganHalaman::distinct()->count('pengunjung_hash'));
+
+        KunjunganHalaman::query()->delete();
+        foreach (['114.124.1.2', '36.68.5.6'] as $ipPalsu) {
+            $this->withHeaders(['User-Agent' => self::UA_DESKTOP, 'X-Forwarded-For' => $ipPalsu])
+                ->withServerVariables(['REMOTE_ADDR' => '203.0.113.7'])
+                ->get('http://greendeahan.com/kontak');
+        }
+        $this->assertSame(1, KunjunganHalaman::distinct()->count('pengunjung_hash'));
+    }
+
+    public function test_dashboard_meringkas_lokasi_pengunjung(): void
+    {
+        $hariIni = now(KunjunganHalaman::ZONA_WAKTU)->toDateString();
+        $buat = fn (string $hash, ?string $negara, ?string $wilayah, int $jumlah = 1) => KunjunganHalaman::factory()->count($jumlah)->create([
+            'tanggal' => $hariIni, 'pengunjung_hash' => str_repeat($hash, 64), 'negara' => $negara, 'wilayah' => $wilayah,
+        ]);
+        $buat('a', 'ID', 'JK', 3);
+        $buat('b', 'ID', 'JK');
+        $buat('c', 'ID', 'JB');
+        $buat('d', 'ID', null);
+        $buat('e', 'MY', 'SGR');
+        $buat('f', null, null);
+
+        $this->actingAs($this->superadmin())
+            ->get(route('superadmin.dashboard', ['rentang' => 7]))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('statistikPengunjung.lokasi.indonesia', 4)
+                ->where('statistikPengunjung.lokasi.luarNegeri', 1)
+                ->where('statistikPengunjung.lokasi.tidakDiketahui', 1)
+                ->where('statistikPengunjung.lokasi.provinsi', [
+                    ['nama' => 'DKI Jakarta', 'jumlah' => 2],
+                    ['nama' => 'Jawa Barat', 'jumlah' => 1],
+                    ['nama' => 'Provinsi tidak terdeteksi', 'jumlah' => 1],
+                ])
+                ->where('statistikPengunjung.lokasi.negara.0.kode', 'MY')
+                ->where('statistikPengunjung.lokasi.negara.0.jumlah', 1)
+            );
+    }
+
     public function test_dashboard_tetap_hanya_untuk_superadmin(): void
     {
         $this->actingAs(User::factory()->create())->get(route('superadmin.dashboard'))->assertForbidden();

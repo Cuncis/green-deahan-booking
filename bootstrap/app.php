@@ -4,6 +4,7 @@ use App\Http\Middleware\CheckSuperadmin;
 use App\Http\Middleware\CheckTenantStaf;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\IdentifikasiTenant;
+use App\Services\CloudflareService;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Situs di-proxy Cloudflare: percayai X-Forwarded-* hanya dari IP
+        // Cloudflare, supaya $request->ip() adalah IP pengunjung asli.
+        $middleware->trustProxies(at: CloudflareService::RENTANG_IP);
+
         $middleware->web(append: [
             IdentifikasiTenant::class,
             HandleInertiaRequests::class,

@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
     'pengunjung_hash',
     'perangkat',
     'sumber_host',
+    'negara',
+    'wilayah',
 ])]
 class KunjunganHalaman extends Model
 {

@@ -23,6 +23,8 @@ class KunjunganHalamanFactory extends Factory
             'pengunjung_hash' => hash('sha256', fake()->uuid()),
             'perangkat' => fake()->randomElement(['mobile', 'desktop', 'tablet']),
             'sumber_host' => fake()->optional()->randomElement(['www.google.com', 'l.instagram.com', 'wa.me']),
+            'negara' => null,
+            'wilayah' => null,
         ];
     }
 }

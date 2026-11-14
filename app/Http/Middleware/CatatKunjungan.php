@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\KunjunganHalaman;
+use App\Services\CloudflareService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -16,9 +17,12 @@ use Throwable;
  * selain 200 HTML, bot/crawler, prefetch browser, dan user yang sedang
  * login (tim internal). IP tidak disimpan: pengunjung dikenali lewat
  * hash IP + user agent + tanggal + APP_KEY, yang berganti tiap hari.
+ * Lokasi hanya negara dan provinsi dari header Cloudflare (CloudflareService).
  */
 class CatatKunjungan
 {
+    public function __construct(private CloudflareService $cloudflare) {}
+
     private const POLA_BOT = '/bot|crawl|spider|slurp|facebookexternalhit|whatsapp|telegrambot|preview|curl|wget|python|headless|lighthouse|pingdom|uptime/i';
 
     public function handle(Request $request, Closure $next): Response
@@ -46,6 +50,7 @@ class CatatKunjungan
                 ])),
                 'perangkat' => $this->perangkat((string) $request->userAgent()),
                 'sumber_host' => $this->sumberHost($request),
+                ...$this->cloudflare->lokasi($request),
             ]);
         } catch (Throwable $exception) {
             Log::warning('Gagal mencatat kunjungan halaman', ['path' => $request->path(), 'error' => $exception->getMessage()]);

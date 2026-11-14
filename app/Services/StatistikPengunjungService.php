@@ -37,6 +37,52 @@ class StatistikPengunjungService
     ];
 
     /**
+     * Kode provinsi ISO 3166-2:ID (tanpa "ID-"), dari header cf-region-code.
+     *
+     * @var array<string, string>
+     */
+    private const NAMA_PROVINSI = [
+        'AC' => 'Aceh',
+        'BA' => 'Bali',
+        'BB' => 'Kepulauan Bangka Belitung',
+        'BE' => 'Bengkulu',
+        'BT' => 'Banten',
+        'GO' => 'Gorontalo',
+        'JA' => 'Jambi',
+        'JB' => 'Jawa Barat',
+        'JI' => 'Jawa Timur',
+        'JK' => 'DKI Jakarta',
+        'JT' => 'Jawa Tengah',
+        'KB' => 'Kalimantan Barat',
+        'KI' => 'Kalimantan Timur',
+        'KR' => 'Kepulauan Riau',
+        'KS' => 'Kalimantan Selatan',
+        'KT' => 'Kalimantan Tengah',
+        'KU' => 'Kalimantan Utara',
+        'LA' => 'Lampung',
+        'MA' => 'Maluku',
+        'MU' => 'Maluku Utara',
+        'NB' => 'Nusa Tenggara Barat',
+        'NT' => 'Nusa Tenggara Timur',
+        'PA' => 'Papua',
+        'PB' => 'Papua Barat',
+        'PD' => 'Papua Barat Daya',
+        'PE' => 'Papua Pegunungan',
+        'PS' => 'Papua Selatan',
+        'PT' => 'Papua Tengah',
+        'RI' => 'Riau',
+        'SA' => 'Sulawesi Utara',
+        'SB' => 'Sumatera Barat',
+        'SG' => 'Sulawesi Tenggara',
+        'SN' => 'Sulawesi Selatan',
+        'SR' => 'Sulawesi Barat',
+        'SS' => 'Sumatera Selatan',
+        'ST' => 'Sulawesi Tengah',
+        'SU' => 'Sumatera Utara',
+        'YO' => 'DI Yogyakarta',
+    ];
+
+    /**
      * Domain referer (persis, atau subdomain-nya) => nama sumber.
      *
      * @var array<string, string>
@@ -74,7 +120,8 @@ class StatistikPengunjungService
      *     harian: array<int, array{tanggal: string, label: string, pengunjung: int, tampilan: int}>,
      *     halamanTeratas: array<int, array{path: string, nama: string, tampilan: int, pengunjung: int}>,
      *     perangkat: array<int, array{nama: string, jumlah: int}>,
-     *     sumber: array<int, array{nama: string, jumlah: int}>
+     *     sumber: array<int, array{nama: string, jumlah: int}>,
+     *     lokasi: array{indonesia: int, luarNegeri: int, tidakDiketahui: int, provinsi: array<int, array{nama: string, jumlah: int}>, negara: array<int, array{kode: string, nama: string, jumlah: int}>}
      * }
      */
     public function ringkasan(int $rentangHari): array
@@ -112,6 +159,7 @@ class StatistikPengunjungService
                 ->map(fn ($row) => ['nama' => ucfirst((string) $row->nama), 'jumlah' => (int) $row->jumlah])
                 ->all(),
             'sumber' => $this->sumber($periodeIni->clone()),
+            'lokasi' => $this->lokasi($periodeIni->clone()),
         ];
     }
 
@@ -250,6 +298,68 @@ class StatistikPengunjungService
         }
 
         return preg_replace('/^www\./', '', $host) ?? $host;
+    }
+
+    /**
+     * Pengunjung unik (hash harian) per negara dan per provinsi. Lokasi dari
+     * header Cloudflare berdasarkan IP, jadi provinsi hanya perkiraan:
+     * pengguna data seluler sering terbaca DKI Jakarta.
+     *
+     * @return array{indonesia: int, luarNegeri: int, tidakDiketahui: int, provinsi: array<int, array{nama: string, jumlah: int}>, negara: array<int, array{kode: string, nama: string, jumlah: int}>}
+     */
+    private function lokasi(Builder $query): array
+    {
+        $perNegara = $query->clone()
+            ->select('negara', DB::raw('COUNT(DISTINCT pengunjung_hash) as jumlah'))
+            ->groupBy('negara')
+            ->get();
+
+        $indonesia = (int) ($perNegara->firstWhere('negara', 'ID')->jumlah ?? 0);
+        $tidakDiketahui = (int) ($perNegara->firstWhere('negara', null)->jumlah ?? 0);
+
+        $provinsi = $query->clone()
+            ->where('negara', 'ID')
+            ->select('wilayah', DB::raw('COUNT(DISTINCT pengunjung_hash) as jumlah'))
+            ->groupBy('wilayah')
+            ->orderByDesc('jumlah')
+            ->get()
+            ->map(fn ($row) => [
+                'nama' => $row->wilayah === null ? 'Provinsi tidak terdeteksi' : (self::NAMA_PROVINSI[$row->wilayah] ?? $row->wilayah),
+                'jumlah' => (int) $row->jumlah,
+            ])
+            ->sortBy(fn (array $baris) => $baris['nama'] === 'Provinsi tidak terdeteksi' ? 1 : 0, SORT_REGULAR)
+            ->values()
+            ->take(10)
+            ->all();
+
+        $negara = $perNegara
+            ->filter(fn ($row) => $row->negara !== null && $row->negara !== 'ID')
+            ->sortByDesc('jumlah')
+            ->map(fn ($row) => ['kode' => $row->negara, 'nama' => $this->namaNegara($row->negara), 'jumlah' => (int) $row->jumlah])
+            ->values()
+            ->take(6)
+            ->all();
+
+        return [
+            'indonesia' => $indonesia,
+            'luarNegeri' => (int) $perNegara->filter(fn ($row) => $row->negara !== null && $row->negara !== 'ID')->sum('jumlah'),
+            'tidakDiketahui' => $tidakDiketahui,
+            'provinsi' => $provinsi,
+            'negara' => $negara,
+        ];
+    }
+
+    private function namaNegara(string $kode): string
+    {
+        if (class_exists(\Locale::class)) {
+            $nama = \Locale::getDisplayRegion('und-'.$kode, 'id');
+
+            if (is_string($nama) && $nama !== '' && $nama !== $kode) {
+                return $nama;
+            }
+        }
+
+        return $kode;
     }
 
     private function persenPerubahan(int $sekarang, int $sebelumnya): ?float
