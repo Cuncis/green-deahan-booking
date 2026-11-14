@@ -6,6 +6,7 @@ import ScrollToTop from '../components/fuzio/elements/ScrollToTop';
 import CtaSec from '../components/fuzio/home/CtaSec';
 import KalkulatorSec from '../components/fuzio/home/KalkulatorSec';
 import ProductsSec from '../components/fuzio/home/ProductsSec';
+import BandingLantaiSec from '../components/fuzio/layanan/BandingLantaiSec';
 import BangunFaqSec from '../components/fuzio/layanan/BangunFaqSec';
 import BangunIntro from '../components/fuzio/layanan/BangunIntro';
 import JenisLapanganSec from '../components/fuzio/layanan/JenisLapanganSec';
@@ -13,9 +14,8 @@ import ProsesBangunSec from '../components/fuzio/layanan/ProsesBangunSec';
 import { GD_CDN } from '../data/greendeahan';
 
 /**
- * Layanan > Bangun Lapangan. Built from Fuzio sections already on the
- * site (about intro, feature cards, process timeline, projects, ROI
- * calculator, FAQ, CTA) with copy taken from existing pages.
+ * Layanan > Bangun Lapangan. Intro, 4 court types (no prices), 5-step
+ * process, floor comparison, then projects, ROI calculator, FAQ and CTA.
  */
 export default function BangunLapangan() {
     return (
@@ -25,6 +25,7 @@ export default function BangunLapangan() {
             <BangunIntro />
             <JenisLapanganSec />
             <ProsesBangunSec />
+            <BandingLantaiSec />
             <ProductsSec />
             <KalkulatorSec />
             <BangunFaqSec />

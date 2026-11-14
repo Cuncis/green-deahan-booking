@@ -43,7 +43,7 @@ export default function FeatureSec() {
                                     <div className="hero-actions">
                                         <a href={waLink()} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-whatsapp">
                                             <WhatsAppIcon className="me-2" />
-                                            Konsultasi Gratis
+                                            Minta Penawaran
                                         </a>
                                         <a href="#kalkulator" className="btn gd-btn-outline">
                                             <i className="feather-icon icon-bar-chart-2 me-2" aria-hidden="true"></i>

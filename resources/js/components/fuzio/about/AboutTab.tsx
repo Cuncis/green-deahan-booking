@@ -33,8 +33,8 @@ const tabs: Tab[] = [
         visual: <CompareTable />,
         title: 'Kenapa Pilih Green Deahan?',
         text: 'Survey, desain, perizinan, konstruksi, hingga finishing, semua kami urus. Anda tidak perlu pusing koordinasi dengan banyak kontraktor.',
-        points: ['Pengalaman 16+ tahun, sejak 2010', '100+ proyek selesai di 15+ kota', 'Konsultasi, survey lokasi & RAB 100% gratis'],
-        waMessage: 'Halo Green Deahan, saya ingin konsultasi gratis untuk pembangunan lapangan.',
+        points: ['Pengalaman 16+ tahun, sejak 2010', '100+ proyek selesai di 15+ kota', 'Survey lokasi dan RAB detail sebelum mulai'],
+        waMessage: 'Halo Green Deahan, saya ingin minta penawaran pembangunan lapangan.',
     },
     {
         id: 'cakupan-wilayah',
@@ -89,7 +89,7 @@ export default function AboutTab() {
                                                 </ul>
                                                 <a href={waLink(tab.waMessage)} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-whatsapp mt-4">
                                                     <WhatsAppIcon className="me-2" />
-                                                    Konsultasi Gratis
+                                                    Minta Penawaran
                                                 </a>
                                             </div>
                                         </div>

@@ -134,7 +134,7 @@ export default function Header({ variant = 'home' }: HeaderProps) {
                                 <p className="d-none d-sm-block">
                                     <i className="feather-icon icon-phone me-2" aria-hidden="true"></i> <a href={`tel:${GD_PHONE_TEL}`}>{GD_PHONE_DISPLAY}</a>
                                 </p>
-                                <p className="d-none d-lg-block">Konsultasi Gratis &middot; Garansi Resmi &middot; Melayani Seluruh Indonesia</p>
+                                <p className="d-none d-lg-block">Minta Penawaran &middot; Garansi Resmi &middot; Melayani Seluruh Indonesia</p>
                                 <div className="top-meta d-flex align-items-center justify-content-between">
                                     <p>
                                         <a href={waLink()} target="_blank" rel="noopener noreferrer">

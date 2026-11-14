@@ -20,7 +20,7 @@ export const kalkulatorCourtOptions = [1, 2, 3, 4, 5, 6];
 export const KALKULATOR_MAX_COURTS = 20;
 
 export const kalkulatorDefaults = {
-  type: 'padel',
+  type: 'futsal',
   courts: 2,
   hours: 8, // jam terisi per hari, slider 1–17
   ops: 30, // biaya operasional, % of revenue, slider 10–60

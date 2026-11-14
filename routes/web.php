@@ -70,7 +70,7 @@ $situsKorporat = function () {
     Route::get('/bangun-lapangan', fn () => Inertia::render('BangunLapangan', [
         'meta' => [
             'title' => 'Jasa Bangun Lapangan Futsal & Padel - Green Deahan Sport',
-            'description' => 'Jasa pembuatan lapangan futsal, mini soccer, padel, dan badminton sejak 2010. Survey, desain, perizinan, konstruksi, finishing. Konsultasi dan RAB gratis.',
+            'description' => 'Jasa pembuatan lapangan futsal, mini soccer, padel, dan badminton sejak 2010. Survey, desain, perizinan, konstruksi, sampai serah terima. Minta penawaran.',
         ],
     ]))->name('bangun-lapangan');
     Route::get('/perawatan', fn () => Inertia::render('Perawatan', [
@@ -97,7 +97,7 @@ $situsKorporat = function () {
     Route::get('/kontak', fn () => Inertia::render('Kontak', [
         'meta' => [
             'title' => 'Kontak Kami - Green Deahan Sport',
-            'description' => 'Hubungi Green Deahan Sport untuk konsultasi gratis pembuatan lapangan futsal, mini soccer, padel, dan badminton. Tim kami respon dalam 1 jam.',
+            'description' => 'Hubungi Green Deahan Sport untuk minta penawaran pembuatan lapangan futsal, mini soccer, padel, dan badminton. Tim kami respon dalam 1 jam.',
         ],
     ]))->name('kontak');
     // Halaman Kontak Blade lama, noindex (lihat pages/kontak.blade.php).

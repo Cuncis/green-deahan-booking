@@ -186,7 +186,7 @@
                                 <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-stone-600">Saya tertarik untuk (boleh pilih lebih dari satu)</label>
                                 <div class="flex flex-wrap gap-2">
                                     @foreach ([
-                                        'konsultasi' => 'Konsultasi Gratis',
+                                        'konsultasi' => 'Minta Penawaran',
                                         'survey' => 'Survey Lokasi',
                                         'rab' => 'Estimasi RAB',
                                         'renovasi' => 'Renovasi Lapangan',
@@ -292,7 +292,7 @@
                         </h3>
                         <div class="space-y-2">
                             @foreach ([
-                                ['q' => 'Apakah konsultasi benar-benar gratis?', 'a' => 'Ya, 100% gratis tanpa syarat. Kami tidak memungut biaya apapun untuk konsultasi, survey lokasi, maupun pembuatan RAB estimasi.'],
+                                ['q' => 'Bagaimana cara minta penawaran?', 'a' => 'Ceritakan lokasi dan budget Anda lewat WhatsApp. Tim kami survey lokasi, lalu mengirim RAB detail tanpa biaya tersembunyi.'],
                                 ['q' => 'Berapa lama proses dari konsultasi sampai mulai?', 'a' => 'Setelah konsultasi awal, biasanya 3 sampai 7 hari untuk survey dan desain, lalu 3 sampai 5 hari untuk penawaran harga. Setelah deal, konstruksi bisa dimulai dalam 1 sampai 2 minggu.'],
                                 ['q' => 'Apakah bisa minta contoh portofolio dulu?', 'a' => 'Tentu! Kunjungi halaman Galeri kami atau minta tim kami kirim foto dan video proyek yang sesuai kebutuhan Anda via WhatsApp.'],
                             ] as $i => $faq)
@@ -340,7 +340,7 @@
                         this.loading = true;
 
                         const interestLabels = {
-                            konsultasi: 'Konsultasi Gratis',
+                            konsultasi: 'Minta Penawaran',
                             survey: 'Survey Lokasi',
                             rab: 'Estimasi RAB',
                             renovasi: 'Renovasi Lapangan',

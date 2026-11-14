@@ -96,7 +96,7 @@
                             rel="noopener noreferrer"
                             class="flex items-center gap-2 rounded-xl bg-brand px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-dark/20 transition-colors hover:bg-brand-dark"
                         >
-                            Konsultasi Gratis Sekarang
+                            Minta Penawaran Sekarang
                         </a>
                         <a
                             href="/galeri"
@@ -122,7 +122,7 @@
         <div class="ticker-wrap border-y border-brand-dark bg-brand py-3">
             <div class="ticker-inner">
                 @for ($i = 0; $i < 2; $i++)
-                    @foreach (['FUTSAL', 'MINI SOCCER', 'PADEL', 'BADMINTON', 'GARANSI RESMI', 'SE-INDONESIA', 'KONSULTASI GRATIS', 'SEJAK 2010'] as $kata)
+                    @foreach (['FUTSAL', 'MINI SOCCER', 'PADEL', 'BADMINTON', 'GARANSI RESMI', 'SE-INDONESIA', 'MINTA PENAWARAN', 'SEJAK 2010'] as $kata)
                         <span class="text-sm font-bold tracking-widest text-white">{{ $kata }}</span>
                         <span class="text-sm font-bold tracking-widest text-brand-300">&bull;</span>
                     @endforeach
@@ -214,7 +214,7 @@
 
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                     @foreach ([
-                        ['no' => '01', 'judul' => 'Konsultasi Gratis', 'deskripsi' => 'Ceritakan kebutuhan, lokasi, dan budget. Tim kami respon dalam 1 jam.'],
+                        ['no' => '01', 'judul' => 'Konsultasi', 'deskripsi' => 'Ceritakan kebutuhan, lokasi, dan budget. Tim kami respon dalam 1 jam.'],
                         ['no' => '02', 'judul' => 'Survey & Desain', 'deskripsi' => 'Tim kami datang ke lokasi, ukur lahan, dan buat desain lapangan sesuai kebutuhan.'],
                         ['no' => '03', 'judul' => 'Penawaran Harga', 'deskripsi' => 'RAB & penawaran harga detail dikirim. Transparan, tanpa biaya tersembunyi.'],
                         ['no' => '04', 'judul' => 'Konstruksi', 'deskripsi' => 'Pengerjaan oleh tim ahli, tepat waktu. Anda bisa pantau progress setiap hari.'],
@@ -499,7 +499,7 @@
                     Wujudkan Lapangan<br>Impian Anda Sekarang!
                 </h2>
                 <p class="mx-auto mb-3 max-w-xl text-base leading-relaxed text-brand-200">
-                    Konsultasi <strong class="text-white">GRATIS</strong>, survey lokasi, desain profesional, konstruksi berkualitas.
+                    Survey lokasi, desain profesional, konstruksi berkualitas.
                     Garansi resmi &amp; pelunasan setelah lapangan 100% selesai.
                 </p>
                 <div class="mt-6 flex flex-col justify-center gap-4 sm:flex-row">
@@ -519,7 +519,7 @@
                         +62 813-5757-0064
                     </a>
                 </div>
-                <p class="mt-5 text-xs text-brand-400">*Konsultasi 100% gratis, tidak ada kewajiban apapun</p>
+                <p class="mt-5 text-xs text-brand-400">*Harga pasti disusun dalam RAB setelah survey lokasi</p>
             </div>
         </section>
 

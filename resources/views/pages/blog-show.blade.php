@@ -71,7 +71,7 @@
                     class="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-dark"
                 >
                     <x-icon name="whatsapp-logo" size="16" class="text-white" />
-                    Konsultasi Gratis via WhatsApp
+                    Minta Penawaran via WhatsApp
                 </a>
             </div>
 

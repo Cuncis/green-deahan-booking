@@ -50,7 +50,7 @@
             class="hidden items-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-dark md:flex"
         >
             <x-icon name="whatsapp-logo" size="15" class="text-white" />
-            Konsultasi Gratis
+            Minta Penawaran
         </a>
 
         <button
@@ -75,7 +75,7 @@
             <a href="{{ $link['href'] }}" class="hover:text-brand" x-on:click="mobileOpen = false">{{ $link['label'] }}</a>
         @endforeach
         <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-brand py-2.5 text-center text-white">
-            Konsultasi Gratis
+            Minta Penawaran
         </a>
     </div>
 </nav>

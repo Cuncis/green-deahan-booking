@@ -61,7 +61,7 @@ export default function GaleriSec({ kategori, items }: { kategori: GaleriKategor
                     <p>Tertarik membangun lapangan seperti ini?</p>
                     <a href={waLink('Halo Green Deahan, saya lihat galeri proyek dan ingin konsultasi pembuatan lapangan.')} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-whatsapp">
                         <WhatsAppIcon className="me-2" />
-                        Konsultasi Gratis
+                        Minta Penawaran
                     </a>
                 </div>
             </div>

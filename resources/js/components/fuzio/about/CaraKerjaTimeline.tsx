@@ -6,7 +6,7 @@
 // on a card in the column to the right, so nothing covers the road.
 // Styles: resources/fuzio/css/brand-greendeahan.css section 18.
 const steps = [
-   { judul: 'Konsultasi Gratis', teks: 'Ceritakan kebutuhan, lokasi, dan budget. Tim kami respon dalam 1 jam.' },
+   { judul: 'Konsultasi', teks: 'Ceritakan kebutuhan, lokasi, dan budget. Tim kami respon dalam 1 jam.' },
    { judul: 'Survey & Desain', teks: 'Tim kami datang ke lokasi, ukur lahan, dan buat desain lapangan.' },
    { judul: 'Penawaran Harga', teks: 'RAB detail dikirim. Transparan, tanpa biaya tersembunyi.' },
    { judul: 'Konstruksi', teks: 'Dikerjakan tim ahli, tepat waktu. Progress bisa dipantau setiap hari.' },

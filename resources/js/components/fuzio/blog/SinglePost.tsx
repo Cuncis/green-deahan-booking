@@ -75,7 +75,7 @@ export default function SinglePost({ artikel, terkait }: SinglePostProps) {
                     <p>Tertarik konsultasi soal proyek lapangan Anda?</p>
                     <a href={waLink(`Halo, saya baca artikel ${artikel.judul} dan ingin konsultasi`)} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-whatsapp">
                         <WhatsAppIcon className="me-2" />
-                        Konsultasi Gratis via WhatsApp
+                        Minta Penawaran via WhatsApp
                     </a>
                 </div>
             </article>

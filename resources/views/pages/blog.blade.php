@@ -146,7 +146,7 @@
             <div class="mx-auto flex max-w-4xl flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
                 <div>
                     <h2 class="font-marketing-display mb-2 text-2xl font-black text-white md:text-3xl">Siap Membangun Lapangan Impian?</h2>
-                    <p class="text-sm text-brand-200">Konsultasi gratis dengan tim ahli kami, respons dalam 1 jam!</p>
+                    <p class="text-sm text-brand-200">Minta penawaran ke tim ahli kami, respons dalam 1 jam!</p>
                 </div>
                 <a
                     href="https://wa.me/6281357570064?text={{ urlencode('Halo, saya ingin konsultasi lapangan setelah baca blog') }}"
@@ -155,7 +155,7 @@
                     class="inline-flex flex-shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-[#f5f5f5] px-7 py-3.5 text-sm font-bold text-brand shadow-lg transition-colors hover:bg-brand-50"
                 >
                     <x-icon name="whatsapp-logo" size="16" class="text-brand" />
-                    Konsultasi Gratis Sekarang
+                    Minta Penawaran Sekarang
                 </a>
             </div>
         </section>

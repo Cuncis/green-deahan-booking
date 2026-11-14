@@ -25,7 +25,7 @@ export const contactFormBudgets = [
 export const contactFormText = {
     title: 'Hubungi Green Deahan, Kami Siap Membantu!',
     description:
-        'Punya pertanyaan soal lapangan? Ingin estimasi biaya? Atau siap mulai proyek? Isi formulir ini dan pesan Anda langsung terkirim ke WhatsApp tim kami. Tim kami online, respon dalam 1 jam. Konsultasi, survey lokasi, dan RAB estimasi 100% gratis.',
+        'Punya pertanyaan soal lapangan? Ingin estimasi biaya? Atau siap mulai proyek? Isi formulir ini dan pesan Anda langsung terkirim ke WhatsApp tim kami. Tim kami online, respon dalam 1 jam.',
 };
 
 export const contactFormSuccess = {
@@ -106,9 +106,9 @@ export const contactCards: ContactCard[] = [
 /** Kontak FAQ, same questions as the "Pertanyaan Cepat" box on the Blade contact page (/v2/kontak). */
 export const kontakFaqs = [
     {
-        id: 'gratis',
-        question: 'Apakah konsultasi benar-benar gratis?',
-        answer: 'Ya, 100% gratis tanpa syarat. Kami tidak memungut biaya apapun untuk konsultasi, survey lokasi, maupun pembuatan RAB estimasi.',
+        id: 'penawaran',
+        question: 'Bagaimana cara minta penawaran?',
+        answer: 'Ceritakan lokasi dan budget Anda lewat WhatsApp. Tim kami survey lokasi, lalu mengirim RAB detail tanpa biaya tersembunyi.',
     },
     {
         id: 'lama-proses',
@@ -123,12 +123,12 @@ export const kontakFaqs = [
     {
         id: 'biaya',
         question: 'Berapa biaya membuat satu lapangan?',
-        answer: 'Biayanya tergantung jenis lapangan, ukuran lahan, dan bahan yang dipilih. Setelah tim kami melihat lokasi, kami buatkan rincian biaya (RAB) secara gratis. Jadi Anda tahu semua biayanya sebelum mulai, tanpa biaya tersembunyi.',
+        answer: 'Biayanya tergantung jenis lapangan, ukuran lahan, dan bahan yang dipilih. Setelah tim kami melihat lokasi, kami buatkan rincian biaya (RAB). Jadi Anda tahu semua biayanya sebelum mulai, tanpa biaya tersembunyi.',
     },
     {
         id: 'luar-kota',
-        question: 'Apakah bisa membangun di luar Surabaya?',
-        answer: 'Bisa. Kami melayani seluruh Indonesia dan sudah membangun lapangan di lebih dari 15 kota. Tim kami yang datang ke lokasi Anda.',
+        question: 'Apakah bisa membangun di luar Jawa?',
+        answer: 'Bisa. Kami melayani seluruh Indonesia, termasuk di luar Pulau Jawa, dan sudah membangun lapangan di lebih dari 15 kota. Tim kami yang datang ke lokasi Anda.',
     },
     {
         id: 'pembayaran',

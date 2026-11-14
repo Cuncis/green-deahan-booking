@@ -1014,3 +1014,173 @@ header.header {
   color: #004d00;
   font-size: 15px;
 }
+
+/* /bangun-lapangan: spec list and build time on each court card, floor comparison table */
+.gd-poin-lapangan {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  text-align: left;
+}
+.gd-poin-lapangan li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 6px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.gd-poin-lapangan li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #006400;
+}
+.gd-durasi-lapangan {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #e8f2e8;
+  color: #004d00;
+  font-size: 14px;
+  font-weight: 600;
+}
+.gd-banding-lantai {
+  max-width: 860px;
+  margin: 0 auto;
+  background: #fafafa;
+  border: 1px solid #e7e5e4;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 77, 0, 0.1);
+}
+.gd-banding-tabel {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.gd-banding-tabel thead th {
+  padding: 22px 12px;
+  text-align: center;
+  font-family: "Teko", sans-serif;
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #f5f5f5;
+}
+.gd-banding-tabel thead th:first-child {
+  width: 34%;
+  border-bottom: 1px solid #e7e5e4;
+}
+.gd-banding-tabel thead th.kolom-interlock {
+  background: #004d00;
+}
+.gd-banding-tabel thead th.kolom-rumput {
+  background: #006400;
+}
+.gd-banding-tabel tbody tr {
+  background: #fafafa;
+  transition: background-color 0.2s;
+}
+.gd-banding-tabel tbody tr:nth-child(even) {
+  background: #f5f5f5;
+}
+.gd-banding-tabel tbody tr:hover {
+  background: #eaf3ea;
+}
+.gd-banding-tabel tbody th,
+.gd-banding-tabel tbody td {
+  padding: 16px 12px;
+  border-top: 1px solid #e7e5e4;
+  vertical-align: middle;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.gd-banding-tabel tbody th {
+  text-align: left;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 700;
+  color: #1b1b1b;
+}
+.gd-banding-tabel tbody th .ikon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-right: 10px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: #e8f2e8;
+  color: #006400;
+}
+.gd-banding-tabel tbody td {
+  text-align: center;
+  color: #3f3f3f;
+}
+.gd-banding-tabel tbody td:last-child {
+  font-weight: 600;
+  color: #004d00;
+}
+@media (max-width: 575.98px) {
+  .gd-banding-tabel thead th {
+    padding: 16px 6px;
+    font-size: 20px;
+  }
+  .gd-banding-tabel thead th:first-child {
+    width: 28%;
+  }
+  .gd-banding-tabel tbody th,
+  .gd-banding-tabel tbody td {
+    padding: 12px 6px;
+    font-size: 13.5px;
+  }
+  .gd-banding-tabel tbody th {
+    padding-left: 8px;
+  }
+  .gd-banding-tabel tbody th .ikon {
+    display: flex;
+    margin: 0 0 6px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Court cards on desktop hover: the card turns green and the template makes
+   h3, p and links white. Our extra elements (spec list, build time chip,
+   "Untungnya" box) need their own hover colours so they stay readable. */
+.feature-sec .feature-entry:hover .gd-poin-lapangan li {
+  color: #fff;
+}
+.feature-sec .feature-entry:hover .gd-poin-lapangan li::before {
+  background: #fff;
+}
+.feature-sec .feature-entry:hover .gd-durasi-lapangan,
+.feature-sec .feature-entry:hover .gd-manfaat-upgrade {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+.feature-sec .feature-entry .gd-poin-lapangan li,
+.feature-sec .feature-entry .gd-durasi-lapangan,
+.feature-sec .feature-entry .gd-manfaat-upgrade {
+  transition: color 0.3s, background-color 0.3s;
+}
+
+/* Phones: a tap counts as hover but the card stays light, so keep dark text. */
+@media (max-width: 767.98px) {
+  .feature-sec .feature-entry:hover .gd-poin-lapangan li {
+    color: var(--body-color);
+  }
+  .feature-sec .feature-entry:hover .gd-poin-lapangan li::before {
+    background: #006400;
+  }
+  .feature-sec .feature-entry:hover .gd-durasi-lapangan,
+  .feature-sec .feature-entry:hover .gd-manfaat-upgrade {
+    background: #e8f2e8;
+    color: #004d00;
+  }
+}
