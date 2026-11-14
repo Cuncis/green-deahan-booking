@@ -10,14 +10,15 @@ use Illuminate\Http\Response;
  * sengaja tidak dimasukkan, lihat juga meta noindex di
  * resources/views/pages/home.blade.php. Host diambil dari request, jadi
  * www.greendeahan.com menghasilkan URL www dan greendeahan.com menghasilkan
- * URL tanpa www.
+ * URL tanpa www. /sistem-booking dan /daftar hanya masuk selama SISTEM_BOOKING_PUBLIK
+ * aktif (config/situs.php); halaman toko belum dimasukkan.
  */
 class SitemapController extends Controller
 {
     /**
      * @var array<int, string>
      */
-    private const HALAMAN_STATIS = ['/', '/tentang-kami', '/bangun-lapangan', '/perawatan', '/sistem-booking', '/galeri', '/blog', '/kontak', '/harga', '/daftar'];
+    private const HALAMAN_STATIS = ['/', '/tentang-kami', '/bangun-lapangan', '/perawatan', '/upgrade-lapangan', '/galeri', '/blog', '/kontak'];
 
     public function __invoke(): Response
     {
@@ -26,7 +27,9 @@ class SitemapController extends Controller
             ->get(['slug', 'updated_at']);
 
         $xml = view('sitemap', [
-            'halamanStatis' => collect(self::HALAMAN_STATIS)->map(fn (string $path) => url($path)),
+            'halamanStatis' => collect(self::HALAMAN_STATIS)
+                ->when(config('situs.sistem_booking_publik'), fn ($halaman) => $halaman->push('/sistem-booking', '/daftar'))
+                ->map(fn (string $path) => url($path)),
             'artikel' => $artikel,
         ])->render();
 

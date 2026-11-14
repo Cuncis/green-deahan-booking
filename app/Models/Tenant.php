@@ -35,7 +35,7 @@ class Tenant extends Model
     /**
      * Harga langganan tahunan per paket, dipakai TenantRegistrationController
      * untuk bikin invoice Mayar sekaligus ditampilkan di halaman /daftar dan
-     * /harga, supaya tidak ada dua sumber angka yang bisa beda sendiri-sendiri.
+     * /sistem-booking, supaya tidak ada dua sumber angka yang bisa beda sendiri-sendiri.
      *
      * @var array<string, int>
      */
@@ -50,7 +50,7 @@ class Tenant extends Model
     /**
      * Diskon perpanjangan tahunan dibanding harga tahun pertama, biaya
      * hosting/domain/maintenance yang lebih ringan untuk tahun berikutnya
-     * (lihat teks di halaman /harga). Custom domain TIDAK ditagih ulang
+     * (lihat teks di halaman /sistem-booking). Custom domain TIDAK ditagih ulang
      * terpisah saat perpanjangan, sudah termasuk dalam angka ini.
      */
     public const DISKON_PERPANJANGAN_PERSEN = 30;

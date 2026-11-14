@@ -5,20 +5,34 @@ namespace App\Http\Controllers;
 use App\Models\Cabang;
 use App\Models\Tenant;
 use App\Models\TenantFitur;
+use App\Services\PaketSistemBookingService;
 use App\Services\PaymentService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
+/**
+ * Pendaftaran tenant baru (/daftar), React di resources/js/pages/Daftar.tsx
+ * dan DaftarSukses.tsx. Total yang tampil di form hanya estimasi; jumlah
+ * invoice selalu dihitung ulang di server lewat Tenant::hitungHargaLangganan().
+ */
 class TenantRegistrationController extends Controller
 {
-    public function show(Request $request): View
+    public function show(Request $request, PaketSistemBookingService $paket): Response
     {
-        return view('pages.register-tenant', [
-            'paketTerpilih' => $request->query('paket', 'basic'),
-            'hargaPaket' => Tenant::HARGA_PAKET,
+        $paketDiminta = $request->query('paket');
+
+        return Inertia::render('Daftar', [
+            'paket' => $paket->semua(),
+            'paketTerpilih' => is_string($paketDiminta) && $paket->ada($paketDiminta) ? $paketDiminta : 'basic',
             'hargaAddonDomain' => Tenant::HARGA_ADDON_CUSTOM_DOMAIN,
+            'meta' => [
+                'title' => 'Daftar Sistem Booking Lapangan - Green Deahan Sport',
+                'description' => 'Daftarkan lapangan Anda dan mulai terima booking online. Bayar lewat QRIS, VA, atau e-wallet, akun aktif otomatis setelah pembayaran diterima.',
+                'noindex' => ! config('situs.sistem_booking_publik'),
+            ],
         ]);
     }
 
@@ -31,14 +45,14 @@ class TenantRegistrationController extends Controller
      * WAJIB baca status tenant yang sebenarnya (dibayar_at/status_aktif),
      * tidak boleh asal anggap sudah aktif cuma karena sampai di halaman ini.
      */
-    public function sukses(Request $request): View
+    public function sukses(Request $request): Response
     {
         $tenant = Tenant::where('kode_pendaftaran', $request->query('kode_pendaftaran'))->firstOrFail();
 
-        return view('pages.register-tenant-sukses', ['tenant' => $tenant]);
+        return $this->halamanSukses($tenant);
     }
 
-    public function store(Request $request): View|RedirectResponse
+    public function store(Request $request): Response|SymfonyResponse
     {
         $data = $request->validate([
             'nama_bisnis' => ['required', 'string', 'max:150'],
@@ -86,6 +100,23 @@ class TenantRegistrationController extends Controller
                     }
                 },
             ],
+        ], [
+            'required' => ':Attribute wajib diisi.',
+            'email' => 'Format email belum benar, misal nama@email.com.',
+            'max' => ':Attribute terlalu panjang (maksimal :max karakter).',
+            'subdomain.min' => 'Alamat website minimal :min karakter.',
+            'subdomain.lowercase' => 'Alamat website hanya boleh huruf kecil.',
+            'subdomain.regex' => 'Alamat website hanya boleh huruf kecil, angka, dan tanda hubung.',
+            'email_pic.unique' => 'Email ini sudah terdaftar. Pakai email lain atau hubungi kami lewat WhatsApp.',
+            'paket.in' => 'Pilih paket Basic, Pro, atau Premium.',
+        ], [
+            'nama_bisnis' => 'nama bisnis',
+            'subdomain' => 'alamat website',
+            'nama_pic' => 'nama lengkap',
+            'email_pic' => 'email',
+            'whatsapp_pic' => 'nomor WhatsApp',
+            'paket' => 'paket',
+            'custom_domain_diminta' => 'domain sendiri',
         ]);
 
         $domain = $data['subdomain'].'.greendeahan.com';
@@ -131,15 +162,39 @@ class TenantRegistrationController extends Controller
             $response = app(PaymentService::class)->createLanggananTransaction($tenant, $jumlah, $finishRedirectUrl);
 
             if ($response['redirect_url']) {
-                return redirect($response['redirect_url']);
+                // Inertia::location: form dikirim lewat Inertia, jadi redirect ke
+                // domain Mayar harus berupa kunjungan penuh, bukan XHR.
+                return Inertia::location($response['redirect_url']);
             }
         } catch (\Throwable $e) {
             report($e);
         }
 
-        return view('pages.register-tenant-sukses', [
-            'tenant' => $tenant,
-            'pembayaranError' => 'Pendaftaran kamu tersimpan, tapi link pembayaran online gagal dibuat. Tim kami sudah diberi tahu dan akan segera menghubungimu.',
+        return $this->halamanSukses($tenant, 'Pendaftaran Anda tersimpan, tapi link pembayaran online gagal dibuat. Tim kami sudah diberi tahu dan akan segera menghubungi Anda.');
+    }
+
+    /**
+     * Status dibaca dari tenant yang sebenarnya (dibayar_at/status_aktif),
+     * karena webhook Mayar bisa datang setelah browser kembali ke sini.
+     */
+    private function halamanSukses(Tenant $tenant, ?string $pembayaranError = null): Response
+    {
+        $status = match (true) {
+            $pembayaranError !== null => 'gagal_bayar',
+            $tenant->status_aktif && $tenant->dibayar_at !== null => 'aktif',
+            default => 'menunggu',
+        };
+
+        return Inertia::render('DaftarSukses', [
+            'pendaftaran' => [
+                'status' => $status,
+                'namaBisnis' => $tenant->nama_bisnis,
+                'domain' => $tenant->domain,
+                'email' => $tenant->email_admin,
+                'customDomainDiminta' => $tenant->custom_domain_diminta,
+                'pesan' => $pembayaranError,
+            ],
+            'meta' => ['title' => 'Status Pendaftaran - Green Deahan Sport', 'noindex' => true],
         ]);
     }
 

@@ -54,3 +54,34 @@ export function StadiumIcon() {
         </LineIcon>
     );
 }
+
+/** Circle with a check (Lucide "circle-check", ISC license): payment received. */
+export function CheckCircleIcon({ size = 48 }: { size?: number }) {
+    return (
+        <LineIcon size={size}>
+            <circle cx="12" cy="12" r="10" />
+            <path d="m9 12 2 2 4-4" />
+        </LineIcon>
+    );
+}
+
+/** Clock (Lucide "clock", ISC license): waiting for payment confirmation. */
+export function ClockIcon({ size = 48 }: { size?: number }) {
+    return (
+        <LineIcon size={size}>
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+        </LineIcon>
+    );
+}
+
+/** Triangle with an exclamation mark (Lucide "triangle-alert", ISC license). */
+export function AlertIcon({ size = 48 }: { size?: number }) {
+    return (
+        <LineIcon size={size}>
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+            <path d="M12 9v4" />
+            <path d="M12 17h.01" />
+        </LineIcon>
+    );
+}

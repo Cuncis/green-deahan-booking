@@ -55,6 +55,7 @@ class HandleInertiaRequests extends Middleware
                 ...parent::share($request),
                 'jumlahKeranjang' => fn () => app(KeranjangService::class)->jumlahItem(),
                 'tokoPublik' => (bool) config('toko.publik'),
+                'sistemBookingPublik' => (bool) config('situs.sistem_booking_publik'),
                 'flash' => [
                     'success' => $request->session()->get('success'),
                     'error' => $request->session()->get('error'),

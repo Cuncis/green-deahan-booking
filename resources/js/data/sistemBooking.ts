@@ -1,6 +1,6 @@
 /**
- * Copy for /sistem-booking (Produk & Layanan > Sistem Booking). The feature
- * table and add-ons match the /harga page (resources/views/pages/pricing.blade.php);
+ * Copy for /sistem-booking (Layanan > Sistem Booking). The feature
+ * table and add-ons were carried over from the old /harga page (now a redirect here);
  * package prices come from the server (Tenant::HARGA_PAKET).
  */
 

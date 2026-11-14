@@ -1,5 +1,5 @@
 /**
- * Copy for /perawatan (Produk & Layanan > Perawatan). Maintenance is offered
+ * Copy for /perawatan (Layanan > Perawatan). Maintenance is offered
  * only for courts Green Deahan built. Warranty facts match the Kontak FAQ;
  * care tips come from the "Tips Perawatan" blog articles.
  */
@@ -63,7 +63,7 @@ export const perawatanFaqs = [
     {
         id: 'kontraktor-lain',
         question: 'Apakah melayani lapangan yang dibangun kontraktor lain?',
-        answer: 'Saat ini layanan perawatan kami khusus untuk lapangan yang dibangun oleh Green Deahan, supaya kami tahu persis bahan dan konstruksinya. Ingin membangun lapangan baru? Lihat halaman Bangun Lapangan.',
+        answer: 'Perawatan berkala kami khusus untuk lapangan yang dibangun oleh Green Deahan, supaya kami tahu persis bahan dan konstruksinya. Untuk lapangan buatan kontraktor lain, kami melayani upgrade seperti lampu LED, atap, jaring, dan ganti permukaan. Lihat halaman Upgrade Lapangan.',
     },
     {
         id: 'garansi',

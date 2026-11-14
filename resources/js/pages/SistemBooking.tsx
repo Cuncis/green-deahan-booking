@@ -11,14 +11,14 @@ import TabelFiturSec from '../components/fuzio/layanan/TabelFiturSec';
 import { GD_CDN } from '../data/greendeahan';
 
 /**
- * Produk & Layanan > Sistem Booking: the court booking website product.
+ * Layanan > Sistem Booking: the court booking website product.
  * Prices come from SistemBookingController; copy from resources/js/data/sistemBooking.ts.
  */
 export default function SistemBooking({ paket, diskonPerpanjanganPersen }: { paket: PaketSistem[]; diskonPerpanjanganPersen: number }) {
     return (
         <div className="App">
             <Header variant="pages" />
-            <PageHeader title="Sistem Booking" imgSrc={`${GD_CDN}/badminton1-img.png`} crumbs={[{ label: 'Produk & Layanan' }, { label: 'Sistem Booking' }]} />
+            <PageHeader title="Sistem Booking" imgSrc={`${GD_CDN}/badminton1-img.png`} crumbs={[{ label: 'Layanan' }, { label: 'Sistem Booking' }]} />
             <SistemBookingIntro />
             <FiturSistemSec />
             <PaketSistemSec paket={paket} diskonPerpanjanganPersen={diskonPerpanjanganPersen} />

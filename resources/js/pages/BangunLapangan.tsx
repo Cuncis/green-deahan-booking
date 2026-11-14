@@ -13,7 +13,7 @@ import ProsesBangunSec from '../components/fuzio/layanan/ProsesBangunSec';
 import { GD_CDN } from '../data/greendeahan';
 
 /**
- * Produk & Layanan > Bangun Lapangan. Built from Fuzio sections already on the
+ * Layanan > Bangun Lapangan. Built from Fuzio sections already on the
  * site (about intro, feature cards, process timeline, projects, ROI
  * calculator, FAQ, CTA) with copy taken from existing pages.
  */
@@ -21,7 +21,7 @@ export default function BangunLapangan() {
     return (
         <div className="App">
             <Header variant="pages" />
-            <PageHeader title="Bangun Lapangan" imgSrc={`${GD_CDN}/futsal-img4-1.png`} crumbs={[{ label: 'Produk & Layanan' }, { label: 'Bangun Lapangan' }]} />
+            <PageHeader title="Bangun Lapangan" imgSrc={`${GD_CDN}/futsal-img4-1.png`} crumbs={[{ label: 'Layanan' }, { label: 'Bangun Lapangan' }]} />
             <BangunIntro />
             <JenisLapanganSec />
             <ProsesBangunSec />

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class TenantRegistrationControllerTest extends TestCase
@@ -51,22 +52,79 @@ class TenantRegistrationControllerTest extends TestCase
         ], $override);
     }
 
-    public function test_halaman_harga_bisa_diakses(): void
+    public function test_halaman_daftar_menampilkan_paket_dengan_harga_dari_kode(): void
     {
-        $response = $this->get(route('pricing'));
-
-        $response->assertOk();
-        $response->assertSee('Basic');
-        $response->assertSee('Pro');
-        $response->assertSee('Premium');
+        $this->get(route('daftar.show'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Daftar')
+                ->has('paket', 3)
+                ->where('paket.0.kunci', 'basic')
+                ->where('paket.0.harga', Tenant::HARGA_PAKET['basic'])
+                ->where('paket.1.harga', Tenant::HARGA_PAKET['pro'])
+                ->where('paket.2.harga', Tenant::HARGA_PAKET['premium'])
+                ->where('hargaAddonDomain', Tenant::HARGA_ADDON_CUSTOM_DOMAIN)
+                ->where('paketTerpilih', 'basic')
+            );
     }
 
     public function test_halaman_daftar_prefill_paket_dari_query_string(): void
     {
-        $response = $this->get(route('daftar.show', ['paket' => 'premium']));
+        $this->get(route('daftar.show', ['paket' => 'premium']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('paketTerpilih', 'premium'));
+    }
 
-        $response->assertOk();
-        $response->assertViewHas('paketTerpilih', 'premium');
+    public function test_paket_tidak_dikenal_di_query_string_kembali_ke_basic(): void
+    {
+        $this->get('/daftar?paket=gratis')->assertInertia(fn (Assert $page) => $page->where('paketTerpilih', 'basic'));
+        $this->get('/daftar?paket[]=pro')->assertInertia(fn (Assert $page) => $page->where('paketTerpilih', 'basic'));
+    }
+
+    public function test_halaman_daftar_noindex_selama_sistem_booking_belum_publik(): void
+    {
+        config(['situs.sistem_booking_publik' => false]);
+        $this->get('/daftar')->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+
+        config(['situs.sistem_booking_publik' => true]);
+        $this->get('/daftar')->assertDontSee('<meta name="robots"', false);
+    }
+
+    public function test_pesan_validasi_dalam_bahasa_indonesia(): void
+    {
+        $this->post(route('daftar.store'), ['paket' => 'pro'])
+            ->assertSessionHasErrors([
+                'nama_bisnis' => 'Nama bisnis wajib diisi.',
+                'subdomain' => 'Alamat website wajib diisi.',
+                'whatsapp_pic' => 'Nomor WhatsApp wajib diisi.',
+            ]);
+
+        $this->post(route('daftar.store'), $this->dataPendaftaran(['subdomain' => 'Arena Baru!']))
+            ->assertSessionHasErrors(['subdomain' => 'Alamat website hanya boleh huruf kecil.']);
+    }
+
+    public function test_pendaftaran_lewat_inertia_diarahkan_penuh_ke_halaman_pembayaran_mayar(): void
+    {
+        Mail::fake();
+
+        $this->post(route('daftar.store'), $this->dataPendaftaran(), ['X-Inertia' => 'true'])
+            ->assertStatus(409)
+            ->assertHeader('X-Inertia-Location', self::MAYAR_REDIRECT_URL);
+    }
+
+    public function test_halaman_status_membaca_status_tenant_sebenarnya(): void
+    {
+        $tenant = Tenant::factory()->create(['kode_pendaftaran' => 'KODE-UJI-1', 'status_aktif' => false, 'dibayar_at' => null]);
+
+        $this->get('/daftar/sukses?kode_pendaftaran=KODE-UJI-1')
+            ->assertOk()
+            ->assertSee('<meta name="robots" content="noindex, nofollow">', false)
+            ->assertInertia(fn (Assert $page) => $page->component('DaftarSukses')->where('pendaftaran.status', 'menunggu')->where('pendaftaran.domain', $tenant->domain));
+
+        $tenant->update(['status_aktif' => true, 'dibayar_at' => now()]);
+        $this->get('/daftar/sukses?kode_pendaftaran=KODE-UJI-1')->assertInertia(fn (Assert $page) => $page->where('pendaftaran.status', 'aktif'));
+
+        $this->get('/daftar/sukses?kode_pendaftaran=TIDAK-ADA')->assertNotFound();
     }
 
     public function test_pendaftaran_berhasil_membuat_tenant_fitur_cabang_dan_kirim_email(): void
@@ -275,7 +333,11 @@ class TenantRegistrationControllerTest extends TestCase
         $response = $this->post(route('daftar.store'), $this->dataPendaftaran());
 
         $response->assertOk();
-        $response->assertSee('Pendaftaran Tersimpan');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('DaftarSukses')
+            ->where('pendaftaran.status', 'gagal_bayar')
+            ->where('pendaftaran.pesan', fn (string $pesan) => str_contains($pesan, 'tersimpan'))
+        );
 
         $tenant = Tenant::where('domain', 'arena-baru-sport.greendeahan.com')->first();
         $this->assertNotNull($tenant);

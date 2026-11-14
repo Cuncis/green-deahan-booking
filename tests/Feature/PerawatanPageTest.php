@@ -7,7 +7,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 /**
- * Produk & Layanan > Perawatan (/perawatan) di situs korporat.
+ * Layanan > Perawatan (/perawatan) di situs korporat.
  */
 class PerawatanPageTest extends TestCase
 {

@@ -479,7 +479,7 @@ button.gd-dd-toggle:hover {
   font-weight: 400;
 }
 
-/* "Produk & Layanan" dropdown in the main menu (Header.tsx). Fuzio keeps
+/* "Layanan" dropdown in the main menu (Header.tsx). Fuzio keeps
    desktop dropdowns invisible until shown; open them on hover, keyboard
    focus, or click (.show). Off-white menu card, never pure white. */
 .navbar .navbar-nav .dropdown-menu,
@@ -769,4 +769,248 @@ button.gd-dd-toggle:hover {
    it on scroll. Lift the whole header above page content. */
 header.header {
   z-index: 1030;
+}
+
+/* /daftar and /daftar/sukses (pages/Daftar.tsx, DaftarSukses.tsx): Fuzio's
+   register page (account-sec / account-form) in the site palette. */
+.gd-daftar {
+  background-color: #f5f5f5;
+}
+.gd-kartu-daftar {
+  background-color: #fafafa;
+  border: 1px solid #e7e5e4;
+}
+.gd-daftar .account-form {
+  padding: 48px 48px 32px;
+}
+@media (max-width: 767.98px) {
+  .gd-daftar .account-form {
+    padding: 28px 16px 20px;
+  }
+}
+.gd-daftar .account-form .btn {
+  min-height: 52px;
+}
+.gd-daftar .account-form .btn:not(.w-100) {
+  width: auto;
+}
+.gd-form-daftar fieldset {
+  margin: 0 0 32px;
+  padding: 0;
+  border: 0;
+}
+.gd-judul-form {
+  float: none;
+  width: 100%;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e7e5e4;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.gd-form-daftar label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+.gd-form-daftar input:not([type="radio"]) {
+  width: 100%;
+  min-height: 48px;
+  margin-bottom: 0;
+  padding: 10px 14px;
+  border: 1px solid #e7e5e4;
+  border-radius: 10px;
+  background: #f5f5f5;
+  font-size: 16px;
+}
+.gd-form-daftar input:not([type="radio"]):focus {
+  outline: none;
+  border-color: #006400;
+  box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.15);
+}
+.gd-form-daftar .is-invalid {
+  border-color: #b42318;
+}
+.gd-form-daftar .galat {
+  margin-top: 4px;
+  color: #b42318;
+  font-size: 14px;
+}
+.gd-petunjuk {
+  margin: 4px 0 0;
+  color: #696969;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Package choice: real radio inputs inside label cards */
+.gd-form-daftar .gd-pilih-paket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  margin: 0;
+  padding: 16px 16px 16px 46px;
+  border: 1px solid #e7e5e4;
+  border-radius: 14px;
+  background: #f5f5f5;
+  font-weight: 400;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.gd-pilih-paket input {
+  position: absolute;
+  top: 20px;
+  left: 16px;
+  width: 18px;
+  height: 18px;
+  accent-color: #006400;
+}
+.gd-pilih-paket:hover {
+  border-color: #8fbf8f;
+}
+.gd-pilih-paket.dipilih {
+  border-color: #006400;
+  background: #e8f2e8;
+  box-shadow: 0 0 0 1px #006400;
+}
+.gd-pilih-paket:has(input:focus-visible) {
+  outline: 3px solid rgba(0, 100, 0, 0.35);
+  outline-offset: 2px;
+}
+.gd-pilih-paket-nama {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 18px;
+  color: #1a1a1a;
+}
+.gd-pilih-paket-label {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #feb046;
+  color: #1a1a1a;
+  font-size: 12px;
+  font-weight: 700;
+}
+.gd-pilih-paket-harga {
+  font-weight: 700;
+  color: #006400;
+}
+.gd-pilih-paket-harga small,
+.gd-estimasi small {
+  margin-left: 2px;
+  color: #696969;
+  font-weight: 400;
+}
+.gd-pilih-paket-lapangan {
+  color: #696969;
+  font-size: 14px;
+}
+
+/* Subdomain field with a fixed suffix */
+.gd-subdomain {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e7e5e4;
+  border-radius: 10px;
+  background: #f5f5f5;
+}
+.gd-subdomain:focus-within {
+  border-color: #006400;
+  box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.15);
+}
+.gd-subdomain.is-invalid {
+  border-color: #b42318;
+}
+.gd-form-daftar .gd-subdomain input:not([type="radio"]) {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.gd-subdomain span {
+  padding-right: 14px;
+  color: #696969;
+  white-space: nowrap;
+}
+.gd-catatan-paket {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px dashed #f59f24;
+  border-radius: 10px;
+  background: #fff6e6;
+  color: #7a4b00;
+}
+
+/* Estimate */
+.gd-estimasi {
+  padding: 16px 20px;
+  border: 1px solid #e7e5e4;
+  border-radius: 12px;
+  background: #f5f5f5;
+}
+.gd-estimasi > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+.gd-estimasi .total {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid #e7e5e4;
+  font-weight: 700;
+  font-size: 18px;
+  color: #1a1a1a;
+}
+.gd-estimasi .total span:last-child {
+  color: #006400;
+}
+.gd-daftar .gd-pembayaran {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background-color: #e8f2e8;
+  color: #004d00;
+  font-size: 15px;
+}
+.gd-daftar .gd-pembayaran strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.gd-daftar .login-message p {
+  margin-bottom: 6px;
+}
+
+/* Status after sign-up */
+.gd-status-ikon {
+  display: inline-flex;
+  margin-bottom: 16px;
+  color: #006400;
+}
+.gd-status-daftar.menunggu .gd-status-ikon {
+  color: #c27803;
+}
+.gd-status-daftar.gagal_bayar .gd-status-ikon {
+  color: #b42318;
+}
+.gd-daftar .gd-tautan {
+  color: #006400;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* /upgrade-lapangan: the owner benefit under each upgrade card */
+.gd-manfaat-upgrade {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #e8f2e8;
+  color: #004d00;
+  font-size: 15px;
 }

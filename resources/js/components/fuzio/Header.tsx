@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import WhatsAppIcon from './elements/WhatsAppIcon';
-import { GD_LOGO, GD_LOGO_LIGHT, GD_PHONE_DISPLAY, GD_PHONE_TEL, menuSitus, PATH_TOKO, waLink } from '../../data/greendeahan';
+import { GD_LOGO, GD_LOGO_LIGHT, GD_PHONE_DISPLAY, GD_PHONE_TEL, type HalamanPublik, menuSitus, PATH_TOKO, waLink } from '../../data/greendeahan';
 
 function aktif(path: string, currentPath: string): boolean {
     return path === '/' ? currentPath === '/' : currentPath === path || currentPath.startsWith(`${path}/`);
@@ -12,13 +12,13 @@ function aktif(path: string, currentPath: string): boolean {
  * hover or keyboard focus (gd-react.css) and on click; phones: tap to expand
  * inside the off-canvas menu.
  */
-function MenuList({ onNavigate, tokoPublik }: { onNavigate: () => void; tokoPublik: boolean }) {
+function MenuList({ onNavigate, halamanPublik }: { onNavigate: () => void; halamanPublik: HalamanPublik }) {
     const currentPath = window.location.pathname;
     const [terbuka, setTerbuka] = useState<string | null>(null);
 
     return (
         <ul className="navbar-nav mx-auto align-items-lg-center">
-            {menuSitus(tokoPublik).map((item) => {
+            {menuSitus(halamanPublik).map((item) => {
                 if (!item.children) {
                     return (
                         <li key={item.path} className={`nav-item${aktif(item.path, currentPath) ? ' current' : ''}`}>
@@ -91,7 +91,11 @@ export default function Header({ variant = 'home' }: HeaderProps) {
     const [isSticky, setIsSticky] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const headerRef = useRef<HTMLElement>(null);
-    const { jumlahKeranjang: jumlahMentah, tokoPublik = false } = usePage<{ jumlahKeranjang?: number; tokoPublik?: boolean }>().props;
+    const {
+        jumlahKeranjang: jumlahMentah,
+        tokoPublik = false,
+        sistemBookingPublik = false,
+    } = usePage<{ jumlahKeranjang?: number; tokoPublik?: boolean; sistemBookingPublik?: boolean }>().props;
     const jumlahKeranjang = Number(jumlahMentah ?? 0);
     // While the shop is internal, the cart icon only shows on the shop pages themselves.
     const diHalamanToko = PATH_TOKO.some((path) => window.location.pathname === path || window.location.pathname.startsWith(`${path}/`));
@@ -145,7 +149,6 @@ export default function Header({ variant = 'home' }: HeaderProps) {
                 </div>
             </div>
 
-
             <nav className={`navbar navbar-expand-lg ${isSticky ? 'scroll-on' : ''}`}>
                 <div className="container px-lg-0">
                     <a href="/" className="navbar-brand">
@@ -168,7 +171,7 @@ export default function Header({ variant = 'home' }: HeaderProps) {
                             <button onClick={() => setIsMobile(false)} type="button" className="btn-close" aria-label="Close"></button>
                         </div>
                         <div className="offcanvas-body pt-0 align-items-center">
-                            <MenuList onNavigate={() => setIsMobile(false)} tokoPublik={tokoPublik} />
+                            <MenuList onNavigate={() => setIsMobile(false)} halamanPublik={{ tokoPublik, sistemBookingPublik }} />
                         </div>
                     </div>
                     {isMobile && <div onClick={() => setIsMobile(false)} className="offcanvas-backdrop fade show"></div>}

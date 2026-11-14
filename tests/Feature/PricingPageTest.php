@@ -8,52 +8,29 @@ use App\Models\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Halaman /harga lama sudah dihapus; paket sekarang ada di /sistem-booking.
+ * Link lama (bookmark, hasil pencarian) tetap diarahkan permanen ke sana.
+ */
 class PricingPageTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_harga_bisa_diakses_di_domain_utama(): void
+    public function test_harga_diarahkan_permanen_ke_paket_sistem_booking(): void
     {
-        $response = $this->get('http://greendeahan.com/harga');
-
-        $response->assertOk();
-        $response->assertViewIs('pages.pricing');
-        $response->assertSee('Paket Website Booking Lapangan');
+        $this->get('http://greendeahan.com/harga')
+            ->assertStatus(301)
+            ->assertRedirect('http://greendeahan.com/sistem-booking#paket');
     }
 
-    public function test_harga_bisa_diakses_lewat_www(): void
+    public function test_harga_lewat_www_juga_diarahkan(): void
     {
-        $response = $this->get('http://www.greendeahan.com/harga');
-
-        $response->assertOk();
-        $response->assertViewIs('pages.pricing');
+        $this->get('http://www.greendeahan.com/harga')->assertStatus(301);
     }
 
-    public function test_route_pricing_tetap_resolve_untuk_link_dari_halaman_daftar(): void
+    public function test_harga_tidak_lagi_ada_di_sitemap(): void
     {
-        $response = $this->get(route('pricing'));
-
-        $response->assertOk();
-    }
-
-    public function test_harga_menampilkan_ketiga_paket_dan_tabel_perbandingan(): void
-    {
-        $response = $this->get('http://greendeahan.com/harga');
-
-        $response->assertSee('Basic');
-        $response->assertSee('Pro');
-        $response->assertSee('Premium');
-        $response->assertSee('Pembayaran online (QRIS, VA, e-wallet)');
-        $response->assertSee('Tambahan Opsional (Add-on)');
-    }
-
-    public function test_tombol_paket_mengarah_ke_halaman_daftar_dengan_paket_terisi(): void
-    {
-        $response = $this->get('http://greendeahan.com/harga');
-
-        $response->assertSee('/daftar?paket=basic', false);
-        $response->assertSee('/daftar?paket=pro', false);
-        $response->assertSee('/daftar?paket=premium', false);
+        $this->get('http://greendeahan.com/sitemap.xml')->assertOk()->assertDontSee('/harga');
     }
 
     public function test_subdomain_tenant_tidak_terpengaruh_rute_harga(): void
@@ -65,9 +42,7 @@ class PricingPageTest extends TestCase
         $cabang = Cabang::factory()->create(['tenant_id' => $tenant->id]);
         Lapangan::factory()->create(['tenant_id' => $tenant->id, 'cabang_id' => $cabang->id]);
 
-        $response = $this->get('http://arena-uji-harga.greendeahan.com/');
-
-        $response->assertOk();
-        $response->assertViewIs('booking');
+        $this->get('http://arena-uji-harga.greendeahan.com/')->assertOk()->assertViewIs('booking');
+        $this->get('http://arena-uji-harga.greendeahan.com/harga')->assertNotFound();
     }
 }

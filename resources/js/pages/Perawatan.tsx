@@ -11,14 +11,14 @@ import TipsPerawatanSec from '../components/fuzio/layanan/TipsPerawatanSec';
 import { GD_CDN } from '../data/greendeahan';
 
 /**
- * Produk & Layanan > Perawatan: maintenance for courts Green Deahan built.
+ * Layanan > Perawatan: maintenance for courts Green Deahan built.
  * Copy lives in resources/js/data/perawatan.ts.
  */
 export default function Perawatan() {
     return (
         <div className="App">
             <Header variant="pages" />
-            <PageHeader title="Perawatan Lapangan" imgSrc={`${GD_CDN}/futsal1-outdoor.png`} crumbs={[{ label: 'Produk & Layanan' }, { label: 'Perawatan' }]} />
+            <PageHeader title="Perawatan Lapangan" imgSrc={`${GD_CDN}/futsal1-outdoor.png`} crumbs={[{ label: 'Layanan' }, { label: 'Perawatan' }]} />
             <PerawatanIntro />
             <LayananPerawatanSec />
             <AlurPerawatanSec />

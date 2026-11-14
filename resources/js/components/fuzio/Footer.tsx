@@ -4,7 +4,7 @@ import { GD_EMAIL, GD_HOURS, GD_PHONE_DISPLAY, menuFooter, socialLinks, waLink }
 
 /** Port of Fuzio's Footer, as customized in the Fuzio clone. */
 export default function Footer() {
-    const { tokoPublik = false } = usePage<{ tokoPublik?: boolean }>().props;
+    const { tokoPublik = false, sistemBookingPublik = false } = usePage<{ tokoPublik?: boolean; sistemBookingPublik?: boolean }>().props;
 
     return (
         <footer className="footer bg jarallax bg-cover">
@@ -44,7 +44,7 @@ export default function Footer() {
                         <div className="footer-widget">
                             <h3 className="widget-title text-uppercase text-white">Halaman</h3>
                             <ul>
-                                {menuFooter(tokoPublik).map((item) => (
+                                {menuFooter({ tokoPublik, sistemBookingPublik }).map((item) => (
                                     <li key={item.path}>
                                         <a href={item.path}>{item.label}</a>
                                     </li>

@@ -7,7 +7,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 /**
- * Produk & Layanan > Bangun Lapangan (/bangun-lapangan) di situs korporat.
+ * Layanan > Bangun Lapangan (/bangun-lapangan) di situs korporat.
  */
 class BangunLapanganPageTest extends TestCase
 {

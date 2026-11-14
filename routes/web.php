@@ -38,7 +38,7 @@ use Inertia\Inertia;
 // domain() supaya subdomain tenant (xxx.greendeahan.com) dan custom domain
 // klien tetap jatuh ke rute booking seperti biasa, cuma domain utama
 // platform yang dialihkan ke sini. Dikecualikan dari IdentifikasiTenant
-// karena greendeahan.com sendiri bukan tenant (sama seperti /harga, /daftar).
+// karena greendeahan.com sendiri bukan tenant (sama seperti /daftar).
 // Semua halaman situs korporat yang sudah dipindah dari
 // green-deahan-wpnuxt (Nuxt) didaftarkan di closure ini per domain. Konten
 // galeri & blog dikelola lewat /superadmin, lihat Superadmin\GaleriAdminController
@@ -66,7 +66,7 @@ $situsKorporat = function () {
     // Halaman Konsep sudah diganti Tentang Kami, 301 supaya link lama dan
     // posisi di Google pindah ke halaman baru.
     Route::permanentRedirect('/konsep', '/tentang-kami');
-    // Produk & Layanan (dropdown di menu).
+    // Layanan (dropdown di menu).
     Route::get('/bangun-lapangan', fn () => Inertia::render('BangunLapangan', [
         'meta' => [
             'title' => 'Jasa Bangun Lapangan Futsal, Mini Soccer, Padel & Badminton - Green Deahan Sport',
@@ -79,6 +79,12 @@ $situsKorporat = function () {
             'description' => 'Perawatan berkala, perbaikan kerusakan, dan renovasi untuk lapangan futsal, mini soccer, padel, dan badminton yang dibangun Green Deahan. Pengecekan gratis.',
         ],
     ]))->name('perawatan');
+    Route::get('/upgrade-lapangan', fn () => Inertia::render('UpgradeLapangan', [
+        'meta' => [
+            'title' => 'Upgrade Lapangan: Lampu LED, Atap, Jaring & Ganti Rumput - Green Deahan Sport',
+            'description' => 'Upgrade lapangan futsal, mini soccer, padel, dan badminton: lampu LED, atap dan kanopi, pagar dan jaring, ganti permukaan, hingga ubah ke olahraga lain. Untuk semua lapangan, pengecekan gratis.',
+        ],
+    ]))->name('upgrade-lapangan');
     Route::get('/sistem-booking', SistemBookingController::class)->name('sistem-booking');
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri');
     // Desain Galeri Blade lama, noindex (lihat pages/galeri.blade.php).
@@ -97,11 +103,9 @@ $situsKorporat = function () {
     // Halaman Kontak Blade lama, noindex (lihat pages/kontak.blade.php).
     Route::get('/v2/kontak', fn () => view('pages.kontak'))->name('kontak.v2');
 
-    // Paket berlangganan situs booking, cross-sell dari layanan konstruksi
-    // lapangan ke produk SaaS booking. CTA per paket mengarah ke /daftar
-    // (TenantRegistrationController), yang sengaja TIDAK dibatasi domain
-    // supaya tetap bisa dibuka langsung dari luar situs korporat.
-    Route::get('/harga', fn () => view('pages.pricing'))->name('pricing');
+    // Halaman harga lama digantikan bagian paket di /sistem-booking. CTA per
+    // paket di sana mengarah ke /daftar (TenantRegistrationController).
+    Route::permanentRedirect('/harga', '/sistem-booking#paket');
 
     Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 

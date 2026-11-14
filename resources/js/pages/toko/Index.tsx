@@ -61,7 +61,7 @@ export default function Index({ produk, kategori, totalProduk, filter, pilihanUr
     return (
         <div className="App">
             <Header variant="pages" />
-            <PageHeader title="Toko" imgSrc={`${GD_CDN}/minisoccer1-img.jpeg`} crumbs={[{ label: 'Produk & Layanan' }, { label: 'Toko' }]} />
+            <PageHeader title="Toko" imgSrc={`${GD_CDN}/minisoccer1-img.jpeg`} crumbs={[{ label: 'Layanan' }, { label: 'Toko' }]} />
 
             <section className="shop-section toko-section gd-toko">
                 <div className="container">
