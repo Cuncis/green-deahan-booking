@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Produk toko. cost_price, supplier_id, dan supplier_product_url PRIVAT:
@@ -75,6 +76,29 @@ class Product extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    /**
+     * Foto produk, foto utama di urutan pertama.
+     *
+     * @return HasMany<ProductImage, $this>
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('urutan')->orderBy('id');
+    }
+
+    /**
+     * Alamat semua foto, foto utama dulu. Produk lama tanpa baris di
+     * product_images tetap menampilkan image_path.
+     *
+     * @return array<int, string>
+     */
+    public function daftarFoto(): array
+    {
+        $foto = $this->images->pluck('path')->all();
+
+        return $foto === [] && $this->image_path ? [$this->image_path] : $foto;
+    }
+
     public function scopeAktif(Builder $query): void
     {
         $query->where('is_active', true);
@@ -83,7 +107,7 @@ class Product extends Model
     /**
      * Data aman untuk pelanggan. Jangan pernah kirim model mentah ke halaman toko.
      *
-     * @return array{id: int, name: string, slug: string, category: string, categoryLabel: string, unit: string, badge: string|null, description: string|null, imageUrl: string|null, price: int, comparePrice: int|null}
+     * @return array{id: int, name: string, slug: string, category: string, categoryLabel: string, unit: string, badge: string|null, description: string|null, imageUrl: string|null, images: array<int, string>, price: int, comparePrice: int|null}
      */
     public function dataPublik(): array
     {
@@ -97,6 +121,7 @@ class Product extends Model
             'badge' => $this->badge,
             'description' => $this->description,
             'imageUrl' => $this->image_path,
+            'images' => $this->daftarFoto(),
             'price' => $this->sell_price,
             // Harga coret hanya tampil kalau memang lebih mahal dari harga jual.
             'comparePrice' => $this->compare_price !== null && $this->compare_price > $this->sell_price ? $this->compare_price : null,

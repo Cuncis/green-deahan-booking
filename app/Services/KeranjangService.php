@@ -82,7 +82,7 @@ class KeranjangService
             return collect();
         }
 
-        $produk = Product::aktif()->whereIn('id', array_keys($isi))->get()->keyBy('id');
+        $produk = Product::aktif()->with('images')->whereIn('id', array_keys($isi))->get()->keyBy('id');
 
         if ($produk->count() !== count($isi)) {
             $this->simpan(array_intersect_key($isi, $produk->all()));

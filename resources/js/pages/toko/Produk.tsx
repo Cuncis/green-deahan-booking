@@ -29,6 +29,8 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
     const [qty, setQty] = useState(1);
     const [memproses, setMemproses] = useState<'keranjang' | 'beli' | null>(null);
     const [tab, setTab] = useState<Tab>('deskripsi');
+    const [fotoAktif, setFotoAktif] = useState(0);
+    const foto = produk.images.length > 0 ? produk.images : produk.imageUrl ? [produk.imageUrl] : [];
     const aturQty = (nilai: number) => setQty(Math.min(maksQty, Math.max(1, Number.isFinite(nilai) ? Math.floor(nilai) : 1)));
 
     const tambah = (langsungBeli: boolean) =>
@@ -66,8 +68,25 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                         <div className="col-xl-6">
                             <div className="gd-toko-detail-media position-relative">
                                 {produk.badge && <div className="gd-detail-badge text-uppercase">{produk.badge}</div>}
-                                <GambarProduk src={produk.imageUrl} alt={produk.name} label={produk.categoryLabel} />
+                                <GambarProduk src={foto[fotoAktif] ?? null} alt={produk.name} label={produk.categoryLabel} />
                             </div>
+                            {foto.length > 1 && (
+                                <ul className="gd-toko-thumbs" aria-label="Foto produk">
+                                    {foto.map((url, urutan) => (
+                                        <li key={url}>
+                                            <button
+                                                type="button"
+                                                className={urutan === fotoAktif ? 'aktif' : undefined}
+                                                aria-label={`Lihat foto ${urutan + 1} dari ${foto.length}`}
+                                                aria-current={urutan === fotoAktif}
+                                                onClick={() => setFotoAktif(urutan)}
+                                            >
+                                                <img src={url} alt="" loading="lazy" />
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                         <div className="col-xl-6">
                             <div className="product-info ps-lg-4">

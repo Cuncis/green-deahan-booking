@@ -176,6 +176,38 @@
   height: 100%;
   object-fit: cover;
 }
+.gd-toko-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.gd-toko-thumbs button {
+  display: block;
+  width: 68px;
+  height: 68px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid #e7e5e4;
+  border-radius: 12px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.gd-toko-thumbs button:hover,
+.gd-toko-thumbs button:focus-visible {
+  border-color: #6aa86a;
+}
+.gd-toko-thumbs button.aktif {
+  border-color: #006400;
+}
+.gd-toko-thumbs img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .gd-toko .product-info h1 {
   font-size: clamp(26px, 4vw, 38px);
   line-height: 1.2;

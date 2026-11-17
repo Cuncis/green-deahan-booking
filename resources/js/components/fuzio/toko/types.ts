@@ -10,6 +10,8 @@ export interface ProdukPublik {
     badge: string | null;
     description: string | null;
     imageUrl: string | null;
+    /** All photos, main photo first (empty when the product has none). */
+    images: string[];
     price: number;
     /** Struck-through "was" price, only when higher than price. */
     comparePrice: number | null;

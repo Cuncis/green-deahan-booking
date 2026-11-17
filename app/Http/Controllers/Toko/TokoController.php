@@ -40,6 +40,7 @@ class TokoController extends Controller
         $jumlahPerKategori = Product::aktif()->selectRaw('category, count(*) as jumlah')->groupBy('category')->pluck('jumlah', 'category');
 
         $produk = Product::aktif()
+            ->with('images')
             ->when($kategori, fn ($q, $kategori) => $q->where('category', $kategori))
             ->when($cari !== '', fn ($q) => $q->where('name', 'like', '%'.$cari.'%'))
             ->when($urut === 'murah', fn ($q) => $q->orderBy('sell_price'))
@@ -69,7 +70,7 @@ class TokoController extends Controller
 
     public function show(string $slug): Response
     {
-        $product = Product::aktif()->where('slug', $slug)->firstOrFail();
+        $product = Product::aktif()->with('images')->where('slug', $slug)->firstOrFail();
 
         return Inertia::render('toko/Produk', [
             'produk' => [
@@ -78,6 +79,7 @@ class TokoController extends Controller
                 'kategoriUrl' => '/toko?kategori='.$product->category,
             ],
             'lainnya' => Product::aktif()
+                ->with('images')
                 ->where('category', $product->category)
                 ->whereKeyNot($product->id)
                 ->inRandomOrder()

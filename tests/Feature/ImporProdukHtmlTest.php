@@ -1,0 +1,317 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Product;
+use App\Models\Supplier;
+use App\Models\User;
+use App\Services\ImporProdukHtmlService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
+
+/**
+ * Impor produk dari HTML halaman Shopee di /superadmin/toko/produk/tambah.
+ */
+class ImporProdukHtmlTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private const GAMBAR = 'https://down-id.img.susercontent.com/file/id-11134207-81ztf-muk8x6i76a6d14';
+
+    private function superadmin(): User
+    {
+        $user = User::factory()->create();
+        $user->is_superadmin = true;
+        $user->save();
+
+        return $user;
+    }
+
+    private function html(): string
+    {
+        return file_get_contents(base_path('tests/Fixtures/shopee-produk.html'));
+    }
+
+    private function png(): string
+    {
+        return base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+    }
+
+    public function test_parser_mengambil_data_penting_saja(): void
+    {
+        $hasil = (new ImporProdukHtmlService)->baca($this->html());
+
+        $this->assertSame('Jonas Knee Pad / Knee Busa Classic V2 - Black', $hasil['nama']);
+        $this->assertSame('olahraga', $hasil['kategori']);
+        $this->assertSame('https://shopee.co.id/product/119935350/7422104174', $hasil['linkSupplier']);
+        $this->assertSame('RANK Sports Official', $hasil['namaSupplier']);
+        $this->assertSame(self::GAMBAR, $hasil['gambarUrl']);
+        $this->assertSame([
+            self::GAMBAR,
+            'https://down-id.img.susercontent.com/file/id-11134207-81ztf-fotokedua',
+            'https://down-id.img.susercontent.com/file/id-11134207-81ztf-fotoketiga',
+        ], $hasil['gambarUrls']);
+        $this->assertSame(175310, $hasil['hargaShopee']);
+        $this->assertSame(199800, $hasil['hargaRetail']);
+    }
+
+    public function test_deskripsi_dibersihkan_dari_bagian_khas_toko_shopee(): void
+    {
+        $deskripsi = (new ImporProdukHtmlService)->baca($this->html())['deskripsi'];
+
+        $this->assertStringContainsString('Pelindung Lutut / Deker Lutut yang familiar dipakai untuk keeper futsal', $deskripsi);
+        $this->assertStringContainsString('aman dari benturan lantai', $deskripsi);
+        $this->assertStringContainsString("\n\n", $deskripsi);
+
+        foreach (['Rp', 'RETAIL', 'ORIGINAL', 'Note', 'jaminan uang kembali', 'unboxing', '#LevelUp', 'LevelUp', 'HAPPY', 'Stok terbatas', "\u{00A0}"] as $dilarang) {
+            $this->assertStringNotContainsString($dilarang, $deskripsi, "Deskripsi masih memuat {$dilarang}");
+        }
+    }
+
+    public function test_ulasan_dan_nama_pembeli_tidak_ikut_terbaca(): void
+    {
+        $json = json_encode((new ImporProdukHtmlService)->baca($this->html()));
+
+        $this->assertStringNotContainsString('fitraalfandi6', $json);
+        $this->assertStringNotContainsString('<', $json);
+        $this->assertStringNotContainsString('sangat nyaman', $json);
+    }
+
+    public function test_bagian_yang_tidak_ada_dikembalikan_null_bukan_galat(): void
+    {
+        $hasil = (new ImporProdukHtmlService)->baca('<h1>Hanya Judul</h1>');
+
+        $this->assertSame('Hanya Judul', $hasil['nama']);
+        $this->assertNull($hasil['deskripsi']);
+        $this->assertNull($hasil['kategori']);
+        $this->assertNull($hasil['linkSupplier']);
+        $this->assertNull($hasil['namaSupplier']);
+        $this->assertNull($hasil['gambarUrl']);
+        $this->assertSame([], $hasil['gambarUrls']);
+        $this->assertNull($hasil['hargaShopee']);
+        $this->assertNull($hasil['hargaRetail']);
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     */
+    public static function alamatGambar(): array
+    {
+        return [
+            'cdn shopee' => [self::GAMBAR, true],
+            'tanpa subdomain' => ['https://susercontent.com/file/abc', true],
+            'http biasa' => ['http://down-id.img.susercontent.com/file/abc', false],
+            'host lain' => ['https://contoh.com/file/abc', false],
+            'host menyerupai' => ['https://susercontent.com.penyerang.test/file/abc', false],
+            'dengan kredensial' => ['https://user:pass@down-id.img.susercontent.com/file/abc', false],
+            'port khusus' => ['https://down-id.img.susercontent.com:8443/file/abc', false],
+            'bukan folder file' => ['https://down-id.img.susercontent.com/admin', false],
+            'alamat lokal' => ['https://127.0.0.1/file/abc', false],
+            'kosong' => ['', false],
+        ];
+    }
+
+    #[DataProvider('alamatGambar')]
+    public function test_hanya_cdn_shopee_yang_diizinkan_untuk_gambar(string $url, bool $diizinkan): void
+    {
+        $this->assertSame($diizinkan, ImporProdukHtmlService::gambarDiizinkan($url));
+    }
+
+    public function test_hanya_superadmin_yang_bisa_impor(): void
+    {
+        $this->post('/superadmin/toko/produk/impor', ['html' => $this->html()])->assertRedirect('/login');
+        $this->actingAs(User::factory()->create())->post('/superadmin/toko/produk/impor', ['html' => $this->html()])->assertForbidden();
+    }
+
+    public function test_impor_mengisi_form_tanpa_membuat_produk(): void
+    {
+        $supplier = Supplier::factory()->create(['name' => 'rank sports official']);
+        $admin = $this->superadmin();
+
+        $this->actingAs($admin)->post('/superadmin/toko/produk/impor', ['html' => $this->html()])
+            ->assertRedirect(route('superadmin.toko.produk.create'));
+
+        $this->assertSame(0, Product::count());
+
+        $this->actingAs($admin)->withSession(['impor' => [
+            ...(new ImporProdukHtmlService)->baca($this->html()),
+            'supplierId' => $supplier->id,
+        ]])->get(route('superadmin.toko.produk.create'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('superadmin/Toko/Produk/Form')
+                ->where('impor.nama', 'Jonas Knee Pad / Knee Busa Classic V2 - Black')
+                ->where('impor.kategori', 'olahraga')
+                ->where('impor.supplierId', $supplier->id)
+                ->where('impor.hargaShopee', 175310)
+                ->where('impor.hargaRetail', 199800)
+                ->where('imporUrl', route('superadmin.toko.produk.impor'))
+            );
+    }
+
+    public function test_impor_mencocokkan_supplier_tanpa_membedakan_huruf_besar_kecil(): void
+    {
+        $supplier = Supplier::factory()->create(['name' => 'rank sports official']);
+
+        $this->actingAs($this->superadmin())->post('/superadmin/toko/produk/impor', ['html' => $this->html()])
+            ->assertSessionHas('impor.supplierId', $supplier->id);
+    }
+
+    public function test_impor_tanpa_supplier_yang_cocok_tidak_membuat_supplier_baru(): void
+    {
+        $this->actingAs($this->superadmin())->post('/superadmin/toko/produk/impor', ['html' => $this->html()])
+            ->assertSessionHas('impor.nama');
+
+        $this->assertNull(session('impor')['supplierId']);
+        $this->assertSame(0, Supplier::count());
+    }
+
+    public function test_impor_menolak_isian_kosong_dan_html_tanpa_nama_produk(): void
+    {
+        $admin = $this->superadmin();
+
+        $this->actingAs($admin)->post('/superadmin/toko/produk/impor', ['html' => ''])->assertSessionHasErrors('html');
+        $this->actingAs($admin)->post('/superadmin/toko/produk/impor', ['html' => '<p>bukan halaman produk</p>'])->assertSessionHasErrors('html');
+        $this->actingAs($admin)->post('/superadmin/toko/produk/impor', ['html' => str_repeat('a', 3000001)])->assertSessionHasErrors('html');
+    }
+
+    public function test_simpan_produk_impor_mengunduh_foto_dari_cdn_shopee(): void
+    {
+        Storage::fake('public');
+        Http::fake([self::GAMBAR => Http::response($this->png(), 200, ['Content-Type' => 'image/png'])]);
+
+        $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
+            'name' => 'Jonas Knee Pad',
+            'category' => 'olahraga',
+            'unit' => 'pcs',
+            'sell_price' => 199000,
+            'cost_price' => 150000,
+            'weight_gram' => 200,
+            'is_active' => '0',
+            'gambar_url' => self::GAMBAR,
+        ])->assertRedirect(route('superadmin.toko.produk'));
+
+        $produk = Product::sole();
+        $this->assertNotNull($produk->image_path);
+        $this->assertFalse($produk->is_active);
+        $this->assertStringNotContainsString('susercontent', $produk->image_path);
+        $this->assertCount(1, Storage::disk('public')->allFiles('produk'));
+        Http::assertSentCount(1);
+    }
+
+    public function test_foto_unggahan_dan_foto_impor_disimpan_bersama_dengan_unggahan_di_belakang(): void
+    {
+        Storage::fake('public');
+        Http::fake([self::GAMBAR => Http::response($this->png(), 200)]);
+
+        $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
+            'name' => 'Jonas Knee Pad',
+            'category' => 'olahraga',
+            'unit' => 'pcs',
+            'sell_price' => 199000,
+            'cost_price' => 150000,
+            'weight_gram' => 200,
+            'is_active' => '1',
+            'gambar_url' => self::GAMBAR,
+            'foto' => UploadedFile::fake()->image('sendiri.jpg'),
+        ])->assertRedirect(route('superadmin.toko.produk'));
+
+        $this->assertCount(2, Storage::disk('public')->allFiles('produk'));
+        $this->assertSame(2, Product::sole()->images()->count());
+    }
+
+    public function test_alamat_foto_di_luar_cdn_shopee_ditolak_tanpa_mengunduh(): void
+    {
+        Http::fake();
+
+        $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
+            'name' => 'Jonas Knee Pad',
+            'category' => 'olahraga',
+            'unit' => 'pcs',
+            'sell_price' => 199000,
+            'cost_price' => 150000,
+            'weight_gram' => 200,
+            'is_active' => '1',
+            'gambar_url' => 'http://169.254.169.254/latest/meta-data',
+        ])->assertSessionHasErrors('gambar_url');
+
+        Http::assertNothingSent();
+        $this->assertSame(0, Product::count());
+    }
+
+    public function test_unduhan_foto_gagal_atau_bukan_gambar_tidak_membuat_produk(): void
+    {
+        Storage::fake('public');
+        $data = [
+            'name' => 'Jonas Knee Pad',
+            'category' => 'olahraga',
+            'unit' => 'pcs',
+            'sell_price' => 199000,
+            'cost_price' => 150000,
+            'weight_gram' => 200,
+            'is_active' => '1',
+            'gambar_url' => self::GAMBAR,
+        ];
+        $admin = $this->superadmin();
+
+        Http::fake([self::GAMBAR => Http::response('', 404)]);
+        $this->actingAs($admin)->post('/superadmin/toko/produk', $data)->assertSessionHasErrors('foto');
+
+        Http::fake([self::GAMBAR => Http::response('<?php echo 1;', 200)]);
+        $this->actingAs($admin)->post('/superadmin/toko/produk', $data)->assertSessionHasErrors('foto');
+
+        Http::fake([self::GAMBAR => Http::response('', 302, ['Location' => 'http://127.0.0.1/rahasia.png'])]);
+        $this->actingAs($admin)->post('/superadmin/toko/produk', $data)->assertSessionHasErrors('foto');
+
+        $this->assertSame(0, Product::count());
+        $this->assertCount(0, Storage::disk('public')->allFiles('produk'));
+    }
+
+    public function test_html_mentah_dan_alamat_foto_impor_tidak_tersimpan_di_produk(): void
+    {
+        Storage::fake('public');
+        Http::fake([self::GAMBAR => Http::response($this->png(), 200)]);
+
+        $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
+            'name' => 'Jonas Knee Pad',
+            'category' => 'olahraga',
+            'unit' => 'pcs',
+            'sell_price' => 199000,
+            'cost_price' => 150000,
+            'weight_gram' => 200,
+            'is_active' => '1',
+            'gambar_url' => self::GAMBAR,
+            'html' => $this->html(),
+        ])->assertRedirect(route('superadmin.toko.produk'));
+
+        $this->assertStringNotContainsString('fitraalfandi6', json_encode(Product::sole()->getAttributes()));
+        $this->assertArrayNotHasKey('gambar_url', Product::sole()->getAttributes());
+    }
+
+    public function test_slug_kosong_dibuat_dari_nama_dan_dibuat_unik(): void
+    {
+        $admin = $this->superadmin();
+        $data = [
+            'name' => 'Jonas Knee Pad / Knee Busa Classic V2 - Black',
+            'slug' => '',
+            'category' => 'olahraga',
+            'unit' => 'pcs',
+            'sell_price' => 199800,
+            'cost_price' => 175310,
+            'weight_gram' => 200,
+            'is_active' => '0',
+        ];
+
+        $this->actingAs($admin)->post('/superadmin/toko/produk', $data)->assertRedirect(route('superadmin.toko.produk'));
+        $this->actingAs($admin)->post('/superadmin/toko/produk', $data)->assertRedirect(route('superadmin.toko.produk'));
+
+        $this->assertSame(
+            ['jonas-knee-pad-knee-busa-classic-v2-black', 'jonas-knee-pad-knee-busa-classic-v2-black-2'],
+            Product::orderBy('id')->pluck('slug')->all(),
+        );
+    }
+}

@@ -1,7 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import Field from '../../../../components/form/Field';
-import UnggahFoto from '../../../../components/form/UnggahFoto';
+import UnggahFotoBanyak, { type FotoAda } from '../../../../components/form/UnggahFotoBanyak';
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import { Button } from '../../../../components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '../../../../components/ui/card';
@@ -24,52 +24,221 @@ interface ProdukEdit {
     weight_gram: number;
     is_active: boolean;
     imageUrl: string | null;
+    fotos: FotoAda[];
     updateUrl: string;
+}
+
+/** Isian awal hasil membaca HTML halaman produk Shopee (lihat ProdukTokoController@impor). */
+interface DataImpor {
+    nama: string | null;
+    deskripsi: string | null;
+    kategori: string | null;
+    linkSupplier: string | null;
+    namaSupplier: string | null;
+    gambarUrl: string | null;
+    gambarUrls: string[];
+    hargaShopee: number | null;
+    hargaRetail: number | null;
+    supplierId: number | null;
 }
 
 interface Props {
     produk: ProdukEdit | null;
+    impor?: DataImpor | null;
+    imporUrl: string;
     pilihanKategori: { nilai: string; label: string }[];
     pilihanSatuan: string[];
     pilihanSupplier: { id: number; name: string }[];
     simpanUrl: string;
     kembaliUrl: string;
+    maksFoto: number;
 }
 
 const TANPA_SUPPLIER = 'tanpa';
 
-/** Add and edit a shop product (same form). */
-export default function Form({ produk, pilihanKategori, pilihanSatuan, pilihanSupplier, simpanUrl, kembaliUrl }: Props) {
+/** "Jonas Knee Pad / Knee Busa - Black" becomes "jonas-knee-pad-knee-busa-black" (letters, digits, dashes). */
+function buatSlug(nama: string): string {
+    return nama
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 170)
+        .replace(/-+$/g, '');
+}
+
+/** Selling price from cost plus a markup percentage, rounded up to the next Rp100. */
+function hargaDariMarkup(modal: number, persen: number): number {
+    return Math.ceil((modal * (1 + persen / 100)) / 100) * 100;
+}
+
+/** Markup percentage of a selling price over its cost, one decimal ("" when either is missing). */
+function markupDari(jual: number, modal: number): string {
+    return modal > 0 && jual > 0 ? String(Math.round(((jual - modal) / modal) * 1000) / 10) : '';
+}
+
+/**
+ * Perkecil HTML sebelum dikirim: buang ulasan (ada nama pembeli), produk
+ * lain, voucher, SVG, dan script. DOMParser tidak menjalankan script dan
+ * tidak memuat gambar, dan ulasan tidak pernah sampai ke server.
+ */
+function ringkasHtml(html: string): string {
+    try {
+        const dokumen = new DOMParser().parseFromString(html, 'text/html');
+        dokumen
+            .querySelectorAll(
+                'svg, script, style, noscript, video, [data-nosnippet], .product-ratings, .shopee-product-comment-list, [role="group"][aria-label^="Product card"], .product-shop-vouchers, .page-product__hot-sales',
+            )
+            .forEach((elemen) => elemen.remove());
+        dokumen.querySelectorAll('[style]').forEach((elemen) => elemen.removeAttribute('style'));
+
+        return dokumen.documentElement.outerHTML;
+    } catch {
+        return html;
+    }
+}
+
+/**
+ * Add and edit a shop product (same form). Inertia reuses the mounted page
+ * after the import redirect, and useForm only reads its initial values once,
+ * so each import result remounts the form with a fresh key.
+ */
+export default function Form(props: Props) {
+    return <FormProduk key={props.impor ? `${props.impor.nama}|${props.impor.linkSupplier}` : 'baru'} {...props} />;
+}
+
+function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSatuan, pilihanSupplier, simpanUrl, kembaliUrl, maksFoto }: Props) {
     const edit = produk !== null;
+    const imporForm = useForm({ html: '' });
     const form = useForm({
-        name: produk?.name ?? '',
-        slug: produk?.slug ?? '',
-        category: produk?.category ?? pilihanKategori[0]?.nilai ?? '',
+        name: produk?.name ?? impor?.nama ?? '',
+        slug: produk?.slug ?? (impor?.nama ? buatSlug(impor.nama) : ''),
+        category: produk?.category ?? impor?.kategori ?? pilihanKategori[0]?.nilai ?? '',
         unit: produk?.unit ?? 'pcs',
         badge: produk?.badge ?? '',
-        description: produk?.description ?? '',
-        sell_price: produk ? String(produk.sell_price) : '',
+        description: produk?.description ?? impor?.deskripsi ?? '',
+        sell_price: produk ? String(produk.sell_price) : impor?.hargaRetail ? String(impor.hargaRetail) : '',
         compare_price: produk?.compare_price ? String(produk.compare_price) : '',
-        cost_price: produk ? String(produk.cost_price) : '',
-        supplier_id: produk?.supplier_id ? String(produk.supplier_id) : TANPA_SUPPLIER,
-        supplier_product_url: produk?.supplier_product_url ?? '',
+        cost_price: produk ? String(produk.cost_price) : impor?.hargaShopee ? String(impor.hargaShopee) : '',
+        supplier_id: produk?.supplier_id ? String(produk.supplier_id) : impor?.supplierId ? String(impor.supplierId) : TANPA_SUPPLIER,
+        supplier_product_url: produk?.supplier_product_url ?? impor?.linkSupplier ?? '',
         weight_gram: produk ? String(produk.weight_gram) : '0',
-        is_active: produk ? (produk.is_active ? '1' : '0') : '1',
-        foto: null as File | null,
+        is_active: produk ? (produk.is_active ? '1' : '0') : impor ? '0' : '1',
+        fotoAda: produk?.fotos ?? ([] as FotoAda[]),
+        gambar_urls: impor?.gambarUrls ?? ([] as string[]),
+        foto_baru: [] as File[],
     });
 
     const jual = Number(form.data.sell_price) || 0;
     const modal = Number(form.data.cost_price) || 0;
 
+    // Markup is only a helper: it is never sent, the server stores the selling price.
+    // markupAktif keeps the selling price following cost changes after the markup was typed.
+    const [markup, setMarkup] = useState(() => markupDari(jual, modal));
+    const [markupAktif, setMarkupAktif] = useState(false);
+
+    const ubahMarkup = (nilai: string) => {
+        setMarkup(nilai);
+        setMarkupAktif(nilai !== '');
+        const persen = Number(nilai);
+        if (nilai !== '' && Number.isFinite(persen) && persen >= 0 && modal > 0) {
+            form.setData('sell_price', String(hargaDariMarkup(modal, persen)));
+        }
+    };
+
+    const ubahModal = (nilai: string) => {
+        const modalBaru = Number(nilai) || 0;
+        const persen = Number(markup);
+        if (markupAktif && markup !== '' && Number.isFinite(persen) && modalBaru > 0) {
+            form.setData((data) => ({ ...data, cost_price: nilai, sell_price: String(hargaDariMarkup(modalBaru, persen)) }));
+        } else {
+            form.setData('cost_price', nilai);
+            setMarkup(markupDari(jual, modalBaru));
+        }
+    };
+
+    const ubahJual = (nilai: string) => {
+        form.setData('sell_price', nilai);
+        setMarkupAktif(false);
+        setMarkup(markupDari(Number(nilai) || 0, modal));
+    };
+
+    const baca = (event: FormEvent) => {
+        event.preventDefault();
+        imporForm.transform((data) => ({ html: ringkasHtml(data.html) }));
+        imporForm.post(imporUrl, {
+            preserveScroll: true,
+            onSuccess: () => imporForm.reset(),
+        });
+    };
+
+    const galat: Record<string, string> = form.errors;
+    const galatFoto = galat.foto ?? Object.entries(galat).find(([kunci]) => kunci.startsWith('foto_baru') || kunci.startsWith('gambar_urls'))?.[1];
+
     const simpan = (event: FormEvent) => {
         event.preventDefault();
-        form.transform((data) => ({ ...data, supplier_id: data.supplier_id === TANPA_SUPPLIER ? '' : data.supplier_id, ...(edit ? { _method: 'put' } : {}) }));
+        form.transform(({ fotoAda, ...data }) => ({
+            ...data,
+            supplier_id: data.supplier_id === TANPA_SUPPLIER ? '' : data.supplier_id,
+            // Sent even when empty, so removing every saved photo is understood by the server.
+            foto_diatur: '1',
+            foto_ada: fotoAda.map((foto) => foto.id),
+            ...(edit ? { _method: 'put' } : {}),
+        }));
         form.post(edit ? produk.updateUrl : simpanUrl, { forceFormData: true });
     };
 
     return (
         <AdminLayout judul={edit ? 'Edit Produk' : 'Tambah Produk'} deskripsi={edit ? produk.name : 'Produk baru untuk halaman /toko.'}>
             <Head title={edit ? 'Edit Produk' : 'Tambah Produk'} />
+            {!edit && (
+                <Card className="mb-5 p-4 md:p-6">
+                    <CardHeader className="p-0 pb-3">
+                        <CardTitle>Impor dari HTML Shopee</CardTitle>
+                        <CardDescription>
+                            Tempel HTML halaman produk Shopee (buka produknya, klik kanan, Inspect, salin elemen html). Nama, deskripsi, foto, link supplier, dan harga terisi
+                            otomatis sebagai saran.
+                        </CardDescription>
+                    </CardHeader>
+                    <form onSubmit={baca} className="space-y-3">
+                        <Field id="html" label="HTML halaman produk" error={imporForm.errors.html}>
+                            <Textarea
+                                id="html"
+                                rows={4}
+                                value={imporForm.data.html}
+                                onChange={(event) => imporForm.setData('html', event.target.value)}
+                                placeholder="<html>...</html>"
+                                spellCheck={false}
+                            />
+                        </Field>
+                        <Button type="submit" variant="outline" disabled={imporForm.processing || imporForm.data.html.trim() === ''}>
+                            Baca HTML
+                        </Button>
+                    </form>
+                </Card>
+            )}
+            {impor && (
+                <div className="mb-5 rounded-xl border border-border bg-muted px-4 py-3 text-sm" role="status">
+                    <p className="font-semibold">Hasil impor, silakan dicek dulu.</p>
+                    <p className="mt-1 text-muted-foreground">
+                        Terisi:{' '}
+                        {[
+                            impor.nama && 'nama',
+                            impor.deskripsi && 'deskripsi',
+                            impor.kategori && 'kategori',
+                            impor.gambarUrls.length > 0 && 'foto',
+                            impor.linkSupplier && 'link supplier',
+                            impor.hargaRetail && 'harga jual',
+                            impor.hargaShopee && 'harga modal',
+                        ]
+                            .filter(Boolean)
+                            .join(', ') || 'tidak ada'}
+                        . Harga hanya saran dan bisa diubah, berat belum diisi. Produk dibuat Disembunyikan sampai Anda mengubahnya.
+                        {impor.namaSupplier && !impor.supplierId ? ` Supplier "${impor.namaSupplier}" belum ada di daftar supplier.` : ''}
+                    </p>
+                </div>
+            )}
             <form onSubmit={simpan} className="grid gap-5 pb-24 md:pb-0 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
                 <Card className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 md:p-6">
                     <Field id="name" label="Nama produk" error={form.errors.name} wajib className="md:col-span-2">
@@ -119,22 +288,54 @@ export default function Form({ produk, pilihanKategori, pilihanSatuan, pilihanSu
                     <Field id="description" label="Deskripsi" error={form.errors.description} className="md:col-span-2">
                         <Textarea id="description" rows={4} value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} />
                     </Field>
-                    <Field id="slug" label="Alamat halaman (slug)" error={form.errors.slug} hint="Kosongkan untuk dibuat otomatis dari nama." className="md:col-span-2">
-                        <Input
-                            id="slug"
-                            value={form.data.slug}
-                            onChange={(event) => form.setData('slug', event.target.value)}
-                            placeholder="bola-padel-isi-3"
-                            autoCapitalize="none"
-                        />
+                    <Field
+                        id="slug"
+                        label="Alamat halaman (slug)"
+                        error={form.errors.slug}
+                        hint="Kosongkan untuk dibuat otomatis dari nama. Kalau sudah dipakai produk lain, ditambah angka di belakangnya."
+                        className="md:col-span-2"
+                    >
+                        <div className="flex gap-2">
+                            <Input
+                                id="slug"
+                                value={form.data.slug}
+                                onChange={(event) => form.setData('slug', event.target.value)}
+                                placeholder="bola-padel-isi-3"
+                                autoCapitalize="none"
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="shrink-0"
+                                disabled={form.data.name.trim() === ''}
+                                onClick={() => form.setData('slug', buatSlug(form.data.name))}
+                            >
+                                Buat dari nama
+                            </Button>
+                        </div>
                     </Field>
-                    <Field id="foto" label="Foto" error={form.errors.foto} hint="Tanpa foto, halaman toko memakai gambar placeholder." className="md:col-span-2">
-                        <UnggahFoto
+                    <Field
+                        id="foto"
+                        label="Foto"
+                        error={galatFoto}
+                        hint={
+                            form.data.gambar_urls.length > 0
+                                ? 'Foto dari Shopee diunduh ke toko saat disimpan. Anda bisa menghapus atau menambah foto sendiri.'
+                                : form.data.fotoAda.length + form.data.foto_baru.length === 0
+                                  ? 'Tanpa foto, halaman toko memakai gambar placeholder.'
+                                  : undefined
+                        }
+                        className="md:col-span-2"
+                    >
+                        <UnggahFotoBanyak
                             id="foto"
-                            fotoSekarang={produk?.imageUrl ?? null}
-                            file={form.data.foto}
-                            onPilih={(file) => form.setData('foto', file)}
-                            labelTombol={edit ? 'Ganti foto' : 'Pilih foto'}
+                            fotoAda={form.data.fotoAda}
+                            onFotoAda={(foto) => form.setData('fotoAda', foto)}
+                            alamatImpor={form.data.gambar_urls}
+                            onAlamatImpor={(alamat) => form.setData('gambar_urls', alamat)}
+                            fotoBaru={form.data.foto_baru}
+                            onFotoBaru={(file) => form.setData('foto_baru', file)}
+                            maks={maksFoto}
                         />
                     </Field>
                 </Card>
@@ -146,14 +347,20 @@ export default function Form({ produk, pilihanKategori, pilihanSatuan, pilihanSu
                             <CardDescription>Harga modal tidak pernah tampil ke pelanggan.</CardDescription>
                         </CardHeader>
                         <div className="grid grid-cols-1 gap-4 px-5 pb-5">
-                            <Field id="sell" label="Harga jual (Rp)" error={form.errors.sell_price} wajib>
+                            <Field
+                                id="sell"
+                                label="Harga jual (Rp)"
+                                error={form.errors.sell_price}
+                                wajib
+                                hint={impor?.hargaRetail ? `Diisi dari harga retail penjual, ${rupiah(impor.hargaRetail)}. Ubah sesuai harga toko Anda.` : undefined}
+                            >
                                 <Input
                                     id="sell"
                                     type="number"
                                     inputMode="numeric"
                                     min={0}
                                     value={form.data.sell_price}
-                                    onChange={(event) => form.setData('sell_price', event.target.value)}
+                                    onChange={(event) => ubahJual(event.target.value)}
                                     required
                                 />
                             </Field>
@@ -172,19 +379,46 @@ export default function Form({ produk, pilihanKategori, pilihanSatuan, pilihanSu
                                     onChange={(event) => form.setData('compare_price', event.target.value)}
                                 />
                             </Field>
-                            <Field id="cost" label="Harga modal (Rp)" error={form.errors.cost_price} wajib>
+                            <Field
+                                id="cost"
+                                label="Harga modal (Rp)"
+                                error={form.errors.cost_price}
+                                wajib
+                                hint={
+                                    impor?.hargaShopee
+                                        ? `Diisi dari harga tampil di Shopee, ${rupiah(impor.hargaShopee)} (bisa sudah dipotong voucher). Cek harga dasar dari supplier.`
+                                        : undefined
+                                }
+                            >
                                 <Input
                                     id="cost"
                                     type="number"
                                     inputMode="numeric"
                                     min={0}
                                     value={form.data.cost_price}
-                                    onChange={(event) => form.setData('cost_price', event.target.value)}
+                                    onChange={(event) => ubahModal(event.target.value)}
                                     required
+                                />
+                            </Field>
+                            <Field
+                                id="markup"
+                                label="Markup dari modal (%)"
+                                hint="Isi persen, harga jual dihitung dari harga modal dan dibulatkan ke atas Rp100. Harga jual tetap bisa diubah."
+                            >
+                                <Input
+                                    id="markup"
+                                    type="number"
+                                    inputMode="decimal"
+                                    min={0}
+                                    step="0.1"
+                                    value={markup}
+                                    onChange={(event) => ubahMarkup(event.target.value)}
+                                    placeholder="25"
                                 />
                             </Field>
                             <div className="rounded-lg bg-muted px-3 py-2 text-sm">
                                 Untung per barang: <strong className={jual - modal < 0 ? 'text-destructive' : 'text-green'}>{rupiah(jual - modal)}</strong>
+                                {modal > 0 && jual > 0 && <span className="text-muted-foreground"> ({markupDari(jual, modal)}% dari modal)</span>}
                             </div>
                         </div>
                     </Card>

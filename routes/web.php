@@ -211,6 +211,7 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
 
             Route::get('/produk', [ProdukTokoController::class, 'index'])->name('produk');
             Route::get('/produk/tambah', [ProdukTokoController::class, 'create'])->name('produk.create');
+            Route::post('/produk/impor', [ProdukTokoController::class, 'impor'])->middleware('throttle:20,1')->name('produk.impor');
             Route::post('/produk', [ProdukTokoController::class, 'store'])->name('produk.store');
             Route::get('/produk/{product}/edit', [ProdukTokoController::class, 'edit'])->name('produk.edit');
             Route::put('/produk/{product}', [ProdukTokoController::class, 'update'])->name('produk.update');
