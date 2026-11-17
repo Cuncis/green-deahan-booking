@@ -30,7 +30,7 @@ class PesananTokoController extends Controller
                 'status' => $order->status->value,
                 'statusLabel' => $order->status->label(),
                 'nama' => $order->customer_name,
-                'alamat' => "{$order->address}, {$order->city}, {$order->province} {$order->postal_code}",
+                'alamat' => $order->alamatPengiriman(),
                 'items' => $order->items->map(fn (OrderItem $item) => [
                     'nama' => $item->product_name,
                     'qty' => $item->qty,
@@ -39,6 +39,7 @@ class PesananTokoController extends Controller
                 ])->all(),
                 'subtotal' => $order->subtotal,
                 'ongkir' => $order->shipping_cost,
+                'layanan' => $order->layananPengiriman(),
                 'total' => $order->total,
                 'linkBayar' => $order->status === OrderStatus::PendingPayment ? $order->mayar_payment_link : null,
                 'kurir' => $order->courier,

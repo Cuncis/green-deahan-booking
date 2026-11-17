@@ -27,7 +27,9 @@ export interface Keranjang {
     items: BarisKeranjang[];
     jumlahItem: number;
     subtotal: number;
-    ongkir: number;
+    /** null while the shipping cost is still to be chosen (Biteship), set when it is a flat rate. */
+    ongkir: number | null;
+    ongkirDinamis: boolean;
     total: number;
 }
 

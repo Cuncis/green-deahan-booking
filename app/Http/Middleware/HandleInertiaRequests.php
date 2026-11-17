@@ -54,6 +54,9 @@ class HandleInertiaRequests extends Middleware
             return [
                 ...parent::share($request),
                 'jumlahKeranjang' => fn () => app(KeranjangService::class)->jumlahItem(),
+                // Dipakai kartu produk: object (bukan array) supaya kunci id produk tetap kunci.
+                'qtyKeranjang' => fn () => (object) app(KeranjangService::class)->jumlahPerProduk(),
+                'maksQtyProduk' => (int) config('toko.maks_qty_per_produk'),
                 'tokoPublik' => (bool) config('toko.publik'),
                 'sistemBookingPublik' => (bool) config('situs.sistem_booking_publik'),
                 'flash' => [

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Supplier toko online (dropship). Hanya terlihat oleh superadmin.
  */
-#[Fillable(['name', 'platform', 'shop_url', 'whatsapp', 'notes'])]
+#[Fillable(['name', 'platform', 'shop_url', 'whatsapp', 'origin_postal_code', 'notes'])]
 class Supplier extends Model
 {
     /** @use HasFactory<SupplierFactory> */

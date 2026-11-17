@@ -61,6 +61,9 @@ class AppServiceProvider extends ServiceProvider
             ], 429, $headers)));
 
         // Checkout toko membuat pesanan dan payment request Mayar: batasi per IP.
+        // Tarif ongkir memanggil API Biteship: batasi per IP.
+        RateLimiter::for('ongkir-toko', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
+
         RateLimiter::for('checkout-toko', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
 
         RateLimiter::for('booking-store', fn (Request $request) => Limit::perMinute(5)

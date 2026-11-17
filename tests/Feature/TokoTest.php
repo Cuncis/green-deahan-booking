@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Wilayah;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Support\Facades\Http;
@@ -48,18 +49,35 @@ class TokoTest extends TestCase
     }
 
     /**
+     * Wilayah contoh: DKI Jakarta, Jakarta Selatan, Tebet, dan dua kelurahan
+     * (satu dengan kode pos, satu tanpa). Aman dipanggil berulang.
+     */
+    private function siapkanWilayah(): void
+    {
+        foreach ([
+            ['31', 'DKI Jakarta', null],
+            ['31.74', 'Kota Administrasi Jakarta Selatan', null],
+            ['31.74.01', 'Tebet', null],
+            ['31.74.01.1001', 'Tebet Barat', '12810'],
+            ['31.74.01.1002', 'Tebet Timur', null],
+        ] as [$kode, $nama, $kodepos]) {
+            Wilayah::query()->updateOrCreate(['kode' => $kode], ['nama' => $nama, 'level' => Wilayah::levelDari($kode), 'induk' => Wilayah::indukDari($kode), 'kodepos' => $kodepos]);
+        }
+    }
+
+    /**
      * @return array<string, string>
      */
     private function dataPengiriman(array $override = []): array
     {
+        $this->siapkanWilayah();
+
         return array_merge([
             'customer_name' => 'Budi Santoso',
             'phone' => '0812-3456-7890',
             'email' => 'Budi@Contoh.com',
             'address' => 'Jl. Melati No. 10, RT 01/RW 02, Kebayoran',
-            'city' => 'Jakarta Selatan',
-            'province' => 'DKI Jakarta',
-            'postal_code' => '12345',
+            'wilayah_kode' => '31.74.01.1001',
         ], $override);
     }
 
@@ -229,6 +247,10 @@ class TokoTest extends TestCase
         $this->assertSame('https://testingmayar.myr.id/pl/abc123', $order->mayar_payment_link);
         $this->assertSame('budi@contoh.com', $order->email);
         $this->assertSame('081234567890', $order->phone);
+        $this->assertSame(
+            ['DKI Jakarta', 'Kota Administrasi Jakarta Selatan', 'Tebet', 'Tebet Barat', '12810', '31.74.01.1001'],
+            [$order->province, $order->city, $order->district, $order->village, $order->postal_code, $order->wilayah_kode],
+        );
         $this->assertMatchesRegularExpression('/^GD-\d{8}-[A-Z2-9]{6}$/', $order->code);
         $this->assertSame(['Bola Padel', 95000, 75000, 2], [$order->items[0]->product_name, $order->items[0]->unit_price, $order->items[0]->unit_cost, $order->items[0]->qty]);
 
@@ -287,8 +309,8 @@ class TokoTest extends TestCase
         $produk = $this->produk();
         $this->post(self::SITUS.'/keranjang', ['product_id' => $produk->id]);
 
-        $this->post(self::SITUS.'/checkout', $this->dataPengiriman(['phone' => '123', 'email' => 'bukan-email', 'postal_code' => '12', 'address' => 'pendek']))
-            ->assertSessionHasErrors(['phone', 'email', 'postal_code', 'address']);
+        $this->post(self::SITUS.'/checkout', $this->dataPengiriman(['phone' => '123', 'email' => 'bukan-email', 'wilayah_kode' => 'salah', 'address' => 'pendek']))
+            ->assertSessionHasErrors(['phone', 'email', 'wilayah_kode', 'address']);
 
         $this->assertSame(0, Order::count());
         Http::assertNothingSent();

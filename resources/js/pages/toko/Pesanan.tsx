@@ -16,6 +16,7 @@ interface Pesanan {
     items: { nama: string; qty: number; harga: number; subtotal: number }[];
     subtotal: number;
     ongkir: number;
+    layanan: string | null;
     total: number;
     linkBayar: string | null;
     kurir: string | null;
@@ -133,7 +134,7 @@ export default function PesananToko({ pesanan, langkah }: Props) {
                                     <span>{rupiah(pesanan.subtotal)}</span>
                                 </div>
                                 <div className="gd-ringkasan-baris">
-                                    <span>Ongkir</span>
+                                    <span>Ongkir{pesanan.layanan ? ` (${pesanan.layanan})` : ''}</span>
                                     <span>{rupiah(pesanan.ongkir)}</span>
                                 </div>
                                 <div className="gd-ringkasan-baris total">

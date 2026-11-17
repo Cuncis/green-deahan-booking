@@ -20,10 +20,17 @@ use Illuminate\Support\Str;
     'email',
     'address',
     'city',
+    'district',
+    'village',
     'province',
     'postal_code',
+    'wilayah_kode',
     'subtotal',
     'shipping_cost',
+    'courier_code',
+    'courier_service_code',
+    'courier_service_name',
+    'shipping_duration',
     'total',
     'status',
     'mayar_payment_id',
@@ -90,8 +97,34 @@ class Order extends Model
         return $this->total - $this->shipping_cost - $this->totalModal();
     }
 
+    /**
+     * Layanan kurir yang dipilih pelanggan, misal "JNE Reguler (2 - 3 hari)". Null untuk pesanan dengan ongkir flat.
+     */
+    public function layananPengiriman(): ?string
+    {
+        if (! $this->courier_service_name) {
+            return null;
+        }
+
+        return $this->shipping_duration ? "{$this->courier_service_name} ({$this->shipping_duration})" : $this->courier_service_name;
+    }
+
+    /**
+     * Alamat tujuan dalam satu baris. Kelurahan dan kecamatan dilewati untuk pesanan lama yang belum menyimpannya.
+     */
+    public function alamatPengiriman(): string
+    {
+        return collect([
+            $this->address,
+            $this->village ? "Kel. {$this->village}" : null,
+            $this->district ? "Kec. {$this->district}" : null,
+            $this->city,
+            "{$this->province} {$this->postal_code}",
+        ])->filter()->implode(', ');
+    }
+
     public function alamatLengkap(): string
     {
-        return Str::of("{$this->customer_name}\n{$this->phone}\n{$this->address}\n{$this->city}, {$this->province} {$this->postal_code}")->toString();
+        return Str::of("{$this->customer_name}\n{$this->phone}\n{$this->alamatPengiriman()}")->toString();
     }
 }

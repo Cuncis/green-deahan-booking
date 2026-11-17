@@ -11,8 +11,10 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  margin-left: auto;
-  margin-right: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
   border-radius: 999px;
   color: #004d00;
   font-size: 22px;
@@ -39,11 +41,180 @@
   line-height: 20px;
   text-align: center;
 }
+/* The icon sits in a wrapper so the popup can hang from it */
+.gd-mini-keranjang {
+  position: relative;
+  margin-left: auto;
+  margin-right: 8px;
+}
 @media (min-width: 992px) {
-  .gd-keranjang-link {
+  .gd-mini-keranjang {
     margin-left: 12px;
     margin-right: 0;
   }
+}
+
+/* Cart popup (summary of items) */
+.gd-mini-panel {
+  position: fixed;
+  z-index: 1100;
+  width: min(380px, calc(100vw - 24px));
+  max-height: calc(100vh - 110px);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid #e7e5e4;
+  border-radius: 16px;
+  background: #fafafa;
+  box-shadow: 0 16px 40px rgba(0, 40, 0, 0.18);
+  color: #1a1a1a;
+  font-size: 15px;
+  text-align: left;
+}
+.gd-mini-kepala {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 17px;
+}
+.gd-mini-tutup,
+.gd-mini-kanan button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #6b6b6b;
+  cursor: pointer;
+}
+.gd-mini-tutup {
+  width: 36px;
+  height: 36px;
+  margin-right: -8px;
+  border-radius: 999px;
+}
+.gd-mini-tutup:hover,
+.gd-mini-kanan button:hover {
+  color: #b42318;
+}
+.gd-mini-info {
+  margin: 8px 0 4px;
+  color: #6b6b6b;
+}
+.gd-mini-kosong {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 6px;
+  color: #006400;
+  text-align: center;
+}
+.gd-mini-kosong p {
+  margin: 0;
+  color: #4b4b4b;
+}
+.gd-mini-daftar {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  border-top: 1px solid #e7e5e4;
+}
+.gd-mini-daftar li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e7e5e4;
+}
+.gd-mini-foto {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  overflow: hidden;
+  border: 1px solid #e7e5e4;
+  border-radius: 10px;
+  background: #eef5ee;
+}
+.gd-mini-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gd-mini-foto .gd-toko-placeholder span {
+  display: none;
+}
+.gd-mini-foto .gd-toko-placeholder svg {
+  width: 22px;
+  height: 22px;
+}
+.gd-mini-teks {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.gd-mini-teks a {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #1a1a1a;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.gd-mini-teks a:hover {
+  color: #006400;
+}
+.gd-mini-teks span {
+  color: #6b6b6b;
+  font-size: 13px;
+}
+.gd-mini-kanan {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  color: #004d00;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.gd-mini-kanan button {
+  width: 28px;
+  height: 28px;
+}
+.gd-mini-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 17px;
+}
+.gd-mini-total strong {
+  color: #004d00;
+}
+.gd-mini-catatan {
+  margin: 2px 0 12px;
+  color: #6b6b6b;
+  font-size: 13px;
+}
+.gd-mini-aksi {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.gd-mini-aksi .btn,
+.gd-mini-kosong .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 14px;
+  font-size: 15px;
+  white-space: nowrap;
 }
 
 /* Sections */
@@ -139,6 +310,78 @@
   width: 100%;
   margin-top: 10px;
   min-height: 44px;
+}
+.gd-toko .product-entry .gd-tambah-kartu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+/* Space between product rows (cards in one row stay equal height) */
+.gd-toko .row.products > [class*='col-'] {
+  margin-bottom: 28px;
+}
+
+/* Counter that replaces "Tambah ke Keranjang" once the product is in the cart */
+.gd-toko .product-entry .gd-qty-kartu {
+  display: flex;
+  align-items: stretch;
+  margin-top: 10px;
+  min-height: 44px;
+  border: 1px solid #006400;
+  border-radius: 999px;
+  background: #f5f5f5;
+  overflow: hidden;
+}
+.gd-toko .product-entry .gd-qty-kartu button {
+  flex: 0 0 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: #006400;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.gd-toko .product-entry .gd-qty-kartu button:hover:not(:disabled) {
+  background: #004d00;
+}
+.gd-toko .product-entry .gd-qty-kartu button:disabled,
+.gd-toko .product-entry .gd-qty-kartu input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.gd-toko .product-entry .gd-qty-kartu input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+  color: #004d00;
+  -moz-appearance: textfield;
+}
+.gd-toko .product-entry .gd-qty-kartu input::-webkit-outer-spin-button,
+.gd-toko .product-entry .gd-qty-kartu input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+@media (max-width: 575.98px) {
+  .gd-toko .product-entry .gd-qty-kartu button {
+    flex-basis: 40px;
+  }
+}
+.gd-toko .product-entry .gd-qty-kartu input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(0, 100, 0, 0.25);
 }
 
 /* Placeholder image when a product has no photo */
@@ -379,6 +622,7 @@
   color: #1a1a1a;
 }
 .gd-form-toko input,
+.gd-form-toko select,
 .gd-form-toko textarea {
   width: 100%;
   min-height: 48px;
@@ -392,6 +636,7 @@
   min-height: 96px;
 }
 .gd-form-toko input:focus,
+.gd-form-toko select:focus,
 .gd-form-toko textarea:focus {
   outline: none;
   border-color: #006400;
@@ -574,29 +819,6 @@
   color: #fff;
 }
 
-/* Hover overlay buttons: Fuzio styles links; the add-to-cart is a button */
-.gd-toko .product-entry .product-cta button {
-  display: table;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 10px;
-  border: 0;
-  border-radius: 50%;
-  background-color: var(--black);
-  text-align: center;
-}
-.gd-toko .product-entry .product-cta button i {
-  color: var(--primary);
-}
-.gd-toko .product-entry .product-cta button:disabled {
-  opacity: 0.6;
-}
-@media (hover: none) {
-  .gd-toko .product-entry .product-cta {
-    display: none;
-  }
-}
-
 /* Sort select */
 .gd-urut {
   min-height: 44px;
@@ -755,6 +977,7 @@
   margin-bottom: 4px;
 }
 form.form.checkout-form.gd-form-toko input,
+form.form.checkout-form.gd-form-toko select,
 form.form.checkout-form.gd-form-toko textarea {
   margin-bottom: 0;
 }
@@ -795,4 +1018,106 @@ form.form.checkout-form.gd-form-toko textarea {
 }
 .gd-toko .cart-number .cart-counter {
   width: fit-content;
+}
+
+/* Checkout address dropdowns and the auto-filled postal code */
+form.form.checkout-form.gd-form-toko select,
+.gd-form-toko select {
+  appearance: none;
+  color: #1a1a1a;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23004d00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-color: #f5f5f5;
+  cursor: pointer;
+}
+form.form.checkout-form.gd-form-toko select:disabled {
+  background-color: #f5f5f5;
+  color: #6b6b6b;
+}
+.gd-form-toko select:disabled,
+.gd-form-toko input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+.gd-form-toko input[readonly] {
+  background-color: #e8f2e8;
+  color: #004d00;
+  font-weight: 600;
+}
+.gd-form-toko .gd-petunjuk {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #6b6b6b;
+}
+.gd-form-toko .gd-tautan-ulang {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #006400;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Courier choice in checkout (Biteship services) */
+.gd-form-toko .gd-kurir {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.gd-form-toko .gd-kurir legend {
+  float: none;
+  width: auto;
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: inherit;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+.gd-form-toko .gd-opsi-kirim {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border: 1px solid #e7e5e4;
+  border-radius: 12px;
+  background: #f5f5f5;
+  font-weight: 400;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.gd-form-toko .gd-opsi-kirim:hover {
+  border-color: #6aa86a;
+}
+.gd-form-toko .gd-opsi-kirim.aktif {
+  border-color: #006400;
+  background: #e8f2e8;
+}
+.gd-form-toko .gd-opsi-kirim input[type='radio'] {
+  flex: 0 0 auto;
+  width: 20px;
+  min-height: 0;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  accent-color: #006400;
+  cursor: pointer;
+}
+.gd-form-toko .gd-opsi-kirim .nama {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.gd-form-toko .gd-opsi-kirim .nama small {
+  color: #6b6b6b;
+  font-size: 13px;
+}
+.gd-form-toko .gd-opsi-kirim .harga {
+  font-weight: 700;
+  color: #004d00;
+  white-space: nowrap;
 }

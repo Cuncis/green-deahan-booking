@@ -17,12 +17,13 @@ interface Supplier {
     platform: string;
     shop_url: string | null;
     whatsapp: string | null;
+    origin_postal_code: string | null;
     notes: string | null;
     jumlahProduk: number;
 }
 
 const LABEL_PLATFORM: Record<string, string> = { shopee: 'Shopee', tokopedia: 'Tokopedia', direct: 'Langsung' };
-const KOSONG = { name: '', platform: 'shopee', shop_url: '', whatsapp: '', notes: '' };
+const KOSONG = { name: '', platform: 'shopee', shop_url: '', whatsapp: '', origin_postal_code: '', notes: '' };
 
 /** Shop suppliers: simple list with an add/edit dialog. */
 export default function SupplierPage({ supplier, pilihanPlatform }: { supplier: Supplier[]; pilihanPlatform: string[] }) {
@@ -32,7 +33,18 @@ export default function SupplierPage({ supplier, pilihanPlatform }: { supplier: 
 
     const buka = (target: Supplier | 'baru') => {
         form.clearErrors();
-        form.setData(target === 'baru' ? KOSONG : { name: target.name, platform: target.platform, shop_url: target.shop_url ?? '', whatsapp: target.whatsapp ?? '', notes: target.notes ?? '' });
+        form.setData(
+            target === 'baru'
+                ? KOSONG
+                : {
+                      name: target.name,
+                      platform: target.platform,
+                      shop_url: target.shop_url ?? '',
+                      whatsapp: target.whatsapp ?? '',
+                      origin_postal_code: target.origin_postal_code ?? '',
+                      notes: target.notes ?? '',
+                  },
+        );
         setDiedit(target);
     };
 
@@ -68,7 +80,9 @@ export default function SupplierPage({ supplier, pilihanPlatform }: { supplier: 
                                 <span className="font-display text-base font-semibold">{item.name}</span>
                                 <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold">{LABEL_PLATFORM[item.platform] ?? item.platform}</span>
                             </div>
-                            <p className="mb-3 text-xs text-muted-foreground">{item.jumlahProduk} produk</p>
+                            <p className="mb-3 text-xs text-muted-foreground">
+                                {item.jumlahProduk} produk{item.origin_postal_code ? `, kirim dari kode pos ${item.origin_postal_code}` : ''}
+                            </p>
                             {item.notes && <p className="mb-3 text-sm text-ink-mid">{item.notes}</p>}
                             <div className="mt-auto flex flex-wrap gap-2">
                                 {item.shop_url && (
@@ -128,8 +142,30 @@ export default function SupplierPage({ supplier, pilihanPlatform }: { supplier: 
                                 <Input id="sup-wa" type="tel" inputMode="tel" value={form.data.whatsapp} onChange={(event) => form.setData('whatsapp', event.target.value)} />
                             </Field>
                         </div>
+                        <Field
+                            id="sup-pos"
+                            label="Kode pos asal pengiriman"
+                            error={form.errors.origin_postal_code}
+                            hint="Kode pos gudang atau toko supplier. Dipakai Biteship untuk menghitung ongkir."
+                        >
+                            <Input
+                                id="sup-pos"
+                                inputMode="numeric"
+                                maxLength={5}
+                                value={form.data.origin_postal_code}
+                                onChange={(event) => form.setData('origin_postal_code', event.target.value.replace(/\D/g, ''))}
+                                placeholder="13330"
+                            />
+                        </Field>
                         <Field id="sup-url" label="Link toko" error={form.errors.shop_url}>
-                            <Input id="sup-url" type="url" inputMode="url" value={form.data.shop_url} onChange={(event) => form.setData('shop_url', event.target.value)} placeholder="https://" />
+                            <Input
+                                id="sup-url"
+                                type="url"
+                                inputMode="url"
+                                value={form.data.shop_url}
+                                onChange={(event) => form.setData('shop_url', event.target.value)}
+                                placeholder="https://"
+                            />
                         </Field>
                         <Field id="sup-catatan" label="Catatan" error={form.errors.notes}>
                             <Textarea id="sup-catatan" rows={3} value={form.data.notes} onChange={(event) => form.setData('notes', event.target.value)} />

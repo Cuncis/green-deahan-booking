@@ -14,6 +14,8 @@ class KeranjangService
 {
     private const KUNCI = 'toko.keranjang';
 
+    public function __construct(private readonly BiteshipService $biteship) {}
+
     /**
      * @return array<int, int> product_id => qty
      */
@@ -63,6 +65,17 @@ class KeranjangService
         session()->forget(self::KUNCI);
     }
 
+    /**
+     * Jumlah di keranjang per produk, untuk kartu produk yang berubah jadi
+     * penghitung jumlah setelah produknya ditambahkan.
+     *
+     * @return array<int, int> product_id => qty
+     */
+    public function jumlahPerProduk(): array
+    {
+        return array_map('intval', $this->mentah());
+    }
+
     public function jumlahItem(): int
     {
         return array_sum($this->mentah());
@@ -92,13 +105,15 @@ class KeranjangService
     }
 
     /**
-     * @return array{items: array<int, array<string, mixed>>, jumlahItem: int, subtotal: int, ongkir: int, total: int}
+     * @return array{items: array<int, array<string, mixed>>, jumlahItem: int, subtotal: int, ongkir: int|null, ongkirDinamis: bool, total: int}
      */
     public function ringkasan(): array
     {
         $isi = $this->isi();
         $subtotal = (int) $isi->sum(fn (array $baris) => $baris['product']->sell_price * $baris['qty']);
-        $ongkir = $isi->isEmpty() ? 0 : (int) config('toko.ongkir_flat');
+        // Dengan Biteship aktif ongkir baru diketahui setelah alamat dan kurir dipilih di checkout.
+        $ongkirDinamis = $this->biteship->aktif();
+        $ongkir = $isi->isEmpty() ? 0 : ($ongkirDinamis ? null : (int) config('toko.ongkir_flat'));
 
         return [
             'items' => $isi->map(fn (array $baris) => [
@@ -109,7 +124,8 @@ class KeranjangService
             'jumlahItem' => (int) $isi->sum('qty'),
             'subtotal' => $subtotal,
             'ongkir' => $ongkir,
-            'total' => $subtotal + $ongkir,
+            'ongkirDinamis' => $ongkirDinamis,
+            'total' => $subtotal + ($ongkir ?? 0),
         ];
     }
 }

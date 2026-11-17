@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import WhatsAppIcon from './elements/WhatsAppIcon';
+import MiniKeranjang from './toko/MiniKeranjang';
 import { GD_LOGO, GD_LOGO_LIGHT, GD_PHONE_DISPLAY, GD_PHONE_TEL, type HalamanPublik, menuSitus, PATH_TOKO, waLink } from '../../data/greendeahan';
 
 function aktif(path: string, currentPath: string): boolean {
@@ -154,12 +155,7 @@ export default function Header({ variant = 'home' }: HeaderProps) {
                     <a href="/" className="navbar-brand">
                         <img src={isHome && !isSticky ? GD_LOGO_LIGHT : GD_LOGO} width={150} height={60} alt="Green Deahan Sport" />
                     </a>
-                    {tampilkanKeranjang && (
-                        <a href="/keranjang" className="gd-keranjang-link order-lg-last" aria-label={`Keranjang belanja, ${jumlahKeranjang} barang`}>
-                            <i className="feather-icon icon-shopping-bag" aria-hidden="true"></i>
-                            {jumlahKeranjang > 0 && <span className="gd-keranjang-jumlah">{jumlahKeranjang > 99 ? '99+' : jumlahKeranjang}</span>}
-                        </a>
-                    )}
+                    {tampilkanKeranjang && <MiniKeranjang jumlah={jumlahKeranjang} />}
                     <button onClick={() => setIsMobile((previous) => !previous)} className="navbar-toggler offcanvas-nav-btn" type="button" aria-label="Menu">
                         <span className="feather-icon icon-menu"></span>
                     </button>

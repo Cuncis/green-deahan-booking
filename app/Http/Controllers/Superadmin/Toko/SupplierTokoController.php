@@ -23,6 +23,7 @@ class SupplierTokoController extends Controller
                 'platform' => $supplier->platform,
                 'shop_url' => $supplier->shop_url,
                 'whatsapp' => $supplier->whatsapp,
+                'origin_postal_code' => $supplier->origin_postal_code,
                 'notes' => $supplier->notes,
                 'jumlahProduk' => $supplier->products_count,
             ])->all(),

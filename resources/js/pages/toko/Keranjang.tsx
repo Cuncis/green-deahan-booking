@@ -143,11 +143,11 @@ export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeran
                                             <tr className="shipping-cost">
                                                 <th>Ongkir</th>
                                                 <td>
-                                                    <span className="amount">{rupiah(keranjang.ongkir)}</span>
+                                                    <span className="amount">{keranjang.ongkir === null ? 'Dihitung di checkout' : rupiah(keranjang.ongkir)}</span>
                                                 </td>
                                             </tr>
                                             <tr className="total">
-                                                <th>Total</th>
+                                                <th>{keranjang.ongkirDinamis ? 'Total (belum termasuk ongkir)' : 'Total'}</th>
                                                 <td>
                                                     <strong>
                                                         <span className="amount">{rupiah(keranjang.total)}</span>

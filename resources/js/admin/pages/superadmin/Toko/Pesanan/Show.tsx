@@ -17,10 +17,22 @@ interface Pesanan {
     kode: string;
     status: string;
     statusLabel: string;
-    pelanggan: { nama: string; hp: string; email: string; alamat: string; kota: string; provinsi: string; kodePos: string; alamatLengkap: string };
+    pelanggan: {
+        nama: string;
+        hp: string;
+        email: string;
+        alamat: string;
+        kelurahan: string | null;
+        kecamatan: string | null;
+        kota: string;
+        provinsi: string;
+        kodePos: string;
+        alamatLengkap: string;
+    };
     items: { id: number; nama: string; qty: number; harga: number; modal: number; linkSupplier: string | null }[];
     subtotal: number;
     ongkir: number;
+    layanan: string | null;
     total: number;
     totalModal: number;
     untung: number;
@@ -64,7 +76,11 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
     };
 
     return (
-        <AdminLayout judul={`Pesanan ${pesanan.kode}`} deskripsi={`Dipesan ${pesanan.dibuat}${pesanan.dibayar ? `, dibayar ${pesanan.dibayar}` : ''}`} aksi={<Badge variant={varianStatusPesanan(pesanan.status)}>{pesanan.statusLabel}</Badge>}>
+        <AdminLayout
+            judul={`Pesanan ${pesanan.kode}`}
+            deskripsi={`Dipesan ${pesanan.dibuat}${pesanan.dibayar ? `, dibayar ${pesanan.dibayar}` : ''}`}
+            aksi={<Badge variant={varianStatusPesanan(pesanan.status)}>{pesanan.statusLabel}</Badge>}
+        >
             <Head title={`Pesanan ${pesanan.kode}`} />
             <Link href={kembaliUrl} className="-mt-2 mb-4 inline-flex min-h-10 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
                 <ArrowLeft className="size-4" />
@@ -86,8 +102,12 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                         </CardHeader>
                         <div className="whitespace-pre-line px-5 pb-5 text-sm leading-relaxed">
                             <strong>{pesanan.pelanggan.nama}</strong>
-                            {`\n${pesanan.pelanggan.hp}\n${pesanan.pelanggan.alamat}\n${pesanan.pelanggan.kota}, ${pesanan.pelanggan.provinsi} ${pesanan.pelanggan.kodePos}`}
+                            {`\n${pesanan.pelanggan.hp}\n${pesanan.pelanggan.alamat}`}
+                            {pesanan.pelanggan.kelurahan ? `\nKel. ${pesanan.pelanggan.kelurahan}` : ''}
+                            {pesanan.pelanggan.kecamatan ? `\nKec. ${pesanan.pelanggan.kecamatan}` : ''}
+                            {`\n${pesanan.pelanggan.kota}, ${pesanan.pelanggan.provinsi} ${pesanan.pelanggan.kodePos}`}
                             <div className="mt-2 text-muted-foreground">{pesanan.pelanggan.email}</div>
+                            {pesanan.layanan && <div className="mt-1 text-muted-foreground">Kurir pilihan pelanggan: {pesanan.layanan}</div>}
                         </div>
                     </Card>
 
@@ -126,7 +146,12 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                             <CardTitle>Catatan admin</CardTitle>
                         </CardHeader>
                         <form onSubmit={(event) => (event.preventDefault(), catatan.put(pesanan.catatanUrl, { preserveScroll: true }))} className="grid gap-3 px-5 pb-5">
-                            <Textarea rows={3} value={catatan.data.admin_notes} onChange={(event) => catatan.setData('admin_notes', event.target.value)} aria-label="Catatan admin" />
+                            <Textarea
+                                rows={3}
+                                value={catatan.data.admin_notes}
+                                onChange={(event) => catatan.setData('admin_notes', event.target.value)}
+                                aria-label="Catatan admin"
+                            />
                             <Button type="submit" variant="outline" className="justify-self-start" disabled={catatan.processing}>
                                 Simpan catatan
                             </Button>
@@ -158,7 +183,12 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                                     {lanjut.nilai === 'shipped' && (
                                         <div className="grid grid-cols-2 gap-3">
                                             <Field id="kurir" label="Kurir" error={status.errors.courier} wajib>
-                                                <Input id="kurir" value={status.data.courier} onChange={(event) => status.setData('courier', event.target.value)} placeholder="JNE, J&T, SiCepat" />
+                                                <Input
+                                                    id="kurir"
+                                                    value={status.data.courier}
+                                                    onChange={(event) => status.setData('courier', event.target.value)}
+                                                    placeholder="JNE, J&T, SiCepat"
+                                                />
                                             </Field>
                                             <Field id="resi" label="Nomor resi" error={status.errors.tracking_number} wajib>
                                                 <Input id="resi" value={status.data.tracking_number} onChange={(event) => status.setData('tracking_number', event.target.value)} />
@@ -177,7 +207,12 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                                 </p>
                             )}
                             {bisaBatal && (
-                                <Button variant="ghost" size="sm" className="mt-3 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setKonfirmasiBatal(true)}>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="mt-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                    onClick={() => setKonfirmasiBatal(true)}
+                                >
                                     Batalkan pesanan
                                 </Button>
                             )}
@@ -198,7 +233,11 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                                 <ExternalLink className="size-3" />
                             </a>
                             {pesanan.mayarId && (
-                                <button type="button" className="inline-flex min-h-10 items-center gap-1 text-muted-foreground underline" onClick={() => salin(pesanan.mayarId!, 'ID Mayar disalin')}>
+                                <button
+                                    type="button"
+                                    className="inline-flex min-h-10 items-center gap-1 text-muted-foreground underline"
+                                    onClick={() => salin(pesanan.mayarId!, 'ID Mayar disalin')}
+                                >
                                     ID Mayar
                                     <Copy className="size-3" />
                                 </button>

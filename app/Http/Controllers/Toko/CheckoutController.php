@@ -3,14 +3,21 @@
 namespace App\Http\Controllers\Toko;
 
 use App\Enums\OrderStatus;
+use App\Exceptions\BiteshipException;
 use App\Exceptions\MayarException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Toko\CheckoutRequest;
 use App\Models\Order;
+use App\Models\Wilayah;
 use App\Services\KeranjangService;
 use App\Services\MayarService;
+use App\Services\OngkirTokoService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -24,6 +31,7 @@ class CheckoutController extends Controller
     public function __construct(
         private readonly KeranjangService $keranjang,
         private readonly MayarService $mayar,
+        private readonly OngkirTokoService $ongkir,
     ) {}
 
     public function create(): Response|RedirectResponse
@@ -37,8 +45,57 @@ class CheckoutController extends Controller
         return Inertia::render('toko/Checkout', [
             'keranjang' => $ringkasan,
             'sandbox' => $this->mayar->modeSandbox(),
+            // Dropdown alamat butuh data dari `php artisan wilayah:impor`; tanpa itu form menampilkan pemberitahuan.
+            'wilayahTersedia' => Wilayah::query()->exists(),
+            'wilayahUrl' => url('/wilayah'),
+            'ongkirUrl' => url('/checkout/ongkir'),
             'meta' => ['title' => 'Checkout | Toko Green Deahan Sport', 'noindex' => true],
         ]);
+    }
+
+    /**
+     * Layanan kurir dan ongkirnya untuk isi keranjang ke kelurahan tujuan,
+     * dari Biteship. Hanya untuk ditampilkan: saat bayar, ongkir dihitung
+     * ulang dari layanan yang dipilih.
+     */
+    public function ongkir(Request $request): JsonResponse
+    {
+        // Validator manual: pengecualian di aplikasi ini hanya dirender JSON untuk /api/*, jadi
+        // $request->validate() akan mengalihkan (302) alih-alih memberi 422.
+        $validator = Validator::make($request->query(), [
+            'wilayah_kode' => ['required', 'string', Rule::exists('wilayah', 'kode')->where('level', Wilayah::LEVEL_KELURAHAN)],
+            'postal_code' => ['nullable', 'digits:5'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Pilih kelurahan tujuan dulu.', 'errors' => $validator->errors()], 422);
+        }
+
+        $data = $validator->validated();
+
+        if (! $this->ongkir->aktif()) {
+            return response()->json(['aktif' => false, 'opsi' => []]);
+        }
+
+        $kodePos = Wilayah::find($data['wilayah_kode'])?->kodepos ?? ($data['postal_code'] ?? null);
+
+        if (! is_string($kodePos) || ! preg_match('/^\d{5}$/', $kodePos)) {
+            return response()->json(['message' => 'Isi kode pos 5 angka dulu.'], 422);
+        }
+
+        try {
+            $opsi = $this->ongkir->opsi($kodePos);
+        } catch (BiteshipException $galat) {
+            report($galat);
+
+            // Alasan sebenarnya (pesan Biteship tidak pernah memuat API key) hanya tampil saat APP_DEBUG menyala.
+            return response()->json(array_filter([
+                'message' => 'Ongkir belum bisa dihitung, coba lagi sebentar lagi.',
+                'detail' => config('app.debug') ? $galat->getMessage() : null,
+            ]), 502);
+        }
+
+        return response()->json(['aktif' => true, 'opsi' => $opsi])->header('Cache-Control', 'private, no-store');
     }
 
     public function store(CheckoutRequest $request): SymfonyResponse
@@ -52,10 +109,12 @@ class CheckoutController extends Controller
         // Harga, modal, dan total dihitung ulang dari database di sini.
         $order = DB::transaction(function () use ($request, $isi) {
             $subtotal = (int) $isi->sum(fn (array $baris) => $baris['product']->sell_price * $baris['qty']);
-            $ongkir = (int) config('toko.ongkir_flat');
+            $data = $request->dataPesanan();
+            // Ongkir dari layanan kurir yang dihitung ulang di server; ongkir flat kalau Biteship belum aktif.
+            $ongkir = (int) ($data['shipping_cost'] ?? config('toko.ongkir_flat'));
 
             $order = Order::create([
-                ...$request->validated(),
+                ...$data,
                 'code' => Order::buatKode(),
                 'subtotal' => $subtotal,
                 'shipping_cost' => $ongkir,

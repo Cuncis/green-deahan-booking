@@ -28,6 +28,7 @@ use App\Http\Controllers\Toko\CheckoutController;
 use App\Http\Controllers\Toko\KeranjangController;
 use App\Http\Controllers\Toko\PesananTokoController;
 use App\Http\Controllers\Toko\TokoController;
+use App\Http\Controllers\Toko\WilayahController;
 use App\Http\Middleware\CatatKunjungan;
 use App\Http\Middleware\IdentifikasiTenant;
 use Illuminate\Support\Facades\Route;
@@ -111,9 +112,12 @@ $situsKorporat = function () {
 
     // Toko online (dropship), lihat App\Http\Controllers\Toko. Keranjang di
     // session, harga selalu dihitung ulang di server, bayar lewat Mayar.
+    Route::get('/checkout/ongkir', [CheckoutController::class, 'ongkir'])->middleware('throttle:ongkir-toko')->name('checkout.ongkir');
+    Route::get('/wilayah', [WilayahController::class, 'index'])->middleware('throttle:120,1')->name('wilayah');
     Route::get('/toko', [TokoController::class, 'index'])->name('toko');
     Route::get('/toko/{slug}', [TokoController::class, 'show'])->name('toko.produk');
     Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang');
+    Route::get('/keranjang/ringkas', [KeranjangController::class, 'ringkas'])->name('keranjang.ringkas');
     Route::middleware('throttle:60,1')->group(function () {
         Route::post('/keranjang', [KeranjangController::class, 'store'])->name('keranjang.tambah');
         Route::patch('/keranjang/{product}', [KeranjangController::class, 'update'])->whereNumber('product')->name('keranjang.ubah');

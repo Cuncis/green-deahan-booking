@@ -14,7 +14,10 @@ Pesanan **{{ $order->code }}** sudah dibayar lewat Mayar. Silakan beli barangnya
 
 **Kirim ke:**
 {{ $order->customer_name }}, {{ $order->phone }}
-{{ $order->address }}, {{ $order->city }}, {{ $order->province }} {{ $order->postal_code }}
+{{ $order->alamatPengiriman() }}
+@if ($order->layananPengiriman())
+Kurir pilihan pelanggan: {{ $order->layananPengiriman() }}
+@endif
 
 <x-mail::button :url="$urlAdmin">
 Buka Pesanan di Admin

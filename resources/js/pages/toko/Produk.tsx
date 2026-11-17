@@ -200,7 +200,7 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                     {lainnya.length > 0 && (
                         <div className="mt-5 pt-4">
                             <h2 className="sec-title text-center mb-5">Produk Terkait</h2>
-                            <div className="row">
+                            <div className="row products">
                                 {lainnya.map((item) => (
                                     <div key={item.id} className="col-lg-4 col-md-6 col-6">
                                         <ProdukCard produk={item} />
