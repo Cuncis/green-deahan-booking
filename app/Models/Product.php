@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'supplier_id',
     'supplier_product_url',
     'weight_gram',
+    'origin_postal_code',
     'is_active',
 ])]
 #[Hidden(['cost_price', 'supplier_id', 'supplier_product_url'])]

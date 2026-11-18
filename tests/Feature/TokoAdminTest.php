@@ -86,6 +86,39 @@ class TokoAdminTest extends TestCase
             );
     }
 
+    public function test_kode_pos_asal_produk_opsional_harus_5_angka(): void
+    {
+        $admin = $this->superadmin();
+        $dasar = ['name' => 'Deker', 'slug' => 'deker', 'category' => 'olahraga', 'unit' => 'pcs', 'sell_price' => 50000, 'cost_price' => 30000, 'weight_gram' => 200, 'is_active' => '1'];
+
+        $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'origin_postal_code' => '6011'])->assertSessionHasErrors('origin_postal_code');
+        $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'origin_postal_code' => 'abcde'])->assertSessionHasErrors('origin_postal_code');
+        $this->assertSame(0, Product::count());
+
+        $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'origin_postal_code' => '60265'])->assertSessionHasNoErrors();
+        $produk = Product::sole();
+        $this->assertSame('60265', $produk->origin_postal_code);
+
+        $this->actingAs($admin)->get("/superadmin/toko/produk/{$produk->id}/edit")->assertInertia(fn (Assert $page) => $page->where('produk.origin_postal_code', '60265'));
+
+        $this->actingAs($admin)->put("/superadmin/toko/produk/{$produk->id}", [...$dasar, 'origin_postal_code' => ''])->assertSessionHasNoErrors();
+        $this->assertNull($produk->fresh()->origin_postal_code);
+    }
+
+    public function test_admin_mencatat_cabang_pengirim_saat_pesanan_dikirim(): void
+    {
+        Mail::fake();
+        $order = $this->pesananDibayar();
+        $admin = $this->superadmin();
+        $url = "/superadmin/toko/pesanan/{$order->id}/status";
+
+        $this->actingAs($admin)->post($url, ['status' => 'ordered_to_supplier', 'supplier_order_ref' => 'SHP-001'])->assertSessionHasNoErrors();
+        $this->actingAs($admin)->post($url, ['status' => 'shipped', 'courier' => 'JNE', 'tracking_number' => 'JNE123', 'shipped_from' => 'RANK Sports Bekasi'])->assertSessionHasNoErrors();
+
+        $this->assertSame('RANK Sports Bekasi', $order->fresh()->shipped_from);
+        $this->actingAs($admin)->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page->where('pesanan.dikirimDari', 'RANK Sports Bekasi'));
+    }
+
     public function test_ubah_dan_hapus_produk_tidak_merusak_pesanan_lama(): void
     {
         $produk = Product::factory()->create(['name' => 'Lama', 'slug' => 'lama']);

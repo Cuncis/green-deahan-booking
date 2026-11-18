@@ -73,6 +73,22 @@ class ImporProdukHtmlTest extends TestCase
         }
     }
 
+    public function test_daftar_outlet_penjual_tidak_ikut_ke_deskripsi(): void
+    {
+        $html = '<h1>Overgrip Raket</h1><div><h2>Deskripsi Produk</h2><div><p>Overgrip empuk anti licin untuk raket padel.<br><br>Isi 3 pcs per pak.</p>'
+            .'<p><strong>98 Outlet tersebar di Indonesia<br></strong><br><strong>DKI JAKARTA :</strong></p>'
+            .'<p><strong>📍</strong><a href="https://maps.app.goo.gl/abc">RANK Sports Ciledug, Jakarta Selatan</a><br>📍<a href="https://maps.app.goo.gl/def">RANK Sports Condet, Jakarta Selatan</a></p></div></div>';
+
+        $deskripsi = (new ImporProdukHtmlService)->baca($html)['deskripsi'];
+
+        $this->assertStringContainsString('Overgrip empuk anti licin', $deskripsi);
+        $this->assertStringContainsString('Isi 3 pcs per pak', $deskripsi);
+
+        foreach (['Outlet', 'RANK Sports', 'DKI JAKARTA', '📍', 'maps.app'] as $dilarang) {
+            $this->assertStringNotContainsString($dilarang, $deskripsi);
+        }
+    }
+
     public function test_ulasan_dan_nama_pembeli_tidak_ikut_terbaca(): void
     {
         $json = json_encode((new ImporProdukHtmlService)->baca($this->html()));

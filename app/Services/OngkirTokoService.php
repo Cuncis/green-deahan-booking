@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Exceptions\BiteshipException;
 use App\Models\Product;
+use App\Models\Wilayah;
+use Illuminate\Support\Collection;
 
 /**
  * Ongkir keranjang toko dari Biteship. Barang dikirim langsung oleh supplier,
@@ -26,8 +28,10 @@ class OngkirTokoService
 
     /**
      * Layanan kurir yang tersedia untuk isi keranjang saat ini, termurah dulu.
+     * Tiap layanan memuat rincian paket (asal perkiraan, barang, dan ongkirnya)
+     * yang jumlahnya sama dengan total ongkir.
      *
-     * @return array<int, array{kode: string, courier_code: string, courier_name: string, service_code: string, service_name: string, label: string, duration: string, price: int}>
+     * @return array<int, array{kode: string, courier_code: string, courier_name: string, service_code: string, service_name: string, label: string, duration: string, price: int, paket: array<int, array{asal: string, kodePos: string, barang: array<int, string>, price: int}>}>
      *
      * @throws BiteshipException
      */
@@ -39,7 +43,7 @@ class OngkirTokoService
             return [];
         }
 
-        $gabungan = null;
+        $kelompokTarif = [];
 
         foreach ($isi->groupBy(fn (array $baris) => $this->kodePosAsal($baris['product'])) as $kodePosAsal => $kelompok) {
             $tarif = $this->biteship->tarif((string) $kodePosAsal, $kodePosTujuan, $kelompok->map(fn (array $baris) => [
@@ -49,33 +53,41 @@ class OngkirTokoService
                 'quantity' => (int) $baris['qty'],
             ])->values()->all());
 
-            $perKode = collect($tarif)->keyBy(fn (array $layanan) => $layanan['courier_code'].':'.$layanan['service_code']);
-
-            $gabungan = $gabungan === null
-                ? $perKode
-                : $gabungan->intersectByKeys($perKode)->map(function (array $layanan, string $kode) use ($perKode) {
-                    $lain = $perKode[$kode];
-
-                    return [
-                        ...$layanan,
-                        'price' => $layanan['price'] + $lain['price'],
-                        'duration_min' => $this->terkecil($layanan['duration_min'], $lain['duration_min']),
-                        'duration_max' => $this->terbesar($layanan['duration_max'], $lain['duration_max']),
-                    ];
-                });
+            $kelompokTarif[] = [
+                'asal' => $this->namaAsal((string) $kodePosAsal),
+                'kodePos' => (string) $kodePosAsal,
+                'barang' => $kelompok->map(fn (array $baris) => $baris['product']->name)->values()->all(),
+                'tarif' => collect($tarif)->keyBy(fn (array $layanan) => $layanan['courier_code'].':'.$layanan['service_code']),
+            ];
         }
 
-        return ($gabungan ?? collect())
-            ->map(fn (array $layanan, string $kode) => [
-                'kode' => $kode,
-                'courier_code' => $layanan['courier_code'],
-                'courier_name' => $layanan['courier_name'],
-                'service_code' => $layanan['service_code'],
-                'service_name' => $layanan['service_name'],
-                'label' => "{$layanan['courier_name']} {$layanan['service_name']}",
-                'duration' => $this->teksDurasi($layanan),
-                'price' => $layanan['price'],
-            ])
+        $kodeBersama = collect($kelompokTarif)
+            ->map(fn (array $kelompok) => $kelompok['tarif']->keys())
+            ->reduce(fn (?Collection $bersama, Collection $kode) => $bersama === null ? $kode : $bersama->intersect($kode));
+
+        return ($kodeBersama ?? collect())
+            ->map(function (string $kode) use ($kelompokTarif) {
+                $layanan = $kelompokTarif[0]['tarif'][$kode];
+                $paket = array_map(fn (array $kelompok) => [
+                    'asal' => $kelompok['asal'],
+                    'kodePos' => $kelompok['kodePos'],
+                    'barang' => $kelompok['barang'],
+                    'price' => $this->denganCadangan((int) $kelompok['tarif'][$kode]['price']),
+                ], $kelompokTarif);
+                $semua = array_map(fn (array $kelompok) => $kelompok['tarif'][$kode], $kelompokTarif);
+
+                return [
+                    'kode' => $kode,
+                    'courier_code' => $layanan['courier_code'],
+                    'courier_name' => $layanan['courier_name'],
+                    'service_code' => $layanan['service_code'],
+                    'service_name' => $layanan['service_name'],
+                    'label' => "{$layanan['courier_name']} {$layanan['service_name']}",
+                    'duration' => $this->teksDurasiGabungan($semua),
+                    'price' => array_sum(array_column($paket, 'price')),
+                    'paket' => $paket,
+                ];
+            })
             ->sortBy('price')
             ->values()
             ->all();
@@ -97,7 +109,7 @@ class OngkirTokoService
     {
         $product->loadMissing('supplier');
 
-        $kodePos = $product->supplier?->origin_postal_code ?: config('biteship.origin_postal_code');
+        $kodePos = $product->origin_postal_code ?: $product->supplier?->origin_postal_code ?: config('biteship.origin_postal_code');
 
         if (! is_string($kodePos) || ! preg_match('/^\d{5}$/', $kodePos)) {
             throw new BiteshipException("Kode pos asal pengiriman untuk \"{$product->name}\" belum diatur.");
@@ -106,14 +118,42 @@ class OngkirTokoService
         return $kodePos;
     }
 
-    private function terkecil(?int $a, ?int $b): ?int
+    /**
+     * Ongkir per paket ditambah cadangan persen, dibulatkan ke atas per Rp500.
+     */
+    private function denganCadangan(int $harga): int
     {
-        return $a === null || $b === null ? ($a ?? $b) : min($a, $b);
+        $persen = max(0.0, (float) config('biteship.cadangan_persen'));
+
+        return (int) (ceil($harga * (1 + $persen / 100) / 500) * 500);
     }
 
-    private function terbesar(?int $a, ?int $b): ?int
+    /**
+     * Kota atau kabupaten asal dari kode pos, untuk ditampilkan ke pelanggan.
+     */
+    private function namaAsal(string $kodePos): string
     {
-        return $a === null || $b === null ? ($a ?? $b) : max($a, $b);
+        $kelurahan = Wilayah::query()->where('level', Wilayah::LEVEL_KELURAHAN)->where('kodepos', $kodePos)->first();
+        $kota = $kelurahan ? Wilayah::find(Wilayah::indukDari((string) Wilayah::indukDari($kelurahan->kode))) : null;
+
+        return $kota?->nama ?? "kode pos {$kodePos}";
+    }
+
+    /**
+     * Rentang estimasi seluruh paket: dari paket tercepat sampai paket terlambat.
+     *
+     * @param  array<int, array<string, mixed>>  $layananPerPaket
+     */
+    private function teksDurasiGabungan(array $layananPerPaket): string
+    {
+        $min = array_column($layananPerPaket, 'duration_min');
+        $max = array_column($layananPerPaket, 'duration_max');
+
+        if (count($layananPerPaket) === 1 || in_array(null, $min, true) || in_array(null, $max, true)) {
+            return $this->teksDurasi($layananPerPaket[0]);
+        }
+
+        return $this->teksDurasi([...$layananPerPaket[0], 'duration_min' => min($min), 'duration_max' => max($max)]);
     }
 
     /**

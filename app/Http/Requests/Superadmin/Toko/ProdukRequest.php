@@ -37,6 +37,7 @@ class ProdukRequest extends FormRequest
             'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
             'supplier_product_url' => ['nullable', 'url', 'max:500'],
             'weight_gram' => ['required', 'integer', 'min:0', 'max:100000'],
+            'origin_postal_code' => ['nullable', 'digits:5'],
             'is_active' => ['required', 'boolean'],
             'foto' => ['nullable', 'image', 'max:4096'],
             'foto_baru' => ['nullable', 'array', 'max:'.FotoProdukService::MAKS_FOTO],
@@ -109,6 +110,7 @@ class ProdukRequest extends FormRequest
             'cost_price' => 'harga modal',
             'supplier_product_url' => 'link produk supplier',
             'weight_gram' => 'berat',
+            'origin_postal_code' => 'kode pos asal',
         ];
     }
 }

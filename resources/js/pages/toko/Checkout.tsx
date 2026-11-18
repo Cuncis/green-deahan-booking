@@ -16,6 +16,8 @@ interface OpsiKirim {
     label: string;
     duration: string;
     price: number;
+    /** One parcel per supplier origin; the prices add up to `price`. */
+    paket: { asal: string; kodePos: string; barang: string[]; price: number }[];
 }
 
 interface Wilayah {
@@ -411,7 +413,7 @@ export default function Checkout({
                                                 {ongkirDinamis && (
                                                     <div className="col-12">
                                                         <fieldset className="gd-kurir" aria-describedby={form.errors.layanan ? 'layanan-galat' : undefined}>
-                                                            <legend>Pengiriman*</legend>
+                                                            <legend>Pengiriman (ongkir perkiraan)*</legend>
                                                             {!ongkir.siap && <p className="gd-petunjuk">Pilih kelurahan dulu untuk melihat pilihan kurir dan ongkirnya.</p>}
                                                             {ongkir.memuat && <p className="gd-petunjuk">Menghitung ongkir...</p>}
                                                             {ongkir.galat && (
@@ -441,6 +443,26 @@ export default function Checkout({
                                                                     <span className="harga">{rupiah(item.price)}</span>
                                                                 </label>
                                                             ))}
+                                                            {layananDipilih && (
+                                                                <div className="gd-paket-kirim">
+                                                                    <p>
+                                                                        {layananDipilih.paket.length > 1
+                                                                            ? `Pesanan dikirim dalam ${layananDipilih.paket.length} paket dari lokasi berbeda, jadi bisa tiba di hari yang berbeda.`
+                                                                            : 'Barang dikirim dari cabang supplier yang memiliki stok.'}
+                                                                    </p>
+                                                                    <ul>
+                                                                        {layananDipilih.paket.map((paket, indeks) => (
+                                                                            <li key={`${paket.kodePos}-${indeks}`}>
+                                                                                <span>
+                                                                                    Paket {indeks + 1}, dari {paket.asal}: {paket.barang.join(', ')}
+                                                                                </span>
+                                                                                <strong>{rupiah(paket.price)}</strong>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                    <small>Ongkir adalah perkiraan. Asal paket bisa berbeda tergantung stok supplier.</small>
+                                                                </div>
+                                                            )}
                                                             {form.errors.layanan && (
                                                                 <div id="layanan-galat" className="galat" role="alert">
                                                                     {form.errors.layanan}

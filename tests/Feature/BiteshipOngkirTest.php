@@ -40,6 +40,7 @@ class BiteshipOngkirTest extends TestCase
             'biteship.api_key' => self::KUNCI,
             'biteship.env' => 'sandbox',
             'biteship.origin_postal_code' => '13110',
+            'biteship.cadangan_persen' => 0,
             'mayar.api_key' => 'kunci-mayar-uji',
             'mayar.env' => 'sandbox',
         ]);
@@ -120,7 +121,7 @@ class BiteshipOngkirTest extends TestCase
             ->assertOk()
             ->assertHeader('Cache-Control', 'no-store, private')
             ->assertJsonPath('aktif', true)
-            ->assertJsonPath('opsi.0', ['kode' => 'jne:reg', 'courier_code' => 'jne', 'courier_name' => 'JNE', 'service_code' => 'reg', 'service_name' => 'Reguler', 'label' => 'JNE Reguler', 'duration' => '2 - 3 hari', 'price' => 11000])
+            ->assertJsonPath('opsi.0', ['kode' => 'jne:reg', 'courier_code' => 'jne', 'courier_name' => 'JNE', 'service_code' => 'reg', 'service_name' => 'Reguler', 'label' => 'JNE Reguler', 'duration' => '2 - 3 hari', 'price' => 11000, 'paket' => [['asal' => 'kode pos 13110', 'kodePos' => '13110', 'barang' => [Product::first()->name], 'price' => 11000]]])
             ->assertJsonPath('opsi.1.kode', 'jnt:ez')
             ->assertJsonPath('opsi.2.kode', 'sicepat:reg');
     }
@@ -220,6 +221,60 @@ class BiteshipOngkirTest extends TestCase
 
         Http::assertSentCount(2);
         Http::assertSent(fn (HttpRequest $request) => $request['origin_postal_code'] === 60111 && $request['items'][0]['name'] === 'Barang B');
+    }
+
+    public function test_kode_pos_asal_produk_menimpa_kode_pos_supplier_dan_nama_asal_dari_wilayah(): void
+    {
+        foreach ([['35', 'Jawa Timur'], ['35.78', 'Kota Surabaya'], ['35.78.01', 'Tegalsari']] as [$kode, $nama]) {
+            Wilayah::create(['kode' => $kode, 'nama' => $nama, 'level' => Wilayah::levelDari($kode), 'induk' => Wilayah::indukDari($kode)]);
+        }
+        Wilayah::create(['kode' => '35.78.01.1001', 'nama' => 'Keputran', 'level' => 4, 'induk' => '35.78.01', 'kodepos' => '60265']);
+        $supplier = Supplier::factory()->create(['origin_postal_code' => '13110']);
+        $this->fakeTarif();
+        $this->isiKeranjang($this->produk(['supplier_id' => $supplier->id, 'origin_postal_code' => '60265']));
+
+        $this->getJson(self::SITUS.'/checkout/ongkir?wilayah_kode=31.74.01.1001')
+            ->assertOk()
+            ->assertJsonPath('opsi.0.paket.0.asal', 'Kota Surabaya')
+            ->assertJsonPath('opsi.0.paket.0.kodePos', '60265');
+
+        Http::assertSent(fn (HttpRequest $request) => $request['origin_postal_code'] === 60265);
+    }
+
+    public function test_cadangan_persen_dibulatkan_ke_atas_per_paket_dan_rincian_paket_sama_dengan_total(): void
+    {
+        config(['biteship.cadangan_persen' => 10]);
+        $surabaya = Supplier::factory()->create(['origin_postal_code' => '60111']);
+        $a = $this->produk(['name' => 'Barang A']);
+        $b = $this->produk(['name' => 'Barang B', 'supplier_id' => $surabaya->id]);
+        Http::fake(function (HttpRequest $request) {
+            return Http::response($request['origin_postal_code'] === 13110
+                ? $this->tarif([['jne', 'JNE', 'reg', 'Reguler', 11000, '2 - 3']])
+                : $this->tarif([['jne', 'JNE', 'reg', 'Reguler', 9000, '1 - 2']]));
+        });
+        $this->isiKeranjang($a);
+        $this->isiKeranjang($b);
+
+        $respons = $this->getJson(self::SITUS.'/checkout/ongkir?wilayah_kode=31.74.01.1001')->assertOk();
+
+        // 11.000 * 1,1 = 12.100 jadi 12.500; 9.000 * 1,1 = 9.900 jadi 10.000.
+        $respons->assertJsonCount(2, 'opsi.0.paket')
+            ->assertJsonPath('opsi.0.paket.0.price', 12500)
+            ->assertJsonPath('opsi.0.paket.0.barang', ['Barang A'])
+            ->assertJsonPath('opsi.0.paket.1.price', 10000)
+            ->assertJsonPath('opsi.0.paket.1.barang', ['Barang B'])
+            ->assertJsonPath('opsi.0.price', 22500);
+    }
+
+    public function test_checkout_menyimpan_ongkir_dengan_cadangan(): void
+    {
+        config(['biteship.cadangan_persen' => 10]);
+        $this->fakeTarif();
+        $this->isiKeranjang($this->produk());
+
+        $this->post(self::SITUS.'/checkout', $this->dataCheckout());
+
+        $this->assertSame(12500, Order::firstOrFail()->shipping_cost);
     }
 
     public function test_asal_pengiriman_tidak_diketahui_memberi_galat_yang_aman(): void

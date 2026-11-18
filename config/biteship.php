@@ -38,6 +38,14 @@ return [
     'origin_postal_code' => env('BITESHIP_ORIGIN_POSTAL_CODE'),
 
     /*
+     * Cadangan ongkir (persen) yang ditambahkan ke tiap paket. Supplier seperti
+     * RANK Sports mengirim dari cabang mana pun yang punya stok, jadi asal
+     * paket bisa lebih jauh dari perkiraan. Cadangan menutup selisihnya.
+     * Dibulatkan ke atas per Rp500. Isi 0 untuk mematikan.
+     */
+    'cadangan_persen' => (float) env('BITESHIP_CADANGAN_PERSEN', 10),
+
+    /*
      * Berat (gram) per barang kalau produk belum diisi beratnya. Tarif
      * dihitung dari berat, jadi isi berat tiap produk dengan benar.
      */

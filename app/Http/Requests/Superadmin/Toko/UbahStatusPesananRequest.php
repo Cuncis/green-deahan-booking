@@ -28,6 +28,7 @@ class UbahStatusPesananRequest extends FormRequest
             'supplier_order_ref' => ['nullable', 'required_if:status,ordered_to_supplier', 'string', 'max:150'],
             'courier' => ['nullable', 'required_if:status,shipped', 'string', 'max:50'],
             'tracking_number' => ['nullable', 'required_if:status,shipped', 'string', 'max:100'],
+            'shipped_from' => ['nullable', 'string', 'max:120'],
         ];
     }
 

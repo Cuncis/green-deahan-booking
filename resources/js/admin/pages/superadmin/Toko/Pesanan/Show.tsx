@@ -41,6 +41,7 @@ interface Pesanan {
     refSupplier: string | null;
     kurir: string | null;
     resi: string | null;
+    dikirimDari: string | null;
     catatan: string | null;
     mayarId: string | null;
     langkahBerikutnya: { nilai: string; label: string }[];
@@ -66,7 +67,7 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
     const bisaBatal = pesanan.langkahBerikutnya.some((langkah) => langkah.nilai === 'cancelled');
     const [konfirmasiBatal, setKonfirmasiBatal] = useState(false);
 
-    const status = useForm({ status: lanjut?.nilai ?? '', supplier_order_ref: pesanan.refSupplier ?? '', courier: pesanan.kurir ?? '', tracking_number: pesanan.resi ?? '' });
+    const status = useForm({ status: lanjut?.nilai ?? '', supplier_order_ref: pesanan.refSupplier ?? '', courier: pesanan.kurir ?? '', tracking_number: pesanan.resi ?? '', shipped_from: pesanan.dikirimDari ?? '' });
     const catatan = useForm({ admin_notes: pesanan.catatan ?? '' });
 
     const ubahStatus = (event?: FormEvent, tujuan?: string) => {
@@ -167,9 +168,10 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                                 {pesanan.refSupplier && <>Ref supplier: {pesanan.refSupplier}. </>}
                                 {pesanan.resi && (
                                     <>
-                                        Resi {pesanan.kurir} {pesanan.resi}.
+                                        Resi {pesanan.kurir} {pesanan.resi}.{' '}
                                     </>
                                 )}
+                                {pesanan.dikirimDari && <>Dikirim dari {pesanan.dikirimDari}.</>}
                             </CardDescription>
                         </CardHeader>
                         <div className="px-5 pb-5">
@@ -194,6 +196,16 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                                                 <Input id="resi" value={status.data.tracking_number} onChange={(event) => status.setData('tracking_number', event.target.value)} />
                                             </Field>
                                         </div>
+                                    )}
+                                    {lanjut.nilai === 'shipped' && (
+                                        <Field id="dari" label="Dikirim dari (cabang/kota)" error={status.errors.shipped_from}>
+                                            <Input
+                                                id="dari"
+                                                value={status.data.shipped_from}
+                                                onChange={(event) => status.setData('shipped_from', event.target.value)}
+                                                placeholder="RANK Sports Bekasi"
+                                            />
+                                        </Field>
                                     )}
                                     {status.errors.status && <p className="text-sm text-destructive">{status.errors.status}</p>}
                                     <Button type="submit" disabled={status.processing}>

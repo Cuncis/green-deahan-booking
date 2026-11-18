@@ -104,8 +104,8 @@ class ImporProdukHtmlService
 
     /**
      * Membuang bagian khas toko Shopee yang tidak berlaku di toko kita:
-     * blok "Note" (keaslian, garansi, penukaran), harga retail, hashtag,
-     * dan salam penjual. Teks tentang produknya sendiri dipertahankan.
+     * blok "Note" (keaslian, garansi, penukaran), daftar outlet penjual,
+     * harga retail, hashtag, dan salam penjual. Teks tentang produknya sendiri dipertahankan.
      *
      * @param  array<int, string>  $baris
      */
@@ -115,6 +115,11 @@ class ImporProdukHtmlService
 
         foreach ($baris as $teks) {
             if (preg_match('/^(note|catatan|perhatian|ketentuan)\s*:/iu', $teks)) {
+                break;
+            }
+
+            // Daftar outlet/cabang penjual (tersebar di banyak kota) tidak berguna bagi pembeli: buang dari sini sampai akhir.
+            if (preg_match('/^📍|\d+\s+(outlet|cabang|toko)\s+tersebar|^lokasi\s+\S+.*\b(outlet|cabang)\b/iu', $teks)) {
                 break;
             }
 

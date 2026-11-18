@@ -97,6 +97,7 @@ class PesananTokoAdminController extends Controller
                 'refSupplier' => $order->supplier_order_ref,
                 'kurir' => $order->courier,
                 'resi' => $order->tracking_number,
+                'dikirimDari' => $order->shipped_from,
                 'catatan' => $order->admin_notes,
                 'mayarId' => $order->mayar_payment_id,
                 'langkahBerikutnya' => collect($order->status->langkahBerikutnya())->map(fn (OrderStatus $s) => ['nilai' => $s->value, 'label' => $s->label()])->all(),
@@ -124,6 +125,7 @@ class PesananTokoAdminController extends Controller
                 'supplier_order_ref' => $request->validated('supplier_order_ref'),
                 'courier' => $request->validated('courier'),
                 'tracking_number' => $request->validated('tracking_number'),
+                'shipped_from' => $request->validated('shipped_from'),
             ], fn ($nilai) => $nilai !== null));
 
             return true;

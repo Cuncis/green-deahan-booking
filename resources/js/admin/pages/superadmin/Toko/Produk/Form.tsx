@@ -22,6 +22,7 @@ interface ProdukEdit {
     supplier_id: number | null;
     supplier_product_url: string | null;
     weight_gram: number;
+    origin_postal_code: string | null;
     is_active: boolean;
     imageUrl: string | null;
     fotos: FotoAda[];
@@ -124,6 +125,7 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
         supplier_id: produk?.supplier_id ? String(produk.supplier_id) : impor?.supplierId ? String(impor.supplierId) : TANPA_SUPPLIER,
         supplier_product_url: produk?.supplier_product_url ?? impor?.linkSupplier ?? '',
         weight_gram: produk ? String(produk.weight_gram) : '0',
+        origin_postal_code: produk?.origin_postal_code ?? '',
         is_active: produk ? (produk.is_active ? '1' : '0') : impor ? '0' : '1',
         fotoAda: produk?.fotos ?? ([] as FotoAda[]),
         gambar_urls: impor?.gambarUrls ?? ([] as string[]),
@@ -283,6 +285,20 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
                             min={0}
                             value={form.data.weight_gram}
                             onChange={(event) => form.setData('weight_gram', event.target.value)}
+                        />
+                    </Field>
+                    <Field
+                        id="origin"
+                        label="Kode pos asal pengiriman"
+                        error={form.errors.origin_postal_code}
+                        hint="Opsional. Isi kode pos kota 'Dikirim dari' di Shopee. Kosong = pakai kode pos supplier, lalu kode pos bawaan toko. Dipakai untuk menghitung ongkir perkiraan."
+                    >
+                        <Input
+                            id="origin"
+                            inputMode="numeric"
+                            maxLength={5}
+                            value={form.data.origin_postal_code}
+                            onChange={(event) => form.setData('origin_postal_code', event.target.value.replace(/\D/g, ''))}
                         />
                     </Field>
                     <Field id="description" label="Deskripsi" error={form.errors.description} className="md:col-span-2">

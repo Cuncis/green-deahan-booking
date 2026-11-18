@@ -33,6 +33,8 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="BITESHIP_API_KEY" value=""/>
+        <env name="BITESHIP_ORIGIN_POSTAL_CODE" value=""/>
         <env name="MAYAR_API_KEY" value="test-mayar-api-key"/>
         <env name="MAYAR_WEBHOOK_TOKEN" value="test-mayar-webhook-token"/>
         <env name="MAYAR_IS_PRODUCTION" value="false"/>

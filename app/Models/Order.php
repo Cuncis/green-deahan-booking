@@ -38,6 +38,7 @@ use Illuminate\Support\Str;
     'paid_at',
     'supplier_order_ref',
     'tracking_number',
+    'shipped_from',
     'courier',
     'admin_notes',
 ])]

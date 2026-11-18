@@ -107,7 +107,7 @@ class ProdukTokoController extends Controller
 
         return Inertia::render('superadmin/Toko/Produk/Form', [
             'produk' => [
-                ...$product->only(['name', 'slug', 'category', 'unit', 'badge', 'description', 'sell_price', 'compare_price', 'cost_price', 'supplier_id', 'supplier_product_url', 'weight_gram', 'is_active']),
+                ...$product->only(['name', 'slug', 'category', 'unit', 'badge', 'description', 'sell_price', 'compare_price', 'cost_price', 'supplier_id', 'supplier_product_url', 'weight_gram', 'origin_postal_code', 'is_active']),
                 'imageUrl' => $product->image_path,
                 'fotos' => $product->images->map(fn ($foto) => ['id' => $foto->id, 'url' => $foto->path])->all(),
                 'updateUrl' => route('superadmin.toko.produk.update', $product),
