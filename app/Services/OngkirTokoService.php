@@ -16,6 +16,9 @@ use Illuminate\Support\Collection;
  */
 class OngkirTokoService
 {
+    /** Kode layanan "ongkir tetap" saat Biteship gagal; mengikuti format kurir:layanan. */
+    public const KODE_DARURAT = 'darurat:tetap';
+
     public function __construct(
         private readonly BiteshipService $biteship,
         private readonly KeranjangService $keranjang,
@@ -94,6 +97,31 @@ class OngkirTokoService
     }
 
     /**
+     * Cadangan kalau tarif Biteship tidak bisa diambil: satu pilihan ongkir
+     * tetap (TOKO_ONGKIR_FLAT), kurirnya dipilih toko saat mengirim. Null kalau dimatikan.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function opsiDarurat(): ?array
+    {
+        if (! config('biteship.ongkir_darurat')) {
+            return null;
+        }
+
+        return [
+            'kode' => self::KODE_DARURAT,
+            'courier_code' => 'darurat',
+            'courier_name' => 'Ongkir tetap',
+            'service_code' => 'tetap',
+            'service_name' => 'Ongkir tetap',
+            'label' => 'Ongkir tetap (kurir dipilih toko)',
+            'duration' => '',
+            'price' => (int) config('toko.ongkir_flat'),
+            'paket' => [],
+        ];
+    }
+
+    /**
      * Satu layanan dari hasil hitung server, atau null kalau sudah tidak tersedia.
      *
      * @return array<string, mixed>|null
@@ -102,7 +130,29 @@ class OngkirTokoService
      */
     public function pilih(string $kode, string $kodePosTujuan): ?array
     {
+        if ($kode === self::KODE_DARURAT) {
+            return $this->pilihDarurat($kodePosTujuan);
+        }
+
         return collect($this->opsi($kodePosTujuan))->firstWhere('kode', $kode);
+    }
+
+    /**
+     * Ongkir tetap hanya sah selama tarif Biteship memang masih tidak bisa
+     * diambil. Kalau tarif sudah normal, pembeli diminta memilih ulang supaya
+     * ongkir tetap tidak dipakai untuk menghindari ongkir yang sebenarnya.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function pilihDarurat(string $kodePosTujuan): ?array
+    {
+        try {
+            $this->opsi($kodePosTujuan);
+        } catch (BiteshipException) {
+            return $this->opsiDarurat();
+        }
+
+        return null;
     }
 
     private function kodePosAsal(Product $product): string

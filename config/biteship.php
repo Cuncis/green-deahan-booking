@@ -46,6 +46,14 @@ return [
     'cadangan_persen' => (float) env('BITESHIP_CADANGAN_PERSEN', 10),
 
     /*
+     * Kalau Biteship gagal (gangguan, kunci salah, kode pos asal belum diisi),
+     * checkout menawarkan "ongkir tetap" sebesar TOKO_ONGKIR_FLAT supaya
+     * pembeli tetap bisa membayar. Server hanya menerimanya selama Biteship
+     * memang masih gagal. Isi false untuk menolak checkout saat Biteship gagal.
+     */
+    'ongkir_darurat' => (bool) env('BITESHIP_ONGKIR_DARURAT', true),
+
+    /*
      * Berat (gram) per barang kalau produk belum diisi beratnya. Tarif
      * dihitung dari berat, jadi isi berat tiap produk dengan benar.
      */

@@ -89,9 +89,21 @@ class CheckoutController extends Controller
             report($galat);
 
             // Alasan sebenarnya (pesan Biteship tidak pernah memuat API key) hanya tampil saat APP_DEBUG menyala.
+            $detail = config('app.debug') ? $galat->getMessage() : null;
+
+            if ($darurat = $this->ongkir->opsiDarurat()) {
+                return response()->json(array_filter([
+                    'aktif' => true,
+                    'darurat' => true,
+                    'opsi' => [$darurat],
+                    'message' => 'Ongkir kurir belum bisa dihitung. Kamu bisa memakai ongkir tetap atau coba hitung ulang.',
+                    'detail' => $detail,
+                ]))->header('Cache-Control', 'private, no-store');
+            }
+
             return response()->json(array_filter([
                 'message' => 'Ongkir belum bisa dihitung, coba lagi sebentar lagi.',
-                'detail' => config('app.debug') ? $galat->getMessage() : null,
+                'detail' => $detail,
             ]), 502);
         }
 

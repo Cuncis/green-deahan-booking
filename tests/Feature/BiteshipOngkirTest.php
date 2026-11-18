@@ -41,6 +41,8 @@ class BiteshipOngkirTest extends TestCase
             'biteship.env' => 'sandbox',
             'biteship.origin_postal_code' => '13110',
             'biteship.cadangan_persen' => 0,
+            'biteship.ongkir_darurat' => false,
+            'toko.ongkir_flat' => 15000,
             'mayar.api_key' => 'kunci-mayar-uji',
             'mayar.env' => 'sandbox',
         ]);
@@ -292,6 +294,75 @@ class BiteshipOngkirTest extends TestCase
         config(['app.debug' => true]);
         $this->getJson(self::SITUS.'/checkout/ongkir?wilayah_kode=31.74.01.1001')->assertStatus(502)->assertJsonPath('detail', fn (string $detail) => str_contains($detail, 'Kode pos asal pengiriman') && ! str_contains($detail, self::KUNCI));
         Http::assertSentCount(0);
+    }
+
+    public function test_biteship_gagal_menawarkan_ongkir_tetap_sebagai_cadangan(): void
+    {
+        config(['biteship.ongkir_darurat' => true, 'app.debug' => false]);
+        Http::fake([self::URL_TARIF => Http::response(['success' => false, 'code' => 50000000, 'error' => 'Server error'], 500)]);
+        $this->isiKeranjang($this->produk());
+
+        $this->getJson(self::SITUS.'/checkout/ongkir?wilayah_kode=31.74.01.1001')
+            ->assertOk()
+            ->assertJsonPath('aktif', true)
+            ->assertJsonPath('darurat', true)
+            ->assertJsonCount(1, 'opsi')
+            ->assertJsonPath('opsi.0.kode', 'darurat:tetap')
+            ->assertJsonPath('opsi.0.price', 15000)
+            ->assertJsonPath('opsi.0.paket', [])
+            ->assertJsonMissingPath('detail');
+    }
+
+    public function test_cadangan_dimatikan_biteship_gagal_tetap_502(): void
+    {
+        Http::fake([self::URL_TARIF => Http::response(['success' => false, 'code' => 50000000, 'error' => 'Server error'], 500)]);
+        $this->isiKeranjang($this->produk());
+
+        $this->getJson(self::SITUS.'/checkout/ongkir?wilayah_kode=31.74.01.1001')->assertStatus(502)->assertJsonMissingPath('darurat');
+    }
+
+    public function test_checkout_dengan_ongkir_tetap_diterima_selama_biteship_masih_gagal(): void
+    {
+        config(['biteship.ongkir_darurat' => true, 'toko.ongkir_flat' => 17000]);
+        Http::fake([
+            self::URL_TARIF => Http::response(['success' => false, 'code' => 50000000, 'error' => 'Server error'], 500),
+            'api.mayar.club/hl/v2/payments/create' => Http::response(['statusCode' => 200, 'data' => ['id' => 'pay-1', 'transactionId' => 't-1', 'link' => 'https://testingmayar.myr.id/pl/abc']]),
+        ]);
+        $this->isiKeranjang($this->produk(['sell_price' => 95000]));
+
+        $this->post(self::SITUS.'/checkout', $this->dataCheckout(['layanan' => 'darurat:tetap']))->assertSessionHasNoErrors();
+
+        $order = Order::firstOrFail();
+        $this->assertSame([17000, 112000, 'darurat', 'Ongkir tetap (kurir dipilih toko)'], [$order->shipping_cost, $order->total, $order->courier_code, $order->courier_service_name]);
+        $this->assertTrue($order->ongkirDarurat());
+    }
+
+    public function test_ongkir_tetap_ditolak_kalau_biteship_sudah_normal_atau_cadangan_dimatikan(): void
+    {
+        config(['biteship.ongkir_darurat' => true]);
+        $this->fakeTarif();
+        $this->isiKeranjang($this->produk());
+
+        $this->post(self::SITUS.'/checkout', $this->dataCheckout(['layanan' => 'darurat:tetap']))->assertSessionHasErrors('layanan');
+        $this->assertSame(0, Order::count());
+
+        config(['biteship.ongkir_darurat' => false]);
+        Http::fake([self::URL_TARIF => Http::response(['success' => false, 'code' => 50000000, 'error' => 'Server error'], 500)]);
+
+        $this->post(self::SITUS.'/checkout', $this->dataCheckout(['layanan' => 'darurat:tetap']))->assertSessionHasErrors('layanan');
+        $this->assertSame(0, Order::count());
+    }
+
+    public function test_kode_pos_asal_belum_diisi_juga_memakai_ongkir_tetap_dan_alasannya_tampil_saat_debug(): void
+    {
+        config(['biteship.ongkir_darurat' => true, 'biteship.origin_postal_code' => null, 'app.debug' => true]);
+        Http::fake();
+        $this->isiKeranjang($this->produk());
+
+        $this->getJson(self::SITUS.'/checkout/ongkir?wilayah_kode=31.74.01.1001')
+            ->assertOk()
+            ->assertJsonPath('darurat', true)
+            ->assertJsonPath('detail', fn (string $detail) => str_contains($detail, 'Kode pos asal pengiriman'));
     }
 
     public function test_tidak_ada_kurir_untuk_rute_itu_bukan_galat(): void

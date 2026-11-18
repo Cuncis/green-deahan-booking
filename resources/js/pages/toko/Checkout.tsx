@@ -164,6 +164,7 @@ function useOngkir(url: string, aktif: boolean, wilayahKode: string, kodepos: st
     const [opsi, setOpsi] = useState<OpsiKirim[]>([]);
     const [memuat, setMemuat] = useState(false);
     const [galat, setGalat] = useState('');
+    const [pesanDarurat, setPesanDarurat] = useState('');
     const [ulang, setUlang] = useState(0);
     const siap = aktif && wilayahKode !== '' && /^\d{5}$/.test(kodepos);
 
@@ -171,6 +172,7 @@ function useOngkir(url: string, aktif: boolean, wilayahKode: string, kodepos: st
         if (!siap) {
             setOpsi([]);
             setGalat('');
+            setPesanDarurat('');
             setMemuat(false);
             return;
         }
@@ -180,15 +182,17 @@ function useOngkir(url: string, aktif: boolean, wilayahKode: string, kodepos: st
         const tunda = setTimeout(() => {
             setMemuat(true);
             setGalat('');
+            setPesanDarurat('');
             fetch(`${url}?${new URLSearchParams({ wilayah_kode: wilayahKode, postal_code: kodepos })}`, { headers: { Accept: 'application/json' }, signal: batal.signal })
                 .then(async (respons) => {
-                    const data = (await respons.json().catch(() => ({}))) as { opsi?: OpsiKirim[]; message?: string; detail?: string };
+                    const data = (await respons.json().catch(() => ({}))) as { opsi?: OpsiKirim[]; message?: string; detail?: string; darurat?: boolean };
                     if (!respons.ok) throw new Error([data.message ?? 'Ongkir belum bisa dihitung.', data.detail].filter(Boolean).join(' '));
 
-                    return data.opsi ?? [];
+                    return { daftar: data.opsi ?? [], darurat: data.darurat ? [data.message, data.detail].filter(Boolean).join(' ') : '' };
                 })
-                .then((daftar) => {
+                .then(({ daftar, darurat }) => {
                     setOpsi(daftar);
+                    setPesanDarurat(darurat);
                     setMemuat(false);
                 })
                 .catch((error: Error) => {
@@ -206,7 +210,7 @@ function useOngkir(url: string, aktif: boolean, wilayahKode: string, kodepos: st
         };
     }, [url, siap, wilayahKode, kodepos, ulang]);
 
-    return { opsi, memuat, galat, siap, muatUlang: () => setUlang((nilai) => nilai + 1) };
+    return { opsi, memuat, galat, pesanDarurat, siap, muatUlang: () => setUlang((nilai) => nilai + 1) };
 }
 
 /**
@@ -424,6 +428,14 @@ export default function Checkout({
                                                                     </button>
                                                                 </div>
                                                             )}
+                                                            {ongkir.pesanDarurat && !ongkir.memuat && (
+                                                                <div className="gd-pesan galat" role="status">
+                                                                    {ongkir.pesanDarurat}{' '}
+                                                                    <button type="button" className="gd-tautan-ulang" onClick={ongkir.muatUlang}>
+                                                                        Hitung ulang
+                                                                    </button>
+                                                                </div>
+                                                            )}
                                                             {ongkir.siap && !ongkir.memuat && !ongkir.galat && ongkir.opsi.length === 0 && (
                                                                 <p className="gd-petunjuk">Belum ada layanan kurir ke alamat ini. Hubungi kami lewat WhatsApp.</p>
                                                             )}
@@ -443,7 +455,14 @@ export default function Checkout({
                                                                     <span className="harga">{rupiah(item.price)}</span>
                                                                 </label>
                                                             ))}
-                                                            {layananDipilih && (
+                                                            {layananDipilih && layananDipilih.paket.length === 0 && (
+                                                                <div className="gd-paket-kirim">
+                                                                    <p>
+                                                                        Ongkir tetap sementara karena tarif kurir belum bisa dihitung. Kurir dipilih toko saat mengirim pesananmu.
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                            {layananDipilih && layananDipilih.paket.length > 0 && (
                                                                 <div className="gd-paket-kirim">
                                                                     <p>
                                                                         {layananDipilih.paket.length > 1
