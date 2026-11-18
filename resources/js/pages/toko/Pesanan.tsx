@@ -19,6 +19,8 @@ interface Pesanan {
     layanan: string | null;
     total: number;
     linkBayar: string | null;
+    alasanBatal: string | null;
+    statusRefund: 'diproses' | 'selesai' | null;
     pengiriman: { kurir: string; resi: string; dikirimDari: string | null }[];
     dibuat: string;
     dibayar: string | null;
@@ -100,7 +102,23 @@ export default function PesananToko({ pesanan, langkah }: Props) {
                                         )}
                                     </div>
                                 )}
-                                {batal && <div className="gd-pesan galat">Pesanan ini {pesanan.statusLabel.toLowerCase()}. Silakan pesan ulang dari toko.</div>}
+                                {batal && (
+                                    <div className="gd-pesan galat">
+                                        <p className="mb-1">Pesanan ini {pesanan.statusLabel.toLowerCase()}. Silakan pesan ulang dari toko.</p>
+                                        {pesanan.alasanBatal && (
+                                            <p className="mb-1">
+                                                <strong>Alasan:</strong> {pesanan.alasanBatal}
+                                            </p>
+                                        )}
+                                        {pesanan.statusRefund === 'diproses' && (
+                                            <p className="mb-0">
+                                                Pembayaranmu sebesar {rupiah(pesanan.total)} sedang kami proses pengembaliannya. Hubungi kami lewat WhatsApp kalau dana belum
+                                                diterima dalam beberapa hari.
+                                            </p>
+                                        )}
+                                        {pesanan.statusRefund === 'selesai' && <p className="mb-0">Dana {rupiah(pesanan.total)} sudah kami kembalikan ke metode pembayaranmu.</p>}
+                                    </div>
+                                )}
                                 {pesanan.pengiriman.length > 0 && (
                                     <div className="gd-pesan sukses">
                                         {pesanan.pengiriman.length > 1 && (

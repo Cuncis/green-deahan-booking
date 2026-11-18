@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\OrderStatus;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -38,6 +40,9 @@ use Illuminate\Support\Str;
     'paid_at',
     'supplier_order_ref',
     'admin_notes',
+    'cancel_reason',
+    'cancelled_at',
+    'refunded_at',
 ])]
 class Order extends Model
 {
@@ -60,7 +65,39 @@ class Order extends Model
             'shipping_cost' => 'integer',
             'total' => 'integer',
             'paid_at' => 'datetime',
+            'cancelled_at' => 'datetime',
+            'refunded_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Dana pelanggan: null kalau tidak ada yang perlu dikembalikan (pesanan
+     * tidak batal atau belum pernah dibayar), "diproses" sampai admin menandai
+     * refund selesai, lalu "selesai".
+     */
+    public function statusRefund(): ?string
+    {
+        if ($this->status !== OrderStatus::Cancelled || $this->paid_at === null) {
+            return null;
+        }
+
+        return $this->refunded_at === null ? 'diproses' : 'selesai';
+    }
+
+    public function perluRefund(): bool
+    {
+        return $this->statusRefund() === 'diproses';
+    }
+
+    /**
+     * Pesanan batal yang sudah dibayar dan belum ditandai refund selesai.
+     *
+     * @param  Builder<Order>  $query
+     */
+    #[Scope]
+    protected function menungguRefund(Builder $query): void
+    {
+        $query->where('status', OrderStatus::Cancelled)->whereNotNull('paid_at')->whereNull('refunded_at');
     }
 
     public function items(): HasMany

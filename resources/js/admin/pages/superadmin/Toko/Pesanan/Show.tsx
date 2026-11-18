@@ -118,6 +118,9 @@ interface Pesanan {
     pengiriman: Paket[];
     resiUrl: string;
     catatan: string | null;
+    alasanBatal: string | null;
+    statusRefund: 'diproses' | 'selesai' | null;
+    refundUrl: string;
     mayarId: string | null;
     langkahBerikutnya: { nilai: string; label: string }[];
     statusUrl: string;
@@ -142,7 +145,7 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
     const bisaBatal = pesanan.langkahBerikutnya.some((langkah) => langkah.nilai === 'cancelled');
     const [konfirmasiBatal, setKonfirmasiBatal] = useState(false);
 
-    const status = useForm({ status: lanjut?.nilai ?? '', supplier_order_ref: pesanan.refSupplier ?? '', pengiriman: [{ ...PAKET_KOSONG }] as IsianPaket[] });
+    const status = useForm({ status: lanjut?.nilai ?? '', supplier_order_ref: pesanan.refSupplier ?? '', cancel_reason: '', pengiriman: [{ ...PAKET_KOSONG }] as IsianPaket[] });
     const galatStatus: Record<string, string> = status.errors;
     const galatPaket = (indeks: number) => ({
         courier: galatStatus[`pengiriman.${indeks}.courier`],
@@ -161,7 +164,7 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
     const ubahStatus = (event?: FormEvent, tujuan?: string) => {
         event?.preventDefault();
         status.transform((data) => ({ ...data, status: tujuan ?? data.status }));
-        status.post(pesanan.statusUrl, { preserveScroll: true, onFinish: () => setKonfirmasiBatal(false) });
+        status.post(pesanan.statusUrl, { preserveScroll: true, onSuccess: () => setKonfirmasiBatal(false) });
     };
 
     return (
@@ -333,6 +336,26 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                                     {pesanan.status === 'pending_payment' ? 'Menunggu pembayaran dari pelanggan.' : 'Tidak ada langkah lanjutan untuk pesanan ini.'}
                                 </p>
                             )}
+                            {pesanan.status === 'cancelled' && (
+                                <div className="grid gap-2 text-sm">
+                                    {pesanan.alasanBatal && (
+                                        <p>
+                                            <strong>Alasan batal:</strong> {pesanan.alasanBatal}
+                                        </p>
+                                    )}
+                                    {pesanan.statusRefund === 'diproses' && (
+                                        <>
+                                            <p className="text-muted-foreground">
+                                                Pesanan sudah dibayar: kembalikan {rupiah(pesanan.total)} ke pelanggan lewat dashboard Mayar, lalu tandai selesai di sini.
+                                            </p>
+                                            <Button variant="outline" className="justify-self-start" onClick={() => router.post(pesanan.refundUrl, {}, { preserveScroll: true })}>
+                                                Tandai refund selesai
+                                            </Button>
+                                        </>
+                                    )}
+                                    {pesanan.statusRefund === 'selesai' && <p className="text-muted-foreground">Refund sudah ditandai selesai.</p>}
+                                </div>
+                            )}
                             {bisaTambahResi && <TambahResi url={pesanan.resiUrl} />}
                             {bisaBatal && (
                                 <Button
@@ -380,10 +403,20 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                 onTutup={() => setKonfirmasiBatal(false)}
                 onLanjut={() => ubahStatus(undefined, 'cancelled')}
                 judul="Batalkan pesanan?"
-                deskripsi="Pengembalian dana (refund) ke pelanggan dilakukan manual di luar sistem ini."
+                deskripsi="Kalau pesanan sudah dibayar, pelanggan diberi tahu lewat email berisi alasan ini. Pengembalian dana (refund) tetap Anda proses manual di Mayar, lalu tandai selesai di halaman ini."
                 labelLanjut="Ya, Batalkan"
                 memproses={status.processing}
-            />
+            >
+                <Field id="alasan-batal" label="Alasan pembatalan (dibaca pelanggan)" error={status.errors.cancel_reason} wajib>
+                    <Input
+                        id="alasan-batal"
+                        value={status.data.cancel_reason}
+                        maxLength={255}
+                        onChange={(event) => status.setData('cancel_reason', event.target.value)}
+                        placeholder="Stok supplier habis"
+                    />
+                </Field>
+            </KonfirmasiDialog>
         </AdminLayout>
     );
 }

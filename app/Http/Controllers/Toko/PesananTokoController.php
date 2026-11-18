@@ -43,6 +43,8 @@ class PesananTokoController extends Controller
                 'total' => $order->total,
                 'linkBayar' => $order->status === OrderStatus::PendingPayment ? $order->mayar_payment_link : null,
                 'pengiriman' => $order->daftarPengiriman(),
+                'alasanBatal' => $order->cancel_reason,
+                'statusRefund' => $order->statusRefund(),
                 'dibuat' => $order->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i'),
                 'dibayar' => $order->paid_at?->timezone('Asia/Jakarta')->format('d/m/Y H:i'),
             ],

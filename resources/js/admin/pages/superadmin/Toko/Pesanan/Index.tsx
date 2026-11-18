@@ -18,6 +18,7 @@ interface PesananBaris {
     untung: number;
     status: string;
     statusLabel: string;
+    perluRefund: boolean;
     tanggal: string;
     url: string;
 }
@@ -29,9 +30,17 @@ interface Props {
 }
 
 export const varianStatusPesanan = (status: string) =>
-    (({ pending_payment: 'pending', paid: 'pending', ordered_to_supplier: 'info', shipped: 'info', completed: 'confirmed', cancelled: 'cancelled', expired: 'cancelled' }) as const)[
-        status as 'paid'
-    ] ?? 'info';
+    (
+        ({
+            pending_payment: 'pending',
+            paid: 'pending',
+            ordered_to_supplier: 'info',
+            shipped: 'info',
+            completed: 'confirmed',
+            cancelled: 'cancelled',
+            expired: 'cancelled',
+        }) as const
+    )[status as 'paid'] ?? 'info';
 
 /** Shop orders, filtered by status (default: paid, i.e. still to be bought from the supplier). */
 export default function Index({ pesanan, filterStatus, pilihanStatus }: Props) {
@@ -97,6 +106,11 @@ export default function Index({ pesanan, filterStatus, pilihanStatus }: Props) {
                                             <TableCell className="text-right tabular-nums font-semibold text-green">{rupiah(item.untung)}</TableCell>
                                             <TableCell>
                                                 <Badge variant={varianStatusPesanan(item.status)}>{item.statusLabel}</Badge>
+                                                {item.perluRefund && (
+                                                    <Badge variant="pending" className="ml-1.5">
+                                                        Perlu refund
+                                                    </Badge>
+                                                )}
                                             </TableCell>
                                             <TableCell className="whitespace-nowrap text-ink-mid">{item.tanggal}</TableCell>
                                         </TableRow>
@@ -110,7 +124,10 @@ export default function Index({ pesanan, filterStatus, pilihanStatus }: Props) {
                                     <Link href={item.url} className="block px-4 py-3.5 active:bg-muted">
                                         <div className="flex items-center justify-between gap-3">
                                             <span className="font-bold">{item.kode}</span>
-                                            <Badge variant={varianStatusPesanan(item.status)}>{item.statusLabel}</Badge>
+                                            <span className="flex items-center gap-1.5">
+                                                <Badge variant={varianStatusPesanan(item.status)}>{item.statusLabel}</Badge>
+                                                {item.perluRefund && <Badge variant="pending">Perlu refund</Badge>}
+                                            </span>
                                         </div>
                                         <div className="mt-1 text-sm">
                                             {item.pelanggan}, {item.kota}

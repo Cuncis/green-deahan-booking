@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
 use App\Exceptions\MayarException;
+use App\Mail\PesananTokoDibatalkan;
 use App\Mail\PesananTokoDikirim;
 use App\Models\Order;
 use App\Models\Product;
@@ -204,6 +205,95 @@ class TokoAdminTest extends TestCase
         $mail->assertSeeInHtml('2 paket');
         $this->assertSame("Pesanan {$order->code} sudah dikirim", $mail->envelope()->subject);
         $this->assertSame("Ada paket baru untuk pesanan {$order->code}", (new PesananTokoDikirim($order->fresh(), tambahan: true))->envelope()->subject);
+    }
+
+    public function test_pembatalan_pesanan_dibayar_wajib_beralasan_memberi_tahu_pelanggan_dan_menandai_perlu_refund(): void
+    {
+        Mail::fake();
+        $order = $this->pesananDibayar();
+        $admin = $this->superadmin();
+        $url = "/superadmin/toko/pesanan/{$order->id}/status";
+
+        $this->actingAs($admin)->post($url, ['status' => 'cancelled'])->assertSessionHasErrors('cancel_reason');
+        $this->assertSame(OrderStatus::Paid, $order->fresh()->status);
+        Mail::assertNothingQueued();
+
+        $this->actingAs($admin)->post($url, ['status' => 'cancelled', 'cancel_reason' => 'Stok supplier habis'])->assertSessionHas('success');
+
+        $order = $order->fresh();
+        $this->assertSame(OrderStatus::Cancelled, $order->status);
+        $this->assertSame('Stok supplier habis', $order->cancel_reason);
+        $this->assertNotNull($order->cancelled_at);
+        $this->assertSame('diproses', $order->statusRefund());
+        Mail::assertQueued(PesananTokoDibatalkan::class, fn (PesananTokoDibatalkan $mail) => $mail->hasTo($order->email) && $mail->order->cancel_reason === 'Stok supplier habis');
+    }
+
+    public function test_email_pembatalan_memuat_alasan_dan_nominal_refund(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::Cancelled, 'paid_at' => now(), 'total' => 115000, 'cancel_reason' => 'Stok supplier habis']);
+
+        $mail = new PesananTokoDibatalkan($order);
+
+        $mail->assertSeeInHtml('Stok supplier habis');
+        $mail->assertSeeInHtml('Rp115.000');
+        $mail->assertSeeInHtml($order->code);
+    }
+
+    public function test_pembatalan_pesanan_belum_dibayar_tidak_butuh_refund_dan_tanpa_email(): void
+    {
+        Mail::fake();
+        $order = Order::factory()->create(['status' => OrderStatus::PendingPayment]);
+
+        $this->actingAs($this->superadmin())->post("/superadmin/toko/pesanan/{$order->id}/status", ['status' => 'cancelled', 'cancel_reason' => 'Pelanggan tidak jadi'])->assertSessionHasNoErrors();
+
+        $this->assertNull($order->fresh()->statusRefund());
+        Mail::assertNothingQueued();
+    }
+
+    public function test_refund_ditandai_selesai_sekali_dan_hanya_untuk_pesanan_menunggu_refund(): void
+    {
+        $perlu = Order::factory()->create(['status' => OrderStatus::Cancelled, 'paid_at' => now(), 'cancelled_at' => now(), 'cancel_reason' => 'Stok habis']);
+        $belumBayar = Order::factory()->create(['status' => OrderStatus::Cancelled, 'cancelled_at' => now(), 'cancel_reason' => 'Tidak jadi']);
+        $admin = $this->superadmin();
+
+        $this->actingAs($admin)->post("/superadmin/toko/pesanan/{$belumBayar->id}/refund")->assertSessionHas('error');
+        $this->assertNull($belumBayar->fresh()->refunded_at);
+
+        $this->actingAs($admin)->post("/superadmin/toko/pesanan/{$perlu->id}/refund")->assertSessionHas('success');
+        $this->assertSame('selesai', $perlu->fresh()->statusRefund());
+
+        $this->actingAs($admin)->post("/superadmin/toko/pesanan/{$perlu->id}/refund")->assertSessionHas('error');
+        $this->post("/superadmin/toko/pesanan/{$belumBayar->id}/refund")->assertRedirect();
+    }
+
+    public function test_daftar_pesanan_punya_filter_perlu_refund_dengan_jumlahnya(): void
+    {
+        $perlu = Order::factory()->create(['status' => OrderStatus::Cancelled, 'paid_at' => now(), 'cancel_reason' => 'Stok habis']);
+        Order::factory()->create(['status' => OrderStatus::Cancelled, 'paid_at' => now(), 'refunded_at' => now(), 'cancel_reason' => 'Stok habis']);
+        Order::factory()->create(['status' => OrderStatus::Cancelled, 'cancel_reason' => 'Tidak jadi']);
+
+        $this->actingAs($this->superadmin())->get('/superadmin/toko/pesanan?status=perlu_refund')
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('filterStatus', 'perlu_refund')
+                ->has('pesanan.data', 1)
+                ->where('pesanan.data.0.kode', $perlu->code)
+                ->where('pesanan.data.0.perluRefund', true)
+                ->where('pilihanStatus', fn ($pilihan) => collect($pilihan)->firstWhere('nilai', 'perlu_refund')['jumlah'] === 1)
+            );
+    }
+
+    public function test_halaman_pelanggan_menampilkan_alasan_dan_status_refund(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::Cancelled, 'paid_at' => now(), 'cancel_reason' => 'Stok supplier habis']);
+
+        $this->get("http://greendeahan.com/pesanan/{$order->code}")->assertInertia(fn (Assert $page) => $page
+            ->where('pesanan.alasanBatal', 'Stok supplier habis')
+            ->where('pesanan.statusRefund', 'diproses')
+        );
+
+        $order->update(['refunded_at' => now()]);
+
+        $this->get("http://greendeahan.com/pesanan/{$order->code}")->assertInertia(fn (Assert $page) => $page->where('pesanan.statusRefund', 'selesai'));
     }
 
     public function test_hanya_superadmin_yang_bisa_menambah_atau_menghapus_resi(): void

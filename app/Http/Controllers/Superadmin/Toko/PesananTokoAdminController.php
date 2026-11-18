@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Superadmin\Toko\TambahResiRequest;
 use App\Http\Requests\Superadmin\Toko\UbahStatusPesananRequest;
+use App\Mail\PesananTokoDibatalkan;
 use App\Mail\PesananTokoDikirim;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -23,12 +24,16 @@ use Inertia\Response;
  */
 class PesananTokoAdminController extends Controller
 {
+    private const FILTER_PERLU_REFUND = 'perlu_refund';
+
     public function index(Request $request): Response
     {
         $status = $request->query('status', OrderStatus::Paid->value);
-        $filter = $status === 'semua' ? null : OrderStatus::tryFrom((string) $status) ?? OrderStatus::Paid;
+        $perluRefund = $status === self::FILTER_PERLU_REFUND;
+        $filter = $status === 'semua' || $perluRefund ? null : OrderStatus::tryFrom((string) $status) ?? OrderStatus::Paid;
 
         $pesanan = Order::with('items')
+            ->when($perluRefund, fn ($q) => $q->menungguRefund())
             ->when($filter, fn ($q, OrderStatus $filter) => $q->where('status', $filter))
             ->latest()
             ->paginate(20)
@@ -43,18 +48,19 @@ class PesananTokoAdminController extends Controller
                 'untung' => $order->untung(),
                 'status' => $order->status->value,
                 'statusLabel' => $order->status->label(),
+                'perluRefund' => $order->perluRefund(),
                 'tanggal' => $order->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i'),
                 'url' => route('superadmin.toko.pesanan.show', $order),
             ]);
 
         return Inertia::render('superadmin/Toko/Pesanan/Index', [
             'pesanan' => $pesanan,
-            'filterStatus' => $filter?->value ?? 'semua',
+            'filterStatus' => $perluRefund ? self::FILTER_PERLU_REFUND : ($filter?->value ?? 'semua'),
             'pilihanStatus' => collect(OrderStatus::cases())->map(fn (OrderStatus $s) => [
                 'nilai' => $s->value,
                 'label' => $s->label(),
                 'jumlah' => Order::where('status', $s)->count(),
-            ])->all(),
+            ])->push(['nilai' => self::FILTER_PERLU_REFUND, 'label' => 'Perlu refund', 'jumlah' => Order::menungguRefund()->count()])->all(),
         ]);
     }
 
@@ -103,6 +109,9 @@ class PesananTokoAdminController extends Controller
                 ])->all(),
                 'resiUrl' => route('superadmin.toko.pesanan.resi.tambah', $order),
                 'catatan' => $order->admin_notes,
+                'alasanBatal' => $order->cancel_reason,
+                'statusRefund' => $order->statusRefund(),
+                'refundUrl' => route('superadmin.toko.pesanan.refund', $order),
                 'mayarId' => $order->mayar_payment_id,
                 'langkahBerikutnya' => collect($order->status->langkahBerikutnya())->map(fn (OrderStatus $s) => ['nilai' => $s->value, 'label' => $s->label()])->all(),
                 'statusUrl' => route('superadmin.toko.pesanan.status', $order),
@@ -129,6 +138,10 @@ class PesananTokoAdminController extends Controller
                 'supplier_order_ref' => $request->validated('supplier_order_ref'),
             ], fn ($nilai) => $nilai !== null));
 
+            if ($tujuan === OrderStatus::Cancelled) {
+                $terkunci->update(['cancel_reason' => $request->validated('cancel_reason'), 'cancelled_at' => now()]);
+            }
+
             if ($tujuan === OrderStatus::Shipped) {
                 $terkunci->shipments()->createMany(collect($request->validated('pengiriman'))->map(fn (array $paket) => [
                     'courier' => $paket['courier'],
@@ -146,6 +159,12 @@ class PesananTokoAdminController extends Controller
 
         if ($tujuan === OrderStatus::Shipped) {
             Mail::to($order->email)->queue(new PesananTokoDikirim($order->fresh()));
+        }
+
+        if ($tujuan === OrderStatus::Cancelled && $order->paid_at !== null) {
+            Mail::to($order->email)->queue(new PesananTokoDibatalkan($order->fresh()));
+
+            return back()->with('success', 'Pesanan dibatalkan dan pelanggan diberi tahu lewat email. Refund masih perlu Anda proses manual, lalu tandai selesai.');
         }
 
         return back()->with('success', "Status pesanan diubah menjadi \"{$tujuan->label()}\".".($tujuan === OrderStatus::Shipped ? ' Email resi dikirim ke pelanggan.' : ''));
@@ -178,6 +197,17 @@ class PesananTokoAdminController extends Controller
         $shipment->delete();
 
         return back()->with('success', 'Resi dihapus.');
+    }
+
+    public function refundSelesai(Order $order): RedirectResponse
+    {
+        if (! $order->perluRefund()) {
+            return back()->with('error', 'Pesanan ini tidak sedang menunggu refund.');
+        }
+
+        $order->update(['refunded_at' => now()]);
+
+        return back()->with('success', 'Refund ditandai selesai.');
     }
 
     public function simpanCatatan(Request $request, Order $order): RedirectResponse
