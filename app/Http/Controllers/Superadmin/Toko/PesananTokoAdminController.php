@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Superadmin\Toko;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Superadmin\Toko\KirimPesanRequest;
 use App\Http\Requests\Superadmin\Toko\TambahResiRequest;
 use App\Http\Requests\Superadmin\Toko\UbahStatusPesananRequest;
 use App\Mail\PesananTokoDibatalkan;
 use App\Mail\PesananTokoDikirim;
+use App\Mail\PesanPesananToko;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderMessage;
 use App\Models\OrderShipment;
+use App\Services\PesanPesananTokoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -64,9 +68,9 @@ class PesananTokoAdminController extends Controller
         ]);
     }
 
-    public function show(Order $order): Response
+    public function show(Order $order, PesanPesananTokoService $pesan): Response
     {
-        $order->load('items.product', 'shipments');
+        $order->load('items.product', 'shipments', 'messages.user');
 
         return Inertia::render('superadmin/Toko/Pesanan/Show', [
             'pesanan' => [
@@ -97,6 +101,7 @@ class PesananTokoAdminController extends Controller
                 'subtotal' => $order->subtotal,
                 'ongkir' => $order->shipping_cost,
                 'layanan' => $order->layananPengiriman(),
+                'ongkirDarurat' => $order->ongkirDarurat(),
                 'total' => $order->total,
                 'totalModal' => $order->totalModal(),
                 'untung' => $order->untung(),
@@ -112,6 +117,18 @@ class PesananTokoAdminController extends Controller
                 'alasanBatal' => $order->cancel_reason,
                 'statusRefund' => $order->statusRefund(),
                 'refundUrl' => route('superadmin.toko.pesanan.refund', $order),
+                'templatePesan' => $pesan->daftar($order),
+                'waNomor' => PesanPesananTokoService::nomorWhatsApp($order->phone),
+                'pesanUrl' => route('superadmin.toko.pesanan.pesan', $order),
+                'riwayatPesan' => $order->messages->map(fn (OrderMessage $item) => [
+                    'id' => $item->id,
+                    'saluran' => $item->channel,
+                    'template' => PesanPesananTokoService::TEMPLATE[$item->template] ?? $item->template,
+                    'subjek' => $item->subject,
+                    'isi' => $item->body,
+                    'oleh' => $item->user?->name,
+                    'waktu' => $item->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i'),
+                ])->all(),
                 'mayarId' => $order->mayar_payment_id,
                 'langkahBerikutnya' => collect($order->status->langkahBerikutnya())->map(fn (OrderStatus $s) => ['nilai' => $s->value, 'label' => $s->label()])->all(),
                 'statusUrl' => route('superadmin.toko.pesanan.status', $order),
@@ -197,6 +214,26 @@ class PesananTokoAdminController extends Controller
         $shipment->delete();
 
         return back()->with('success', 'Resi dihapus.');
+    }
+
+    public function kirimPesan(KirimPesanRequest $request, Order $order): RedirectResponse
+    {
+        $data = $request->validated();
+        $email = $data['channel'] === 'email';
+
+        $order->messages()->create([
+            'user_id' => $request->user()->id,
+            'channel' => $data['channel'],
+            'template' => $data['template'],
+            'subject' => $email ? $data['subject'] : null,
+            'body' => $data['body'],
+        ]);
+
+        if ($email) {
+            Mail::to($order->email)->queue(new PesanPesananToko($order, $data['subject'], $data['body']));
+        }
+
+        return back()->with('success', $email ? 'Email dikirim ke pelanggan.' : 'Pesan WhatsApp dicatat di riwayat.');
     }
 
     public function refundSelesai(Order $order): RedirectResponse

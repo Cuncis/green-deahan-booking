@@ -6,17 +6,20 @@ use App\Enums\OrderStatus;
 use App\Exceptions\MayarException;
 use App\Mail\PesananTokoDibatalkan;
 use App\Mail\PesananTokoDikirim;
+use App\Mail\PesanPesananToko;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Services\MayarService;
+use App\Services\PesanPesananTokoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -294,6 +297,118 @@ class TokoAdminTest extends TestCase
         $order->update(['refunded_at' => now()]);
 
         $this->get("http://greendeahan.com/pesanan/{$order->code}")->assertInertia(fn (Assert $page) => $page->where('pesanan.statusRefund', 'selesai'));
+    }
+
+    public function test_admin_diberi_tanda_untuk_pesanan_dengan_ongkir_tetap(): void
+    {
+        $darurat = $this->pesananDibayar(['courier_code' => 'darurat', 'courier_service_code' => 'tetap', 'courier_service_name' => 'Ongkir tetap (kurir dipilih toko)']);
+        $biasa = $this->pesananDibayar(['courier_code' => 'jne', 'courier_service_name' => 'JNE Reguler']);
+        $admin = $this->superadmin();
+
+        $this->actingAs($admin)->get("/superadmin/toko/pesanan/{$darurat->id}")->assertInertia(fn (Assert $page) => $page->where('pesanan.ongkirDarurat', true)->where('pesanan.layanan', 'Ongkir tetap (kurir dipilih toko)'));
+        $this->actingAs($admin)->get("/superadmin/toko/pesanan/{$biasa->id}")->assertInertia(fn (Assert $page) => $page->where('pesanan.ongkirDarurat', false));
+    }
+
+    public function test_template_pesan_terisi_dari_data_pesanan(): void
+    {
+        $order = $this->pesananDibayar(['customer_name' => 'Budi Santoso', 'phone' => '081234567890']);
+        $order->shipments()->create(['courier' => 'JNE', 'tracking_number' => 'JNE123', 'shipped_from' => 'RANK Sports Bekasi']);
+        $order->shipments()->create(['courier' => 'J&T', 'tracking_number' => 'JT456']);
+
+        $this->actingAs($this->superadmin())->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page
+            ->where('pesanan.waNomor', '6281234567890')
+            ->has('pesanan.templatePesan', 6)
+            ->where('pesanan.templatePesan.2.kunci', 'dikirim')
+            ->where('pesanan.templatePesan.2.isi', fn (string $isi) => str_contains($isi, 'Halo Budi Santoso,')
+                && str_contains($isi, 'Paket 1: JNE JNE123 (dari RANK Sports Bekasi)')
+                && str_contains($isi, 'Paket 2: J&T JT456')
+                && str_contains($isi, '2 paket')
+                && str_contains($isi, route('toko.pesanan', $order->code)))
+            ->where('pesanan.templatePesan.0.subjek', "Pesanan {$order->code} sudah kami terima")
+        );
+    }
+
+    public function test_template_dikirim_tanpa_resi_mengingatkan_admin_dan_dibatalkan_memuat_alasan(): void
+    {
+        $order = $this->pesananDibayar(['cancel_reason' => 'Stok supplier habis', 'total' => 205000]);
+
+        $this->actingAs($this->superadmin())->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page
+            ->where('pesanan.templatePesan.2.isi', fn (string $isi) => str_contains($isi, 'Nomor resi belum diisi'))
+            ->where('pesanan.templatePesan.4.isi', fn (string $isi) => str_contains($isi, 'Stok supplier habis') && str_contains($isi, 'Rp205.000'))
+        );
+    }
+
+    #[DataProvider('nomorTelepon')]
+    public function test_nomor_whatsapp_diubah_ke_format_internasional(string $telepon, ?string $diharapkan): void
+    {
+        $this->assertSame($diharapkan, PesanPesananTokoService::nomorWhatsApp($telepon));
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: ?string}>
+     */
+    public static function nomorTelepon(): array
+    {
+        return [
+            'nol di depan' => ['081234567890', '6281234567890'],
+            'sudah 62' => ['6281234567890', '6281234567890'],
+            'tanda plus dan spasi' => ['+62 812-3456-7890', '6281234567890'],
+            'terlalu pendek' => ['0812', null],
+            'bukan nomor' => ['abc', null],
+        ];
+    }
+
+    public function test_kirim_email_manual_mengirim_ke_pelanggan_dan_dicatat_di_riwayat(): void
+    {
+        Mail::fake();
+        $order = $this->pesananDibayar(['email' => 'budi@contoh.com']);
+        $admin = $this->superadmin();
+
+        $this->actingAs($admin)->post("/superadmin/toko/pesanan/{$order->id}/pesan", [
+            'channel' => 'email',
+            'template' => 'diproses',
+            'subject' => 'Pesanan sedang diproses',
+            'body' => "Halo Budi,\n\nPesananmu sedang kami proses.",
+        ])->assertSessionHas('success');
+
+        Mail::assertQueued(PesanPesananToko::class, fn (PesanPesananToko $mail) => $mail->hasTo('budi@contoh.com') && $mail->subjek === 'Pesanan sedang diproses' && str_contains($mail->isi, 'sedang kami proses'));
+        $catatan = $order->messages()->sole();
+        $this->assertSame(['email', 'diproses', 'Pesanan sedang diproses', $admin->id], [$catatan->channel, $catatan->template, $catatan->subject, $catatan->user_id]);
+
+        $this->actingAs($admin)->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page
+            ->has('pesanan.riwayatPesan', 1)
+            ->where('pesanan.riwayatPesan.0.saluran', 'email')
+            ->where('pesanan.riwayatPesan.0.template', 'Sedang diproses')
+        );
+    }
+
+    public function test_pesan_whatsapp_hanya_dicatat_tanpa_mengirim_email(): void
+    {
+        Mail::fake();
+        $order = $this->pesananDibayar();
+
+        $this->actingAs($this->superadmin())->post("/superadmin/toko/pesanan/{$order->id}/pesan", ['channel' => 'whatsapp', 'template' => 'selesai', 'body' => 'Halo, pesananmu selesai.'])->assertSessionHas('success');
+
+        Mail::assertNothingQueued();
+        $this->assertSame(['whatsapp', null], [$order->messages()->sole()->channel, $order->messages()->sole()->subject]);
+    }
+
+    public function test_pesan_manual_divalidasi_dan_hanya_untuk_superadmin(): void
+    {
+        Mail::fake();
+        $order = $this->pesananDibayar();
+        $url = "/superadmin/toko/pesanan/{$order->id}/pesan";
+        $admin = $this->superadmin();
+
+        $this->actingAs($admin)->post($url, ['channel' => 'email', 'template' => 'diproses', 'body' => 'Isi'])->assertSessionHasErrors('subject');
+        $this->actingAs($admin)->post($url, ['channel' => 'sms', 'template' => 'diproses', 'body' => 'Isi'])->assertSessionHasErrors('channel');
+        $this->actingAs($admin)->post($url, ['channel' => 'whatsapp', 'template' => 'tidak-ada', 'body' => 'Isi'])->assertSessionHasErrors('template');
+        $this->actingAs($admin)->post($url, ['channel' => 'whatsapp', 'template' => 'diproses', 'body' => ''])->assertSessionHasErrors('body');
+        $this->actingAs($admin)->post($url, ['channel' => 'whatsapp', 'template' => 'diproses', 'body' => str_repeat('a', 2001)])->assertSessionHasErrors('body');
+        $this->actingAs(User::factory()->create())->post($url, ['channel' => 'whatsapp', 'template' => 'diproses', 'body' => 'Isi'])->assertForbidden();
+
+        Mail::assertNothingQueued();
+        $this->assertSame(0, $order->messages()->count());
     }
 
     public function test_hanya_superadmin_yang_bisa_menambah_atau_menghapus_resi(): void

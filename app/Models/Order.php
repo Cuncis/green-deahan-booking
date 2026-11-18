@@ -106,6 +106,14 @@ class Order extends Model
     }
 
     /**
+     * Riwayat kabar manual ke pelanggan, terbaru dulu.
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(OrderMessage::class)->latest('id');
+    }
+
+    /**
      * Paket pengiriman (kurir dan resi), urut sesuai waktu dicatat.
      */
     public function shipments(): HasMany
@@ -165,6 +173,14 @@ class Order extends Model
         }
 
         return $this->shipping_duration ? "{$this->courier_service_name} ({$this->shipping_duration})" : $this->courier_service_name;
+    }
+
+    /**
+     * Pesanan memakai ongkir tetap karena tarif Biteship gagal diambil saat checkout.
+     */
+    public function ongkirDarurat(): bool
+    {
+        return $this->courier_code === 'darurat';
     }
 
     /**

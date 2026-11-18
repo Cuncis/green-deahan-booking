@@ -9,8 +9,123 @@ import { Badge } from '../../../../components/ui/badge';
 import { Button } from '../../../../components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '../../../../components/ui/card';
 import { Input, Textarea } from '../../../../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
 import { rupiah } from '../../../../lib/format';
 import { varianStatusPesanan } from './Index';
+
+interface TemplatePesan {
+    kunci: string;
+    label: string;
+    subjek: string;
+    isi: string;
+}
+
+interface RiwayatPesan {
+    id: number;
+    saluran: 'email' | 'whatsapp';
+    template: string;
+    subjek: string | null;
+    isi: string;
+    oleh: string | null;
+    waktu: string;
+}
+
+/** Template that fits the order's current status, so the common case needs no choosing. */
+const TEMPLATE_STATUS: Record<string, string> = { paid: 'diterima', ordered_to_supplier: 'diproses', shipped: 'dikirim', completed: 'selesai', cancelled: 'dibatalkan' };
+
+/**
+ * Manual status update to the customer: pick a template filled from the order,
+ * edit it, then send by email (sent by the system) or WhatsApp (opens wa.me,
+ * the admin presses send there). Every send is logged below.
+ */
+function KabariPelanggan({ pesanan }: { pesanan: Pesanan }) {
+    const awal = pesanan.templatePesan.find((item) => item.kunci === (TEMPLATE_STATUS[pesanan.status] ?? 'bebas')) ?? pesanan.templatePesan[0];
+    const form = useForm({ channel: 'email', template: awal.kunci, subject: awal.subjek, body: awal.isi });
+
+    const pilihTemplate = (kunci: string) => {
+        const dipilih = pesanan.templatePesan.find((item) => item.kunci === kunci);
+        if (dipilih) form.setData({ ...form.data, template: kunci, subject: dipilih.subjek, body: dipilih.isi });
+    };
+
+    const kirimEmail = () => {
+        form.transform((data) => ({ ...data, channel: 'email' }));
+        form.post(pesanan.pesanUrl, { preserveScroll: true });
+    };
+
+    const bukaWhatsApp = () => {
+        if (!pesanan.waNomor) return;
+        window.open(`https://wa.me/${pesanan.waNomor}?text=${encodeURIComponent(form.data.body)}`, '_blank', 'noopener');
+        form.transform((data) => ({ ...data, channel: 'whatsapp', subject: '' }));
+        form.post(pesanan.pesanUrl, { preserveScroll: true });
+    };
+
+    const kosong = form.data.body.trim() === '';
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Kabari pelanggan</CardTitle>
+                <CardDescription>Pilih template, edit kalau perlu, lalu kirim lewat email atau WhatsApp.</CardDescription>
+            </CardHeader>
+            <div className="grid gap-3 px-5 pb-5">
+                <Field id="template-pesan" label="Template">
+                    <Select value={form.data.template} onValueChange={pilihTemplate}>
+                        <SelectTrigger id="template-pesan">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {pesanan.templatePesan.map((item) => (
+                                <SelectItem key={item.kunci} value={item.kunci}>
+                                    {item.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <Field id="subjek-pesan" label="Subjek (email)" error={form.errors.subject}>
+                    <Input id="subjek-pesan" value={form.data.subject} maxLength={150} onChange={(event) => form.setData('subject', event.target.value)} />
+                </Field>
+                <Field id="isi-pesan" label="Isi pesan" error={form.errors.body}>
+                    <Textarea id="isi-pesan" rows={10} value={form.data.body} maxLength={2000} onChange={(event) => form.setData('body', event.target.value)} />
+                </Field>
+                <div className="flex flex-wrap gap-2">
+                    <Button type="button" disabled={form.processing || kosong} onClick={kirimEmail}>
+                        Kirim email
+                    </Button>
+                    <Button type="button" variant="outline" disabled={form.processing || kosong || !pesanan.waNomor} onClick={bukaWhatsApp}>
+                        Buka WhatsApp
+                    </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                    Email ke {pesanan.pelanggan.email}.{' '}
+                    {pesanan.waNomor ? 'WhatsApp terbuka dengan pesan siap kirim, tekan kirim di aplikasinya.' : 'Nomor HP pelanggan tidak valid untuk WhatsApp.'}
+                </p>
+
+                {pesanan.riwayatPesan.length > 0 && (
+                    <div className="border-t border-border pt-3">
+                        <p className="mb-2 text-sm font-medium">Riwayat kabar</p>
+                        <ul className="grid gap-2 text-sm">
+                            {pesanan.riwayatPesan.map((item) => (
+                                <li key={item.id} className="rounded-md bg-muted/50 px-3 py-2">
+                                    <details>
+                                        <summary className="cursor-pointer">
+                                            <strong>{item.saluran === 'email' ? 'Email' : 'WhatsApp'}</strong>, {item.template}
+                                            <span className="block text-xs text-muted-foreground">
+                                                {item.waktu}
+                                                {item.oleh && `, oleh ${item.oleh}`}
+                                            </span>
+                                        </summary>
+                                        <p className="mt-2 whitespace-pre-line text-xs text-muted-foreground">{item.isi}</p>
+                                    </details>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
+        </Card>
+    );
+}
 
 interface Paket {
     id: number;
@@ -109,6 +224,7 @@ interface Pesanan {
     subtotal: number;
     ongkir: number;
     layanan: string | null;
+    ongkirDarurat: boolean;
     total: number;
     totalModal: number;
     untung: number;
@@ -119,6 +235,10 @@ interface Pesanan {
     resiUrl: string;
     catatan: string | null;
     alasanBatal: string | null;
+    templatePesan: TemplatePesan[];
+    waNomor: string | null;
+    pesanUrl: string;
+    riwayatPesan: RiwayatPesan[];
     statusRefund: 'diproses' | 'selesai' | null;
     refundUrl: string;
     mayarId: string | null;
@@ -200,6 +320,12 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                             {`\n${pesanan.pelanggan.kota}, ${pesanan.pelanggan.provinsi} ${pesanan.pelanggan.kodePos}`}
                             <div className="mt-2 text-muted-foreground">{pesanan.pelanggan.email}</div>
                             {pesanan.layanan && <div className="mt-1 text-muted-foreground">Kurir pilihan pelanggan: {pesanan.layanan}</div>}
+                            {pesanan.ongkirDarurat && (
+                                <div className="mt-2 rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+                                    Ongkir tetap dipakai karena tarif Biteship gagal diambil saat checkout. Cek ongkir sebenarnya di Shopee, dan pilih kurir sendiri saat memesan ke
+                                    supplier.
+                                </div>
+                            )}
                         </div>
                     </Card>
 
@@ -369,6 +495,8 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                             )}
                         </div>
                     </Card>
+
+                    <KabariPelanggan key={`${pesanan.status}-${pesanan.pengiriman.length}-${pesanan.alasanBatal ?? ''}`} pesanan={pesanan} />
 
                     <Card className="p-5">
                         <CardTitle className="mb-2">Untung</CardTitle>
