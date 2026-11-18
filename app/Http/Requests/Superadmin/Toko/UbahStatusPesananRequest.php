@@ -9,7 +9,7 @@ use Illuminate\Validation\Validator;
 
 /**
  * Alur status pesanan: paid -> ordered_to_supplier (isi ref supplier) ->
- * shipped (isi kurir dan resi) -> completed. Lompatan lain ditolak.
+ * shipped (isi satu paket atau lebih: kurir dan resi) -> completed. Lompatan lain ditolak.
  */
 class UbahStatusPesananRequest extends FormRequest
 {
@@ -26,9 +26,10 @@ class UbahStatusPesananRequest extends FormRequest
         return [
             'status' => ['required', Rule::enum(OrderStatus::class)],
             'supplier_order_ref' => ['nullable', 'required_if:status,ordered_to_supplier', 'string', 'max:150'],
-            'courier' => ['nullable', 'required_if:status,shipped', 'string', 'max:50'],
-            'tracking_number' => ['nullable', 'required_if:status,shipped', 'string', 'max:100'],
-            'shipped_from' => ['nullable', 'string', 'max:120'],
+            'pengiriman' => ['nullable', 'required_if:status,shipped', 'array', 'min:1', 'max:10'],
+            'pengiriman.*.courier' => ['required', 'string', 'max:50'],
+            'pengiriman.*.tracking_number' => ['required', 'string', 'max:100'],
+            'pengiriman.*.shipped_from' => ['nullable', 'string', 'max:120'],
         ];
     }
 
@@ -55,8 +56,9 @@ class UbahStatusPesananRequest extends FormRequest
     {
         return [
             'supplier_order_ref.required_if' => 'Isi nomor pesanan di supplier.',
-            'courier.required_if' => 'Isi nama kurir.',
-            'tracking_number.required_if' => 'Isi nomor resi.',
+            'pengiriman.required_if' => 'Isi minimal satu paket (kurir dan nomor resi).',
+            'pengiriman.*.courier.required' => 'Isi nama kurir.',
+            'pengiriman.*.tracking_number.required' => 'Isi nomor resi.',
         ];
     }
 }

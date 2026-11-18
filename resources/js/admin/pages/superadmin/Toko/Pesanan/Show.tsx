@@ -1,5 +1,5 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, Copy, ExternalLink } from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { ArrowLeft, Copy, ExternalLink, Plus, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
 import Field from '../../../../components/form/Field';
@@ -11,6 +11,82 @@ import { Card, CardDescription, CardHeader, CardTitle } from '../../../../compon
 import { Input, Textarea } from '../../../../components/ui/input';
 import { rupiah } from '../../../../lib/format';
 import { varianStatusPesanan } from './Index';
+
+interface Paket {
+    id: number;
+    kurir: string;
+    resi: string;
+    dikirimDari: string | null;
+    hapusUrl: string;
+}
+
+interface IsianPaket {
+    courier: string;
+    tracking_number: string;
+    shipped_from: string;
+}
+
+const PAKET_KOSONG: IsianPaket = { courier: '', tracking_number: '', shipped_from: '' };
+
+/** One parcel row: courier, tracking number and the branch that shipped it. */
+function BarisPaket({
+    nomor,
+    nilai,
+    galat,
+    onUbah,
+    onHapus,
+}: {
+    nomor: number;
+    nilai: IsianPaket;
+    galat: Record<string, string>;
+    onUbah: (kolom: keyof IsianPaket, nilai: string) => void;
+    onHapus?: () => void;
+}) {
+    return (
+        <fieldset className="grid gap-3 rounded-md border border-border p-3">
+            <legend className="flex items-center gap-2 px-1 text-xs font-semibold text-muted-foreground">
+                Paket {nomor}
+                {onHapus && (
+                    <button type="button" className="inline-flex min-h-8 items-center gap-1 font-normal text-destructive underline" onClick={onHapus}>
+                        <X className="size-3" />
+                        Hapus
+                    </button>
+                )}
+            </legend>
+            <div className="grid grid-cols-2 gap-3">
+                <Field id={`kurir-${nomor}`} label="Kurir" error={galat.courier} wajib>
+                    <Input id={`kurir-${nomor}`} value={nilai.courier} onChange={(event) => onUbah('courier', event.target.value)} placeholder="JNE, J&T, SiCepat" />
+                </Field>
+                <Field id={`resi-${nomor}`} label="Nomor resi" error={galat.tracking_number} wajib>
+                    <Input id={`resi-${nomor}`} value={nilai.tracking_number} onChange={(event) => onUbah('tracking_number', event.target.value)} />
+                </Field>
+            </div>
+            <Field id={`dari-${nomor}`} label="Dikirim dari (cabang/kota)" error={galat.shipped_from}>
+                <Input id={`dari-${nomor}`} value={nilai.shipped_from} onChange={(event) => onUbah('shipped_from', event.target.value)} placeholder="RANK Sports Bekasi" />
+            </Field>
+        </fieldset>
+    );
+}
+
+/** Adds one more parcel to an order that is already marked shipped. */
+function TambahResi({ url }: { url: string }) {
+    const form = useForm<IsianPaket>({ ...PAKET_KOSONG });
+
+    const kirim = (event: FormEvent) => {
+        event.preventDefault();
+        form.post(url, { preserveScroll: true, onSuccess: () => form.reset() });
+    };
+
+    return (
+        <form onSubmit={kirim} className="mt-4 grid gap-3 border-t border-border pt-4">
+            <p className="text-sm font-medium">Tambah paket lain</p>
+            <BarisPaket nomor={0} nilai={form.data} galat={form.errors} onUbah={(kolom, nilai) => form.setData(kolom, nilai)} />
+            <Button type="submit" variant="outline" disabled={form.processing}>
+                Simpan paket dan kabari pelanggan
+            </Button>
+        </form>
+    );
+}
 
 interface Pesanan {
     id: number;
@@ -39,9 +115,8 @@ interface Pesanan {
     dibuat: string;
     dibayar: string | null;
     refSupplier: string | null;
-    kurir: string | null;
-    resi: string | null;
-    dikirimDari: string | null;
+    pengiriman: Paket[];
+    resiUrl: string;
     catatan: string | null;
     mayarId: string | null;
     langkahBerikutnya: { nilai: string; label: string }[];
@@ -67,7 +142,20 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
     const bisaBatal = pesanan.langkahBerikutnya.some((langkah) => langkah.nilai === 'cancelled');
     const [konfirmasiBatal, setKonfirmasiBatal] = useState(false);
 
-    const status = useForm({ status: lanjut?.nilai ?? '', supplier_order_ref: pesanan.refSupplier ?? '', courier: pesanan.kurir ?? '', tracking_number: pesanan.resi ?? '', shipped_from: pesanan.dikirimDari ?? '' });
+    const status = useForm({ status: lanjut?.nilai ?? '', supplier_order_ref: pesanan.refSupplier ?? '', pengiriman: [{ ...PAKET_KOSONG }] as IsianPaket[] });
+    const galatStatus: Record<string, string> = status.errors;
+    const galatPaket = (indeks: number) => ({
+        courier: galatStatus[`pengiriman.${indeks}.courier`],
+        tracking_number: galatStatus[`pengiriman.${indeks}.tracking_number`],
+        shipped_from: galatStatus[`pengiriman.${indeks}.shipped_from`],
+    });
+    const ubahPaket = (indeks: number, kolom: keyof IsianPaket, nilai: string) =>
+        status.setData(
+            'pengiriman',
+            status.data.pengiriman.map((paket, urutan) => (urutan === indeks ? { ...paket, [kolom]: nilai } : paket)),
+        );
+    const bisaTambahResi = pesanan.status === 'shipped';
+    const hapusResi = (url: string) => router.delete(url, { preserveScroll: true });
     const catatan = useForm({ admin_notes: pesanan.catatan ?? '' });
 
     const ubahStatus = (event?: FormEvent, tujuan?: string) => {
@@ -164,17 +252,30 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                     <Card>
                         <CardHeader>
                             <CardTitle>Proses Pesanan</CardTitle>
-                            <CardDescription>
-                                {pesanan.refSupplier && <>Ref supplier: {pesanan.refSupplier}. </>}
-                                {pesanan.resi && (
-                                    <>
-                                        Resi {pesanan.kurir} {pesanan.resi}.{' '}
-                                    </>
-                                )}
-                                {pesanan.dikirimDari && <>Dikirim dari {pesanan.dikirimDari}.</>}
-                            </CardDescription>
+                            <CardDescription>{pesanan.refSupplier && <>Ref supplier: {pesanan.refSupplier}. </>}</CardDescription>
                         </CardHeader>
                         <div className="px-5 pb-5">
+                            {pesanan.pengiriman.length > 0 && (
+                                <ul className="mb-4 grid gap-2 text-sm">
+                                    {pesanan.pengiriman.map((paket, indeks) => (
+                                        <li key={paket.id} className="flex items-start justify-between gap-3 rounded-md bg-muted/50 px-3 py-2">
+                                            <span>
+                                                <strong>Paket {indeks + 1}:</strong> {paket.kurir} {paket.resi}
+                                                {paket.dikirimDari && <span className="block text-xs text-muted-foreground">Dari {paket.dikirimDari}</span>}
+                                            </span>
+                                            {bisaTambahResi && pesanan.pengiriman.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex min-h-10 items-center text-xs text-destructive underline"
+                                                    onClick={() => hapusResi(paket.hapusUrl)}
+                                                >
+                                                    Hapus
+                                                </button>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                             {lanjut ? (
                                 <form onSubmit={ubahStatus} className="grid gap-3">
                                     {lanjut.nilai === 'ordered_to_supplier' && (
@@ -183,41 +284,56 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                                         </Field>
                                     )}
                                     {lanjut.nilai === 'shipped' && (
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <Field id="kurir" label="Kurir" error={status.errors.courier} wajib>
-                                                <Input
-                                                    id="kurir"
-                                                    value={status.data.courier}
-                                                    onChange={(event) => status.setData('courier', event.target.value)}
-                                                    placeholder="JNE, J&T, SiCepat"
+                                        <>
+                                            {galatStatus.pengiriman && <p className="text-sm text-destructive">{galatStatus.pengiriman}</p>}
+                                            {status.data.pengiriman.map((paket, indeks) => (
+                                                <BarisPaket
+                                                    key={indeks}
+                                                    nomor={indeks + 1}
+                                                    nilai={paket}
+                                                    galat={galatPaket(indeks)}
+                                                    onUbah={(kolom, nilai) => ubahPaket(indeks, kolom, nilai)}
+                                                    onHapus={
+                                                        status.data.pengiriman.length > 1
+                                                            ? () =>
+                                                                  status.setData(
+                                                                      'pengiriman',
+                                                                      status.data.pengiriman.filter((_, urutan) => urutan !== indeks),
+                                                                  )
+                                                            : undefined
+                                                    }
                                                 />
-                                            </Field>
-                                            <Field id="resi" label="Nomor resi" error={status.errors.tracking_number} wajib>
-                                                <Input id="resi" value={status.data.tracking_number} onChange={(event) => status.setData('tracking_number', event.target.value)} />
-                                            </Field>
-                                        </div>
-                                    )}
-                                    {lanjut.nilai === 'shipped' && (
-                                        <Field id="dari" label="Dikirim dari (cabang/kota)" error={status.errors.shipped_from}>
-                                            <Input
-                                                id="dari"
-                                                value={status.data.shipped_from}
-                                                onChange={(event) => status.setData('shipped_from', event.target.value)}
-                                                placeholder="RANK Sports Bekasi"
-                                            />
-                                        </Field>
+                                            ))}
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                className="justify-self-start"
+                                                disabled={status.data.pengiriman.length >= 10}
+                                                onClick={() => status.setData('pengiriman', [...status.data.pengiriman, { ...PAKET_KOSONG }])}
+                                            >
+                                                <Plus />
+                                                Tambah paket
+                                            </Button>
+                                        </>
                                     )}
                                     {status.errors.status && <p className="text-sm text-destructive">{status.errors.status}</p>}
                                     <Button type="submit" disabled={status.processing}>
                                         Tandai {lanjut.label}
                                     </Button>
-                                    {lanjut.nilai === 'shipped' && <p className="text-xs text-muted-foreground">Pelanggan otomatis menerima email berisi nomor resi.</p>}
+                                    {lanjut.nilai === 'shipped' && (
+                                        <p className="text-xs text-muted-foreground">
+                                            Pelanggan otomatis menerima email berisi semua nomor resi. Pesanan dari beberapa supplier dikirim dalam beberapa paket, satu resi per
+                                            paket.
+                                        </p>
+                                    )}
                                 </form>
                             ) : (
                                 <p className="text-sm text-muted-foreground">
                                     {pesanan.status === 'pending_payment' ? 'Menunggu pembayaran dari pelanggan.' : 'Tidak ada langkah lanjutan untuk pesanan ini.'}
                                 </p>
                             )}
+                            {bisaTambahResi && <TambahResi url={pesanan.resiUrl} />}
                             {bisaBatal && (
                                 <Button
                                     variant="ghost"

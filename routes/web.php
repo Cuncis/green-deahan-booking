@@ -211,6 +211,8 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
             Route::get('/pesanan', [PesananTokoAdminController::class, 'index'])->name('pesanan');
             Route::get('/pesanan/{order}', [PesananTokoAdminController::class, 'show'])->name('pesanan.show');
             Route::post('/pesanan/{order}/status', [PesananTokoAdminController::class, 'ubahStatus'])->name('pesanan.status');
+            Route::post('/pesanan/{order}/resi', [PesananTokoAdminController::class, 'tambahResi'])->name('pesanan.resi.tambah');
+            Route::delete('/pesanan/{order}/resi/{shipment}', [PesananTokoAdminController::class, 'hapusResi'])->name('pesanan.resi.hapus');
             Route::put('/pesanan/{order}/catatan', [PesananTokoAdminController::class, 'simpanCatatan'])->name('pesanan.catatan');
 
             Route::get('/produk', [ProdukTokoController::class, 'index'])->name('produk');

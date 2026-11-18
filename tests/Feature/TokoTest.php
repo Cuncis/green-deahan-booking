@@ -331,7 +331,8 @@ class TokoTest extends TestCase
 
     public function test_halaman_status_pesanan(): void
     {
-        $order = Order::factory()->create(['status' => OrderStatus::Shipped, 'courier' => 'JNE', 'tracking_number' => 'JNE123', 'total' => 110000]);
+        $order = Order::factory()->create(['status' => OrderStatus::Shipped, 'total' => 110000]);
+        $order->shipments()->create(['courier' => 'JNE', 'tracking_number' => 'JNE123']);
         $order->items()->create(['product_id' => null, 'product_name' => 'Bola Futsal', 'unit_price' => 95000, 'unit_cost' => 70000, 'qty' => 1]);
 
         $this->get(self::SITUS.'/pesanan/'.$order->code)
@@ -339,7 +340,7 @@ class TokoTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('toko/Pesanan')
                 ->where('pesanan.status', 'shipped')
-                ->where('pesanan.resi', 'JNE123')
+                ->where('pesanan.pengiriman.0.resi', 'JNE123')->where('pesanan.pengiriman.0.kurir', 'JNE')
                 ->where('pesanan.linkBayar', null)
                 ->missing('pesanan.items.0.modal')
                 ->has('langkah', 5)

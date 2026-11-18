@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Superadmin\Toko;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Superadmin\Toko\TambahResiRequest;
 use App\Http\Requests\Superadmin\Toko\UbahStatusPesananRequest;
 use App\Mail\PesananTokoDikirim;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderShipment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,7 +60,7 @@ class PesananTokoAdminController extends Controller
 
     public function show(Order $order): Response
     {
-        $order->load('items.product');
+        $order->load('items.product', 'shipments');
 
         return Inertia::render('superadmin/Toko/Pesanan/Show', [
             'pesanan' => [
@@ -95,9 +97,11 @@ class PesananTokoAdminController extends Controller
                 'dibuat' => $order->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i'),
                 'dibayar' => $order->paid_at?->timezone('Asia/Jakarta')->format('d/m/Y H:i'),
                 'refSupplier' => $order->supplier_order_ref,
-                'kurir' => $order->courier,
-                'resi' => $order->tracking_number,
-                'dikirimDari' => $order->shipped_from,
+                'pengiriman' => collect($order->daftarPengiriman())->map(fn (array $paket) => [
+                    ...$paket,
+                    'hapusUrl' => route('superadmin.toko.pesanan.resi.hapus', [$order, $paket['id']]),
+                ])->all(),
+                'resiUrl' => route('superadmin.toko.pesanan.resi.tambah', $order),
                 'catatan' => $order->admin_notes,
                 'mayarId' => $order->mayar_payment_id,
                 'langkahBerikutnya' => collect($order->status->langkahBerikutnya())->map(fn (OrderStatus $s) => ['nilai' => $s->value, 'label' => $s->label()])->all(),
@@ -123,10 +127,15 @@ class PesananTokoAdminController extends Controller
             $terkunci->update(array_filter([
                 'status' => $tujuan,
                 'supplier_order_ref' => $request->validated('supplier_order_ref'),
-                'courier' => $request->validated('courier'),
-                'tracking_number' => $request->validated('tracking_number'),
-                'shipped_from' => $request->validated('shipped_from'),
             ], fn ($nilai) => $nilai !== null));
+
+            if ($tujuan === OrderStatus::Shipped) {
+                $terkunci->shipments()->createMany(collect($request->validated('pengiriman'))->map(fn (array $paket) => [
+                    'courier' => $paket['courier'],
+                    'tracking_number' => $paket['tracking_number'],
+                    'shipped_from' => $paket['shipped_from'] ?? null,
+                ])->all());
+            }
 
             return true;
         });
@@ -140,6 +149,35 @@ class PesananTokoAdminController extends Controller
         }
 
         return back()->with('success', "Status pesanan diubah menjadi \"{$tujuan->label()}\".".($tujuan === OrderStatus::Shipped ? ' Email resi dikirim ke pelanggan.' : ''));
+    }
+
+    public function tambahResi(TambahResiRequest $request, Order $order): RedirectResponse
+    {
+        if ($order->status !== OrderStatus::Shipped) {
+            return back()->with('error', 'Paket tambahan hanya bisa dicatat untuk pesanan berstatus dikirim.');
+        }
+
+        $order->shipments()->create($request->validated());
+        Mail::to($order->email)->queue(new PesananTokoDikirim($order->fresh(), tambahan: true));
+
+        return back()->with('success', 'Paket ditambahkan. Email resi terbaru dikirim ke pelanggan.');
+    }
+
+    public function hapusResi(Order $order, OrderShipment $shipment): RedirectResponse
+    {
+        abort_unless($shipment->order_id === $order->id, 404);
+
+        if ($order->status !== OrderStatus::Shipped) {
+            return back()->with('error', 'Resi hanya bisa dihapus saat pesanan berstatus dikirim.');
+        }
+
+        if ($order->shipments()->count() <= 1) {
+            return back()->with('error', 'Pesanan dikirim harus punya minimal satu resi. Tambah resi pengganti dulu.');
+        }
+
+        $shipment->delete();
+
+        return back()->with('success', 'Resi dihapus.');
     }
 
     public function simpanCatatan(Request $request, Order $order): RedirectResponse

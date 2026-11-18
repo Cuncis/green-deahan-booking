@@ -37,9 +37,6 @@ use Illuminate\Support\Str;
     'mayar_payment_link',
     'paid_at',
     'supplier_order_ref',
-    'tracking_number',
-    'shipped_from',
-    'courier',
     'admin_notes',
 ])]
 class Order extends Model
@@ -69,6 +66,29 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Paket pengiriman (kurir dan resi), urut sesuai waktu dicatat.
+     */
+    public function shipments(): HasMany
+    {
+        return $this->hasMany(OrderShipment::class)->orderBy('id');
+    }
+
+    /**
+     * Paket pengiriman sebagai array siap tampil (admin, halaman pesanan, email).
+     *
+     * @return array<int, array{id: int, kurir: string, resi: string, dikirimDari: ?string}>
+     */
+    public function daftarPengiriman(): array
+    {
+        return $this->shipments->map(fn (OrderShipment $paket) => [
+            'id' => $paket->id,
+            'kurir' => $paket->courier,
+            'resi' => $paket->tracking_number,
+            'dikirimDari' => $paket->shipped_from,
+        ])->all();
     }
 
     /**

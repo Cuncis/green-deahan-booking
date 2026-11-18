@@ -19,8 +19,7 @@ interface Pesanan {
     layanan: string | null;
     total: number;
     linkBayar: string | null;
-    kurir: string | null;
-    resi: string | null;
+    pengiriman: { kurir: string; resi: string; dikirimDari: string | null }[];
     dibuat: string;
     dibayar: string | null;
 }
@@ -102,9 +101,20 @@ export default function PesananToko({ pesanan, langkah }: Props) {
                                     </div>
                                 )}
                                 {batal && <div className="gd-pesan galat">Pesanan ini {pesanan.statusLabel.toLowerCase()}. Silakan pesan ulang dari toko.</div>}
-                                {pesanan.resi && (
+                                {pesanan.pengiriman.length > 0 && (
                                     <div className="gd-pesan sukses">
-                                        Dikirim lewat <strong>{pesanan.kurir}</strong>, nomor resi <strong>{pesanan.resi}</strong>.
+                                        {pesanan.pengiriman.length > 1 && (
+                                            <p className="mb-1">
+                                                Pesananmu dikirim dalam {pesanan.pengiriman.length} paket dari lokasi berbeda, jadi paket bisa tiba di hari yang berbeda.
+                                            </p>
+                                        )}
+                                        {pesanan.pengiriman.map((paket, indeks) => (
+                                            <p key={`${paket.resi}-${indeks}`} className="mb-0">
+                                                {pesanan.pengiriman.length > 1 && <>Paket {indeks + 1}: </>}
+                                                Dikirim lewat <strong>{paket.kurir}</strong>, nomor resi <strong>{paket.resi}</strong>
+                                                {paket.dikirimDari && <> (dari {paket.dikirimDari})</>}.
+                                            </p>
+                                        ))}
                                     </div>
                                 )}
 

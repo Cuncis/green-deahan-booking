@@ -113,10 +113,108 @@ class TokoAdminTest extends TestCase
         $url = "/superadmin/toko/pesanan/{$order->id}/status";
 
         $this->actingAs($admin)->post($url, ['status' => 'ordered_to_supplier', 'supplier_order_ref' => 'SHP-001'])->assertSessionHasNoErrors();
-        $this->actingAs($admin)->post($url, ['status' => 'shipped', 'courier' => 'JNE', 'tracking_number' => 'JNE123', 'shipped_from' => 'RANK Sports Bekasi'])->assertSessionHasNoErrors();
+        $this->actingAs($admin)->post($url, ['status' => 'shipped', 'pengiriman' => [['courier' => 'JNE', 'tracking_number' => 'JNE123', 'shipped_from' => 'RANK Sports Bekasi']]])->assertSessionHasNoErrors();
 
-        $this->assertSame('RANK Sports Bekasi', $order->fresh()->shipped_from);
-        $this->actingAs($admin)->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page->where('pesanan.dikirimDari', 'RANK Sports Bekasi'));
+        $this->assertSame('RANK Sports Bekasi', $order->shipments()->sole()->shipped_from);
+        $this->actingAs($admin)->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page->where('pesanan.pengiriman.0.dikirimDari', 'RANK Sports Bekasi'));
+    }
+
+    public function test_pesanan_dikirim_dalam_beberapa_paket_dengan_resi_masing_masing(): void
+    {
+        Mail::fake();
+        $order = $this->pesananDibayar();
+        $admin = $this->superadmin();
+        $url = "/superadmin/toko/pesanan/{$order->id}/status";
+        $this->actingAs($admin)->post($url, ['status' => 'ordered_to_supplier', 'supplier_order_ref' => 'SHP-001']);
+
+        $this->actingAs($admin)->post($url, ['status' => 'shipped', 'pengiriman' => [
+            ['courier' => 'JNE', 'tracking_number' => 'JNE123', 'shipped_from' => 'RANK Sports Bekasi'],
+            ['courier' => 'J&T', 'tracking_number' => 'JT456', 'shipped_from' => ''],
+        ]])->assertSessionHasNoErrors();
+
+        $this->assertSame(['JNE123', 'JT456'], $order->shipments()->pluck('tracking_number')->all());
+        Mail::assertQueued(PesananTokoDikirim::class, 1);
+        Mail::assertQueued(PesananTokoDikirim::class, fn (PesananTokoDikirim $mail) => ! $mail->tambahan && count($mail->order->daftarPengiriman()) === 2);
+        $this->actingAs($admin)->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page->has('pesanan.pengiriman', 2)->where('pesanan.pengiriman.1.kurir', 'J&T'));
+    }
+
+    public function test_setiap_paket_wajib_punya_kurir_dan_resi_dan_paket_gagal_tidak_mengubah_status(): void
+    {
+        $order = $this->pesananDibayar();
+        $admin = $this->superadmin();
+        $url = "/superadmin/toko/pesanan/{$order->id}/status";
+        $this->actingAs($admin)->post($url, ['status' => 'ordered_to_supplier', 'supplier_order_ref' => 'SHP-001']);
+
+        $this->actingAs($admin)->post($url, ['status' => 'shipped', 'pengiriman' => [
+            ['courier' => 'JNE', 'tracking_number' => 'JNE123'],
+            ['courier' => '', 'tracking_number' => 'JT456'],
+        ]])->assertSessionHasErrors('pengiriman.1.courier');
+
+        $this->assertSame(OrderStatus::OrderedToSupplier, $order->fresh()->status);
+        $this->assertSame(0, $order->shipments()->count());
+    }
+
+    public function test_paket_tambahan_dicatat_setelah_dikirim_dan_pelanggan_diberi_tahu(): void
+    {
+        Mail::fake();
+        $order = $this->pesananDibayar();
+        $admin = $this->superadmin();
+        $url = "/superadmin/toko/pesanan/{$order->id}";
+        $this->actingAs($admin)->post("{$url}/status", ['status' => 'ordered_to_supplier', 'supplier_order_ref' => 'SHP-001']);
+
+        $this->actingAs($admin)->post("{$url}/resi", ['courier' => 'JNE', 'tracking_number' => 'X'])->assertSessionHas('error');
+        $this->assertSame(0, $order->shipments()->count());
+
+        $this->actingAs($admin)->post("{$url}/status", ['status' => 'shipped', 'pengiriman' => [['courier' => 'JNE', 'tracking_number' => 'JNE123']]]);
+        $this->actingAs($admin)->post("{$url}/resi", ['courier' => 'SiCepat', 'tracking_number' => 'SC789', 'shipped_from' => 'RANK Sports Medan'])->assertSessionHas('success');
+        $this->actingAs($admin)->post("{$url}/resi", ['courier' => '', 'tracking_number' => ''])->assertSessionHasErrors(['courier', 'tracking_number']);
+
+        $this->assertSame(['JNE123', 'SC789'], $order->shipments()->pluck('tracking_number')->all());
+        Mail::assertQueued(PesananTokoDikirim::class, 2);
+        Mail::assertQueued(PesananTokoDikirim::class, fn (PesananTokoDikirim $mail) => $mail->tambahan);
+    }
+
+    public function test_hapus_resi_menjaga_minimal_satu_dan_hanya_milik_pesanan_itu(): void
+    {
+        Mail::fake();
+        $order = Order::factory()->create(['status' => OrderStatus::Shipped]);
+        $pertama = $order->shipments()->create(['courier' => 'JNE', 'tracking_number' => 'JNE123']);
+        $kedua = $order->shipments()->create(['courier' => 'J&T', 'tracking_number' => 'JT456']);
+        $lain = Order::factory()->create(['status' => OrderStatus::Shipped])->shipments()->create(['courier' => 'JNE', 'tracking_number' => 'LAIN1']);
+        $admin = $this->superadmin();
+
+        $this->actingAs($admin)->delete("/superadmin/toko/pesanan/{$order->id}/resi/{$lain->id}")->assertNotFound();
+        $this->actingAs($admin)->delete("/superadmin/toko/pesanan/{$order->id}/resi/{$kedua->id}")->assertSessionHas('success');
+        $this->actingAs($admin)->delete("/superadmin/toko/pesanan/{$order->id}/resi/{$pertama->id}")->assertSessionHas('error');
+
+        $this->assertSame(['JNE123'], $order->shipments()->pluck('tracking_number')->all());
+        $this->assertSame(1, $lain->order->shipments()->count());
+    }
+
+    public function test_email_memuat_semua_paket_dan_menjelaskan_paket_bisa_tiba_berbeda(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::Shipped]);
+        $order->shipments()->create(['courier' => 'JNE', 'tracking_number' => 'JNE123', 'shipped_from' => 'RANK Sports Bekasi']);
+        $order->shipments()->create(['courier' => 'J&T', 'tracking_number' => 'JT456']);
+
+        $mail = new PesananTokoDikirim($order->fresh());
+        $mail->assertSeeInHtml('JNE123');
+        $mail->assertSeeInHtml('JT456');
+        $mail->assertSeeInHtml('RANK Sports Bekasi');
+        $mail->assertSeeInHtml('2 paket');
+        $this->assertSame("Pesanan {$order->code} sudah dikirim", $mail->envelope()->subject);
+        $this->assertSame("Ada paket baru untuk pesanan {$order->code}", (new PesananTokoDikirim($order->fresh(), tambahan: true))->envelope()->subject);
+    }
+
+    public function test_hanya_superadmin_yang_bisa_menambah_atau_menghapus_resi(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::Shipped]);
+        $paket = $order->shipments()->create(['courier' => 'JNE', 'tracking_number' => 'JNE123']);
+
+        $this->post("/superadmin/toko/pesanan/{$order->id}/resi", ['courier' => 'JNE', 'tracking_number' => 'Z'])->assertRedirect();
+        $this->delete("/superadmin/toko/pesanan/{$order->id}/resi/{$paket->id}")->assertRedirect();
+
+        $this->assertSame(1, $order->shipments()->count());
     }
 
     public function test_ubah_dan_hapus_produk_tidak_merusak_pesanan_lama(): void
@@ -195,10 +293,11 @@ class TokoAdminTest extends TestCase
         $this->actingAs($admin)->post($url, ['status' => 'ordered_to_supplier', 'supplier_order_ref' => 'SHP-001'])->assertSessionHasNoErrors();
         $this->assertSame(OrderStatus::OrderedToSupplier, $order->fresh()->status);
 
-        $this->actingAs($admin)->post($url, ['status' => 'shipped', 'courier' => 'JNE'])->assertSessionHasErrors('tracking_number');
+        $this->actingAs($admin)->post($url, ['status' => 'shipped'])->assertSessionHasErrors('pengiriman');
+        $this->actingAs($admin)->post($url, ['status' => 'shipped', 'pengiriman' => [['courier' => 'JNE']]])->assertSessionHasErrors('pengiriman.0.tracking_number');
         Mail::assertNothingQueued();
-        $this->actingAs($admin)->post($url, ['status' => 'shipped', 'courier' => 'JNE', 'tracking_number' => 'JNE123'])->assertSessionHasNoErrors();
-        Mail::assertQueued(PesananTokoDikirim::class, fn (PesananTokoDikirim $mail) => $mail->hasTo($order->email) && $mail->order->tracking_number === 'JNE123');
+        $this->actingAs($admin)->post($url, ['status' => 'shipped', 'pengiriman' => [['courier' => 'JNE', 'tracking_number' => 'JNE123']]])->assertSessionHasNoErrors();
+        Mail::assertQueued(PesananTokoDikirim::class, fn (PesananTokoDikirim $mail) => $mail->hasTo($order->email) && $mail->order->shipments->pluck('tracking_number')->all() === ['JNE123']);
 
         $this->actingAs($admin)->post($url, ['status' => 'completed'])->assertSessionHasNoErrors();
         $this->assertSame(OrderStatus::Completed, $order->fresh()->status);

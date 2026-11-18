@@ -22,7 +22,7 @@ class PesananTokoController extends Controller
 
     public function show(string $code): Response
     {
-        $order = Order::with('items')->where('code', $code)->firstOrFail();
+        $order = Order::with('items', 'shipments')->where('code', $code)->firstOrFail();
 
         return Inertia::render('toko/Pesanan', [
             'pesanan' => [
@@ -42,8 +42,7 @@ class PesananTokoController extends Controller
                 'layanan' => $order->layananPengiriman(),
                 'total' => $order->total,
                 'linkBayar' => $order->status === OrderStatus::PendingPayment ? $order->mayar_payment_link : null,
-                'kurir' => $order->courier,
-                'resi' => $order->tracking_number,
+                'pengiriman' => $order->daftarPengiriman(),
                 'dibuat' => $order->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i'),
                 'dibayar' => $order->paid_at?->timezone('Asia/Jakarta')->format('d/m/Y H:i'),
             ],
