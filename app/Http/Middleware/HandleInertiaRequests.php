@@ -86,6 +86,19 @@ class HandleInertiaRequests extends Middleware
             'navigasi' => fn () => $diSuperadmin
                 ? app(NavigasiAdminService::class)->untukSuperadmin()
                 : ($tenant ? app(NavigasiAdminService::class)->untukTenant($tenant) : []),
+            // Lonceng notifikasi (error baru dan sejenisnya), hanya di area superadmin.
+            'notifikasi' => fn () => $diSuperadmin && $user ? [
+                'belumDibaca' => $user->unreadNotifications()->count(),
+                'terbaru' => $user->notifications()->latest()->limit(8)->get()->map(fn ($notifikasi) => [
+                    'id' => $notifikasi->id,
+                    'judul' => (string) ($notifikasi->data['judul'] ?? 'Notifikasi'),
+                    'pesan' => (string) ($notifikasi->data['pesan'] ?? ''),
+                    'waktu' => $notifikasi->created_at->timezone('Asia/Jakarta')->diffForHumans(),
+                    'dibaca' => $notifikasi->read_at !== null,
+                    'bukaUrl' => route('superadmin.notifikasi.buka', $notifikasi->id),
+                ])->all(),
+                'bacaSemuaUrl' => route('superadmin.notifikasi.baca-semua'),
+            ] : null,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),

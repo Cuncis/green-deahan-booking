@@ -19,6 +19,12 @@ export interface SharedProps {
     area: 'admin' | 'superadmin';
     tenant: { nama_bisnis: string; paket: string } | null;
     navigasi: NavGrup[];
+    /** Bell notifications, only in the superadmin area (null for tenant admins). */
+    notifikasi: {
+        belumDibaca: number;
+        terbaru: { id: string; judul: string; pesan: string; waktu: string; dibaca: boolean; bukaUrl: string }[];
+        bacaSemuaUrl: string;
+    } | null;
     flash: {
         success: string | null;
         error: string | null;

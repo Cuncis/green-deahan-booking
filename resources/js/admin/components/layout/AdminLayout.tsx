@@ -1,6 +1,9 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
+    Activity,
+    Bell,
     BellRing,
+    Bug,
     Building,
     CalendarClock,
     ChartColumn,
@@ -15,6 +18,7 @@ import {
     Images,
     LayoutDashboard,
     LogOut,
+    Mail,
     Menu,
     Newspaper,
     SearchCheck,
@@ -60,6 +64,9 @@ const IKON: Record<string, LucideIcon> = {
     'shopping-bag': ShoppingBag,
     package: Package,
     truck: Truck,
+    activity: Activity,
+    bug: Bug,
+    mail: Mail,
 };
 
 /** Tenant admin uses a light sidebar, superadmin keeps its plum sidebar. */
@@ -215,6 +222,55 @@ function MenuAkun() {
     );
 }
 
+/** Superadmin bell: unread count, the latest notifications, and a link to open each one. */
+function Lonceng() {
+    const { notifikasi } = usePage<SharedProps>().props;
+
+    if (!notifikasi) {
+        return null;
+    }
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative size-11 md:size-10" aria-label={`Notifikasi, ${notifikasi.belumDibaca} belum dibaca`}>
+                    <Bell className="!size-5" />
+                    {notifikasi.belumDibaca > 0 && (
+                        <span className="absolute right-1 top-1 flex min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[0.65rem] font-bold leading-4 text-white">
+                            {notifikasi.belumDibaca > 99 ? '99+' : notifikasi.belumDibaca}
+                        </span>
+                    )}
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[min(22rem,calc(100vw-1.5rem))]">
+                <div className="flex items-center justify-between gap-3 px-2 py-1.5">
+                    <span className="text-sm font-semibold">Notifikasi</span>
+                    {notifikasi.belumDibaca > 0 && (
+                        <button type="button" className="text-xs underline" onClick={() => router.post(notifikasi.bacaSemuaUrl, {}, { preserveScroll: true })}>
+                            Tandai semua dibaca
+                        </button>
+                    )}
+                </div>
+                <DropdownMenuSeparator />
+                {notifikasi.terbaru.length === 0 ? (
+                    <p className="px-2 py-6 text-center text-sm text-muted-foreground">Belum ada notifikasi.</p>
+                ) : (
+                    notifikasi.terbaru.map((item) => (
+                        <DropdownMenuItem key={item.id} className="items-start gap-2 py-2.5" onSelect={() => router.post(item.bukaUrl)}>
+                            <span className={cn('mt-1.5 size-2 shrink-0 rounded-full', item.dibaca ? 'bg-transparent' : 'bg-danger')} aria-hidden="true" />
+                            <span className="min-w-0">
+                                <span className={cn('block truncate text-sm', !item.dibaca && 'font-bold')}>{item.judul}</span>
+                                <span className="line-clamp-2 break-words text-xs text-muted-foreground">{item.pesan}</span>
+                                <span className="block text-[0.7rem] text-muted-foreground">{item.waktu}</span>
+                            </span>
+                        </DropdownMenuItem>
+                    ))
+                )}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+}
+
 function TautanUndangan() {
     const { flash } = usePage<SharedProps>().props;
     if (!flash.invitationLink) {
@@ -291,6 +347,7 @@ export default function AdminLayout({ judul, deskripsi, aksi, children }: AdminL
                     </Button>
                     <div className="min-w-0 flex-1 truncate font-display text-base font-semibold md:hidden">{judul}</div>
                     <div className="hidden flex-1 md:block" />
+                    <Lonceng />
                     <MenuAkun />
                 </header>
 

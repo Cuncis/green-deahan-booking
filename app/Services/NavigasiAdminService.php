@@ -26,7 +26,7 @@ class NavigasiAdminService
      *
      * @var array<int, string>
      */
-    private const RUTE_REACT_SUPERADMIN = ['superadmin.dashboard', 'superadmin.tenants', 'superadmin.tenants.create', 'superadmin.galeri', 'superadmin.artikel', 'superadmin.media', 'superadmin.seo', 'superadmin.toko.pesanan', 'superadmin.toko.produk', 'superadmin.toko.supplier'];
+    private const RUTE_REACT_SUPERADMIN = ['superadmin.dashboard', 'superadmin.tenants', 'superadmin.tenants.create', 'superadmin.galeri', 'superadmin.artikel', 'superadmin.media', 'superadmin.seo', 'superadmin.toko.pesanan', 'superadmin.toko.produk', 'superadmin.toko.supplier', 'superadmin.log-error', 'superadmin.notifikasi.pengaturan'];
 
     /**
      * @return array<int, array{grup: string|null, item: array<int, array{label: string, href: string, ikon: string, rute: string|null, inertia: bool}>}>
@@ -95,6 +95,12 @@ class NavigasiAdminService
                 $this->item('Blog', 'superadmin.artikel', 'newspaper', self::RUTE_REACT_SUPERADMIN),
                 $this->item('Media', 'superadmin.media', 'folder-open', self::RUTE_REACT_SUPERADMIN),
                 $this->item('SEO dan Analytics', 'superadmin.seo', 'search-check', self::RUTE_REACT_SUPERADMIN),
+            ]],
+            ['grup' => 'Pengaturan', 'item' => [
+                // Dashboard Pulse bukan halaman React: dibuka dengan reload biasa.
+                $this->item('Monitoring Server', 'pulse', 'activity', self::RUTE_REACT_SUPERADMIN),
+                $this->item('Log Error', 'superadmin.log-error', 'bug', self::RUTE_REACT_SUPERADMIN),
+                $this->item('Email & Notifikasi', 'superadmin.notifikasi.pengaturan', 'mail', self::RUTE_REACT_SUPERADMIN),
             ]],
         ];
     }

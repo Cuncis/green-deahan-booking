@@ -10,6 +10,7 @@
         "fakerphp/faker": "^1.23",
         "inertiajs/inertia-laravel": "^3.3",
         "laravel/framework": "^13.8",
+        "laravel/pulse": "^1.11",
         "laravel/tinker": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.35",
         "resend/resend-php": "^1.7"

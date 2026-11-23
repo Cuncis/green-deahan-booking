@@ -16,6 +16,12 @@ class IdentifikasiTenant
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Dashboard Pulse (superadmin) dan endpoint Livewire-nya berjalan di domain
+        // mana pun, tidak terikat tenant. Aksesnya dijaga gate viewPulse.
+        if ($request->is(config('pulse.path').'*', 'livewire*')) {
+            return $next($request);
+        }
+
         $host = $request->getHost();
 
         // domain/custom_domain harus dikelompokkan dalam satu closure supaya

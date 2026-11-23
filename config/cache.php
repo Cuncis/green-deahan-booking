@@ -1,5 +1,8 @@
 <?php
 
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 return [
@@ -131,6 +134,16 @@ return [
     |
     */
 
-    'serializable_classes' => false,
+    'serializable_classes' => [
+        // Kartu Laravel Pulse (/pulse) menyimpan hasil query berupa Collection dari
+        // stdClass dengan tanggal Carbon di cache. Tanpa daftar ini kartu
+        // gagal dimuat (objek menjadi __PHP_Incomplete_Class) di cache file/database.
+        // Hanya tipe data biasa, tidak ada kelas dengan efek samping.
+        Collection::class,
+        stdClass::class,
+        CarbonImmutable::class,
+        Carbon::class,
+        Illuminate\Support\Carbon::class,
+    ],
 
 ];

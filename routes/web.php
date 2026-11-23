@@ -17,7 +17,10 @@ use App\Http\Controllers\SistemBookingController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Superadmin\ArtikelAdminController;
 use App\Http\Controllers\Superadmin\GaleriAdminController;
+use App\Http\Controllers\Superadmin\LogErrorController;
 use App\Http\Controllers\Superadmin\MediaAdminController;
+use App\Http\Controllers\Superadmin\NotifikasiController;
+use App\Http\Controllers\Superadmin\PengaturanNotifikasiController;
 use App\Http\Controllers\Superadmin\SeoAdminController;
 use App\Http\Controllers\Superadmin\SuperadminController;
 use App\Http\Controllers\Superadmin\Toko\PesananTokoAdminController;
@@ -195,6 +198,14 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
         Route::get('/media', [MediaAdminController::class, 'index'])->name('media');
         Route::post('/media', [MediaAdminController::class, 'store'])->name('media.store');
         Route::delete('/media', [MediaAdminController::class, 'destroy'])->name('media.destroy');
+
+        // Monitoring: log error, penerima email error, dan lonceng notifikasi.
+        Route::get('/log-error', [LogErrorController::class, 'index'])->name('log-error');
+        Route::get('/pengaturan/notifikasi', [PengaturanNotifikasiController::class, 'edit'])->name('notifikasi.pengaturan');
+        Route::put('/pengaturan/notifikasi', [PengaturanNotifikasiController::class, 'update'])->name('notifikasi.simpan');
+        Route::post('/pengaturan/notifikasi/uji', [PengaturanNotifikasiController::class, 'uji'])->name('notifikasi.uji');
+        Route::post('/notifikasi/baca-semua', [NotifikasiController::class, 'bacaSemua'])->name('notifikasi.baca-semua');
+        Route::post('/notifikasi/{id}/buka', [NotifikasiController::class, 'buka'])->name('notifikasi.buka');
 
         Route::get('/pengaturan-seo', [SeoAdminController::class, 'edit'])->name('seo');
         Route::put('/pengaturan-seo', [SeoAdminController::class, 'update'])->name('seo.update');
