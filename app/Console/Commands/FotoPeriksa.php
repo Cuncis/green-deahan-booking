@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\FotoAlamatService;
+use App\Services\FotoUploadService;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
 
-#[Signature('foto:periksa {--tanpa-uji-tulis : Lewati uji tulis dan baca satu file kecil di disk foto}')]
+#[Signature('foto:periksa {--tanpa-uji-tulis : Lewati uji tulis dan baca satu file kecil di disk foto} {--semua : Buka semua alamat foto di database, bukan hanya contoh}')]
 #[Description('Periksa penyimpanan foto (disk, Cloudflare R2, AWS_URL) dan alamat foto di database')]
 class FotoPeriksa extends Command
 {
@@ -22,12 +23,16 @@ class FotoPeriksa extends Command
 
     public function handle(): int
     {
-        $disk = (string) config('filesystems.default');
+        $disk = FotoUploadService::namaDisk();
         $masalah = 0;
 
-        $this->info("Disk foto (FILESYSTEM_DISK): {$disk}");
+        $this->info('Disk foto (FILESYSTEM_DISK): '.config('filesystems.default'));
 
-        $masalah += $disk === 's3' ? $this->periksaR2() : $this->periksaDiskLokal($disk);
+        if ($disk !== config('filesystems.default')) {
+            $this->warn("  Foto tetap disimpan di disk \"{$disk}\" (storage/app/public), bukan di \"".config('filesystems.default').'", karena disk itu tidak bisa dibuka publik. Atur FILESYSTEM_DISK=public atau s3 supaya jelas.');
+        }
+
+        $masalah += $disk === 's3' ? $this->periksaR2() : $this->periksaDiskLokal();
 
         if (! $this->option('tanpa-uji-tulis')) {
             $masalah += $this->ujiTulisBaca($disk);
@@ -70,12 +75,8 @@ class FotoPeriksa extends Command
         return $masalah;
     }
 
-    private function periksaDiskLokal(string $disk): int
+    private function periksaDiskLokal(): int
     {
-        if ($disk !== 'public') {
-            return 0;
-        }
-
         $this->line('  Foto disimpan di server ini (storage/app/public), bukan di Cloudflare R2.');
 
         if (! is_link(public_path('storage')) && ! is_dir(public_path('storage'))) {
@@ -119,7 +120,9 @@ class FotoPeriksa extends Command
             $this->line("  Buka lewat {$url}: HTTP {$status}");
 
             if ($status !== 200) {
-                $this->error('  [X] File tersimpan tapi tidak bisa dibuka publik. Untuk R2: aktifkan akses publik bucket (r2.dev atau domain sendiri) dan cocokkan AWS_URL.');
+                $this->error($disk === 's3'
+                    ? '  [X] File tersimpan tapi tidak bisa dibuka publik. Aktifkan akses publik bucket R2 (r2.dev atau domain sendiri) dan cocokkan AWS_URL.'
+                    : '  [X] File tersimpan tapi tidak bisa dibuka publik. Pastikan `php artisan storage:link` sudah dijalankan, web server mengikuti symlink public/storage, dan APP_URL benar.');
                 $masalah = 1;
             }
         } catch (Throwable $galat) {
@@ -149,12 +152,20 @@ class FotoPeriksa extends Command
         }
 
         $masalah = 0;
+        $semua = (bool) $this->option('semua');
+        $perHost = [];
+
+        foreach ($this->alamat->semuaAlamat() as $alamat) {
+            $perHost[(string) parse_url($alamat['url'], PHP_URL_HOST).(parse_url($alamat['url'], PHP_URL_PORT) ? ':'.parse_url($alamat['url'], PHP_URL_PORT) : '')][] = $alamat;
+        }
 
         foreach ($ringkasan as $host => $data) {
             $rusak = 0;
             $diperiksa = 0;
+            $daftarRusak = [];
 
-            foreach ($data['contoh'] as $url) {
+            foreach ($semua ? $perHost[$host] : array_map(fn (string $url) => ['sumber' => '', 'url' => $url], $data['contoh']) as $alamat) {
+                $url = $alamat['url'];
                 $diperiksa++;
 
                 try {
@@ -163,14 +174,27 @@ class FotoPeriksa extends Command
                     $status = 0;
                 }
 
-                $rusak += $status === 200 ? 0 : 1;
+                if ($status !== 200) {
+                    $rusak++;
+                    $daftarRusak[] = ($alamat['sumber'] !== '' ? "{$alamat['sumber']}: " : '')."{$url} (HTTP {$status})";
+                }
             }
 
             $asal = collect($data['sumber'])->map(fn (int $jumlah, string $sumber) => "{$sumber}: {$jumlah}")->implode(', ');
-            $this->line("  {$host}: {$data['jumlah']} foto ({$asal}), contoh yang bisa dibuka {$this->bagian($diperiksa - $rusak, $diperiksa)}");
+            $this->line("  {$host}: {$data['jumlah']} foto ({$asal}), ".($semua ? 'yang bisa dibuka' : 'contoh yang bisa dibuka')." {$this->bagian($diperiksa - $rusak, $diperiksa)}");
 
             if ($rusak > 0) {
-                $this->error("  [X] {$host}: ada contoh foto yang tidak bisa dibuka, mis. {$data['contoh'][0]}");
+                $this->error("  [X] {$host}: ada ".($semua ? 'foto' : 'contoh foto').' yang tidak bisa dibuka:');
+
+                foreach (array_slice($daftarRusak, 0, 20) as $baris) {
+                    $this->line("      {$baris}");
+                }
+
+                if (count($daftarRusak) > 20) {
+                    $this->line('      ... dan '.(count($daftarRusak) - 20).' lainnya');
+                }
+
+                $this->line('      Kalau fotonya ada di storage/app/private, jalankan `php artisan foto:pulihkan-lokal`.');
                 $masalah++;
             }
         }

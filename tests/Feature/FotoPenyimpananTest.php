@@ -57,6 +57,34 @@ class FotoPenyimpananTest extends TestCase
         $this->assertStringContainsString('/storage/produk/', $url);
     }
 
+    public function test_disk_local_bawaan_laravel_tetap_menyimpan_foto_di_disk_public(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+        config(['filesystems.default' => 'local']);
+
+        $url = app(FotoUploadService::class)->simpan(UploadedFile::fake()->image('a.jpg'), 'produk');
+
+        $path = str($url)->after('/storage/')->toString();
+        Storage::disk('public')->assertExists($path);
+        Storage::disk('local')->assertMissing($path);
+        $this->assertSame('public', FotoUploadService::namaDisk());
+
+        app(FotoUploadService::class)->hapus($url);
+        Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_nama_disk_s3_hanya_kalau_r2_aktif(): void
+    {
+        config(['filesystems.default' => 's3']);
+        $this->assertSame('s3', FotoUploadService::namaDisk());
+
+        foreach (['local', 'public', 'apa-saja'] as $nama) {
+            config(['filesystems.default' => $nama]);
+            $this->assertSame('public', FotoUploadService::namaDisk());
+        }
+    }
+
     // --- Alamat di database ---
 
     private function isiAlamat(): void
@@ -193,5 +221,74 @@ class FotoPenyimpananTest extends TestCase
             ->expectsOutputToContain('rusak.test: ada contoh foto yang tidak bisa dibuka')
             ->expectsOutputToContain('lebih dari satu host')
             ->assertFailed();
+    }
+
+    // --- foto:periksa --semua dan foto:pulihkan-lokal ---
+
+    public function test_periksa_dengan_disk_local_memperingatkan_dan_menguji_disk_public(): void
+    {
+        Storage::fake('public');
+        config(['filesystems.default' => 'local', 'app.url' => 'https://greendeahan.com']);
+        Http::fake(['greendeahan.com/storage/foto-uji/*' => Http::response('uji foto', 200)]);
+
+        $this->artisan('foto:periksa')
+            ->expectsOutputToContain('Foto tetap disimpan di disk "public"')
+            ->expectsOutputToContain('Tulis ke disk: berhasil')
+            ->assertSuccessful();
+    }
+
+    public function test_periksa_semua_membuka_setiap_alamat_dan_mendaftar_yang_rusak(): void
+    {
+        Storage::fake('public');
+        config(['filesystems.default' => 'public']);
+        foreach (range(1, 5) as $nomor) {
+            Artikel::factory()->create(['foto_url' => "https://greendeahan.com/storage/artikel/{$nomor}.jpg"]);
+        }
+        Http::fake(['greendeahan.com/storage/artikel/4.jpg' => Http::response('', 404), 'greendeahan.com/*' => Http::response('', 200)]);
+
+        $this->artisan('foto:periksa', ['--tanpa-uji-tulis' => true, '--semua' => true])
+            ->expectsOutputToContain('yang bisa dibuka 4/5')
+            ->expectsOutputToContain('artikel.foto_url: https://greendeahan.com/storage/artikel/4.jpg (HTTP 404)')
+            ->expectsOutputToContain('foto:pulihkan-lokal')
+            ->assertFailed();
+    }
+
+    public function test_pulihkan_lokal_menyalin_foto_dari_private_ke_public(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+        Storage::disk('public')->put('artikel/sudah.jpg', 'a');
+        Storage::disk('local')->put('produk/hilang-di-public.jpg', 'isi foto');
+        Artikel::factory()->create(['foto_url' => 'https://greendeahan.com/storage/artikel/sudah.jpg']);
+        $produk = Product::factory()->create(['image_path' => 'https://greendeahan.com/storage/produk/hilang-di-public.jpg']);
+        ProductImage::factory()->create(['product_id' => $produk->id, 'path' => '/storage/produk/hilang-di-public.jpg']);
+
+        $this->artisan('foto:pulihkan-lokal')
+            ->expectsOutputToContain('Sudah ada di storage/app/public: 1')
+            ->expectsOutputToContain('Akan disalin dari storage/app/private: 1')
+            ->expectsOutputToContain('Ini baru hitungan')
+            ->assertSuccessful();
+        Storage::disk('public')->assertMissing('produk/hilang-di-public.jpg');
+
+        $this->artisan('foto:pulihkan-lokal', ['--jalankan' => true])->expectsOutputToContain('Disalin dari storage/app/private: 1')->assertSuccessful();
+
+        Storage::disk('public')->assertExists('produk/hilang-di-public.jpg');
+        $this->assertSame('isi foto', Storage::disk('public')->get('produk/hilang-di-public.jpg'));
+        Storage::disk('local')->assertExists('produk/hilang-di-public.jpg');
+    }
+
+    public function test_pulihkan_lokal_melaporkan_foto_yang_hilang_di_kedua_disk_dan_mengabaikan_jalur_berbahaya(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+        Artikel::factory()->create(['foto_url' => 'https://greendeahan.com/storage/artikel/tidak-ada.jpg']);
+        GaleriItem::factory()->create(['foto_url' => 'https://greendeahan.com/storage/../../.env']);
+
+        $this->artisan('foto:pulihkan-lokal', ['--jalankan' => true])
+            ->expectsOutputToContain('Tidak ditemukan di disk manapun (1)')
+            ->expectsOutputToContain('artikel/tidak-ada.jpg')
+            ->assertFailed();
+
+        $this->assertSame([], Storage::disk('public')->allFiles());
     }
 }

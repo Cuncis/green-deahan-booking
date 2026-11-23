@@ -10,16 +10,24 @@ use RuntimeException;
 /**
  * Simpan/hapus foto upload (lapangan, galeri, logo tenant, artikel), dipakai
  * LapanganAdminController, GaleriAdminController, SettingsAdminController,
- * dan ArtikelAdminController. Disk dibaca dari FILESYSTEM_DISK
- * (config('filesystems.default')), bukan di-hardcode 'public', supaya
- * ganti ke Cloudflare R2 di production cukup ganti FILESYSTEM_DISK=s3 di
- * .env, tidak perlu ubah kode.
+ * dan ArtikelAdminController. FILESYSTEM_DISK=s3 (Cloudflare R2) menyimpan di
+ * R2; nilai lain (termasuk bawaan Laravel "local") menyimpan di disk "public"
+ * karena alamat fotonya selalu /storage/... Disk "local" ada di
+ * storage/app/private dan tidak bisa dibuka publik, jadi tidak pernah dipakai.
  */
 class FotoUploadService
 {
+    /**
+     * Disk tujuan foto: "s3" kalau R2 aktif, selain itu "public".
+     */
+    public static function namaDisk(): string
+    {
+        return config('filesystems.default') === 's3' ? 's3' : 'public';
+    }
+
     public function simpan(UploadedFile $file, string $folder): string
     {
-        $disk = config('filesystems.default');
+        $disk = self::namaDisk();
         $path = $file->store($folder, $disk);
 
         // Disk S3/R2 tidak melempar galat saat gagal, store() hanya mengembalikan false.
@@ -49,7 +57,7 @@ class FotoUploadService
             return;
         }
 
-        $disk = config('filesystems.default');
+        $disk = self::namaDisk();
 
         if ($disk === 's3') {
             $base = Storage::disk('s3')->url('');

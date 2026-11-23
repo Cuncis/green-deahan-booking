@@ -49,6 +49,36 @@ class FotoAlamatService
     }
 
     /**
+     * Foto yang alamatnya memuat /storage/ (disimpan di disk server, bukan R2),
+     * termasuk alamat relatif, dengan jalur file di dalam disk.
+     *
+     * @return array<int, array{sumber: string, url: string, path: string}>
+     */
+    public function jalurStorage(): array
+    {
+        $hasil = [];
+
+        foreach (self::KOLOM as $definisi) {
+            foreach ($this->nilai($definisi) as $baris) {
+                $nilai = (string) $baris->nilai;
+                $posisi = strpos($nilai, '/storage/');
+
+                if ($posisi === false) {
+                    continue;
+                }
+
+                $path = ltrim(rawurldecode((string) parse_url(substr($nilai, $posisi + strlen('/storage/')), PHP_URL_PATH)), '/');
+
+                if ($path !== '' && ! str_contains($path, '..')) {
+                    $hasil[] = ['sumber' => "{$definisi['tabel']}.{$definisi['kolom']}", 'url' => $nilai, 'path' => $path];
+                }
+            }
+        }
+
+        return $hasil;
+    }
+
+    /**
      * Jumlah alamat per host beserta contoh dan asal tabelnya.
      *
      * @return array<string, array{jumlah: int, contoh: array<int, string>, sumber: array<string, int>}>
