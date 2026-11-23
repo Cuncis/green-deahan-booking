@@ -5,7 +5,9 @@ import { rupiah } from './types';
 
 interface BarisRingkas {
     id: number;
+    kunci: string;
     name: string;
+    varian: string | null;
     slug: string;
     imageUrl: string | null;
     unit: string;
@@ -102,7 +104,7 @@ export default function MiniKeranjang({ jumlah }: { jumlah: number }) {
         };
     }, [buka]);
 
-    const hapus = (id: number) => router.delete(`/keranjang/${id}`, { preserveScroll: true, preserveState: true, only: HANYA_KERANJANG });
+    const hapus = (kunci: string) => router.delete(`/keranjang/${kunci}`, { preserveScroll: true, preserveState: true, only: HANYA_KERANJANG });
 
     const lencana = jumlah > 0 && <span className="gd-keranjang-jumlah">{jumlah > 99 ? '99+' : jumlah}</span>;
 
@@ -110,7 +112,11 @@ export default function MiniKeranjang({ jumlah }: { jumlah: number }) {
         return (
             <div className="gd-mini-keranjang order-lg-last">
                 <a href="/keranjang" className="gd-keranjang-link" aria-label={label}>
-                    <i className="feather-icon icon-shopping-bag" aria-hidden="true"></i>
+                    <Ikon ukuran={26}>
+                        <circle cx="9" cy="20" r="1.4" />
+                        <circle cx="18" cy="20" r="1.4" />
+                        <path d="M2 3h2.6l2.4 11.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 1.95-1.55L21 7H5.4" />
+                    </Ikon>
                     {lencana}
                 </a>
             </div>
@@ -131,7 +137,11 @@ export default function MiniKeranjang({ jumlah }: { jumlah: number }) {
                 aria-controls="gd-mini-keranjang-panel"
                 onClick={() => setBuka((nilai) => !nilai)}
             >
-                <i className="feather-icon icon-shopping-bag" aria-hidden="true"></i>
+                <Ikon ukuran={26}>
+                    <circle cx="9" cy="20" r="1.4" />
+                    <circle cx="18" cy="20" r="1.4" />
+                    <path d="M2 3h2.6l2.4 11.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 1.95-1.55L21 7H5.4" />
+                </Ikon>
                 {lencana}
             </button>
 
@@ -174,19 +184,20 @@ export default function MiniKeranjang({ jumlah }: { jumlah: number }) {
                         <>
                             <ul className="gd-mini-daftar">
                                 {data.items.map((item) => (
-                                    <li key={item.id}>
+                                    <li key={item.kunci}>
                                         <a href={`/toko/${item.slug}`} className="gd-mini-foto" tabIndex={-1} aria-hidden="true">
                                             <GambarProduk src={item.imageUrl} alt={item.name} />
                                         </a>
                                         <div className="gd-mini-teks">
                                             <a href={`/toko/${item.slug}`}>{item.name}</a>
+                                            {item.varian && <span className="gd-varian-baris d-block">{item.varian}</span>}
                                             <span>
                                                 {item.qty} x {rupiah(item.price)} /{item.unit}
                                             </span>
                                         </div>
                                         <div className="gd-mini-kanan">
                                             <strong>{rupiah(item.subtotal)}</strong>
-                                            <button type="button" aria-label={`Hapus ${item.name} dari keranjang`} onClick={() => hapus(item.id)}>
+                                            <button type="button" aria-label={`Hapus ${item.name} dari keranjang`} onClick={() => hapus(item.kunci)}>
                                                 <Ikon ukuran={16}>
                                                     <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
                                                 </Ikon>

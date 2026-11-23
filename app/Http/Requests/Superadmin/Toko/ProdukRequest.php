@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Superadmin\Toko;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\FotoProdukService;
 use App\Services\ImporProdukHtmlService;
 use Illuminate\Foundation\Http\FormRequest;
@@ -23,6 +24,8 @@ class ProdukRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $this->bersihkanVarian();
+
         $specs = $this->input('specs');
 
         if (! is_array($specs)) {
@@ -32,6 +35,32 @@ class ProdukRequest extends FormRequest
         $this->merge(['specs' => collect($specs)
             ->map(fn ($baris) => is_array($baris) ? ['nama' => trim((string) ($baris['nama'] ?? '')), 'nilai' => trim((string) ($baris['nilai'] ?? ''))] : $baris)
             ->reject(fn ($baris) => is_array($baris) && $baris['nama'] === '' && $baris['nilai'] === '')
+            ->values()
+            ->all()]);
+    }
+
+    /**
+     * Baris varian yang namanya kosong dibuang, harga kosong jadi null
+     * (berarti sama dengan harga produk), dan "tersedia" dibaca sebagai boolean.
+     */
+    private function bersihkanVarian(): void
+    {
+        $varian = $this->input('variants');
+
+        if (! is_array($varian)) {
+            return;
+        }
+
+        $this->merge(['variants' => collect($varian)
+            ->filter(fn ($baris) => is_array($baris))
+            ->map(fn (array $baris) => [
+                'id' => ($baris['id'] ?? '') === '' ? null : $baris['id'],
+                'name' => trim((string) ($baris['name'] ?? '')),
+                'sell_price' => ($baris['sell_price'] ?? '') === '' ? null : $baris['sell_price'],
+                'cost_price' => ($baris['cost_price'] ?? '') === '' ? null : $baris['cost_price'],
+                'is_available' => filter_var($baris['is_available'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            ])
+            ->reject(fn (array $baris) => $baris['name'] === '')
             ->values()
             ->all()]);
     }
@@ -50,6 +79,13 @@ class ProdukRequest extends FormRequest
             'unit' => ['required', Rule::in(Product::SATUAN)],
             'badge' => ['nullable', 'string', 'max:30'],
             'description' => ['nullable', 'string', 'max:3000'],
+            'variant_label' => ['nullable', 'string', 'max:30'],
+            'variants' => ['nullable', 'array', 'max:'.ProductVariant::MAKS],
+            'variants.*.id' => ['nullable', 'integer'],
+            'variants.*.name' => ['required', 'string', 'max:80', 'distinct:ignore_case'],
+            'variants.*.sell_price' => ['nullable', 'integer', 'min:1000', 'max:100000000'],
+            'variants.*.cost_price' => ['nullable', 'integer', 'min:0', 'max:100000000'],
+            'variants.*.is_available' => ['boolean'],
             'specs' => ['nullable', 'array', 'max:'.Product::MAKS_SPESIFIKASI],
             'specs.*.nama' => ['required', 'string', 'max:60'],
             'specs.*.nilai' => ['required', 'string', 'max:150'],
@@ -87,6 +123,20 @@ class ProdukRequest extends FormRequest
 
                 if ($jumlah > FotoProdukService::MAKS_FOTO) {
                     $validator->errors()->add('foto', 'Foto produk maksimal '.FotoProdukService::MAKS_FOTO.'.');
+                }
+            },
+            // Id varian yang dikirim harus milik produk ini, bukan milik produk lain.
+            function (Validator $validator) {
+                $dikirim = collect($this->input('variants', []))->pluck('id')->filter()->map(fn ($id) => (int) $id)->all();
+
+                if ($dikirim === []) {
+                    return;
+                }
+
+                $milikProduk = $this->route('product')?->variants()->pluck('id')->all() ?? [];
+
+                if (array_diff($dikirim, $milikProduk) !== []) {
+                    $validator->errors()->add('variants', 'Ada varian yang bukan milik produk ini, muat ulang halaman.');
                 }
             },
         ];
@@ -133,6 +183,10 @@ class ProdukRequest extends FormRequest
             'supplier_product_url' => 'link produk supplier',
             'weight_gram' => 'berat',
             'origin_postal_code' => 'kode pos asal',
+            'variants.*.name' => 'nama varian',
+            'variants.*.sell_price' => 'harga jual varian',
+            'variants.*.cost_price' => 'harga modal varian',
+            'variant_label' => 'judul pilihan varian',
             'specs.*.nama' => 'nama spesifikasi',
             'specs.*.nilai' => 'isi spesifikasi',
         ];

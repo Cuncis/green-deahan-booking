@@ -1149,3 +1149,87 @@ form.form.checkout-form.gd-form-toko select:disabled {
   color: #004d00;
   white-space: nowrap;
 }
+
+/* Deskripsi produk: jeda baris dan paragraf dari admin tetap terlihat. */
+.gd-toko .gd-teks-deskripsi {
+  white-space: pre-line;
+}
+
+/* Pilihan varian di halaman produk. */
+.gd-toko .gd-varian-judul {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.gd-toko .gd-varian-pilihan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gd-toko .gd-varian-tombol {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid #c9c9c9;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #1b1b1b;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.gd-toko .gd-varian-tombol:hover:not(:disabled) {
+  border-color: #006400;
+}
+
+.gd-toko .gd-varian-tombol.aktif {
+  border-color: #006400;
+  background: #e8f2e8;
+  color: #004d00;
+  font-weight: 700;
+}
+
+.gd-toko .gd-varian-tombol:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.gd-toko .gd-petunjuk-varian {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #6b6b6b;
+}
+
+.gd-varian-baris {
+  font-size: 13px;
+  color: #6b6b6b;
+}
+
+/* Info Tambahan: judul dan isi dipisah lebar tetap, tiap baris bergaris tipis. */
+.gd-toko .product-additional-info .item {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid #e3e3e3;
+}
+
+.gd-toko .product-additional-info .item .h5 {
+  flex: 0 0 200px;
+  margin: 0;
+}
+
+@media (max-width: 575px) {
+  .gd-toko .product-additional-info .item {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .gd-toko .product-additional-info .item .h5 {
+    flex-basis: auto;
+  }
+}

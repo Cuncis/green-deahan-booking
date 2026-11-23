@@ -33,6 +33,7 @@ class PesananTokoController extends Controller
                 'alamat' => $order->alamatPengiriman(),
                 'items' => $order->items->map(fn (OrderItem $item) => [
                     'nama' => $item->product_name,
+                    'varian' => $item->variant_name,
                     'qty' => $item->qty,
                     'harga' => $item->unit_price,
                     'subtotal' => $item->unit_price * $item->qty,

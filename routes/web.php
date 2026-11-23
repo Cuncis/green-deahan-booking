@@ -120,8 +120,8 @@ $situsKorporat = function () {
     Route::get('/keranjang/ringkas', [KeranjangController::class, 'ringkas'])->name('keranjang.ringkas');
     Route::middleware('throttle:60,1')->group(function () {
         Route::post('/keranjang', [KeranjangController::class, 'store'])->name('keranjang.tambah');
-        Route::patch('/keranjang/{product}', [KeranjangController::class, 'update'])->whereNumber('product')->name('keranjang.ubah');
-        Route::delete('/keranjang/{product}', [KeranjangController::class, 'destroy'])->whereNumber('product')->name('keranjang.hapus');
+        Route::patch('/keranjang/{kunci}', [KeranjangController::class, 'update'])->where('kunci', '\d+(:\d+)?')->name('keranjang.ubah');
+        Route::delete('/keranjang/{kunci}', [KeranjangController::class, 'destroy'])->where('kunci', '\d+(:\d+)?')->name('keranjang.hapus');
     });
     Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:checkout-toko')->name('checkout.store');

@@ -13,7 +13,7 @@ interface Pesanan {
     statusLabel: string;
     nama: string;
     alamat: string;
-    items: { nama: string; qty: number; harga: number; subtotal: number }[];
+    items: { nama: string; varian: string | null; qty: number; harga: number; subtotal: number }[];
     subtotal: number;
     ongkir: number;
     layanan: string | null;
@@ -153,6 +153,7 @@ export default function PesananToko({ pesanan, langkah }: Props) {
                                     <div key={item.nama} className="gd-ringkasan-baris">
                                         <span>
                                             {item.qty} x {item.nama}
+                                            {item.varian && ` (${item.varian})`}
                                         </span>
                                         <span>{rupiah(item.subtotal)}</span>
                                     </div>

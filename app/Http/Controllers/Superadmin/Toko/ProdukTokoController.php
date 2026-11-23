@@ -10,6 +10,7 @@ use App\Services\FotoProdukService;
 use App\Services\ImporProdukHtmlService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -95,7 +96,12 @@ class ProdukTokoController extends Controller
             return back()->withInput()->withErrors(['foto' => $galat->getMessage()]);
         }
 
-        $product = Product::create($data);
+        $product = DB::transaction(function () use ($data, $request) {
+            $product = Product::create($data);
+            $this->sinkronVarian($product, $request->validated('variants') ?? []);
+
+            return $product;
+        });
         $this->fotoProdukService->terapkan($product, [], $alamat);
 
         return redirect()->route('superadmin.toko.produk')->with('success', "Produk \"{$product->name}\" ditambahkan.");
@@ -103,12 +109,19 @@ class ProdukTokoController extends Controller
 
     public function edit(Product $product): Response
     {
-        $product->load('images');
+        $product->load('images', 'variants');
 
         return Inertia::render('superadmin/Toko/Produk/Form', [
             'produk' => [
-                ...$product->only(['name', 'slug', 'category', 'unit', 'badge', 'description', 'sell_price', 'compare_price', 'cost_price', 'supplier_id', 'supplier_product_url', 'weight_gram', 'origin_postal_code', 'is_active']),
+                ...$product->only(['name', 'slug', 'category', 'unit', 'badge', 'description', 'sell_price', 'compare_price', 'cost_price', 'supplier_id', 'supplier_product_url', 'weight_gram', 'origin_postal_code', 'variant_label', 'is_active']),
                 'specs' => $product->specs ?? [],
+                'variants' => $product->variants->map(fn ($varian) => [
+                    'id' => $varian->id,
+                    'name' => $varian->name,
+                    'sell_price' => $varian->sell_price,
+                    'cost_price' => $varian->cost_price,
+                    'is_available' => $varian->is_available,
+                ])->all(),
                 'imageUrl' => $product->image_path,
                 'fotos' => $product->images->map(fn ($foto) => ['id' => $foto->id, 'url' => $foto->path])->all(),
                 'updateUrl' => route('superadmin.toko.produk.update', $product),
@@ -127,7 +140,10 @@ class ProdukTokoController extends Controller
             return back()->withInput()->withErrors(['foto' => $galat->getMessage()]);
         }
 
-        $product->update($data);
+        DB::transaction(function () use ($product, $data, $request) {
+            $product->update($data);
+            $this->sinkronVarian($product, $request->validated('variants') ?? []);
+        });
         $this->fotoProdukService->terapkan($product, $request->boolean('foto_diatur') ? $request->input('foto_ada', []) : null, $alamat);
 
         return redirect()->route('superadmin.toko.produk')->with('success', "Produk \"{$product->name}\" diperbarui.");
@@ -150,12 +166,47 @@ class ProdukTokoController extends Controller
      */
     private function siapkan(ProdukRequest $request, ?Product $product = null): array
     {
-        $data = collect($request->validated())->except(['foto', 'foto_baru', 'foto_diatur', 'foto_ada', 'gambar_url', 'gambar_urls'])->all();
+        $data = collect($request->validated())->except(['foto', 'foto_baru', 'foto_diatur', 'foto_ada', 'gambar_url', 'gambar_urls', 'variants'])->all();
         // Form selalu mengirim seluruh daftar, jadi tidak ada baris berarti spesifikasinya dikosongkan.
         $data['specs'] = array_values($request->validated('specs') ?? []);
+        $data['variant_label'] = ($request->validated('variants') ?? []) === [] ? null : (trim((string) ($data['variant_label'] ?? '')) ?: 'Varian');
         $data['slug'] = $this->slugUnik(($data['slug'] ?? null) ?: $data['name'], $product);
 
         return $data;
+    }
+
+    /**
+     * Samakan varian di database dengan daftar dari form: baris ber-id
+     * diperbarui, baris tanpa id dibuat, dan yang tidak ada lagi dihapus.
+     * Id dipertahankan supaya keranjang yang sedang berjalan tetap sah.
+     *
+     * @param  array<int, array{id: int|null, name: string, sell_price: int|null, cost_price: int|null, is_available: bool}>  $daftar
+     */
+    private function sinkronVarian(Product $product, array $daftar): void
+    {
+        $dipertahankan = [];
+
+        foreach (array_values($daftar) as $urutan => $baris) {
+            $atribut = [
+                'name' => $baris['name'],
+                'sell_price' => $baris['sell_price'],
+                'cost_price' => $baris['cost_price'],
+                'is_available' => $baris['is_available'],
+                'sort_order' => $urutan,
+            ];
+
+            $varian = $baris['id'] ? $product->variants()->whereKey($baris['id'])->first() : null;
+
+            if ($varian) {
+                $varian->update($atribut);
+            } else {
+                $varian = $product->variants()->create($atribut);
+            }
+
+            $dipertahankan[] = $varian->id;
+        }
+
+        $product->variants()->whereNotIn('id', $dipertahankan)->delete();
     }
 
     private function slugUnik(string $dasar, ?Product $product): string

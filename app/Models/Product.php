@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'badge',
     'description',
     'specs',
+    'variant_label',
     'image_path',
     'sell_price',
     'compare_price',
@@ -83,6 +84,16 @@ class Product extends Model
     }
 
     /**
+     * Pilihan varian (warna, ukuran), sesuai urutan di admin.
+     *
+     * @return HasMany<ProductVariant, $this>
+     */
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    /**
      * Foto produk, foto utama di urutan pertama.
      *
      * @return HasMany<ProductImage, $this>
@@ -113,7 +124,7 @@ class Product extends Model
     /**
      * Data aman untuk pelanggan. Jangan pernah kirim model mentah ke halaman toko.
      *
-     * @return array{id: int, name: string, slug: string, category: string, categoryLabel: string, unit: string, badge: string|null, description: string|null, specs: array<int, array{nama: string, nilai: string}>, imageUrl: string|null, images: array<int, string>, price: int, comparePrice: int|null}
+     * @return array{id: int, name: string, slug: string, category: string, categoryLabel: string, unit: string, badge: string|null, description: string|null, specs: array<int, array{nama: string, nilai: string}>, variantLabel: string|null, variants: array<int, array{id: int, name: string, price: int, available: bool}>, imageUrl: string|null, images: array<int, string>, price: int, comparePrice: int|null}
      */
     public function dataPublik(): array
     {
@@ -127,6 +138,13 @@ class Product extends Model
             'badge' => $this->badge,
             'description' => $this->description,
             'specs' => $this->specs ?? [],
+            'variantLabel' => $this->variant_label,
+            'variants' => $this->variants->map(fn (ProductVariant $varian) => [
+                'id' => $varian->id,
+                'name' => $varian->name,
+                'price' => $varian->sell_price ?? $this->sell_price,
+                'available' => $varian->is_available,
+            ])->all(),
             'imageUrl' => $this->image_path,
             'images' => $this->daftarFoto(),
             'price' => $this->sell_price,

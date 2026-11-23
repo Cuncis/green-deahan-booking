@@ -73,6 +73,72 @@ class ImporProdukHtmlTest extends TestCase
         }
     }
 
+    public function test_spesifikasi_dan_dikirim_dari_dibaca_dari_halaman_shopee(): void
+    {
+        $html = '<h1>Ortuseight Kaos Kaki Helios</h1><div><h2>Spesifikasi Produk</h2><div>'
+            .'<div><h3>Kategori</h3><div><a>Shopee</a> &gt; <a>Kaos Kaki Bola</a></div></div>'
+            .'<div><h3>Stok</h3><div>TERSEDIA</div></div>'
+            .'<div><h3>Merek</h3><a>ORTUSEIGHT</a></div>'
+            .'<div><h3>Asal Produk</h3><div>Indonesia</div></div>'
+            .'<div><h3>Bahan</h3><div>Nilon</div></div>'
+            .'<div><h3>Dikirim Dari</h3><div>KOTA METRO</div></div>'
+            .'</div></div>';
+
+        $hasil = (new ImporProdukHtmlService)->baca($html);
+
+        $this->assertSame([
+            ['nama' => 'Merek', 'nilai' => 'ORTUSEIGHT'],
+            ['nama' => 'Asal Produk', 'nilai' => 'Indonesia'],
+            ['nama' => 'Bahan', 'nilai' => 'Nilon'],
+        ], $hasil['spesifikasi']);
+        $this->assertSame('KOTA METRO', $hasil['dikirimDari']);
+    }
+
+    public function test_tanpa_bagian_spesifikasi_hasilnya_kosong(): void
+    {
+        $hasil = (new ImporProdukHtmlService)->baca('<h1>Hanya Judul</h1>');
+
+        $this->assertSame([], $hasil['spesifikasi']);
+        $this->assertNull($hasil['dikirimDari']);
+    }
+
+    public function test_spesifikasi_dibatasi_jumlah_dan_panjangnya(): void
+    {
+        $baris = '';
+
+        for ($nomor = 1; $nomor <= 25; $nomor++) {
+            $baris .= "<div><h3>Atribut {$nomor}</h3><div>".str_repeat('x', 200).'</div></div>';
+        }
+
+        $hasil = (new ImporProdukHtmlService)->baca("<h1>Produk</h1><div><h2>Spesifikasi Produk</h2><div>{$baris}</div></div>");
+
+        $this->assertCount(20, $hasil['spesifikasi']);
+        $this->assertSame(150, mb_strlen($hasil['spesifikasi'][0]['nilai']));
+    }
+
+    public function test_klaim_original_dan_harga_tanpa_rp_dibuang_dan_baris_bahan_tetap_terpisah(): void
+    {
+        $html = '<h1>Kaos Kaki</h1><div><h2>Deskripsi Produk</h2><div><p>100% Original Product (Tidak Original Uang Kembali Gan)</p><p>
+</p><p>harga bandrol 40.000</p><p>
+</p><p>MATERIAL </p><p>84% Nylon</p><p>11% Spandex</p><p>5% Rubber</p><p>
+</p><p>Dilengkapi Ort-Grip pada telapak agar tidak licin</p><p>
+</p><p>HAPPY SHOPPING..</p><p>#kaoskaki #ortuseight</p></div></div>';
+
+        $deskripsi = (new ImporProdukHtmlService)->baca($html)['deskripsi'];
+
+        $this->assertSame("MATERIAL\n84% Nylon\n11% Spandex\n5% Rubber\n\nDilengkapi Ort-Grip pada telapak agar tidak licin", $deskripsi);
+    }
+
+    public function test_baris_dengan_angka_biasa_tidak_ikut_terbuang(): void
+    {
+        $html = '<h1>Overgrip</h1><div><h2>Deskripsi Produk</h2><div><p>Isi 3 pcs per pak, tebal 0.6 mm.</p><p>Harga per pak sudah termasuk 3 pcs.</p></div></div>';
+
+        $deskripsi = (new ImporProdukHtmlService)->baca($html)['deskripsi'];
+
+        $this->assertStringContainsString('Isi 3 pcs per pak, tebal 0.6 mm.', $deskripsi);
+        $this->assertStringContainsString('Harga per pak sudah termasuk 3 pcs.', $deskripsi);
+    }
+
     public function test_daftar_outlet_penjual_tidak_ikut_ke_deskripsi(): void
     {
         $html = '<h1>Overgrip Raket</h1><div><h2>Deskripsi Produk</h2><div><p>Overgrip empuk anti licin untuk raket padel.<br><br>Isi 3 pcs per pak.</p>'

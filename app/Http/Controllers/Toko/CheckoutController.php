@@ -120,7 +120,7 @@ class CheckoutController extends Controller
 
         // Harga, modal, dan total dihitung ulang dari database di sini.
         $order = DB::transaction(function () use ($request, $isi) {
-            $subtotal = (int) $isi->sum(fn (array $baris) => $baris['product']->sell_price * $baris['qty']);
+            $subtotal = (int) $isi->sum(fn (array $baris) => $baris['harga'] * $baris['qty']);
             $data = $request->dataPesanan();
             // Ongkir dari layanan kurir yang dihitung ulang di server; ongkir flat kalau Biteship belum aktif.
             $ongkir = (int) ($data['shipping_cost'] ?? config('toko.ongkir_flat'));
@@ -137,9 +137,11 @@ class CheckoutController extends Controller
             foreach ($isi as $baris) {
                 $order->items()->create([
                     'product_id' => $baris['product']->id,
+                    'variant_id' => $baris['variant']?->id,
                     'product_name' => $baris['product']->name,
-                    'unit_price' => $baris['product']->sell_price,
-                    'unit_cost' => $baris['product']->cost_price,
+                    'variant_name' => $baris['variant']?->name,
+                    'unit_price' => $baris['harga'],
+                    'unit_cost' => $baris['modal'],
                     'qty' => $baris['qty'],
                 ]);
             }

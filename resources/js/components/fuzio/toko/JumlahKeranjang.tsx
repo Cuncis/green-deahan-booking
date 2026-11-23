@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 
 /**
  * Quantity control for one cart line: -/+ buttons, or type a number (saved
- * when the field loses focus or Enter is pressed). Only the product id and
+ * when the field loses focus or Enter is pressed). Only the cart line key and
  * quantity go to the server.
  */
-export default function JumlahKeranjang({ id, nama, qty, maks }: { id: number; nama: string; qty: number; maks: number }) {
+export default function JumlahKeranjang({ kunci, nama, qty, maks }: { kunci: string; nama: string; qty: number; maks: number }) {
     const [nilai, setNilai] = useState(String(qty));
 
     useEffect(() => setNilai(String(qty)), [qty]);
@@ -15,7 +15,7 @@ export default function JumlahKeranjang({ id, nama, qty, maks }: { id: number; n
         const bersih = Math.min(maks, Math.max(1, Number.isFinite(baru) ? Math.floor(baru) : qty));
         setNilai(String(bersih));
         if (bersih !== qty) {
-            router.patch(`/keranjang/${id}`, { qty: bersih }, { preserveScroll: true, only: ['keranjang', 'jumlahKeranjang'] });
+            router.patch(`/keranjang/${kunci}`, { qty: bersih }, { preserveScroll: true, only: ['keranjang', 'jumlahKeranjang'] });
         }
     };
 

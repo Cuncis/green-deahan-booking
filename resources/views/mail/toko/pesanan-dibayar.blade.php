@@ -7,7 +7,7 @@ Pesanan **{{ $order->code }}** sudah dibayar lewat Mayar. Silakan beli barangnya
 | Barang | Jumlah | Harga |
 |:--|:--:|--:|
 @foreach ($order->items as $item)
-| {{ $item->product_name }} | {{ $item->qty }} | Rp{{ number_format($item->unit_price * $item->qty, 0, ',', '.') }} |
+| {{ $item->namaLengkap() }} | {{ $item->qty }} | Rp{{ number_format($item->unit_price * $item->qty, 0, ',', '.') }} |
 @endforeach
 | **Total dibayar** | | **Rp{{ number_format($order->total, 0, ',', '.') }}** |
 </x-mail::table>

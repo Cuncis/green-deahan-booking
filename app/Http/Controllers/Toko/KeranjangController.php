@@ -12,7 +12,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Keranjang di session. Request hanya membawa product_id dan qty; harga
+ * Keranjang di session. Request hanya membawa product_id, variant_id, dan qty; harga
  * tidak pernah diterima dari browser.
  */
 class KeranjangController extends Controller
@@ -40,7 +40,9 @@ class KeranjangController extends Controller
         return response()->json([
             'items' => array_map(fn (array $item) => [
                 'id' => $item['id'],
+                'kunci' => $item['kunci'],
                 'name' => $item['name'],
+                'varian' => $item['varian'],
                 'slug' => $item['slug'],
                 'imageUrl' => $item['imageUrl'],
                 'unit' => $item['unit'],
@@ -57,29 +59,46 @@ class KeranjangController extends Controller
     {
         $data = $request->validate([
             'product_id' => ['required', 'integer'],
+            'variant_id' => ['nullable', 'integer'],
             'qty' => ['nullable', 'integer', 'min:1', 'max:'.config('toko.maks_qty_per_produk')],
         ]);
 
-        $product = Product::aktif()->findOrFail($data['product_id']);
-        $this->keranjang->tambah($product, $data['qty'] ?? 1);
+        $product = Product::aktif()->with('variants')->findOrFail($data['product_id']);
+        $varian = null;
 
-        return back()->with('success', "{$product->name} masuk keranjang.");
+        if ($product->variants->isNotEmpty()) {
+            $varian = $product->variants->firstWhere('id', $data['variant_id'] ?? null);
+
+            if ($varian === null) {
+                return back()->with('error', 'Pilih '.mb_strtolower($product->variant_label ?: 'varian').' dulu.');
+            }
+
+            if (! $varian->is_available) {
+                return back()->with('error', "{$varian->name} sedang habis, pilih yang lain.");
+            }
+        } elseif (($data['variant_id'] ?? null) !== null) {
+            return back()->with('error', 'Pilihan varian tidak berlaku untuk produk ini.');
+        }
+
+        $this->keranjang->tambah($product, $data['qty'] ?? 1, $varian);
+
+        return back()->with('success', ($varian ? "{$product->name} ({$varian->name})" : $product->name).' masuk keranjang.');
     }
 
-    public function update(Request $request, int $product): RedirectResponse
+    public function update(Request $request, string $kunci): RedirectResponse
     {
         $data = $request->validate([
             'qty' => ['required', 'integer', 'min:1', 'max:'.config('toko.maks_qty_per_produk')],
         ]);
 
-        $this->keranjang->ubah($product, $data['qty']);
+        $this->keranjang->ubah($kunci, $data['qty']);
 
         return back();
     }
 
-    public function destroy(int $product): RedirectResponse
+    public function destroy(string $kunci): RedirectResponse
     {
-        $this->keranjang->hapus($product);
+        $this->keranjang->hapus($kunci);
 
         return back();
     }

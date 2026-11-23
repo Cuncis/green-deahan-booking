@@ -11,6 +11,9 @@ export interface ProdukPublik {
     description: string | null;
     /** Free-form "name: value" rows (brand, material, origin ...). */
     specs: { nama: string; nilai: string }[];
+    /** Title of the choice ("Warna"), null when the product has no variants. */
+    variantLabel: string | null;
+    variants: { id: number; name: string; price: number; available: boolean }[];
     imageUrl: string | null;
     /** All photos, main photo first (empty when the product has none). */
     images: string[];
@@ -20,6 +23,9 @@ export interface ProdukPublik {
 }
 
 export interface BarisKeranjang extends ProdukPublik {
+    /** Cart line key: "12" or "12:5" (product 12, variant 5). */
+    kunci: string;
+    varian: string | null;
     qty: number;
     subtotal: number;
 }

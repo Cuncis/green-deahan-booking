@@ -32,6 +32,10 @@ export default function ProdukCard({ produk }: { produk: ProdukPublik }) {
     const [memproses, setMemproses] = useState(false);
     const [teks, setTeks] = useState(String(qty));
     const tautan = `/toko/${produk.slug}`;
+    const adaVarian = produk.variants.length > 0;
+    const hargaVarian = produk.variants.map((varian) => varian.price);
+    const hargaMulai = adaVarian ? Math.min(...hargaVarian) : produk.price;
+    const hargaBeda = adaVarian && Math.max(...hargaVarian) !== hargaMulai;
 
     // Keep the number field in step with the cart after every server response.
     useEffect(() => setTeks(String(qty)), [qty]);
@@ -74,10 +78,15 @@ export default function ProdukCard({ produk }: { produk: ProdukPublik }) {
                     <a href={tautan}>{produk.name}</a>
                 </h3>
                 <div className="price">
-                    {rupiah(produk.price)} <small>/{produk.unit}</small>
-                    {produk.comparePrice && <del>{rupiah(produk.comparePrice)}</del>}
+                    {hargaBeda && <small>mulai </small>}
+                    {rupiah(hargaMulai)} <small>/{produk.unit}</small>
+                    {produk.comparePrice && !adaVarian && <del>{rupiah(produk.comparePrice)}</del>}
                 </div>
-                {qty === 0 ? (
+                {adaVarian ? (
+                    <a href={tautan} className="btn btn-primary gd-tambah-kartu" aria-label={`Pilih ${(produk.variantLabel ?? 'varian').toLowerCase()} untuk ${produk.name}`}>
+                        Pilih {(produk.variantLabel ?? 'varian').toLowerCase()}
+                    </a>
+                ) : qty === 0 ? (
                     <button type="button" className="btn btn-primary gd-tambah-kartu" onClick={tambah} disabled={memproses} aria-label={`Tambah ${produk.name} ke keranjang`}>
                         <Ikon>
                             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />

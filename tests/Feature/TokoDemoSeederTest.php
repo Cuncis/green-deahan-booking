@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Supplier;
 use Database\Seeders\TokoDemoSeeder;
@@ -70,6 +71,22 @@ class TokoDemoSeederTest extends TestCase
         Storage::disk('public')->assertExists('produk/demo-bola-padel-1.svg');
         $this->assertGreaterThanOrEqual(4, Product::whereNotNull('specs')->get()->filter(fn (Product $item) => $item->specs !== [])->count());
         $this->assertSame([], Product::where('is_active', true)->get()->filter(fn (Product $item) => $item->image_path === null)->all());
+    }
+
+    public function test_produk_contoh_punya_varian_dan_pesanan_memakai_harga_varian(): void
+    {
+        Storage::fake('public');
+
+        $this->seed(TokoDemoSeeder::class);
+
+        $deker = Product::where('slug', 'deker-futsal-pelindung-tulang-kering')->firstOrFail();
+        $this->assertSame('Ukuran', $deker->variant_label);
+        $this->assertSame(['S', 'M', 'L'], $deker->variants->pluck('name')->all());
+        $this->assertSame(1, Product::firstWhere('slug', 'kaos-kaki-bola-anti-selip')->variants()->where('is_available', false)->count());
+
+        $baris = OrderItem::where('product_name', $deker->name)->sole();
+        $this->assertSame(['L', 79000, 52000], [$baris->variant_name, $baris->unit_price, $baris->unit_cost]);
+        $this->assertSame($baris->variant_id, $deker->variants->firstWhere('name', 'L')->id);
     }
 
     public function test_seeder_menolak_jalan_di_production(): void

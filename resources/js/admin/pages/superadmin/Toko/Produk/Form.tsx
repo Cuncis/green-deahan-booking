@@ -16,6 +16,24 @@ interface Spek {
 }
 
 const MAKS_SPEK = 20;
+const MAKS_VARIAN = 30;
+
+/** One variant row. Prices stay strings in the form; empty = same as the product's price. */
+interface Varian {
+    id: number | null;
+    name: string;
+    sell_price: string;
+    cost_price: string;
+    is_available: boolean;
+}
+
+interface VarianTersimpan {
+    id: number;
+    name: string;
+    sell_price: number | null;
+    cost_price: number | null;
+    is_available: boolean;
+}
 
 interface ProdukEdit {
     name: string;
@@ -32,6 +50,8 @@ interface ProdukEdit {
     weight_gram: number;
     origin_postal_code: string | null;
     specs: Spek[];
+    variant_label: string | null;
+    variants: VarianTersimpan[];
     is_active: boolean;
     imageUrl: string | null;
     fotos: FotoAda[];
@@ -45,6 +65,7 @@ interface DataImpor {
     kategori: string | null;
     linkSupplier: string | null;
     spesifikasi: Spek[];
+    varian: { label: string | null; opsi: { nama: string; tersedia: boolean }[] };
     dikirimDari: string | null;
     namaSupplier: string | null;
     gambarUrl: string | null;
@@ -138,6 +159,16 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
         weight_gram: produk ? String(produk.weight_gram) : '0',
         origin_postal_code: produk?.origin_postal_code ?? '',
         specs: (produk?.specs ?? impor?.spesifikasi ?? []) as Spek[],
+        variant_label: produk?.variant_label ?? impor?.varian?.label ?? '',
+        variants: (produk
+            ? produk.variants.map((varian) => ({
+                  id: varian.id,
+                  name: varian.name,
+                  sell_price: varian.sell_price === null ? '' : String(varian.sell_price),
+                  cost_price: varian.cost_price === null ? '' : String(varian.cost_price),
+                  is_available: varian.is_available,
+              }))
+            : (impor?.varian?.opsi ?? []).map((opsi) => ({ id: null, name: opsi.nama, sell_price: '', cost_price: '', is_available: opsi.tersedia }))) as Varian[],
         is_active: produk ? (produk.is_active ? '1' : '0') : impor ? '0' : '1',
         fotoAda: produk?.fotos ?? ([] as FotoAda[]),
         gambar_urls: impor?.gambarUrls ?? ([] as string[]),
@@ -197,6 +228,8 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
             supplier_id: data.supplier_id === TANPA_SUPPLIER ? '' : data.supplier_id,
             // Blank rows are dropped by the server; an empty list clears the saved specs.
             specs: data.specs.filter((spek) => spek.nama.trim() !== '' || spek.nilai.trim() !== ''),
+            // The server keeps a variant's id (carts stay valid), drops blank names and turns blank prices into "same as product".
+            variants: data.variants.map((varian) => ({ ...varian, id: varian.id ?? '', is_available: varian.is_available ? '1' : '0' })),
             // Sent even when empty, so removing every saved photo is understood by the server.
             foto_diatur: '1',
             foto_ada: fotoAda.map((foto) => foto.id),
@@ -379,6 +412,91 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
                         >
                             <Plus />
                             Tambah spesifikasi
+                        </Button>
+                    </div>
+                    <div className="grid gap-3 md:col-span-2">
+                        <div>
+                            <p className="text-sm font-medium">Varian (warna, ukuran)</p>
+                            <p className="text-xs text-muted-foreground">
+                                Opsional. Pembeli wajib memilih satu varian sebelum membeli. Harga kosong berarti sama dengan harga produk. Hilangkan centang "Tersedia" kalau
+                                varian habis di supplier. Diisi otomatis saat impor dari Shopee.
+                            </p>
+                        </div>
+                        {form.data.variants.length > 0 && (
+                            <Field id="variant-label" label="Judul pilihan" error={form.errors.variant_label} hint="Misalnya Warna, Ukuran, atau Warna / Ukuran.">
+                                <Input id="variant-label" value={form.data.variant_label} maxLength={30} onChange={(event) => form.setData('variant_label', event.target.value)} />
+                            </Field>
+                        )}
+                        {galat.variants && <p className="text-sm text-destructive">{galat.variants}</p>}
+                        {form.data.variants.map((varian, indeks) => {
+                            const ubahVarian = (perubahan: Partial<Varian>) =>
+                                form.setData(
+                                    'variants',
+                                    form.data.variants.map((item, urutan) => (urutan === indeks ? { ...item, ...perubahan } : item)),
+                                );
+
+                            return (
+                                <div
+                                    key={varian.id ?? `baru-${indeks}`}
+                                    className="grid gap-2 rounded-md border border-border p-3 md:grid-cols-[2fr_1fr_1fr_auto_auto] md:items-start"
+                                >
+                                    <Field id={`varian-nama-${indeks}`} label="Nama varian" error={galat[`variants.${indeks}.name`]}>
+                                        <Input id={`varian-nama-${indeks}`} value={varian.name} maxLength={80} onChange={(event) => ubahVarian({ name: event.target.value })} />
+                                    </Field>
+                                    <Field id={`varian-jual-${indeks}`} label="Harga jual" error={galat[`variants.${indeks}.sell_price`]}>
+                                        <Input
+                                            id={`varian-jual-${indeks}`}
+                                            type="number"
+                                            inputMode="numeric"
+                                            min={0}
+                                            value={varian.sell_price}
+                                            placeholder="sama"
+                                            onChange={(event) => ubahVarian({ sell_price: event.target.value })}
+                                        />
+                                    </Field>
+                                    <Field id={`varian-modal-${indeks}`} label="Harga modal" error={galat[`variants.${indeks}.cost_price`]}>
+                                        <Input
+                                            id={`varian-modal-${indeks}`}
+                                            type="number"
+                                            inputMode="numeric"
+                                            min={0}
+                                            value={varian.cost_price}
+                                            placeholder="sama"
+                                            onChange={(event) => ubahVarian({ cost_price: event.target.value })}
+                                        />
+                                    </Field>
+                                    <label className="flex min-h-10 items-center gap-2 text-sm md:mt-6">
+                                        <input type="checkbox" checked={varian.is_available} onChange={(event) => ubahVarian({ is_available: event.target.checked })} />
+                                        Tersedia
+                                    </label>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="md:mt-6"
+                                        aria-label={`Hapus varian ${indeks + 1}`}
+                                        onClick={() =>
+                                            form.setData(
+                                                'variants',
+                                                form.data.variants.filter((_, urutan) => urutan !== indeks),
+                                            )
+                                        }
+                                    >
+                                        <X />
+                                    </Button>
+                                </div>
+                            );
+                        })}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="justify-self-start"
+                            disabled={form.data.variants.length >= MAKS_VARIAN}
+                            onClick={() => form.setData('variants', [...form.data.variants, { id: null, name: '', sell_price: '', cost_price: '', is_available: true }])}
+                        >
+                            <Plus />
+                            Tambah varian
                         </Button>
                     </div>
                     <Field id="description" label="Deskripsi" error={form.errors.description} className="md:col-span-2">

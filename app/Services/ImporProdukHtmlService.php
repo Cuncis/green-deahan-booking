@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use DOMDocument;
 use DOMXPath;
 
@@ -22,7 +23,7 @@ class ImporProdukHtmlService
     public const MAKS_DESKRIPSI = 3000;
 
     /**
-     * @return array{nama: ?string, deskripsi: ?string, spesifikasi: array<int, array{nama: string, nilai: string}>, dikirimDari: ?string, kategori: ?string, linkSupplier: ?string, namaSupplier: ?string, gambarUrl: ?string, gambarUrls: array<int, string>, hargaShopee: ?int, hargaRetail: ?int}
+     * @return array{nama: ?string, deskripsi: ?string, spesifikasi: array<int, array{nama: string, nilai: string}>, varian: array{label: ?string, opsi: array<int, array{nama: string, tersedia: bool}>}, dikirimDari: ?string, kategori: ?string, linkSupplier: ?string, namaSupplier: ?string, gambarUrl: ?string, gambarUrls: array<int, string>, hargaShopee: ?int, hargaRetail: ?int}
      */
     public function baca(string $html): array
     {
@@ -32,6 +33,7 @@ class ImporProdukHtmlService
             'nama' => $this->nama($xpath),
             'deskripsi' => $this->deskripsi($xpath),
             'spesifikasi' => $this->spesifikasi($xpath),
+            'varian' => $this->varian($xpath),
             'dikirimDari' => $this->dikirimDari($xpath),
             'kategori' => $this->kategori($xpath),
             'linkSupplier' => $this->linkSupplier($xpath),
@@ -169,6 +171,61 @@ class ImporProdukHtmlService
         }
 
         return array_slice($hasil, 0, Product::MAKS_SPESIFIKASI);
+    }
+
+    /**
+     * Pilihan varian di halaman Shopee (kotak pilihan seperti "Warna: BLACK /
+     * WHITE"). Satu kelompok menjadi daftar pilihan; dua kelompok atau lebih
+     * (Warna dan Ukuran) digabung jadi kombinasi "BLACK / M". Pilihan yang
+     * ditandai nonaktif oleh Shopee dibaca sebagai habis.
+     *
+     * @return array{label: ?string, opsi: array<int, array{nama: string, tersedia: bool}>}
+     */
+    private function varian(DOMXPath $xpath): array
+    {
+        $kelompok = [];
+
+        foreach ($xpath->query("//section[h2 and .//button[contains(@class,'selection-box')]]") as $bagian) {
+            $judul = $this->bersihkanBaris($xpath->query('./h2', $bagian)->item(0)?->textContent);
+            $opsi = [];
+
+            foreach ($xpath->query(".//button[contains(@class,'selection-box')]", $bagian) as $tombol) {
+                $nama = $this->bersihkanBaris($tombol->getAttribute('aria-label') ?: $tombol->textContent);
+
+                if ($nama === '' || isset($opsi[$nama])) {
+                    continue;
+                }
+
+                $opsi[$nama] = $tombol->getAttribute('aria-disabled') !== 'true' && ! str_contains($tombol->getAttribute('class'), 'disabled');
+            }
+
+            if ($judul !== '' && $opsi !== []) {
+                $kelompok[] = ['judul' => $judul, 'opsi' => $opsi];
+            }
+        }
+
+        if ($kelompok === []) {
+            return ['label' => null, 'opsi' => []];
+        }
+
+        $kombinasi = [['nama' => '', 'tersedia' => true]];
+
+        foreach ($kelompok as $indeks => $grup) {
+            $baru = [];
+
+            foreach ($kombinasi as $awal) {
+                foreach ($grup['opsi'] as $nama => $tersedia) {
+                    $baru[] = ['nama' => $indeks === 0 ? $nama : "{$awal['nama']} / {$nama}", 'tersedia' => $awal['tersedia'] && $tersedia];
+                }
+            }
+
+            $kombinasi = $baru;
+        }
+
+        return [
+            'label' => mb_substr(implode(' / ', array_column($kelompok, 'judul')), 0, 30),
+            'opsi' => array_map(fn (array $opsi) => ['nama' => mb_substr($opsi['nama'], 0, 80), 'tersedia' => $opsi['tersedia']], array_slice($kombinasi, 0, ProductVariant::MAKS)),
+        ];
     }
 
     private function dikirimDari(DOMXPath $xpath): ?string

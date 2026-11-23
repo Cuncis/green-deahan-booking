@@ -41,13 +41,22 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
     const [memproses, setMemproses] = useState<'keranjang' | 'beli' | null>(null);
     const [tab, setTab] = useState<Tab>('deskripsi');
     const [fotoAktif, setFotoAktif] = useState(0);
+    const [varianId, setVarianId] = useState<number | null>(null);
+    const adaVarian = produk.variants.length > 0;
+    const varian = produk.variants.find((item) => item.id === varianId) ?? null;
+    const labelVarian = (produk.variantLabel ?? 'Varian').toLowerCase();
+    const hargaVarian = produk.variants.map((item) => item.price);
+    const hargaSatuan = varian?.price ?? produk.price;
+    const hargaBeda = adaVarian && varian === null && Math.max(...hargaVarian) !== Math.min(...hargaVarian);
     const foto = produk.images.length > 0 ? produk.images : produk.imageUrl ? [produk.imageUrl] : [];
     const aturQty = (nilai: number) => setQty(Math.min(maksQty, Math.max(1, Number.isFinite(nilai) ? Math.floor(nilai) : 1)));
+
+    const perluPilih = adaVarian && varian === null;
 
     const tambah = (langsungBeli: boolean) =>
         router.post(
             '/keranjang',
-            { product_id: produk.id, qty },
+            { product_id: produk.id, ...(varian ? { variant_id: varian.id } : {}), qty },
             {
                 preserveScroll: true,
                 onStart: () => setMemproses(langsungBeli ? 'beli' : 'keranjang'),
@@ -103,10 +112,36 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                             <div className="product-info ps-lg-4">
                                 <h2>{produk.name}</h2>
                                 <h3 className="product-price">
-                                    {rupiah(produk.price)} <small>/{produk.unit}</small>
-                                    {produk.comparePrice && <del>{rupiah(produk.comparePrice)}</del>}
+                                    {hargaBeda && <small>mulai </small>}
+                                    {rupiah(hargaBeda ? Math.min(...hargaVarian) : hargaSatuan)} <small>/{produk.unit}</small>
+                                    {produk.comparePrice && !adaVarian && <del>{rupiah(produk.comparePrice)}</del>}
                                 </h3>
                                 {produk.description && <p className="gd-deskripsi-ringkas">{ringkasan(produk.description)}</p>}
+
+                                {adaVarian && (
+                                    <div className="gd-varian my-3" role="radiogroup" aria-label={produk.variantLabel ?? 'Varian'}>
+                                        <span className="gd-varian-judul">
+                                            {produk.variantLabel ?? 'Varian'}
+                                            {varian && <strong>: {varian.name}</strong>}
+                                        </span>
+                                        <div className="gd-varian-pilihan">
+                                            {produk.variants.map((item) => (
+                                                <button
+                                                    key={item.id}
+                                                    type="button"
+                                                    role="radio"
+                                                    aria-checked={item.id === varianId}
+                                                    className={`gd-varian-tombol${item.id === varianId ? ' aktif' : ''}`}
+                                                    disabled={!item.available}
+                                                    onClick={() => setVarianId(item.id === varianId ? null : item.id)}
+                                                >
+                                                    {item.name}
+                                                    {!item.available && <small> (habis)</small>}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="my-4 cart-cta">
                                     <div className="cart-number">
@@ -132,16 +167,17 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                                         </div>
                                     </div>
                                     <div className="d-flex flex-wrap gap-2 mt-3">
-                                        <button type="button" className="btn btn-dark text-primary" onClick={() => tambah(false)} disabled={memproses !== null}>
+                                        <button type="button" className="btn btn-dark text-primary" onClick={() => tambah(false)} disabled={memproses !== null || perluPilih}>
                                             {memproses === 'keranjang' ? 'Menambahkan...' : 'Tambah ke Keranjang'}
                                         </button>
-                                        <button type="button" className="btn btn-primary" onClick={() => tambah(true)} disabled={memproses !== null}>
+                                        <button type="button" className="btn btn-primary" onClick={() => tambah(true)} disabled={memproses !== null || perluPilih}>
                                             {memproses === 'beli' ? 'Memproses...' : 'Beli Sekarang'}
                                         </button>
                                     </div>
                                 </div>
+                                {perluPilih && <p className="gd-petunjuk-varian">Pilih {labelVarian} dulu untuk menambahkan ke keranjang.</p>}
                                 <p className="gd-subtotal-produk">
-                                    Subtotal: <strong>{rupiah(produk.price * qty)}</strong>
+                                    Subtotal: <strong>{perluPilih ? '-' : rupiah(hargaSatuan * qty)}</strong>
                                 </p>
 
                                 <div className="product-meta mt-4">

@@ -45,7 +45,7 @@ class RingkasKeranjangTest extends TestCase
 
         $respons = $this->getJson(self::SITUS.'/keranjang/ringkas')->assertOk();
 
-        $this->assertSame(['id', 'imageUrl', 'name', 'price', 'qty', 'slug', 'subtotal', 'unit'], collect($respons->json('items.0'))->keys()->sort()->values()->all());
+        $this->assertSame(['id', 'imageUrl', 'kunci', 'name', 'price', 'qty', 'slug', 'subtotal', 'unit', 'varian'], collect($respons->json('items.0'))->keys()->sort()->values()->all());
         $this->assertStringNotContainsString('12345', $respons->getContent());
         $this->assertStringNotContainsString('rahasia', $respons->getContent());
     }

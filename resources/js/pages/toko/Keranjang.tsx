@@ -12,7 +12,7 @@ import { GD_CDN } from '../../data/greendeahan';
 
 /** /keranjang: port of Fuzio's CartSection. Table on desktop, a list on phones, totals on the side. */
 export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeranjang; maksQty: number }) {
-    const hapus = (id: number) => router.delete(`/keranjang/${id}`, { preserveScroll: true, only: ['keranjang', 'jumlahKeranjang'] });
+    const hapus = (kunci: string) => router.delete(`/keranjang/${kunci}`, { preserveScroll: true, only: ['keranjang', 'jumlahKeranjang'] });
 
     return (
         <div className="App">
@@ -50,7 +50,7 @@ export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeran
                                         </thead>
                                         <tbody>
                                             {keranjang.items.map((item) => (
-                                                <tr key={item.id} className="cart_item">
+                                                <tr key={item.kunci} className="cart_item">
                                                     <td className="product-thumbnail">
                                                         <a href={`/toko/${item.slug}`} className="gd-thumb-kecil" tabIndex={-1} aria-hidden="true">
                                                             <GambarProduk src={item.imageUrl} alt={item.name} />
@@ -58,19 +58,20 @@ export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeran
                                                     </td>
                                                     <td className="product-name">
                                                         <a href={`/toko/${item.slug}`}>{item.name}</a>
+                                                        {item.varian && <small className="d-block gd-varian-baris">{item.varian}</small>}
                                                     </td>
                                                     <td className="product-price">
                                                         {rupiah(item.price)}
                                                         <small className="d-block">/{item.unit}</small>
                                                     </td>
                                                     <td className="product-quantity">
-                                                        <JumlahKeranjang id={item.id} nama={item.name} qty={item.qty} maks={maksQty} />
+                                                        <JumlahKeranjang kunci={item.kunci} nama={item.name} qty={item.qty} maks={maksQty} />
                                                     </td>
                                                     <td className="product-subtotal">
                                                         <strong>{rupiah(item.subtotal)}</strong>
                                                     </td>
                                                     <td className="product-remove">
-                                                        <button type="button" className="remove" onClick={() => hapus(item.id)} aria-label={`Hapus ${item.name}`}>
+                                                        <button type="button" className="remove" onClick={() => hapus(item.kunci)} aria-label={`Hapus ${item.name}`}>
                                                             <i className="feather-icon icon-x" aria-hidden="true"></i>
                                                         </button>
                                                     </td>
@@ -91,22 +92,23 @@ export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeran
 
                                 <div className="gd-kartu d-md-none">
                                     {keranjang.items.map((item) => (
-                                        <div key={item.id} className="gd-keranjang-baris">
+                                        <div key={item.kunci} className="gd-keranjang-baris">
                                             <a href={`/toko/${item.slug}`} className="thumb" tabIndex={-1} aria-hidden="true">
                                                 <GambarProduk src={item.imageUrl} alt={item.name} />
                                             </a>
                                             <div>
                                                 <a href={`/toko/${item.slug}`} className="nama">
                                                     {item.name}
+                                                    {item.varian && <small className="d-block gd-varian-baris">{item.varian}</small>}
                                                 </a>
                                                 <div className="harga">
                                                     {rupiah(item.price)} /{item.unit}
                                                 </div>
                                             </div>
                                             <div className="kanan">
-                                                <JumlahKeranjang id={item.id} nama={item.name} qty={item.qty} maks={maksQty} />
+                                                <JumlahKeranjang kunci={item.kunci} nama={item.name} qty={item.qty} maks={maksQty} />
                                                 <span className="subtotal">{rupiah(item.subtotal)}</span>
-                                                <button type="button" className="gd-hapus" onClick={() => hapus(item.id)}>
+                                                <button type="button" className="gd-hapus" onClick={() => hapus(item.kunci)}>
                                                     Hapus
                                                 </button>
                                             </div>
@@ -127,9 +129,10 @@ export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeran
                                                 <td>Subtotal</td>
                                             </tr>
                                             {keranjang.items.map((item) => (
-                                                <tr key={item.id} className="product-list">
+                                                <tr key={item.kunci} className="product-list">
                                                     <th>
-                                                        {item.name} <span className="gd-qty-kecil">x {item.qty}</span>
+                                                        {item.name}
+                                                        {item.varian && <> ({item.varian})</>} <span className="gd-qty-kecil">x {item.qty}</span>
                                                     </th>
                                                     <td>{rupiah(item.subtotal)}</td>
                                                 </tr>

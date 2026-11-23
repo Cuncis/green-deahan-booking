@@ -50,8 +50,8 @@ class OngkirTokoService
 
         foreach ($isi->groupBy(fn (array $baris) => $this->kodePosAsal($baris['product'])) as $kodePosAsal => $kelompok) {
             $tarif = $this->biteship->tarif((string) $kodePosAsal, $kodePosTujuan, $kelompok->map(fn (array $baris) => [
-                'name' => $baris['product']->name,
-                'value' => (int) $baris['product']->sell_price,
+                'name' => $baris['variant'] ? "{$baris['product']->name} ({$baris['variant']->name})" : $baris['product']->name,
+                'value' => (int) $baris['harga'],
                 'weight' => $baris['product']->weight_gram > 0 ? (int) $baris['product']->weight_gram : (int) config('biteship.berat_bawaan'),
                 'quantity' => (int) $baris['qty'],
             ])->values()->all());
@@ -59,7 +59,7 @@ class OngkirTokoService
             $kelompokTarif[] = [
                 'asal' => $this->namaAsal((string) $kodePosAsal),
                 'kodePos' => (string) $kodePosAsal,
-                'barang' => $kelompok->map(fn (array $baris) => $baris['product']->name)->values()->all(),
+                'barang' => $kelompok->map(fn (array $baris) => $baris['variant'] ? "{$baris['product']->name} ({$baris['variant']->name})" : $baris['product']->name)->values()->all(),
                 'tarif' => collect($tarif)->keyBy(fn (array $layanan) => $layanan['courier_code'].':'.$layanan['service_code']),
             ];
         }

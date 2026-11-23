@@ -3,12 +3,13 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Support\Collection;
 
 /**
- * Keranjang toko di session: hanya menyimpan id produk dan jumlah. Harga
- * SELALU dibaca ulang dari database, tidak pernah disimpan atau diterima
- * dari browser.
+ * Keranjang toko di session: hanya menyimpan id produk (dan id varian) serta
+ * jumlah. Harga SELALU dibaca ulang dari database, tidak pernah disimpan atau
+ * diterima dari browser.
  */
 class KeranjangService
 {
@@ -17,15 +18,30 @@ class KeranjangService
     public function __construct(private readonly BiteshipService $biteship) {}
 
     /**
-     * @return array<int, int> product_id => qty
+     * Kunci baris: "12" untuk produk tanpa varian, "12:5" untuk produk 12 varian 5.
+     *
+     * @return array<string, int> kunci baris => qty
      */
     private function mentah(): array
     {
         $isi = session(self::KUNCI, []);
 
-        return is_array($isi) ? $isi : [];
+        if (! is_array($isi)) {
+            return [];
+        }
+
+        $hasil = [];
+
+        foreach ($isi as $kunci => $qty) {
+            $hasil[(string) $kunci] = (int) $qty;
+        }
+
+        return $hasil;
     }
 
+    /**
+     * @param  array<string, int>  $isi
+     */
     private function simpan(array $isi): void
     {
         session([self::KUNCI => array_filter($isi, fn (int $qty) => $qty > 0)]);
@@ -36,27 +52,33 @@ class KeranjangService
         return max(0, min($qty, (int) config('toko.maks_qty_per_produk')));
     }
 
-    public function tambah(Product $product, int $qty): void
+    public static function kunciBaris(Product $product, ?ProductVariant $varian = null): string
     {
+        return $varian === null ? (string) $product->id : "{$product->id}:{$varian->id}";
+    }
+
+    public function tambah(Product $product, int $qty, ?ProductVariant $varian = null): void
+    {
+        $kunci = self::kunciBaris($product, $varian);
         $isi = $this->mentah();
-        $isi[$product->id] = $this->batasQty(($isi[$product->id] ?? 0) + $qty);
+        $isi[$kunci] = $this->batasQty(($isi[$kunci] ?? 0) + $qty);
         $this->simpan($isi);
     }
 
-    public function ubah(int $productId, int $qty): void
+    public function ubah(string $kunci, int $qty): void
     {
         $isi = $this->mentah();
 
-        if (array_key_exists($productId, $isi)) {
-            $isi[$productId] = $this->batasQty($qty);
+        if (array_key_exists($kunci, $isi)) {
+            $isi[$kunci] = $this->batasQty($qty);
             $this->simpan($isi);
         }
     }
 
-    public function hapus(int $productId): void
+    public function hapus(string $kunci): void
     {
         $isi = $this->mentah();
-        unset($isi[$productId]);
+        unset($isi[$kunci]);
         $this->simpan($isi);
     }
 
@@ -66,14 +88,21 @@ class KeranjangService
     }
 
     /**
-     * Jumlah di keranjang per produk, untuk kartu produk yang berubah jadi
-     * penghitung jumlah setelah produknya ditambahkan.
+     * Jumlah di keranjang per produk (semua variannya dijumlahkan), untuk
+     * kartu produk yang berubah jadi penghitung jumlah setelah ditambahkan.
      *
      * @return array<int, int> product_id => qty
      */
     public function jumlahPerProduk(): array
     {
-        return array_map('intval', $this->mentah());
+        $hasil = [];
+
+        foreach ($this->mentah() as $kunci => $qty) {
+            $idProduk = (int) explode(':', $kunci)[0];
+            $hasil[$idProduk] = ($hasil[$idProduk] ?? 0) + $qty;
+        }
+
+        return $hasil;
     }
 
     public function jumlahItem(): int
@@ -82,26 +111,60 @@ class KeranjangService
     }
 
     /**
-     * Isi keranjang dengan produk aktif saja; produk yang sudah dihapus atau
-     * dinonaktifkan dibuang dari keranjang.
+     * Isi keranjang. Baris yang sudah tidak sah dibuang dari keranjang:
+     * produk dihapus atau nonaktif, varian dihapus atau habis, produk yang
+     * kini punya varian padahal barisnya tanpa varian, dan sebaliknya.
      *
-     * @return Collection<int, array{product: Product, qty: int}>
+     * @return Collection<int, array{kunci: string, product: Product, variant: ProductVariant|null, qty: int, harga: int, modal: int}>
      */
     public function isi(): Collection
     {
-        $isi = $this->mentah();
+        $mentah = $this->mentah();
 
-        if ($isi === []) {
+        if ($mentah === []) {
             return collect();
         }
 
-        $produk = Product::aktif()->with('images')->whereIn('id', array_keys($isi))->get()->keyBy('id');
+        $idProduk = array_values(array_unique(array_map(fn (string $kunci) => (int) explode(':', $kunci)[0], array_keys($mentah))));
+        $produk = Product::aktif()->with(['images', 'variants'])->whereIn('id', $idProduk)->get()->keyBy('id');
 
-        if ($produk->count() !== count($isi)) {
-            $this->simpan(array_intersect_key($isi, $produk->all()));
+        $baris = collect();
+        $sah = [];
+
+        foreach ($mentah as $kunci => $qty) {
+            [$idP, $idV] = array_pad(array_map('intval', explode(':', $kunci)), 2, null);
+            $product = $produk->get($idP);
+
+            if ($product === null) {
+                continue;
+            }
+
+            $varian = $idV === null ? null : $product->variants->firstWhere('id', $idV);
+
+            if ($product->variants->isNotEmpty() ? ($varian === null || ! $varian->is_available) : $idV !== null) {
+                continue;
+            }
+
+            if ($varian !== null) {
+                $varian->setRelation('product', $product);
+            }
+
+            $sah[$kunci] = $qty;
+            $baris->push([
+                'kunci' => $kunci,
+                'product' => $product,
+                'variant' => $varian,
+                'qty' => $qty,
+                'harga' => $varian?->hargaJual() ?? $product->sell_price,
+                'modal' => $varian?->hargaModal() ?? $product->cost_price,
+            ]);
         }
 
-        return $produk->map(fn (Product $product) => ['product' => $product, 'qty' => (int) $isi[$product->id]])->values();
+        if (count($sah) !== count($mentah)) {
+            $this->simpan($sah);
+        }
+
+        return $baris;
     }
 
     /**
@@ -110,7 +173,7 @@ class KeranjangService
     public function ringkasan(): array
     {
         $isi = $this->isi();
-        $subtotal = (int) $isi->sum(fn (array $baris) => $baris['product']->sell_price * $baris['qty']);
+        $subtotal = (int) $isi->sum(fn (array $baris) => $baris['harga'] * $baris['qty']);
         // Dengan Biteship aktif ongkir baru diketahui setelah alamat dan kurir dipilih di checkout.
         $ongkirDinamis = $this->biteship->aktif();
         $ongkir = $isi->isEmpty() ? 0 : ($ongkirDinamis ? null : (int) config('toko.ongkir_flat'));
@@ -118,8 +181,11 @@ class KeranjangService
         return [
             'items' => $isi->map(fn (array $baris) => [
                 ...$baris['product']->dataPublik(),
+                'kunci' => $baris['kunci'],
+                'varian' => $baris['variant']?->name,
+                'price' => $baris['harga'],
                 'qty' => $baris['qty'],
-                'subtotal' => $baris['product']->sell_price * $baris['qty'],
+                'subtotal' => $baris['harga'] * $baris['qty'],
             ])->all(),
             'jumlahItem' => (int) $isi->sum('qty'),
             'subtotal' => $subtotal,

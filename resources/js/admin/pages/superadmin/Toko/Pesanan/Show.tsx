@@ -220,7 +220,7 @@ interface Pesanan {
         kodePos: string;
         alamatLengkap: string;
     };
-    items: { id: number; nama: string; qty: number; harga: number; modal: number; linkSupplier: string | null }[];
+    items: { id: number; nama: string; varian: string | null; qty: number; harga: number; modal: number; linkSupplier: string | null }[];
     subtotal: number;
     ongkir: number;
     layanan: string | null;
@@ -339,6 +339,7 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                                     <div>
                                         <div className="font-semibold">
                                             {item.qty} x {item.nama}
+                                            {item.varian && ` (${item.varian})`}
                                         </div>
                                         <div className="text-xs text-muted-foreground">
                                             Jual {rupiah(item.harga)}, modal {rupiah(item.modal)} per barang

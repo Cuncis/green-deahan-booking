@@ -513,9 +513,10 @@ export default function Checkout({
                                                     <td>Subtotal</td>
                                                 </tr>
                                                 {keranjang.items.map((item) => (
-                                                    <tr key={item.id} className="product-list">
+                                                    <tr key={item.kunci} className="product-list">
                                                         <th>
-                                                            {item.name}{' '}
+                                                            {item.name}
+                                                            {item.varian && ` (${item.varian})`}{' '}
                                                             <span className="gd-qty-kecil">
                                                                 x {item.qty} {item.unit}
                                                             </span>

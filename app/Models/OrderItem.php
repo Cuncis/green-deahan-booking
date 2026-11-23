@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['order_id', 'product_id', 'product_name', 'unit_price', 'unit_cost', 'qty'])]
+#[Fillable(['order_id', 'product_id', 'variant_id', 'product_name', 'variant_name', 'unit_price', 'unit_cost', 'qty'])]
 class OrderItem extends Model
 {
     /** @use HasFactory<OrderItemFactory> */
@@ -24,6 +24,14 @@ class OrderItem extends Model
             'unit_cost' => 'integer',
             'qty' => 'integer',
         ];
+    }
+
+    /**
+     * Nama untuk dibaca orang: "Kaos Kaki Helios (BLACK)" kalau ada varian.
+     */
+    public function namaLengkap(): string
+    {
+        return $this->variant_name ? "{$this->product_name} ({$this->variant_name})" : $this->product_name;
     }
 
     public function order(): BelongsTo

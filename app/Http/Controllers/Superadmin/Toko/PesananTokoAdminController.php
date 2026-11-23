@@ -93,6 +93,7 @@ class PesananTokoAdminController extends Controller
                 'items' => $order->items->map(fn (OrderItem $item) => [
                     'id' => $item->id,
                     'nama' => $item->product_name,
+                    'varian' => $item->variant_name,
                     'qty' => $item->qty,
                     'harga' => $item->unit_price,
                     'modal' => $item->unit_cost,

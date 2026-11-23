@@ -47,6 +47,13 @@ class TokoDemoSeeder extends Seeder
         'lampu' => [['nama' => 'Daya', 'nilai' => '200 watt'], ['nama' => 'Tahan cuaca', 'nilai' => 'IP65'], ['nama' => 'Garansi', 'nilai' => '1 tahun']],
     ];
 
+    /** @var array<string, array{label: string, varian: array<int, array{0: string, 1: int|null, 2: int|null, 3: bool}>}> varian contoh per produk: nama, harga jual, harga modal, tersedia */
+    private const VARIAN = [
+        'kaos-kaki' => ['label' => 'Warna', 'varian' => [['HITAM', null, null, true], ['PUTIH', null, null, true], ['ABU-ABU', null, null, false]]],
+        'deker' => ['label' => 'Ukuran', 'varian' => [['S', null, null, true], ['M', null, null, true], ['L', 79000, 52000, true]]],
+        'knee-pad' => ['label' => 'Ukuran', 'varian' => [['M', null, null, true], ['L', null, null, true]]],
+    ];
+
     public function run(): void
     {
         if (app()->isProduction()) {
@@ -151,6 +158,15 @@ class TokoDemoSeeder extends Seeder
             }
 
             $product->forceFill(['image_path' => $alamat[0] ?? null])->save();
+
+            if (isset(self::VARIAN[$kunci])) {
+                $product->update(['variant_label' => self::VARIAN[$kunci]['label']]);
+
+                foreach (self::VARIAN[$kunci]['varian'] as $urutan => [$namaVarian, $jual, $modalVarian, $tersedia]) {
+                    $product->variants()->create(['name' => $namaVarian, 'sell_price' => $jual, 'cost_price' => $modalVarian, 'is_available' => $tersedia, 'sort_order' => $urutan]);
+                }
+            }
+
             $hasil[$kunci] = $product;
         }
 
@@ -198,10 +214,10 @@ class TokoDemoSeeder extends Seeder
         $this->buat('Siti Rahmawati', '35.78', OrderStatus::Paid, 1, [['overgrip', 2], ['rumput-futsal', 10]], 107500, $jne, $produk);
 
         // 3. Dibayar, ongkir tetap karena Biteship gagal saat checkout.
-        $this->buat('Agus Prasetyo', '31.74', OrderStatus::Paid, 5, [['deker', 1], ['knee-pad', 1]], 15000, ['darurat', 'tetap', 'Ongkir tetap (kurir dipilih toko)', ''], $produk);
+        $this->buat('Agus Prasetyo', '31.74', OrderStatus::Paid, 5, [['deker', 1, 'L'], ['knee-pad', 1, 'M']], 15000, ['darurat', 'tetap', 'Ongkir tetap (kurir dipilih toko)', ''], $produk);
 
         // 4. Diproses ke supplier.
-        $diproses = $this->buat('Dewi Lestari', '32.73', OrderStatus::OrderedToSupplier, 27, [['bola-padel', 1], ['kaos-kaki', 2]], 17500, $sicepat, $produk, ['supplier_order_ref' => 'SHP-2411-7731']);
+        $diproses = $this->buat('Dewi Lestari', '32.73', OrderStatus::OrderedToSupplier, 27, [['bola-padel', 1], ['kaos-kaki', 2, 'HITAM']], 17500, $sicepat, $produk, ['supplier_order_ref' => 'SHP-2411-7731']);
         $diproses->messages()->create(['user_id' => $admin?->id, 'channel' => 'whatsapp', 'template' => 'diproses', 'body' => "Halo {$diproses->customer_name}, pesanan {$diproses->code} sedang kami proses. Kami kabari lagi begitu barangnya dikirim."]);
 
         // 5. Dikirim dalam dua paket dari dua lokasi.
@@ -230,7 +246,7 @@ class TokoDemoSeeder extends Seeder
     }
 
     /**
-     * @param  array<int, array{0: string, 1: int}>  $baris
+     * @param  array<int, array{0: string, 1: int, 2?: string}>  $baris  kunci produk, jumlah, nama varian (opsional)
      * @param  array{0: string, 1: string, 2: string, 3: string}  $kurir
      * @param  array<string, Product>  $produk
      * @param  array<string, mixed>  $tambahan
@@ -238,7 +254,7 @@ class TokoDemoSeeder extends Seeder
     private function buat(string $nama, string $kodeKota, OrderStatus $status, int $jamLalu, array $baris, int $ongkir, array $kurir, array $produk, array $tambahan = []): Order
     {
         $dibuat = Carbon::now()->subHours($jamLalu);
-        $subtotal = array_sum(array_map(fn (array $item) => $produk[$item[0]]->sell_price * $item[1], $baris));
+        $subtotal = array_sum(array_map(fn (array $item) => $this->harga($produk[$item[0]], $item[2] ?? null)[0] * $item[1], $baris));
         $sudahDibayar = in_array($status, [OrderStatus::Paid, OrderStatus::OrderedToSupplier, OrderStatus::Shipped, OrderStatus::Completed], true)
             || ($status === OrderStatus::Cancelled && isset($tambahan['cancel_reason']));
         $slug = Str::slug($nama, '.');
@@ -267,12 +283,18 @@ class TokoDemoSeeder extends Seeder
             'refunded_at' => isset($tambahan['refunded']) ? Carbon::now()->subHours($tambahan['refunded']) : null,
         ]);
 
-        foreach ($baris as [$kunci, $qty]) {
+        foreach ($baris as $item) {
+            [$kunci, $qty] = $item;
+            $namaVarian = $item[2] ?? null;
+            [$jual, $modal] = $this->harga($produk[$kunci], $namaVarian);
+
             $order->items()->create([
                 'product_id' => $produk[$kunci]->id,
+                'variant_id' => $namaVarian ? $produk[$kunci]->variants->firstWhere('name', $namaVarian)?->id : null,
                 'product_name' => $produk[$kunci]->name,
-                'unit_price' => $produk[$kunci]->sell_price,
-                'unit_cost' => $produk[$kunci]->cost_price,
+                'variant_name' => $namaVarian,
+                'unit_price' => $jual,
+                'unit_cost' => $modal,
                 'qty' => $qty,
             ]);
         }
@@ -280,6 +302,18 @@ class TokoDemoSeeder extends Seeder
         $order->forceFill(['created_at' => $dibuat, 'updated_at' => $dibuat])->saveQuietly();
 
         return $order;
+    }
+
+    /**
+     * Harga jual dan modal satu baris pesanan: harga varian kalau ada, kalau tidak harga produk.
+     *
+     * @return array{0: int, 1: int}
+     */
+    private function harga(Product $product, ?string $namaVarian): array
+    {
+        $varian = $namaVarian ? $product->variants->firstWhere('name', $namaVarian) : null;
+
+        return [$varian?->sell_price ?? $product->sell_price, $varian?->cost_price ?? $product->cost_price];
     }
 
     /**
