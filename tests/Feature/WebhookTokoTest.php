@@ -25,7 +25,7 @@ class WebhookTokoTest extends TestCase
     {
         parent::setUp();
 
-        config(['mayar.env' => 'sandbox', 'mayar.base_url' => 'https://api.mayar.club', 'mayar.api_key' => 'kunci-uji', 'mayar.webhook_token' => 'test-mayar-webhook-token', 'toko.email_admin' => 'admin@greendeahan.test']);
+        config(['mayar.env' => 'sandbox', 'mayar.base_url' => 'https://api.mayar.io', 'mayar.api_key' => 'kunci-uji', 'mayar.webhook_token' => 'test-mayar-webhook-token', 'toko.email_admin' => 'admin@greendeahan.test']);
         Mail::fake();
     }
 
@@ -37,7 +37,7 @@ class WebhookTokoTest extends TestCase
     private function fakeDetailMayar(string $status, int $amount): void
     {
         Http::fake([
-            'api.mayar.club/hl/v2/payments/pay-uuid-123' => Http::response([
+            'api.mayar.io/hl/v2/payments/pay-uuid-123' => Http::response([
                 'statusCode' => 200,
                 'messages' => 'success',
                 'data' => ['id' => 'pay-uuid-123', 'status' => $status, 'amount' => $amount],
@@ -68,7 +68,7 @@ class WebhookTokoTest extends TestCase
         $this->assertNotNull($order->paid_at);
         Mail::assertQueued(PesananTokoDibayar::class, fn (PesananTokoDibayar $mail) => $mail->hasTo('admin@greendeahan.test') && $mail->order->is($order));
         $this->assertDatabaseHas('mayar_webhook_logs', ['order_id' => $order->id, 'event' => 'payment.received', 'result' => 'diproses']);
-        Http::assertSent(fn ($request) => $request->url() === 'https://api.mayar.club/hl/v2/payments/pay-uuid-123');
+        Http::assertSent(fn ($request) => $request->url() === 'https://api.mayar.io/hl/v2/payments/pay-uuid-123');
     }
 
     public function test_webhook_ganda_hanya_diproses_sekali(): void

@@ -22,7 +22,7 @@ class ImporProdukHtmlService
     public const MAKS_DESKRIPSI = 3000;
 
     /**
-     * @return array{nama: ?string, deskripsi: ?string, kategori: ?string, linkSupplier: ?string, namaSupplier: ?string, gambarUrl: ?string, gambarUrls: array<int, string>, hargaShopee: ?int, hargaRetail: ?int}
+     * @return array{nama: ?string, deskripsi: ?string, spesifikasi: array<int, array{nama: string, nilai: string}>, dikirimDari: ?string, kategori: ?string, linkSupplier: ?string, namaSupplier: ?string, gambarUrl: ?string, gambarUrls: array<int, string>, hargaShopee: ?int, hargaRetail: ?int}
      */
     public function baca(string $html): array
     {
@@ -31,6 +31,8 @@ class ImporProdukHtmlService
         return [
             'nama' => $this->nama($xpath),
             'deskripsi' => $this->deskripsi($xpath),
+            'spesifikasi' => $this->spesifikasi($xpath),
+            'dikirimDari' => $this->dikirimDari($xpath),
             'kategori' => $this->kategori($xpath),
             'linkSupplier' => $this->linkSupplier($xpath),
             'namaSupplier' => $this->namaSupplier($xpath),
@@ -127,7 +129,9 @@ class ImporProdukHtmlService
 
             if ($teks === ''
                 || preg_match('/\bRp\.?\s*\d/iu', $teks)
-                || preg_match('/original\s*100\s*%/iu', $teks)
+                // "harga bandrol 40.000", "harga normal 1.250.000": harga Shopee tanpa awalan Rp.
+                || preg_match('/\bharga\b.*\d{1,3}(?:\.\d{3})+/iu', $teks)
+                || preg_match('/original\s*100\s*%|100\s*%\s*original|uang\s+kembali/iu', $teks)
                 || preg_match('/happy\s+shopping|stok\s+terbatas|jangan\s+sampai\s+kehabisan/iu', $teks)) {
                 $dipakai[] = '';
 
@@ -138,9 +142,75 @@ class ImporProdukHtmlService
         }
 
         $paragraf = preg_split('/(?:\R\s*){2,}/u', trim(implode("\n", $dipakai))) ?: [];
-        $paragraf = array_filter(array_map(fn (string $teks) => trim(preg_replace('/\s*\R\s*/u', ' ', $teks) ?? ''), $paragraf));
+        $paragraf = array_filter(array_map(fn (string $teks) => trim(preg_replace('/[ \t]*\R[ \t]*/u', "\n", $teks) ?? ''), $paragraf));
 
         return trim(mb_substr(implode("\n\n", $paragraf), 0, self::MAKS_DESKRIPSI));
+    }
+
+    /**
+     * Baris "Spesifikasi Produk" (judul h3 lalu isinya) yang berguna bagi
+     * pembeli: merek, bahan, asal produk, dan sebagainya. Kategori dan stok
+     * dibuang (sudah ada di toko kita), dan "Dikirim Dari" dibaca terpisah
+     * karena bukan spesifikasi barang.
+     *
+     * @return array<int, array{nama: string, nilai: string}>
+     */
+    private function spesifikasi(DOMXPath $xpath): array
+    {
+        $dibuang = ['kategori', 'stok', 'dikirim dari', 'pengiriman'];
+        $hasil = [];
+
+        foreach ($this->barisSpesifikasi($xpath) as $nama => $nilai) {
+            if (in_array(mb_strtolower($nama), $dibuang, true) || $nilai === '') {
+                continue;
+            }
+
+            $hasil[] = ['nama' => mb_substr($nama, 0, 60), 'nilai' => mb_substr($nilai, 0, 150)];
+        }
+
+        return array_slice($hasil, 0, Product::MAKS_SPESIFIKASI);
+    }
+
+    private function dikirimDari(DOMXPath $xpath): ?string
+    {
+        foreach ($this->barisSpesifikasi($xpath) as $nama => $nilai) {
+            if (mb_strtolower($nama) === 'dikirim dari' && $nilai !== '') {
+                return mb_substr($nilai, 0, 100);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string, string> judul baris menjadi isinya
+     */
+    private function barisSpesifikasi(DOMXPath $xpath): array
+    {
+        $bagian = $xpath->query("//h2[normalize-space(.)='Spesifikasi Produk']/parent::*")->item(0);
+
+        if ($bagian === null) {
+            return [];
+        }
+
+        $baris = [];
+
+        foreach ($xpath->query('.//h3', $bagian) as $judul) {
+            $nilai = '';
+
+            for ($saudara = $judul->nextSibling; $saudara !== null; $saudara = $saudara->nextSibling) {
+                $nilai .= ' '.$saudara->textContent;
+            }
+
+            $nama = $this->bersihkanBaris($judul->textContent);
+            $nilai = $this->bersihkanBaris($nilai);
+
+            if ($nama !== '' && ! isset($baris[$nama])) {
+                $baris[$nama] = $nilai;
+            }
+        }
+
+        return $baris;
     }
 
     private function kategori(DOMXPath $xpath): ?string

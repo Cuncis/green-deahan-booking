@@ -31,7 +31,7 @@ class BookingAmanTest extends TestCase
         $this->partialMock(PaymentService::class, function ($mock) {
             $mock->shouldAllowMockingProtectedMethods()
                 ->shouldReceive('createInvoice')->andReturn([
-                    'data' => ['id' => 'fake-invoice-id', 'link' => 'https://sandbox.mayar.club/invoice/fake-invoice-id'],
+                    'data' => ['id' => 'fake-invoice-id', 'link' => 'https://sandbox.mayar.io/invoice/fake-invoice-id'],
                 ]);
         });
     }

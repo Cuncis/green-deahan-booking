@@ -68,13 +68,13 @@ class PaymentServiceTest extends TestCase
             'data' => [
                 'id' => 'invoice-1',
                 'transactionId' => 'trx-1',
-                'link' => 'https://sandbox.mayar.club/invoice/invoice-1',
+                'link' => 'https://sandbox.mayar.io/invoice/invoice-1',
             ],
         ]);
 
         $hasil = $service->createTransaction($booking, 'https://tenant.test/?kode_booking='.$booking->kode_booking);
 
-        $this->assertSame('https://sandbox.mayar.club/invoice/invoice-1', $hasil['redirect_url']);
+        $this->assertSame('https://sandbox.mayar.io/invoice/invoice-1', $hasil['redirect_url']);
     }
 
     /**
@@ -88,7 +88,7 @@ class PaymentServiceTest extends TestCase
         $booking = $this->buatBooking();
 
         $service = $this->mockMayar([
-            'data' => ['id' => 'invoice-1', 'link' => 'https://sandbox.mayar.club/invoice/invoice-1'],
+            'data' => ['id' => 'invoice-1', 'link' => 'https://sandbox.mayar.io/invoice/invoice-1'],
         ]);
 
         $service->createTransaction($booking, 'https://tenant.test/');
@@ -110,7 +110,7 @@ class PaymentServiceTest extends TestCase
 
                     return true;
                 })
-                ->andReturn(['data' => ['id' => 'invoice-1', 'link' => 'https://sandbox.mayar.club/invoice/invoice-1']]);
+                ->andReturn(['data' => ['id' => 'invoice-1', 'link' => 'https://sandbox.mayar.io/invoice/invoice-1']]);
         });
 
         $service->createTransaction($booking, 'https://tenant.test/?kode_booking='.$booking->kode_booking);

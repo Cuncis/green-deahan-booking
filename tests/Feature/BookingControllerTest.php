@@ -36,7 +36,7 @@ class BookingControllerTest extends TestCase
                 ->shouldReceive('createInvoice')->andReturn([
                     'data' => [
                         'id' => 'fake-invoice-id',
-                        'link' => 'https://sandbox.mayar.club/invoice/fake-invoice-id',
+                        'link' => 'https://sandbox.mayar.io/invoice/fake-invoice-id',
                     ],
                 ]);
         });
@@ -145,7 +145,7 @@ class BookingControllerTest extends TestCase
         $response->assertJsonPath('data.diskon_jumlah', 0);
         $response->assertJsonPath('data.total_bayar', 100000);
         $response->assertJsonPath('data.status_booking', 'menunggu');
-        $response->assertJsonPath('pembayaran.redirect_url', 'https://sandbox.mayar.club/invoice/fake-invoice-id');
+        $response->assertJsonPath('pembayaran.redirect_url', 'https://sandbox.mayar.io/invoice/fake-invoice-id');
 
         $this->assertDatabaseHas('customers', [
             'no_telepon' => '081234567890',

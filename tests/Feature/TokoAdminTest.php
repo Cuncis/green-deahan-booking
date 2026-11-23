@@ -90,6 +90,42 @@ class TokoAdminTest extends TestCase
             );
     }
 
+    public function test_spesifikasi_produk_disimpan_baris_kosong_dibuang_dan_bisa_dikosongkan(): void
+    {
+        $admin = $this->superadmin();
+        $dasar = ['name' => 'Kaos Kaki', 'slug' => 'kaos-kaki', 'category' => 'olahraga', 'unit' => 'pcs', 'sell_price' => 45000, 'cost_price' => 30000, 'weight_gram' => 120, 'is_active' => '1'];
+
+        $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'specs' => [
+            ['nama' => ' Merek ', 'nilai' => 'Ortuseight'],
+            ['nama' => '', 'nilai' => ''],
+            ['nama' => 'Bahan', 'nilai' => 'Nilon'],
+        ]])->assertSessionHasNoErrors();
+
+        $produk = Product::sole();
+        $this->assertSame([['nama' => 'Merek', 'nilai' => 'Ortuseight'], ['nama' => 'Bahan', 'nilai' => 'Nilon']], $produk->specs);
+
+        $this->actingAs($admin)->get("/superadmin/toko/produk/{$produk->id}/edit")->assertInertia(fn (Assert $page) => $page->has('produk.specs', 2)->where('produk.specs.1.nama', 'Bahan'));
+
+        $this->get('http://greendeahan.com/toko/kaos-kaki')->assertInertia(fn (Assert $page) => $page->where('produk.specs.0', ['nama' => 'Merek', 'nilai' => 'Ortuseight']));
+
+        $this->actingAs($admin)->put("/superadmin/toko/produk/{$produk->id}", $dasar)->assertSessionHasNoErrors();
+        $this->assertSame([], $produk->fresh()->specs);
+    }
+
+    public function test_spesifikasi_wajib_lengkap_dan_dibatasi(): void
+    {
+        $admin = $this->superadmin();
+        $dasar = ['name' => 'Kaos Kaki', 'slug' => 'kaos-kaki', 'category' => 'olahraga', 'unit' => 'pcs', 'sell_price' => 45000, 'cost_price' => 30000, 'weight_gram' => 120, 'is_active' => '1'];
+
+        $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'specs' => [['nama' => 'Merek', 'nilai' => '']]])->assertSessionHasErrors('specs.0.nilai');
+        $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'specs' => [['nama' => '', 'nilai' => 'Nilon']]])->assertSessionHasErrors('specs.0.nama');
+        $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'specs' => [['nama' => str_repeat('a', 61), 'nilai' => 'x']]])->assertSessionHasErrors('specs.0.nama');
+        $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'specs' => [['nama' => 'a', 'nilai' => str_repeat('x', 151)]]])->assertSessionHasErrors('specs.0.nilai');
+        $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'specs' => array_map(fn (int $nomor) => ['nama' => "Atribut {$nomor}", 'nilai' => 'x'], range(1, 21))])->assertSessionHasErrors('specs');
+
+        $this->assertSame(0, Product::count());
+    }
+
     public function test_kode_pos_asal_produk_opsional_harus_5_angka(): void
     {
         $admin = $this->superadmin();
@@ -542,7 +578,7 @@ class TokoAdminTest extends TestCase
     public function test_mayar_service_error_tidak_membocorkan_api_key(): void
     {
         Http::fake(['*' => Http::response(['statusCode' => 401, 'messages' => 'unauthorized'], 401)]);
-        config(['mayar.env' => 'sandbox', 'mayar.base_url' => 'https://api.mayar.club', 'mayar.api_key' => 'kunci-sangat-rahasia']);
+        config(['mayar.env' => 'sandbox', 'mayar.base_url' => 'https://api.mayar.io', 'mayar.api_key' => 'kunci-sangat-rahasia']);
 
         try {
             app(MayarService::class)->getPayment('pay-1');

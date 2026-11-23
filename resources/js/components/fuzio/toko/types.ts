@@ -9,6 +9,8 @@ export interface ProdukPublik {
     unit: string;
     badge: string | null;
     description: string | null;
+    /** Free-form "name: value" rows (brand, material, origin ...). */
+    specs: { nama: string; nilai: string }[];
     imageUrl: string | null;
     /** All photos, main photo first (empty when the product has none). */
     images: string[];

@@ -25,7 +25,7 @@ class TokoTest extends TestCase
     {
         parent::setUp();
 
-        config(['mayar.env' => 'sandbox', 'mayar.base_url' => 'https://api.mayar.club', 'mayar.api_key' => 'kunci-uji', 'toko.ongkir_flat' => 15000]);
+        config(['mayar.env' => 'sandbox', 'mayar.base_url' => 'https://api.mayar.io', 'mayar.api_key' => 'kunci-uji', 'toko.ongkir_flat' => 15000]);
     }
 
     private function produk(array $override = []): Product
@@ -40,7 +40,7 @@ class TokoTest extends TestCase
     private function fakeMayarBerhasil(): void
     {
         Http::fake([
-            'api.mayar.club/hl/v2/payments/create' => Http::response([
+            'api.mayar.io/hl/v2/payments/create' => Http::response([
                 'statusCode' => 200,
                 'messages' => 'success',
                 'data' => ['id' => 'pay-uuid-123', 'transactionId' => 'trx-1', 'link' => 'https://testingmayar.myr.id/pl/abc123'],
@@ -254,7 +254,7 @@ class TokoTest extends TestCase
         $this->assertMatchesRegularExpression('/^GD-\d{8}-[A-Z2-9]{6}$/', $order->code);
         $this->assertSame(['Bola Padel', 95000, 75000, 2], [$order->items[0]->product_name, $order->items[0]->unit_price, $order->items[0]->unit_cost, $order->items[0]->qty]);
 
-        Http::assertSent(fn (HttpRequest $request) => $request->url() === 'https://api.mayar.club/hl/v2/payments/create'
+        Http::assertSent(fn (HttpRequest $request) => $request->url() === 'https://api.mayar.io/hl/v2/payments/create'
             && $request->hasHeader('Authorization', 'Bearer kunci-uji')
             && $request['amount'] === 205000
             && $request['email'] === 'budi@contoh.com'
@@ -285,7 +285,7 @@ class TokoTest extends TestCase
 
     public function test_checkout_gagal_di_mayar_membatalkan_pesanan_dan_keranjang_tetap(): void
     {
-        Http::fake(['api.mayar.club/*' => Http::response(['statusCode' => 400, 'messages' => 'invalid amount'], 400)]);
+        Http::fake(['api.mayar.io/*' => Http::response(['statusCode' => 400, 'messages' => 'invalid amount'], 400)]);
         $produk = $this->produk();
         $this->post(self::SITUS.'/keranjang', ['product_id' => $produk->id]);
 

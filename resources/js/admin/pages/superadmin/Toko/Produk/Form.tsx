@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import { Plus, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import Field from '../../../../components/form/Field';
 import UnggahFotoBanyak, { type FotoAda } from '../../../../components/form/UnggahFotoBanyak';
@@ -8,6 +9,13 @@ import { Card, CardDescription, CardHeader, CardTitle } from '../../../../compon
 import { Input, Textarea } from '../../../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
 import { rupiah } from '../../../../lib/format';
+
+interface Spek {
+    nama: string;
+    nilai: string;
+}
+
+const MAKS_SPEK = 20;
 
 interface ProdukEdit {
     name: string;
@@ -23,6 +31,7 @@ interface ProdukEdit {
     supplier_product_url: string | null;
     weight_gram: number;
     origin_postal_code: string | null;
+    specs: Spek[];
     is_active: boolean;
     imageUrl: string | null;
     fotos: FotoAda[];
@@ -35,6 +44,8 @@ interface DataImpor {
     deskripsi: string | null;
     kategori: string | null;
     linkSupplier: string | null;
+    spesifikasi: Spek[];
+    dikirimDari: string | null;
     namaSupplier: string | null;
     gambarUrl: string | null;
     gambarUrls: string[];
@@ -126,6 +137,7 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
         supplier_product_url: produk?.supplier_product_url ?? impor?.linkSupplier ?? '',
         weight_gram: produk ? String(produk.weight_gram) : '0',
         origin_postal_code: produk?.origin_postal_code ?? '',
+        specs: (produk?.specs ?? impor?.spesifikasi ?? []) as Spek[],
         is_active: produk ? (produk.is_active ? '1' : '0') : impor ? '0' : '1',
         fotoAda: produk?.fotos ?? ([] as FotoAda[]),
         gambar_urls: impor?.gambarUrls ?? ([] as string[]),
@@ -183,6 +195,8 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
         form.transform(({ fotoAda, ...data }) => ({
             ...data,
             supplier_id: data.supplier_id === TANPA_SUPPLIER ? '' : data.supplier_id,
+            // Blank rows are dropped by the server; an empty list clears the saved specs.
+            specs: data.specs.filter((spek) => spek.nama.trim() !== '' || spek.nilai.trim() !== ''),
             // Sent even when empty, so removing every saved photo is understood by the server.
             foto_diatur: '1',
             foto_ada: fotoAda.map((foto) => foto.id),
@@ -291,7 +305,7 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
                         id="origin"
                         label="Kode pos asal pengiriman"
                         error={form.errors.origin_postal_code}
-                        hint="Opsional. Isi kode pos kota 'Dikirim dari' di Shopee. Kosong = pakai kode pos supplier, lalu kode pos bawaan toko. Dipakai untuk menghitung ongkir perkiraan."
+                        hint={`Opsional. Isi kode pos kota 'Dikirim dari' di Shopee${impor?.dikirimDari ? ` (halaman ini: ${impor.dikirimDari})` : ''}. Kosong = pakai kode pos supplier, lalu kode pos bawaan toko. Dipakai untuk menghitung ongkir perkiraan.`}
                     >
                         <Input
                             id="origin"
@@ -301,6 +315,72 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
                             onChange={(event) => form.setData('origin_postal_code', event.target.value.replace(/\D/g, ''))}
                         />
                     </Field>
+                    <div className="grid gap-3 md:col-span-2">
+                        <div>
+                            <p className="text-sm font-medium">Spesifikasi</p>
+                            <p className="text-xs text-muted-foreground">
+                                Opsional. Tampil di halaman produk, misalnya Merek: Ortuseight, Bahan: Nilon, Asal produk: Indonesia. Diisi otomatis saat impor dari Shopee.
+                            </p>
+                        </div>
+                        {form.data.specs.map((spek, indeks) => (
+                            <div key={indeks} className="grid grid-cols-[1fr_1.5fr_auto] items-start gap-2">
+                                <Field id={`spek-nama-${indeks}`} label={indeks === 0 ? 'Nama' : ''} error={galat[`specs.${indeks}.nama`]}>
+                                    <Input
+                                        id={`spek-nama-${indeks}`}
+                                        value={spek.nama}
+                                        maxLength={60}
+                                        aria-label={`Nama spesifikasi ${indeks + 1}`}
+                                        onChange={(event) =>
+                                            form.setData(
+                                                'specs',
+                                                form.data.specs.map((item, urutan) => (urutan === indeks ? { ...item, nama: event.target.value } : item)),
+                                            )
+                                        }
+                                    />
+                                </Field>
+                                <Field id={`spek-nilai-${indeks}`} label={indeks === 0 ? 'Isi' : ''} error={galat[`specs.${indeks}.nilai`]}>
+                                    <Input
+                                        id={`spek-nilai-${indeks}`}
+                                        value={spek.nilai}
+                                        maxLength={150}
+                                        aria-label={`Isi spesifikasi ${indeks + 1}`}
+                                        onChange={(event) =>
+                                            form.setData(
+                                                'specs',
+                                                form.data.specs.map((item, urutan) => (urutan === indeks ? { ...item, nilai: event.target.value } : item)),
+                                            )
+                                        }
+                                    />
+                                </Field>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className={indeks === 0 ? 'mt-6' : undefined}
+                                    aria-label={`Hapus spesifikasi ${indeks + 1}`}
+                                    onClick={() =>
+                                        form.setData(
+                                            'specs',
+                                            form.data.specs.filter((_, urutan) => urutan !== indeks),
+                                        )
+                                    }
+                                >
+                                    <X />
+                                </Button>
+                            </div>
+                        ))}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="justify-self-start"
+                            disabled={form.data.specs.length >= MAKS_SPEK}
+                            onClick={() => form.setData('specs', [...form.data.specs, { nama: '', nilai: '' }])}
+                        >
+                            <Plus />
+                            Tambah spesifikasi
+                        </Button>
+                    </div>
                     <Field id="description" label="Deskripsi" error={form.errors.description} className="md:col-span-2">
                         <Textarea id="description" rows={4} value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} />
                     </Field>

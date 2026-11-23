@@ -56,7 +56,7 @@ class WilayahCheckoutTest extends TestCase
 
     private function isiKeranjang(): void
     {
-        Http::fake(['api.mayar.club/hl/v2/payments/create' => Http::response(['statusCode' => 200, 'data' => ['id' => 'pay-1', 'transactionId' => 't-1', 'link' => 'https://testingmayar.myr.id/pl/abc']])]);
+        Http::fake(['api.mayar.io/hl/v2/payments/create' => Http::response(['statusCode' => 200, 'data' => ['id' => 'pay-1', 'transactionId' => 't-1', 'link' => 'https://testingmayar.myr.id/pl/abc']])]);
         $produk = Product::factory()->create(['sell_price' => 95000]);
         $this->post(self::SITUS.'/keranjang', ['product_id' => $produk->id]);
     }

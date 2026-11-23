@@ -28,7 +28,7 @@ class KirimTagihanPerpanjanganTest extends TestCase
                 ->shouldReceive('createInvoice')->andReturn([
                     'data' => [
                         'id' => 'fake-perpanjangan-invoice-id',
-                        'link' => 'https://sandbox.mayar.club/invoice/fake-perpanjangan-invoice-id',
+                        'link' => 'https://sandbox.mayar.io/invoice/fake-perpanjangan-invoice-id',
                     ],
                 ]);
         });

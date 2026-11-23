@@ -15,7 +15,7 @@ class TenantRegistrationControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const MAYAR_REDIRECT_URL = 'https://sandbox.mayar.club/invoice/fake-langganan-invoice-id';
+    private const MAYAR_REDIRECT_URL = 'https://sandbox.mayar.io/invoice/fake-langganan-invoice-id';
 
     /**
      * store() sekarang selalu mencoba bikin invoice Mayar (lihat

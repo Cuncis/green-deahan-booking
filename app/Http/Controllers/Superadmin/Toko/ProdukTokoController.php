@@ -108,6 +108,7 @@ class ProdukTokoController extends Controller
         return Inertia::render('superadmin/Toko/Produk/Form', [
             'produk' => [
                 ...$product->only(['name', 'slug', 'category', 'unit', 'badge', 'description', 'sell_price', 'compare_price', 'cost_price', 'supplier_id', 'supplier_product_url', 'weight_gram', 'origin_postal_code', 'is_active']),
+                'specs' => $product->specs ?? [],
                 'imageUrl' => $product->image_path,
                 'fotos' => $product->images->map(fn ($foto) => ['id' => $foto->id, 'url' => $foto->path])->all(),
                 'updateUrl' => route('superadmin.toko.produk.update', $product),
@@ -150,6 +151,8 @@ class ProdukTokoController extends Controller
     private function siapkan(ProdukRequest $request, ?Product $product = null): array
     {
         $data = collect($request->validated())->except(['foto', 'foto_baru', 'foto_diatur', 'foto_ada', 'gambar_url', 'gambar_urls'])->all();
+        // Form selalu mengirim seluruh daftar, jadi tidak ada baris berarti spesifikasinya dikosongkan.
+        $data['specs'] = array_values($request->validated('specs') ?? []);
         $data['slug'] = $this->slugUnik(($data['slug'] ?? null) ?: $data['name'], $product);
 
         return $data;

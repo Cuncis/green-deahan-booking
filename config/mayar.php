@@ -12,10 +12,10 @@
 |   MAYAR_BASE_URL=https://api.mayar.id
 |   MAYAR_API_KEY=<key produksi>
 |
-| Sandbox: buat API key di dashboard sandbox Mayar (https://web.mayar.club,
-| menu Integration > API Key). Dokumentasi Mayar terbaru menyebut sandbox
-| di api.mayar.io / web.mayar.io; kalau key kamu dari sana, isi
-| MAYAR_BASE_URL=https://api.mayar.io.
+| Sandbox: buat API key di dashboard sandbox Mayar (https://web.mayar.io,
+| menu Integration > API Key). Dokumentasi Mayar menyebut sandbox di
+| api.mayar.io / web.mayar.io (alamat lama .club sudah tidak ada). Kalau
+| key kamu dari alamat lain, isi MAYAR_BASE_URL sesuai asalnya.
 |
 */
 
@@ -27,7 +27,7 @@ return [
 
     'api_key' => env('MAYAR_API_KEY'),
 
-    'base_url' => rtrim((string) env('MAYAR_BASE_URL', $env === 'production' ? 'https://api.mayar.id' : 'https://api.mayar.club'), '/'),
+    'base_url' => rtrim((string) env('MAYAR_BASE_URL', $env === 'production' ? 'https://api.mayar.id' : 'https://api.mayar.io'), '/'),
 
     /*
      * Rahasia pilihan sendiri, dipasang sebagai ?token=... di URL webhook

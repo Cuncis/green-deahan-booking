@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'unit',
     'badge',
     'description',
+    'specs',
     'image_path',
     'sell_price',
     'compare_price',
@@ -38,6 +39,9 @@ class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
     use HasFactory;
+
+    /** Batas baris spesifikasi per produk. */
+    public const MAKS_SPESIFIKASI = 20;
 
     /**
      * @var array<string, string>
@@ -68,6 +72,7 @@ class Product extends Model
             'compare_price' => 'integer',
             'cost_price' => 'integer',
             'weight_gram' => 'integer',
+            'specs' => 'array',
             'is_active' => 'boolean',
         ];
     }
@@ -108,7 +113,7 @@ class Product extends Model
     /**
      * Data aman untuk pelanggan. Jangan pernah kirim model mentah ke halaman toko.
      *
-     * @return array{id: int, name: string, slug: string, category: string, categoryLabel: string, unit: string, badge: string|null, description: string|null, imageUrl: string|null, images: array<int, string>, price: int, comparePrice: int|null}
+     * @return array{id: int, name: string, slug: string, category: string, categoryLabel: string, unit: string, badge: string|null, description: string|null, specs: array<int, array{nama: string, nilai: string}>, imageUrl: string|null, images: array<int, string>, price: int, comparePrice: int|null}
      */
     public function dataPublik(): array
     {
@@ -121,6 +126,7 @@ class Product extends Model
             'unit' => $this->unit,
             'badge' => $this->badge,
             'description' => $this->description,
+            'specs' => $this->specs ?? [],
             'imageUrl' => $this->image_path,
             'images' => $this->daftarFoto(),
             'price' => $this->sell_price,

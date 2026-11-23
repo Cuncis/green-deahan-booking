@@ -82,7 +82,7 @@ class BiteshipOngkirTest extends TestCase
                 ['jne', 'JNE', 'reg', 'Reguler', 11000, '2 - 3'],
                 ['jnt', 'J&T', 'ez', 'EZ', 14000, '2 - 3'],
             ])),
-            'api.mayar.club/hl/v2/payments/create' => Http::response(['statusCode' => 200, 'data' => ['id' => 'pay-1', 'transactionId' => 't-1', 'link' => 'https://testingmayar.myr.id/pl/abc']]),
+            'api.mayar.io/hl/v2/payments/create' => Http::response(['statusCode' => 200, 'data' => ['id' => 'pay-1', 'transactionId' => 't-1', 'link' => 'https://testingmayar.myr.id/pl/abc']]),
         ]);
     }
 
@@ -326,7 +326,7 @@ class BiteshipOngkirTest extends TestCase
         config(['biteship.ongkir_darurat' => true, 'toko.ongkir_flat' => 17000]);
         Http::fake([
             self::URL_TARIF => Http::response(['success' => false, 'code' => 50000000, 'error' => 'Server error'], 500),
-            'api.mayar.club/hl/v2/payments/create' => Http::response(['statusCode' => 200, 'data' => ['id' => 'pay-1', 'transactionId' => 't-1', 'link' => 'https://testingmayar.myr.id/pl/abc']]),
+            'api.mayar.io/hl/v2/payments/create' => Http::response(['statusCode' => 200, 'data' => ['id' => 'pay-1', 'transactionId' => 't-1', 'link' => 'https://testingmayar.myr.id/pl/abc']]),
         ]);
         $this->isiKeranjang($this->produk(['sell_price' => 95000]));
 
@@ -464,7 +464,7 @@ class BiteshipOngkirTest extends TestCase
     public function test_tanpa_biteship_checkout_tetap_memakai_ongkir_flat(): void
     {
         config(['biteship.api_key' => null]);
-        Http::fake(['api.mayar.club/hl/v2/payments/create' => Http::response(['statusCode' => 200, 'data' => ['id' => 'pay-1', 'transactionId' => 't-1', 'link' => 'https://testingmayar.myr.id/pl/abc']])]);
+        Http::fake(['api.mayar.io/hl/v2/payments/create' => Http::response(['statusCode' => 200, 'data' => ['id' => 'pay-1', 'transactionId' => 't-1', 'link' => 'https://testingmayar.myr.id/pl/abc']])]);
         $this->isiKeranjang($this->produk(['sell_price' => 95000]));
 
         $this->post(self::SITUS.'/checkout', $this->dataCheckout(['layanan' => '']))->assertRedirect('https://testingmayar.myr.id/pl/abc');

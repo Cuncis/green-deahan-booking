@@ -18,6 +18,25 @@ class ProdukRequest extends FormRequest
     }
 
     /**
+     * Baris spesifikasi yang nama dan isinya sama-sama kosong dibuang, dan
+     * spasi di pinggir dipangkas, supaya baris kosong dari form tidak jadi galat.
+     */
+    protected function prepareForValidation(): void
+    {
+        $specs = $this->input('specs');
+
+        if (! is_array($specs)) {
+            return;
+        }
+
+        $this->merge(['specs' => collect($specs)
+            ->map(fn ($baris) => is_array($baris) ? ['nama' => trim((string) ($baris['nama'] ?? '')), 'nilai' => trim((string) ($baris['nilai'] ?? ''))] : $baris)
+            ->reject(fn ($baris) => is_array($baris) && $baris['nama'] === '' && $baris['nilai'] === '')
+            ->values()
+            ->all()]);
+    }
+
+    /**
      * @return array<string, array<int, mixed>>
      */
     public function rules(): array
@@ -31,6 +50,9 @@ class ProdukRequest extends FormRequest
             'unit' => ['required', Rule::in(Product::SATUAN)],
             'badge' => ['nullable', 'string', 'max:30'],
             'description' => ['nullable', 'string', 'max:3000'],
+            'specs' => ['nullable', 'array', 'max:'.Product::MAKS_SPESIFIKASI],
+            'specs.*.nama' => ['required', 'string', 'max:60'],
+            'specs.*.nilai' => ['required', 'string', 'max:150'],
             'sell_price' => ['required', 'integer', 'min:1000', 'max:100000000'],
             'compare_price' => ['nullable', 'integer', 'gt:sell_price', 'max:100000000'],
             'cost_price' => ['required', 'integer', 'min:0', 'max:100000000'],
@@ -111,6 +133,8 @@ class ProdukRequest extends FormRequest
             'supplier_product_url' => 'link produk supplier',
             'weight_gram' => 'berat',
             'origin_postal_code' => 'kode pos asal',
+            'specs.*.nama' => 'nama spesifikasi',
+            'specs.*.nilai' => 'isi spesifikasi',
         ];
     }
 }

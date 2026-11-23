@@ -30,7 +30,7 @@ class TenantRenewalWebhookTest extends TestCase
             'tenant_id' => $tenant->id,
             'kode' => TenantTagihanPerpanjangan::generateKode(),
             'jumlah' => Tenant::hitungHargaPerpanjangan('pro'),
-            'link_pembayaran' => 'https://sandbox.mayar.club/invoice/fake',
+            'link_pembayaran' => 'https://sandbox.mayar.io/invoice/fake',
             'status' => 'menunggu',
             'dikirim_pada' => now(),
         ]);

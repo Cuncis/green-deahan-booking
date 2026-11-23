@@ -19,6 +19,17 @@ interface Props {
 
 type Tab = 'deskripsi' | 'info';
 
+/** First paragraph, shortened at a word boundary: the full text lives in the Deskripsi tab. */
+function ringkasan(teks: string, batas = 180): string {
+    const awal = teks
+        .split(/\n\s*\n/)[0]
+        .replace(/\s*\n\s*/g, ' ')
+        .trim();
+    if (awal.length <= batas) return awal;
+
+    return `${awal.slice(0, awal.lastIndexOf(' ', batas) > 0 ? awal.lastIndexOf(' ', batas) : batas).trimEnd()}...`;
+}
+
 /**
  * /toko/{slug}: port of Fuzio's single-product page (ProductReview +
  * ProductDetails): image, price per unit, quantity, add to cart / buy now,
@@ -95,7 +106,7 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                                     {rupiah(produk.price)} <small>/{produk.unit}</small>
                                     {produk.comparePrice && <del>{rupiah(produk.comparePrice)}</del>}
                                 </h3>
-                                {produk.description && <p>{produk.description}</p>}
+                                {produk.description && <p className="gd-deskripsi-ringkas">{ringkasan(produk.description)}</p>}
 
                                 <div className="my-4 cart-cta">
                                     <div className="cart-number">
@@ -137,6 +148,11 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                                     <p className="sku">
                                         <strong>Kategori:</strong> <a href={produk.kategoriUrl}>{produk.categoryLabel}</a>
                                     </p>
+                                    {produk.specs.slice(0, 3).map((spek) => (
+                                        <p key={spek.nama} className="sku">
+                                            <strong>{spek.nama}:</strong> {spek.nilai}
+                                        </p>
+                                    ))}
                                     <p className="sku">
                                         <strong>Satuan:</strong> per {produk.unit}
                                     </p>
@@ -174,10 +190,16 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                         </ul>
                         <div className="tab-content mt-5">
                             <div className={`tab-pane fade ${tab === 'deskripsi' ? 'show active' : ''}`} id="panel-deskripsi" role="tabpanel" aria-labelledby="tab-deskripsi">
-                                <p>{produk.description || 'Belum ada deskripsi untuk produk ini. Tanya detailnya ke tim kami lewat WhatsApp.'}</p>
+                                <p className="gd-teks-deskripsi">{produk.description || 'Belum ada deskripsi untuk produk ini. Tanya detailnya ke tim kami lewat WhatsApp.'}</p>
                             </div>
                             <div className={`tab-pane fade ${tab === 'info' ? 'show active' : ''}`} id="panel-info" role="tabpanel" aria-labelledby="tab-info">
                                 <div className="product-additional-info">
+                                    {produk.specs.map((spek) => (
+                                        <div key={spek.nama} className="item">
+                                            <span className="h5">{spek.nama}</span>
+                                            <span>{spek.nilai}</span>
+                                        </div>
+                                    ))}
                                     <div className="item">
                                         <span className="h5">Kategori</span>
                                         <span>{produk.categoryLabel}</span>
