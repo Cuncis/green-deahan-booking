@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 /**
  * Simpan/hapus foto upload (lapangan, galeri, logo tenant, artikel), dipakai
@@ -20,6 +21,12 @@ class FotoUploadService
     {
         $disk = config('filesystems.default');
         $path = $file->store($folder, $disk);
+
+        // Disk S3/R2 tidak melempar galat saat gagal, store() hanya mengembalikan false.
+        // Tanpa pemeriksaan ini, alamat foto yang rusak tetap tersimpan di database.
+        if ($path === false) {
+            throw new RuntimeException('Foto gagal disimpan ke penyimpanan ('.$disk.'). Periksa pengaturan FILESYSTEM_DISK dan Cloudflare R2 di .env.');
+        }
 
         if ($disk === 's3') {
             // URL R2 sama sekali beda host dari domain tenant, jadi HARUS
