@@ -114,7 +114,7 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                                 <h3 className="product-price">
                                     {hargaBeda && <small>mulai </small>}
                                     {rupiah(hargaBeda ? Math.min(...hargaVarian) : hargaSatuan)} <small>/{produk.unit}</small>
-                                    {produk.comparePrice && !adaVarian && <del>{rupiah(produk.comparePrice)}</del>}
+                                    {produk.comparePrice && produk.comparePrice > (hargaBeda ? Math.min(...hargaVarian) : hargaSatuan) && <del>{rupiah(produk.comparePrice)}</del>}
                                 </h3>
                                 {produk.description && <p className="gd-deskripsi-ringkas">{ringkasan(produk.description)}</p>}
 
@@ -167,7 +167,7 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                                         </div>
                                     </div>
                                     <div className="d-flex flex-wrap gap-2 mt-3">
-                                        <button type="button" className="btn btn-dark text-primary" onClick={() => tambah(false)} disabled={memproses !== null || perluPilih}>
+                                        <button type="button" className="btn gd-btn-keranjang" onClick={() => tambah(false)} disabled={memproses !== null || perluPilih}>
                                             {memproses === 'keranjang' ? 'Menambahkan...' : 'Tambah ke Keranjang'}
                                         </button>
                                         <button type="button" className="btn btn-primary" onClick={() => tambah(true)} disabled={memproses !== null || perluPilih}>

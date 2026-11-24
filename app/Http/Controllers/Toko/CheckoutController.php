@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Toko;
 use App\Enums\OrderStatus;
 use App\Exceptions\BiteshipException;
 use App\Exceptions\MayarException;
+use App\Exceptions\PromoTokoException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Toko\CheckoutRequest;
 use App\Models\Order;
@@ -12,12 +13,14 @@ use App\Models\Wilayah;
 use App\Services\KeranjangService;
 use App\Services\MayarService;
 use App\Services\OngkirTokoService;
+use App\Services\PromoTokoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -32,6 +35,7 @@ class CheckoutController extends Controller
         private readonly KeranjangService $keranjang,
         private readonly MayarService $mayar,
         private readonly OngkirTokoService $ongkir,
+        private readonly PromoTokoService $promo,
     ) {}
 
     public function create(): Response|RedirectResponse
@@ -49,6 +53,7 @@ class CheckoutController extends Controller
             'wilayahTersedia' => Wilayah::query()->exists(),
             'wilayahUrl' => url('/wilayah'),
             'ongkirUrl' => url('/checkout/ongkir'),
+            'promoUrl' => url('/checkout/promo'),
             'meta' => ['title' => 'Checkout | Toko Green Deahan Sport', 'noindex' => true],
         ]);
     }
@@ -110,6 +115,32 @@ class CheckoutController extends Controller
         return response()->json(['aktif' => true, 'opsi' => $opsi])->header('Cache-Control', 'private, no-store');
     }
 
+    /**
+     * Pratinjau potongan kode promo untuk isi keranjang. Hanya untuk ditampilkan:
+     * saat bayar, kode diperiksa dan potongannya dihitung ulang di server.
+     */
+    public function promo(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->query(), ['kode' => ['required', 'string', 'max:40']], [
+            'kode.required' => 'Isi kode promo dulu.',
+            'kode.max' => 'Kode promo terlalu panjang.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first('kode')], 422);
+        }
+
+        $subtotal = (int) $this->keranjang->isi()->sum(fn (array $baris) => $baris['harga'] * $baris['qty']);
+
+        try {
+            ['promo' => $promo, 'diskon' => $diskon] = $this->promo->periksa((string) $request->query('kode'), $subtotal);
+        } catch (PromoTokoException $galat) {
+            return response()->json(['message' => $galat->getMessage()], 422);
+        }
+
+        return response()->json(['kode' => $promo->code, 'diskon' => $diskon, 'ringkasan' => $promo->ringkasan()])->header('Cache-Control', 'private, no-store');
+    }
+
     public function store(CheckoutRequest $request): SymfonyResponse
     {
         $isi = $this->keranjang->isi();
@@ -125,12 +156,26 @@ class CheckoutController extends Controller
             // Ongkir dari layanan kurir yang dihitung ulang di server; ongkir flat kalau Biteship belum aktif.
             $ongkir = (int) ($data['shipping_cost'] ?? config('toko.ongkir_flat'));
 
+            $kodePromo = (string) $request->input('promo_code', '');
+            $diskon = 0;
+
+            if ($kodePromo !== '') {
+                try {
+                    ['promo' => $promo, 'diskon' => $diskon] = $this->promo->periksaDenganKunci($kodePromo, $subtotal);
+                    $kodePromo = $promo->code;
+                } catch (PromoTokoException $galat) {
+                    throw ValidationException::withMessages(['promo_code' => $galat->getMessage()]);
+                }
+            }
+
             $order = Order::create([
                 ...$data,
                 'code' => Order::buatKode(),
                 'subtotal' => $subtotal,
                 'shipping_cost' => $ongkir,
-                'total' => $subtotal + $ongkir,
+                'promo_code' => $kodePromo !== '' ? $kodePromo : null,
+                'discount' => $diskon,
+                'total' => $subtotal - $diskon + $ongkir,
                 'status' => OrderStatus::PendingPayment,
             ]);
 

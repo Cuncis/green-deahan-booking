@@ -222,6 +222,8 @@ interface Pesanan {
     };
     items: { id: number; nama: string; varian: string | null; qty: number; harga: number; modal: number; linkSupplier: string | null }[];
     subtotal: number;
+    diskon: number;
+    kodePromo: string | null;
     ongkir: number;
     layanan: string | null;
     ongkirDarurat: boolean;
@@ -502,6 +504,7 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                     <Card className="p-5">
                         <CardTitle className="mb-2">Untung</CardTitle>
                         <Baris label="Total dibayar" nilai={rupiah(pesanan.total)} />
+                        {pesanan.diskon > 0 && <p className="pb-1 text-xs text-muted-foreground">Sudah dipotong promo {pesanan.kodePromo}: -{rupiah(pesanan.diskon)} dari harga barang.</p>}
                         <Baris label="Ongkir" nilai={`-${rupiah(pesanan.ongkir)}`} />
                         <Baris label="Modal barang" nilai={`-${rupiah(pesanan.totalModal)}`} />
                         <div className="mt-1 border-t border-border pt-1">

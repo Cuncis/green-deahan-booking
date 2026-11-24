@@ -39,6 +39,8 @@ class PesananTokoController extends Controller
                     'subtotal' => $item->unit_price * $item->qty,
                 ])->all(),
                 'subtotal' => $order->subtotal,
+                'diskon' => $order->discount,
+                'kodePromo' => $order->promo_code,
                 'ongkir' => $order->shipping_cost,
                 'layanan' => $order->layananPengiriman(),
                 'total' => $order->total,

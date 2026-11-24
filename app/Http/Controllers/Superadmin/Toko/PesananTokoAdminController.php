@@ -100,6 +100,8 @@ class PesananTokoAdminController extends Controller
                     'linkSupplier' => $item->product?->supplier_product_url,
                 ])->all(),
                 'subtotal' => $order->subtotal,
+                'diskon' => $order->discount,
+                'kodePromo' => $order->promo_code,
                 'ongkir' => $order->shipping_cost,
                 'layanan' => $order->layananPengiriman(),
                 'ongkirDarurat' => $order->ongkirDarurat(),

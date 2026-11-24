@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\PromoCode;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Models\Wilayah;
@@ -68,6 +69,7 @@ class TokoDemoSeeder extends Seeder
             $supplier = $this->supplier();
             $produk = $this->produk($supplier);
             $this->pesanan($produk);
+            $this->promo();
         });
 
         $this->command?->info('Data contoh toko dibuat: '.Supplier::count().' supplier, '.Product::count().' produk, '.Order::count().' pesanan.');
@@ -86,10 +88,20 @@ class TokoDemoSeeder extends Seeder
         }
 
         DB::transaction(function () {
-            foreach (['order_messages', 'order_shipments', 'order_items', 'orders', 'product_images', 'products', 'suppliers'] as $tabel) {
+            foreach (['order_messages', 'order_shipments', 'order_items', 'orders', 'product_images', 'products', 'suppliers', 'promo_codes'] as $tabel) {
                 DB::table($tabel)->delete();
             }
         });
+    }
+
+    /**
+     * Kode promo contoh: satu persen dengan batas, satu nominal dengan minimal belanja, satu yang sudah berakhir.
+     */
+    private function promo(): void
+    {
+        PromoCode::create(['code' => 'HEMAT10', 'description' => 'Data contoh: diskon 10 persen.', 'type' => PromoCode::PERCENT, 'value' => 10, 'max_discount' => 50000]);
+        PromoCode::create(['code' => 'POTONG25', 'description' => 'Data contoh: potongan Rp25.000 untuk belanja minimal Rp200.000.', 'type' => PromoCode::FIXED, 'value' => 25000, 'min_subtotal' => 200000, 'quota' => 50]);
+        PromoCode::create(['code' => 'AKHIRTAHUN', 'description' => 'Data contoh: promo yang sudah berakhir.', 'type' => PromoCode::PERCENT, 'value' => 15, 'ends_on' => now()->subDays(10)->toDateString()]);
     }
 
     /**

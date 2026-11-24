@@ -25,6 +25,7 @@ use App\Http\Controllers\Superadmin\SeoAdminController;
 use App\Http\Controllers\Superadmin\SuperadminController;
 use App\Http\Controllers\Superadmin\Toko\PesananTokoAdminController;
 use App\Http\Controllers\Superadmin\Toko\ProdukTokoController;
+use App\Http\Controllers\Superadmin\Toko\PromoTokoController;
 use App\Http\Controllers\Superadmin\Toko\SupplierTokoController;
 use App\Http\Controllers\TenantRegistrationController;
 use App\Http\Controllers\Toko\CheckoutController;
@@ -116,6 +117,7 @@ $situsKorporat = function () {
     // Toko online (dropship), lihat App\Http\Controllers\Toko. Keranjang di
     // session, harga selalu dihitung ulang di server, bayar lewat Mayar.
     Route::get('/checkout/ongkir', [CheckoutController::class, 'ongkir'])->middleware('throttle:ongkir-toko')->name('checkout.ongkir');
+    Route::get('/checkout/promo', [CheckoutController::class, 'promo'])->middleware('throttle:30,1')->name('checkout.promo');
     Route::get('/wilayah', [WilayahController::class, 'index'])->middleware('throttle:120,1')->name('wilayah');
     Route::get('/toko', [TokoController::class, 'index'])->name('toko');
     Route::get('/toko/{slug}', [TokoController::class, 'show'])->name('toko.produk');
@@ -240,6 +242,11 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
             Route::post('/supplier', [SupplierTokoController::class, 'store'])->name('supplier.store');
             Route::put('/supplier/{supplier}', [SupplierTokoController::class, 'update'])->name('supplier.update');
             Route::delete('/supplier/{supplier}', [SupplierTokoController::class, 'destroy'])->name('supplier.destroy');
+
+            Route::get('/promo', [PromoTokoController::class, 'index'])->name('promo');
+            Route::post('/promo', [PromoTokoController::class, 'store'])->name('promo.store');
+            Route::put('/promo/{promo}', [PromoTokoController::class, 'update'])->name('promo.update');
+            Route::delete('/promo/{promo}', [PromoTokoController::class, 'destroy'])->name('promo.destroy');
         });
     });
 

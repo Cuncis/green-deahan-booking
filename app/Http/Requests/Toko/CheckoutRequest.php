@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Toko;
 
 use App\Exceptions\BiteshipException;
+use App\Models\PromoCode;
 use App\Models\Wilayah;
 use App\Services\KeranjangService;
 use App\Services\OngkirTokoService;
@@ -29,6 +30,7 @@ class CheckoutRequest extends FormRequest
             'phone' => preg_replace('/[^\d+]/', '', (string) $this->input('phone')),
             'postal_code' => preg_replace('/\D/', '', (string) $this->input('postal_code')),
             'email' => strtolower(trim((string) $this->input('email'))),
+            'promo_code' => PromoCode::normalisasi((string) $this->input('promo_code')),
         ]);
     }
 
@@ -47,6 +49,8 @@ class CheckoutRequest extends FormRequest
             'postal_code' => ['nullable', 'digits:5'],
             // "kodekurir:kodelayanan" dari daftar ongkir; dicek ulang ke Biteship di after().
             'layanan' => ['nullable', 'string', 'max:80', 'regex:/^[a-z0-9_]+:[a-z0-9_]+$/i'],
+            // Diperiksa dan dihitung ulang di CheckoutController saat pesanan dibuat.
+            'promo_code' => ['nullable', 'string', 'max:40'],
         ];
     }
 
@@ -198,6 +202,7 @@ class CheckoutRequest extends FormRequest
             'wilayah_kode' => 'kelurahan',
             'layanan' => 'layanan pengiriman',
             'postal_code' => 'kode pos',
+            'promo_code' => 'kode promo',
         ];
     }
 }

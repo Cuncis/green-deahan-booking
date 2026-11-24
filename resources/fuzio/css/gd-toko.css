@@ -774,16 +774,19 @@
 }
 .gd-toko .product-entry .price del {
   display: block;
-  color: #8a8a8a;
+  color: #6b6b6b;
+  text-decoration: line-through;
   font-weight: 400;
   font-size: 14px;
 }
 .gd-toko .product-info .product-price del {
   display: block;
   margin-top: 4px;
-  color: #8a8a8a;
+  color: #6b6b6b;
   font-size: 18px;
-  font-weight: 400;
+  font-weight: 500;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
 }
 .toko-kategori a {
   display: flex;
@@ -1255,4 +1258,258 @@ form.form.checkout-form.gd-form-toko select:disabled {
     white-space: nowrap;
     text-align: center;
   }
+}
+
+/* Tab produk: teks tepat di tengah vertikal pada pil dan pada tombol. */
+.gd-toko .product-details-tab .nav-tabs {
+  align-items: center;
+}
+
+.gd-toko .product-details-tab .nav-tabs .nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding-top: 0;
+  padding-bottom: 0;
+  min-height: 48px;
+}
+
+/* Tambah ke Keranjang: tombol garis (outline) supaya beda dari Beli Sekarang yang solid. */
+.gd-toko .cart-cta .btn.gd-btn-keranjang {
+  background: transparent;
+  color: #006400;
+  border: 2px solid #006400;
+}
+
+.gd-toko .cart-cta .btn.gd-btn-keranjang:hover:not(:disabled) {
+  background: #006400;
+  color: #fff;
+}
+
+.gd-toko .cart-cta .btn.gd-btn-keranjang:disabled {
+  opacity: 0.45;
+}
+
+.gd-toko .cart-cta .btn.btn-primary {
+  box-shadow: 0 6px 14px rgba(0, 100, 0, 0.25);
+}
+
+@media (max-width: 575px) {
+  .gd-toko .cart-cta .btn {
+    flex: 1 1 100%;
+  }
+}
+
+/* Hover tombol toko: oranye brand (#feb046) dengan teks gelap, bukan hijau lebih tua. */
+.gd-toko .btn-primary:hover:not(:disabled),
+.gd-toko .btn-primary:focus-visible,
+.gd-toko .btn-primary:active,
+.gd-mini-panel .btn-primary:hover:not(:disabled),
+.gd-mini-panel .btn-primary:focus-visible,
+.gd-mini-panel .btn-primary:active,
+.gd-toko .btn-outline-primary:hover:not(:disabled),
+.gd-toko .btn-outline-primary:focus-visible,
+.gd-toko .btn-outline-primary:active,
+.gd-mini-panel .btn-outline-primary:hover:not(:disabled) {
+  background: #feb046;
+  border-color: #feb046;
+  color: #1a1a1a;
+}
+
+/* Tombol "Tambah ke Keranjang" (kartu dan detail produk) tetap hijau saat hover. */
+.gd-toko .product-entry .gd-tambah-kartu:hover:not(:disabled),
+.gd-toko .product-entry .gd-tambah-kartu:focus-visible,
+.gd-toko .product-entry .gd-tambah-kartu:active,
+.gd-toko .cart-cta .btn.gd-btn-keranjang:hover:not(:disabled) {
+  background: #006400;
+  border-color: #006400;
+  color: #fff;
+}
+
+.gd-toko .product-entry .gd-tambah-kartu:hover:not(:disabled),
+.gd-toko .product-entry .gd-tambah-kartu:focus-visible,
+.gd-toko .product-entry .gd-tambah-kartu:active {
+  background: #004d00;
+  border-color: #004d00;
+}
+
+.gd-toko .product-entry .gd-qty-kartu button:hover:not(:disabled) {
+  background: #feb046;
+  color: #1a1a1a;
+}
+
+.gd-toko .gd-varian-tombol:hover:not(:disabled),
+.gd-toko .gd-varian-tombol.aktif {
+  border-color: #feb046;
+}
+
+.gd-toko .gd-varian-tombol.aktif {
+  background: #fff3df;
+  color: #1a1a1a;
+  box-shadow: 0 0 0 1px #feb046;
+}
+
+.gd-toko .gd-opsi-kirim:hover,
+.gd-toko-kategori a:hover,
+.toko-kategori a:hover {
+  border-color: #feb046;
+}
+
+.gd-toko-kategori a:hover,
+.toko-kategori a:hover {
+  color: #b86e00;
+}
+
+.gd-toko .btn,
+.gd-mini-panel .btn {
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+/* Ringkasan pesanan di checkout: foto kecil di samping nama produk. */
+.gd-ringkas-produk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gd-ringkas-thumb {
+  position: relative;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #e8f2e8;
+}
+
+.gd-ringkas-thumb img,
+.gd-ringkas-thumb > * {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gd-ringkas-nama {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.gd-cart-totals table tr.product-list th {
+  width: 100%;
+}
+
+.gd-cart-totals table tr.product-list td {
+  vertical-align: middle;
+  padding: 10px 0;
+  font-size: 16px;
+}
+
+.gd-cart-totals table tr.product-list th {
+  padding: 10px 10px 10px 0;
+}
+
+.gd-cart-totals table tbody tr td {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media (max-width: 575px) {
+  .gd-ringkas-thumb {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .gd-ringkas-produk {
+    gap: 10px;
+  }
+}
+
+/* Kode promo di ringkasan pesanan checkout. */
+.gd-cart-totals table tr.gd-promo-baris td {
+  padding: 14px 0 6px;
+  text-align: left;
+}
+
+.gd-promo-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.gd-promo-isian {
+  display: flex;
+  gap: 8px;
+}
+
+.gd-promo-isian input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid #d6d3d1;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gd-promo-isian input::placeholder {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.gd-promo-isian input:focus {
+  outline: 2px solid #feb046;
+  outline-offset: 1px;
+  border-color: #feb046;
+}
+
+.gd-promo-isian input.is-invalid {
+  border-color: #b3261e;
+}
+
+.gd-promo-isian .btn {
+  flex: 0 0 auto;
+  min-height: 46px;
+  padding: 0 22px;
+  margin: 0;
+}
+
+.gd-promo-terapan {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px dashed #006400;
+  border-radius: 12px;
+  background: #e8f2e8;
+  color: #004d00;
+  font-size: 15px;
+}
+
+.gd-promo-terapan small {
+  color: #3d5c3d;
+  font-weight: 400;
+}
+
+.gd-promo-lepas {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: #b3261e;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.gd-cart-totals table tr.gd-baris-diskon th,
+.gd-cart-totals table tr.gd-baris-diskon td {
+  color: #006400;
 }

@@ -5,11 +5,12 @@ import Footer from '../../components/fuzio/Footer';
 import Header from '../../components/fuzio/Header';
 import PageHeader from '../../components/fuzio/PageHeader';
 import ScrollToTop from '../../components/fuzio/elements/ScrollToTop';
+import GambarProduk from '../../components/fuzio/toko/GambarProduk';
 import PesanFlash from '../../components/fuzio/toko/PesanFlash';
 import { rupiah, type Keranjang } from '../../components/fuzio/toko/types';
 import { GD_CDN } from '../../data/greendeahan';
 
-type Kolom = 'customer_name' | 'phone' | 'email' | 'address' | 'wilayah_kode' | 'postal_code' | 'layanan';
+type Kolom = 'customer_name' | 'phone' | 'email' | 'address' | 'wilayah_kode' | 'postal_code' | 'layanan' | 'promo_code';
 
 interface OpsiKirim {
     kode: string;
@@ -214,6 +215,51 @@ function useOngkir(url: string, aktif: boolean, wilayahKode: string, kodepos: st
 }
 
 /**
+ * Promo code preview. Display only: the server checks the code again and
+ * recalculates the discount when the order is created.
+ */
+function usePromo(url: string, simpanKode: (kode: string) => void) {
+    const [kode, setKode] = useState('');
+    const [terapan, setTerapan] = useState<{ kode: string; diskon: number; ringkasan: string } | null>(null);
+    const [memuat, setMemuat] = useState(false);
+    const [galat, setGalat] = useState('');
+
+    const terapkan = async () => {
+        const nilai = kode.trim();
+        if (nilai === '') {
+            setGalat('Isi kode promo dulu.');
+            return;
+        }
+
+        setMemuat(true);
+        setGalat('');
+        try {
+            const respons = await fetch(`${url}?${new URLSearchParams({ kode: nilai })}`, { headers: { Accept: 'application/json' } });
+            const data = (await respons.json().catch(() => ({}))) as { kode?: string; diskon?: number; ringkasan?: string; message?: string };
+            if (!respons.ok || !data.kode) throw new Error(data.message ?? 'Kode promo belum bisa diperiksa, coba lagi.');
+
+            setTerapan({ kode: data.kode, diskon: data.diskon ?? 0, ringkasan: data.ringkasan ?? '' });
+            simpanKode(data.kode);
+            setKode('');
+        } catch (error) {
+            setTerapan(null);
+            simpanKode('');
+            setGalat(error instanceof Error ? error.message : 'Kode promo belum bisa diperiksa, coba lagi.');
+        } finally {
+            setMemuat(false);
+        }
+    };
+
+    const lepas = () => {
+        setTerapan(null);
+        setGalat('');
+        simpanKode('');
+    };
+
+    return { kode, setKode, terapan, memuat, galat, terapkan, lepas };
+}
+
+/**
  * /checkout: port of Fuzio's CheckoutSection. Delivery details on the left,
  * order summary and payment on the right. Only the address is sent: the
  * server recalculates every price, creates the order and sends the customer
@@ -225,14 +271,16 @@ export default function Checkout({
     wilayahTersedia,
     wilayahUrl,
     ongkirUrl,
+    promoUrl,
 }: {
     keranjang: Keranjang;
     sandbox: boolean;
     wilayahTersedia: boolean;
     wilayahUrl: string;
     ongkirUrl: string;
+    promoUrl: string;
 }) {
-    const form = useForm<Record<Kolom, string>>({ customer_name: '', phone: '', email: '', address: '', wilayah_kode: '', postal_code: '', layanan: '' });
+    const form = useForm<Record<Kolom, string>>({ customer_name: '', phone: '', email: '', address: '', wilayah_kode: '', postal_code: '', layanan: '', promo_code: '' });
     const [provinsi, setProvinsi] = useState('');
     const [kota, setKota] = useState('');
     const [kecamatan, setKecamatan] = useState('');
@@ -249,7 +297,9 @@ export default function Checkout({
     const ongkir = useOngkir(ongkirUrl, ongkirDinamis && wilayahTersedia, form.data.wilayah_kode, kodeposOtomatis || form.data.postal_code);
     const layananDipilih = ongkir.opsi.find((item) => item.kode === form.data.layanan);
     const ongkirTampil = ongkirDinamis ? (layananDipilih?.price ?? null) : keranjang.ongkir;
-    const total = keranjang.subtotal + (ongkirTampil ?? 0);
+    const promo = usePromo(promoUrl, (kode) => form.setData('promo_code', kode));
+    const diskon = promo.terapan?.diskon ?? 0;
+    const total = keranjang.subtotal - diskon + (ongkirTampil ?? 0);
 
     // A service that disappeared after the list refreshed (other address, courier changed) must be picked again.
     useEffect(() => {
@@ -515,21 +565,86 @@ export default function Checkout({
                                                 {keranjang.items.map((item) => (
                                                     <tr key={item.kunci} className="product-list">
                                                         <th>
-                                                            {item.name}
-                                                            {item.varian && ` (${item.varian})`}{' '}
-                                                            <span className="gd-qty-kecil">
-                                                                x {item.qty} {item.unit}
-                                                            </span>
+                                                            <div className="gd-ringkas-produk">
+                                                                <span className="gd-ringkas-thumb">
+                                                                    <GambarProduk src={item.imageUrl} alt={item.name} />
+                                                                </span>
+                                                                <span className="gd-ringkas-nama">
+                                                                    {item.name}
+                                                                    {item.varian && ` (${item.varian})`}{' '}
+                                                                    <span className="gd-qty-kecil">
+                                                                        x {item.qty} {item.unit}
+                                                                    </span>
+                                                                </span>
+                                                            </div>
                                                         </th>
                                                         <td>{rupiah(item.subtotal)}</td>
                                                     </tr>
                                                 ))}
+                                                <tr className="gd-promo-baris">
+                                                    <td colSpan={2}>
+                                                        {promo.terapan ? (
+                                                            <div className="gd-promo-terapan" role="status">
+                                                                <span>
+                                                                    <strong>{promo.terapan.kode}</strong> terpasang
+                                                                    {promo.terapan.ringkasan && <small className="d-block">{promo.terapan.ringkasan}</small>}
+                                                                </span>
+                                                                <button type="button" className="gd-promo-lepas" onClick={promo.lepas}>
+                                                                    Hapus
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <label htmlFor="kode-promo" className="gd-promo-label">
+                                                                    Punya kode promo?
+                                                                </label>
+                                                                <div className="gd-promo-isian">
+                                                                    <input
+                                                                        id="kode-promo"
+                                                                        type="text"
+                                                                        autoCapitalize="characters"
+                                                                        autoComplete="off"
+                                                                        maxLength={40}
+                                                                        placeholder="Masukkan kode"
+                                                                        value={promo.kode}
+                                                                        className={promo.galat || form.errors.promo_code ? 'is-invalid' : ''}
+                                                                        aria-invalid={Boolean(promo.galat || form.errors.promo_code)}
+                                                                        aria-describedby="kode-promo-galat"
+                                                                        onChange={(event) => promo.setKode(event.target.value.toUpperCase())}
+                                                                        onKeyDown={(event) => {
+                                                                            if (event.key === 'Enter') {
+                                                                                event.preventDefault();
+                                                                                void promo.terapkan();
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <button type="button" className="btn btn-primary" onClick={() => void promo.terapkan()} disabled={promo.memuat}>
+                                                                        {promo.memuat ? 'Memeriksa...' : 'Pakai'}
+                                                                    </button>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                        {(promo.galat || form.errors.promo_code) && (
+                                                            <div id="kode-promo-galat" className="galat" role="alert">
+                                                                {promo.galat || form.errors.promo_code}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                </tr>
                                                 <tr className="subtotal">
                                                     <th>Subtotal</th>
                                                     <td>
                                                         <span className="amount">{rupiah(keranjang.subtotal)}</span>
                                                     </td>
                                                 </tr>
+                                                {diskon > 0 && promo.terapan && (
+                                                    <tr className="gd-baris-diskon">
+                                                        <th>Diskon ({promo.terapan.kode})</th>
+                                                        <td>
+                                                            <span className="amount">-{rupiah(diskon)}</span>
+                                                        </td>
+                                                    </tr>
+                                                )}
                                                 <tr className="shipping-cost">
                                                     <th>Ongkir</th>
                                                     <td>

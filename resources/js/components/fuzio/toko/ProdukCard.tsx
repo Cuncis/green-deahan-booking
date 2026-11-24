@@ -80,7 +80,7 @@ export default function ProdukCard({ produk }: { produk: ProdukPublik }) {
                 <div className="price">
                     {hargaBeda && <small>mulai </small>}
                     {rupiah(hargaMulai)} <small>/{produk.unit}</small>
-                    {produk.comparePrice && !adaVarian && <del>{rupiah(produk.comparePrice)}</del>}
+                    {produk.comparePrice && produk.comparePrice > hargaMulai && <del>{rupiah(produk.comparePrice)}</del>}
                 </div>
                 {adaVarian ? (
                     <a href={tautan} className="btn btn-primary gd-tambah-kartu" aria-label={`Pilih ${(produk.variantLabel ?? 'varian').toLowerCase()} untuk ${produk.name}`}>
