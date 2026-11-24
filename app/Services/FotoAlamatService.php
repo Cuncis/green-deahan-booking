@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\PengaturanSitus;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -134,7 +135,39 @@ class FotoAlamatService
             }
         });
 
+        if ($jalankan && $hasil !== []) {
+            PengaturanSitus::lupakanCache();
+        }
+
         return $hasil;
+    }
+
+    /**
+     * Ganti alamat foto yang cocok persis (bukan awalan) dengan alamat barunya.
+     *
+     * @param  array<string, string>  $peta  alamat lama persis => alamat baru
+     * @return int jumlah baris yang diubah
+     */
+    public function gantiPersis(array $peta): int
+    {
+        $diubah = 0;
+
+        DB::transaction(function () use ($peta, &$diubah) {
+            foreach (self::KOLOM as $definisi) {
+                foreach ($this->nilai($definisi) as $baris) {
+                    if (isset($peta[(string) $baris->nilai])) {
+                        DB::table($definisi['tabel'])->where($definisi['kunci'], $baris->kunci)->update([$definisi['kolom'] => $peta[(string) $baris->nilai]]);
+                        $diubah++;
+                    }
+                }
+            }
+        });
+
+        if ($diubah > 0) {
+            PengaturanSitus::lupakanCache();
+        }
+
+        return $diubah;
     }
 
     /**

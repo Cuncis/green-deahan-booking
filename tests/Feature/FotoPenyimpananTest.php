@@ -291,4 +291,163 @@ class FotoPenyimpananTest extends TestCase
 
         $this->assertSame([], Storage::disk('public')->allFiles());
     }
+
+    // --- foto:pindah-ke-r2 ---
+
+    private function siapkanR2(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+        Storage::fake('s3', ['url' => 'https://foto.contoh.test']);
+        config(['filesystems.default' => 's3']);
+    }
+
+    public function test_pindah_ke_r2_menolak_kalau_r2_belum_aktif(): void
+    {
+        config(['filesystems.default' => 'public']);
+
+        $this->artisan('foto:pindah-ke-r2')->expectsOutputToContain('R2 belum aktif')->assertFailed();
+    }
+
+    public function test_pindah_ke_r2_menghitung_dulu_tanpa_mengubah_apa_pun(): void
+    {
+        $this->siapkanR2();
+        Storage::disk('public')->put('artikel/a.jpg', 'foto a');
+        Artikel::factory()->create(['foto_url' => 'https://greendeahan.com/storage/artikel/a.jpg']);
+
+        $this->artisan('foto:pindah-ke-r2')
+            ->expectsOutputToContain('Akan diunggah ke R2: 1')
+            ->expectsOutputToContain('Ini baru hitungan')
+            ->assertSuccessful();
+
+        Storage::disk('s3')->assertMissing('artikel/a.jpg');
+        $this->assertSame('https://greendeahan.com/storage/artikel/a.jpg', Artikel::first()->foto_url);
+    }
+
+    public function test_pindah_ke_r2_mengunggah_dari_public_dan_private_lalu_mengganti_alamat(): void
+    {
+        $this->siapkanR2();
+        Storage::disk('public')->put('artikel/a.jpg', 'foto a');
+        Storage::disk('local')->put('produk/b.jpg', 'foto b');
+        Artikel::factory()->create(['foto_url' => 'https://greendeahan.com/storage/artikel/a.jpg']);
+        $produk = Product::factory()->create(['image_path' => 'https://greendeahan.com/storage/produk/b.jpg']);
+        ProductImage::factory()->create(['product_id' => $produk->id, 'path' => '/storage/produk/b.jpg']);
+        GaleriItem::factory()->create(['foto_url' => 'https://cdn.libradigital.id/site-assets/interlock1.jpg']);
+        PengaturanSitus::create(['kunci' => 'og_image_url', 'nilai' => 'https://greendeahan.com/storage/artikel/a.jpg']);
+
+        $this->artisan('foto:pindah-ke-r2', ['--jalankan' => true])
+            ->expectsOutputToContain('Diunggah ke R2: 2')
+            ->expectsOutputToContain('4 alamat foto di database diganti ke R2')
+            ->assertSuccessful();
+
+        Storage::disk('s3')->assertExists('artikel/a.jpg');
+        $this->assertSame('foto b', Storage::disk('s3')->get('produk/b.jpg'));
+        $this->assertSame('https://foto.contoh.test/artikel/a.jpg', Artikel::first()->foto_url);
+        $this->assertSame('https://foto.contoh.test/produk/b.jpg', Product::first()->image_path);
+        $this->assertSame('https://foto.contoh.test/produk/b.jpg', ProductImage::first()->path);
+        $this->assertSame('https://foto.contoh.test/artikel/a.jpg', PengaturanSitus::find('og_image_url')->nilai);
+        $this->assertSame('https://cdn.libradigital.id/site-assets/interlock1.jpg', GaleriItem::first()->foto_url);
+        Storage::disk('public')->assertExists('artikel/a.jpg');
+    }
+
+    public function test_pindah_ke_r2_bisa_diulang_tanpa_mengunggah_dua_kali(): void
+    {
+        $this->siapkanR2();
+        Storage::disk('public')->put('artikel/a.jpg', 'foto a');
+        Artikel::factory()->create(['foto_url' => 'https://greendeahan.com/storage/artikel/a.jpg']);
+
+        $this->artisan('foto:pindah-ke-r2', ['--jalankan' => true])->assertSuccessful();
+        $this->artisan('foto:pindah-ke-r2', ['--jalankan' => true])->expectsOutputToContain('Foto di disk server yang dipakai database: 0')->assertSuccessful();
+    }
+
+    public function test_pindah_ke_r2_melaporkan_foto_hilang_dan_tidak_mengganti_alamatnya(): void
+    {
+        $this->siapkanR2();
+        Storage::disk('public')->put('artikel/ada.jpg', 'foto');
+        Artikel::factory()->create(['foto_url' => 'https://greendeahan.com/storage/artikel/ada.jpg']);
+        GaleriItem::factory()->create(['foto_url' => 'https://greendeahan.com/storage/galeri/hilang.jpg']);
+
+        $this->artisan('foto:pindah-ke-r2', ['--jalankan' => true])
+            ->expectsOutputToContain('Tidak ditemukan di disk server maupun R2 (1)')
+            ->expectsOutputToContain('galeri/hilang.jpg')
+            ->assertFailed();
+
+        $this->assertSame('https://foto.contoh.test/artikel/ada.jpg', Artikel::first()->foto_url);
+        $this->assertSame('https://greendeahan.com/storage/galeri/hilang.jpg', GaleriItem::first()->foto_url);
+    }
+
+    public function test_alamat_yang_sudah_di_r2_tapi_database_masih_lama_ikut_diganti(): void
+    {
+        $this->siapkanR2();
+        Storage::disk('s3')->put('artikel/a.jpg', 'sudah di r2');
+        Artikel::factory()->create(['foto_url' => 'https://greendeahan.com/storage/artikel/a.jpg']);
+
+        $this->artisan('foto:pindah-ke-r2', ['--jalankan' => true])->expectsOutputToContain('Sudah ada di R2: 1')->assertSuccessful();
+
+        $this->assertSame('https://foto.contoh.test/artikel/a.jpg', Artikel::first()->foto_url);
+    }
+
+    public function test_ganti_alamat_membuang_cache_pengaturan_situs(): void
+    {
+        PengaturanSitus::create(['kunci' => 'og_image_url', 'nilai' => 'https://lama.test/og.jpg']);
+        $this->assertSame('https://lama.test/og.jpg', PengaturanSitus::ambil('og_image_url'));
+
+        $this->artisan('foto:ganti-alamat', ['dari' => 'https://lama.test', 'ke' => 'https://baru.test', '--jalankan' => true])->assertSuccessful();
+
+        $this->assertSame('https://baru.test/og.jpg', PengaturanSitus::ambil('og_image_url'));
+    }
+
+    // --- Folder di dalam bucket (AWS_ROOT) ---
+
+    private function konfigurasiR2(string $root, string $url = 'https://cdn.libradigital.id'): void
+    {
+        config([
+            'app.url' => 'https://greendeahan.com',
+            'filesystems.default' => 's3',
+            'filesystems.disks.s3' => [
+                'driver' => 's3', 'key' => 'k', 'secret' => 's', 'region' => 'auto', 'bucket' => 'libra-digital',
+                'url' => $url, 'endpoint' => 'https://akun.r2.cloudflarestorage.com', 'use_path_style_endpoint' => true,
+                'root' => $root, 'throw' => false, 'report' => false,
+            ],
+        ]);
+        Storage::forgetDisk('s3');
+    }
+
+    public function test_alamat_foto_memuat_folder_bucket_dari_aws_root(): void
+    {
+        $this->konfigurasiR2('green-deahan');
+        $this->assertSame('https://cdn.libradigital.id/green-deahan/produk/a.jpg', Storage::disk('s3')->url('produk/a.jpg'));
+        $this->assertSame('https://cdn.libradigital.id/green-deahan/', Storage::disk('s3')->url(''));
+
+        $this->konfigurasiR2('');
+        $this->assertSame('https://cdn.libradigital.id/produk/a.jpg', Storage::disk('s3')->url('produk/a.jpg'));
+    }
+
+    public function test_aws_root_dibaca_dari_env_tanpa_garis_miring_di_pinggir(): void
+    {
+        $this->assertSame('', config('filesystems.disks.s3.root'));
+
+        $env = fn (string $nilai) => trim($nilai, '/');
+        $this->assertSame('green-deahan', $env('/green-deahan/'));
+        $this->assertSame('foto/green-deahan', $env('foto/green-deahan'));
+    }
+
+    public function test_periksa_menampilkan_folder_bucket_dan_menerima_konfigurasi_yang_benar(): void
+    {
+        $this->konfigurasiR2('green-deahan');
+
+        $this->artisan('foto:periksa', ['--tanpa-uji-tulis' => true])
+            ->expectsOutputToContain('Folder di bucket (AWS_ROOT): green-deahan')
+            ->expectsOutputToContain('Tidak ada masalah')
+            ->assertSuccessful();
+    }
+
+    public function test_periksa_memperingatkan_folder_ganda_kalau_aws_url_sudah_memuat_folder(): void
+    {
+        $this->konfigurasiR2('green-deahan', 'https://cdn.libradigital.id/green-deahan');
+
+        $this->artisan('foto:periksa', ['--tanpa-uji-tulis' => true])
+            ->expectsOutputToContain('alamat fotonya jadi ganda')
+            ->assertFailed();
+    }
 }

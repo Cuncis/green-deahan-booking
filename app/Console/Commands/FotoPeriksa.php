@@ -53,10 +53,12 @@ class FotoPeriksa extends Command
         $masalah = 0;
         $endpoint = (string) config('filesystems.disks.s3.endpoint');
         $url = (string) config('filesystems.disks.s3.url');
+        $root = trim((string) config('filesystems.disks.s3.root'), '/');
 
         $this->line('  Bucket: '.(config('filesystems.disks.s3.bucket') ?: '(kosong)'));
         $this->line('  Endpoint (AWS_ENDPOINT): '.($endpoint ?: '(kosong)'));
         $this->line('  Alamat publik (AWS_URL): '.($url ?: '(kosong)'));
+        $this->line('  Folder di bucket (AWS_ROOT): '.($root ?: '(bucket langsung)'));
 
         foreach ([
             'AWS_BUCKET belum diisi.' => ! config('filesystems.disks.s3.bucket'),
@@ -64,6 +66,7 @@ class FotoPeriksa extends Command
             'AWS_ENDPOINT belum diisi (untuk R2: https://<account_id>.r2.cloudflarestorage.com).' => $endpoint === '',
             'AWS_URL kosong: alamat foto akan dibangun dari endpoint R2, yang bukan alamat publik, jadi fotonya tidak tampil. Isi dengan domain publik bucket (r2.dev atau domain sendiri).' => $url === '',
             'AWS_URL memakai alamat API R2 (r2.cloudflarestorage.com) yang tidak publik. Pakai domain publik bucket (r2.dev atau domain sendiri).' => str_contains($url, 'r2.cloudflarestorage.com'),
+            "AWS_URL berakhir dengan folder {$root}, padahal folder itu sudah ditambahkan otomatis dari AWS_ROOT: alamat fotonya jadi ganda ({$root}/{$root}). Hapus folder dari AWS_URL." => $root !== '' && str_ends_with(rtrim($url, '/'), '/'.$root),
             'AWS_URL memakai http, padahal situs https: browser memblokir fotonya (mixed content).' => str_starts_with($url, 'http://') && str_starts_with((string) config('app.url'), 'https://'),
         ] as $pesan => $salah) {
             if ($salah) {

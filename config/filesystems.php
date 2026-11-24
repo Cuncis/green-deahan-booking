@@ -59,6 +59,9 @@ return [
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
+            // Folder di dalam bucket (mis. green-deahan). Semua file dan alamat fotonya
+            // otomatis diawali folder ini; AWS_URL tetap alamat publik bucket tanpa folder.
+            'root' => trim((string) env('AWS_ROOT', ''), '/'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
