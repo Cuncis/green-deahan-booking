@@ -1249,8 +1249,9 @@ form.form.checkout-form.gd-form-toko select:disabled {
 
   .gd-toko .product-details-tab .nav-tabs .nav-link {
     width: 100%;
-    padding: 10px 6px;
-    font-size: 0.9rem;
+    min-height: 44px;
+    padding: 8px 6px;
+    font-size: 1.1rem;
     white-space: nowrap;
     text-align: center;
   }
