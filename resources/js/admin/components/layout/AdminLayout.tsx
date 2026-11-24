@@ -222,6 +222,30 @@ function MenuAkun() {
     );
 }
 
+/** Live clock in the app timezone (WIB), ticking every second. */
+function JamSekarang() {
+    const [sekarang, setSekarang] = useState(() => new Date());
+
+    useEffect(() => {
+        const timer = window.setInterval(() => setSekarang(new Date()), 1000);
+
+        return () => window.clearInterval(timer);
+    }, []);
+
+    const zona = { timeZone: 'Asia/Jakarta' } as const;
+    const tanggal = new Intl.DateTimeFormat('id-ID', { ...zona, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(sekarang);
+    const jam = new Intl.DateTimeFormat('id-ID', { ...zona, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).format(sekarang).replace(/\./g, ':');
+
+    return (
+        <div className="flex flex-col items-end leading-tight" aria-label={`Waktu sekarang ${tanggal} ${jam} WIB`}>
+            <span className="font-mono text-sm font-semibold tabular-nums">
+                {jam} <span className="text-[0.65rem] font-medium text-muted-foreground">WIB</span>
+            </span>
+            <span className="hidden text-[0.7rem] text-muted-foreground sm:block">{tanggal}</span>
+        </div>
+    );
+}
+
 /** Superadmin bell: unread count, the latest notifications, and a link to open each one. */
 function Lonceng() {
     const { notifikasi } = usePage<SharedProps>().props;
@@ -347,6 +371,7 @@ export default function AdminLayout({ judul, deskripsi, aksi, children }: AdminL
                     </Button>
                     <div className="min-w-0 flex-1 truncate font-display text-base font-semibold md:hidden">{judul}</div>
                     <div className="hidden flex-1 md:block" />
+                    <JamSekarang />
                     <Lonceng />
                     <MenuAkun />
                 </header>
