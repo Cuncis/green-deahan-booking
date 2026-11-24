@@ -53,14 +53,6 @@ class PengaturanSitus extends Model
         return $hasil;
     }
 
-    /**
-     * Buang cache pengaturan setelah nilainya diubah di luar simpan() (mis. perintah artisan).
-     */
-    public static function lupakanCache(): void
-    {
-        Cache::forget(self::CACHE_KEY);
-    }
-
     public static function ambil(string $kunci): string
     {
         return self::semua()[$kunci] ?? '';
