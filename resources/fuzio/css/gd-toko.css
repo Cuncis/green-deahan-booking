@@ -1233,3 +1233,25 @@ form.form.checkout-form.gd-form-toko select:disabled {
     flex-basis: auto;
   }
 }
+
+/* Ponsel: tab Deskripsi / Info Tambahan sebaris dalam satu pil, bukan bertumpuk. */
+@media (max-width: 575px) {
+  .gd-toko .product-details-tab .nav-tabs {
+    flex-wrap: nowrap;
+    gap: 4px;
+    padding: 6px !important;
+  }
+
+  .gd-toko .product-details-tab .nav-tabs .nav-item {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .gd-toko .product-details-tab .nav-tabs .nav-link {
+    width: 100%;
+    padding: 10px 6px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    text-align: center;
+  }
+}
