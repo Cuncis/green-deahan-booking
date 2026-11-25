@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Services\ImporProdukHtmlService;
+use Database\Seeders\SupplierOutletSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -395,5 +396,39 @@ class ImporProdukHtmlTest extends TestCase
             ['jonas-knee-pad-knee-busa-classic-v2-black', 'jonas-knee-pad-knee-busa-classic-v2-black-2'],
             Product::orderBy('id')->pluck('slug')->all(),
         );
+    }
+
+    public function test_impor_memilih_outlet_dari_kota_dikirim_dari_bila_tunggal(): void
+    {
+        $this->seed(SupplierOutletSeeder::class);
+
+        $this->assertSame(92, Supplier::count());
+
+        $metro = Supplier::where('name', 'RANK Sports Kota Metro, Lampung')->first();
+        $this->assertSame('34111', $metro->origin_postal_code);
+        $this->assertSame($metro->id, Supplier::cocokDariImpor('Toko Lain', 'KOTA METRO')->id);
+        $this->assertSame(Supplier::where('name', 'RANK Sports Bekasi, Kota Bekasi')->first()->id, Supplier::cocokDariImpor(null, 'Kota Bekasi')->id);
+    }
+
+    public function test_impor_tidak_menebak_bila_kota_punya_banyak_outlet_atau_tak_dikenal(): void
+    {
+        $this->seed(SupplierOutletSeeder::class);
+
+        $this->assertNull(Supplier::cocokDariImpor(null, 'KOTA ADM. JAKARTA BARAT'));
+        $this->assertNull(Supplier::cocokDariImpor(null, 'Kota Antah Berantah'));
+        $this->assertNull(Supplier::cocokDariImpor(null, null));
+    }
+
+    public function test_seeder_outlet_aman_dijalankan_ulang_dan_tidak_menimpa_whatsapp(): void
+    {
+        $seeder = new SupplierOutletSeeder;
+        $seeder->run();
+        Supplier::where('name', 'RANK Sports Kota Metro, Lampung')->update(['whatsapp' => '08123456789']);
+        $seeder->run();
+
+        $this->assertSame(92, Supplier::count());
+        $this->assertSame('shopee', Supplier::where('name', 'RANK Sports Tegal, Jawa Tengah')->value('platform'));
+        $this->assertSame('6281279997779', Supplier::where('name', 'RANK Sports Tegal, Jawa Tengah')->value('whatsapp'));
+        $this->assertSame('08123456789', Supplier::where('name', 'RANK Sports Kota Metro, Lampung')->value('whatsapp'));
     }
 }

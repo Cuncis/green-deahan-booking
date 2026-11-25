@@ -76,9 +76,7 @@ class ProdukTokoController extends Controller
             return back()->withErrors(['html' => 'Nama produk tidak ditemukan. Pastikan yang ditempel adalah HTML halaman produk Shopee.']);
         }
 
-        $supplier = $hasil['namaSupplier']
-            ? Supplier::whereRaw('lower(name) = ?', [mb_strtolower($hasil['namaSupplier'])])->first(['id'])
-            : null;
+        $supplier = Supplier::cocokDariImpor($hasil['namaSupplier'], $hasil['dikirimDari']);
 
         return redirect()->route('superadmin.toko.produk.create')->with('impor', [
             ...$hasil,

@@ -278,13 +278,16 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
                             impor.kategori && 'kategori',
                             impor.gambarUrls.length > 0 && 'foto',
                             impor.linkSupplier && 'link supplier',
+                            impor.supplierId && 'supplier',
                             impor.hargaRetail && 'harga jual',
                             impor.hargaShopee && 'harga modal',
                         ]
                             .filter(Boolean)
                             .join(', ') || 'tidak ada'}
                         . Harga hanya saran dan bisa diubah, berat belum diisi. Produk dibuat Disembunyikan sampai Anda mengubahnya.
-                        {impor.namaSupplier && !impor.supplierId ? ` Supplier "${impor.namaSupplier}" belum ada di daftar supplier.` : ''}
+                        {!impor.supplierId && (impor.namaSupplier || impor.dikirimDari)
+                            ? ` Supplier belum terpilih otomatis${impor.dikirimDari ? ` (dikirim dari ${impor.dikirimDari})` : ''}, pilih manual di bagian Supplier.`
+                            : ''}
                     </p>
                 </div>
             )}
