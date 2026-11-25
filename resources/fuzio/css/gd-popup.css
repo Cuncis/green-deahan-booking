@@ -1,0 +1,100 @@
+/* Pop-up banner promo situs korporat (PopupBanner.tsx). */
+.gd-popup-latar {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(10, 20, 10, 0.62);
+  animation: gd-popup-masuk 0.25s ease-out;
+}
+
+.gd-popup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 480px);
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  border-radius: 20px;
+  background: #f5f5f5;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  animation: gd-popup-naik 0.3s ease-out;
+}
+
+.gd-popup > a {
+  display: block;
+  min-height: 0;
+}
+
+.gd-popup-gambar {
+  display: block;
+  width: 100%;
+  max-height: calc(100dvh - 140px);
+  object-fit: contain;
+  background: #f5f5f5;
+}
+
+.gd-popup-aksi {
+  padding: 14px 16px 16px;
+  text-align: center;
+}
+
+.gd-popup-aksi .btn {
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+}
+
+.gd-popup-aksi .btn:hover,
+.gd-popup-aksi .btn:focus-visible {
+  background: #feb046;
+  border-color: #feb046;
+  color: #1a1a1a;
+}
+
+.gd-popup-tutup {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  cursor: pointer;
+}
+
+.gd-popup-tutup:hover,
+.gd-popup-tutup:focus-visible {
+  background: #000;
+  outline: 2px solid #feb046;
+  outline-offset: 2px;
+}
+
+@keyframes gd-popup-masuk {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes gd-popup-naik {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-popup-latar,
+  .gd-popup {
+    animation: none;
+  }
+}

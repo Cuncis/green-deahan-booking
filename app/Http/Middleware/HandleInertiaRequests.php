@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\BannerPromo;
 use App\Services\KeranjangService;
 use App\Services\NavigasiAdminService;
 use Illuminate\Http\Request;
@@ -39,6 +40,30 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
+     * Banner pop-up yang sedang tayang untuk pengunjung situs korporat. `versi`
+     * berubah tiap banner diedit, supaya pengunjung yang sudah menutupnya melihat
+     * banner yang diperbarui.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function dataBannerPromo(): ?array
+    {
+        $banner = BannerPromo::yangTampil();
+
+        return $banner === null ? null : [
+            'id' => $banner->id,
+            'versi' => $banner->updated_at?->timestamp ?? 0,
+            'judul' => $banner->judul,
+            'fotoUrl' => $banner->foto_url,
+            'tautan' => $banner->tautan,
+            'labelTombol' => $banner->label_tombol ?: BannerPromo::LABEL_TOMBOL_BAWAAN,
+            'target' => $banner->target,
+            'frekuensi' => $banner->frekuensi,
+            'tundaDetik' => $banner->tunda_detik,
+        ];
+    }
+
+    /**
      * Define the props that are shared by default.
      *
      * @return array<string, mixed>
@@ -59,6 +84,8 @@ class HandleInertiaRequests extends Middleware
                 'maksQtyProduk' => (int) config('toko.maks_qty_per_produk'),
                 'tokoPublik' => (bool) config('toko.publik'),
                 'sistemBookingPublik' => (bool) config('situs.sistem_booking_publik'),
+                // Pop-up promo: null kalau tidak ada banner yang sedang tayang.
+                'bannerPromo' => fn () => $this->dataBannerPromo(),
                 'flash' => [
                     'success' => $request->session()->get('success'),
                     'error' => $request->session()->get('error'),

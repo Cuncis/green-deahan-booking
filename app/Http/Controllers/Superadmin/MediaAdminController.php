@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Artikel;
+use App\Models\BannerPromo;
 use App\Models\GaleriItem;
 use App\Models\Lapangan;
 use App\Models\Tenant;
@@ -108,7 +109,7 @@ class MediaAdminController extends Controller
 
         if ($this->pathDipakai()->has($path)) {
             return redirect()->back()
-                ->with('error', 'File ini masih dipakai di galeri, blog, lapangan, atau logo tenant. Ganti atau hapus dulu dari sana.');
+                ->with('error', 'File ini masih dipakai di galeri, banner promo, blog, lapangan, atau logo tenant. Ganti atau hapus dulu dari sana.');
         }
 
         $disk->delete($path);
@@ -157,6 +158,7 @@ class MediaAdminController extends Controller
     {
         $urls = collect()
             ->merge(GaleriItem::query()->pluck('foto_url'))
+            ->merge(BannerPromo::query()->pluck('foto_url'))
             ->merge(Artikel::query()->pluck('foto_url'))
             ->merge(Lapangan::withoutGlobalScopes()->pluck('foto_url'))
             ->merge(Tenant::query()->pluck('logo_url'))
