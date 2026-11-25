@@ -135,6 +135,23 @@ class RajaOngkirTest extends TestCase
             ->assertJsonPath('opsi.2.duration', '1 hari');
     }
 
+    public function test_layanan_kargo_dan_trucking_tidak_ditawarkan(): void
+    {
+        $this->fakeRajaOngkir(tarif: [
+            ['name' => 'Jalur Nugraha Ekakurir (JNE)', 'code' => 'jne', 'service' => 'REG', 'description' => 'Layanan Reguler', 'cost' => 11000, 'etd' => '2-3 day'],
+            ['name' => 'Jalur Nugraha Ekakurir (JNE)', 'code' => 'jne', 'service' => 'JTR', 'description' => 'JNE Trucking', 'cost' => 9000, 'etd' => '3-5 day'],
+            ['name' => 'Jalur Nugraha Ekakurir (JNE)', 'code' => 'jne', 'service' => 'JTR>130', 'description' => 'Trucking Berat', 'cost' => 8000, 'etd' => '3-5 day'],
+            ['name' => 'SiCepat Ekspres', 'code' => 'sicepat', 'service' => 'GOKIL', 'description' => 'Cargo', 'cost' => 7000, 'etd' => '3-5 day'],
+            ['name' => 'J&T Express', 'code' => 'jnt', 'service' => 'CARGO', 'description' => 'J&T Cargo', 'cost' => 6000, 'etd' => '3-5 day'],
+            ['name' => 'SiCepat Ekspres', 'code' => 'sicepat', 'service' => 'BEST', 'description' => 'Besok Sampai Tujuan', 'cost' => 32000, 'etd' => '1 day'],
+        ]);
+        $this->isiKeranjang($this->produk());
+
+        $kode = collect($this->ongkir()->assertOk()->json('opsi'))->pluck('kode')->all();
+
+        $this->assertSame(['jne:reg', 'sicepat:best'], $kode);
+    }
+
     public function test_permintaan_ke_rajaongkir_memakai_header_key_id_lokasi_dan_berat_total(): void
     {
         $this->fakeRajaOngkir();
@@ -326,12 +343,12 @@ class RajaOngkirTest extends TestCase
     public function test_kode_layanan_dengan_simbol_dinormalkan_ke_format_kurir_layanan(): void
     {
         $this->fakeRajaOngkir(tarif: [
-            ['name' => 'J&T', 'code' => 'jnt', 'service' => 'JTR>130', 'description' => '', 'cost' => 50000, 'etd' => '3-5 day'],
+            ['name' => 'J&T', 'code' => 'jnt', 'service' => 'SDS>1', 'description' => '', 'cost' => 50000, 'etd' => '3-5 day'],
             ['name' => 'JNE', 'code' => 'JNE', 'service' => 'YES', 'description' => 'Yakin Esok Sampai', 'cost' => 0, 'etd' => '1 day'],
         ]);
         $this->isiKeranjang($this->produk());
 
-        $this->ongkir()->assertOk()->assertJsonCount(1, 'opsi')->assertJsonPath('opsi.0.kode', 'jnt:jtr_130')->assertJsonPath('opsi.0.service_name', 'JTR>130');
+        $this->ongkir()->assertOk()->assertJsonCount(1, 'opsi')->assertJsonPath('opsi.0.kode', 'jnt:sds_1')->assertJsonPath('opsi.0.service_name', 'SDS>1');
     }
 
     public function test_checkout_memakai_layanan_rajaongkir_dan_menghitung_ulang_di_server(): void
