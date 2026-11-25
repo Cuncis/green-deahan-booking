@@ -9,12 +9,14 @@ use App\Models\GaleriItem;
 use App\Models\Lapangan;
 use App\Models\Tenant;
 use App\Services\FotoUploadService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,6 +31,13 @@ use Inertia\Response;
 class MediaAdminController extends Controller
 {
     private const PER_HALAMAN = 24;
+
+    private const PER_HALAMAN_PEMILIH = 18;
+
+    /**
+     * @var array<int, string>
+     */
+    private const EKSTENSI_PEMILIH = ['jpg', 'jpeg', 'png', 'webp'];
 
     /**
      * @var array<int, string>
@@ -76,6 +85,32 @@ class MediaAdminController extends Controller
             'totalMedia' => $semua->count(),
             'totalUkuran' => $semua->sum('ukuran'),
         ]);
+    }
+
+    /**
+     * Daftar gambar untuk pemilih media di form lain (JSON, per halaman, bisa dicari).
+     */
+    public function daftar(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->query(), ['q' => ['nullable', 'string', 'max:100'], 'page' => ['nullable', 'integer', 'min:1']]);
+        $keyword = Str::lower(trim((string) ($validator->fails() ? '' : $request->query('q'))));
+        $halaman = $validator->fails() ? 1 : max(1, (int) $request->query('page', 1));
+
+        // Hanya format yang boleh jadi gambar banner (bukan SVG, GIF, atau AVIF).
+        $disaring = $this->semuaMedia()
+            ->filter(fn (array $media) => in_array(Str::lower(pathinfo($media['path'], PATHINFO_EXTENSION)), self::EKSTENSI_PEMILIH, true))
+            ->when($keyword !== '', fn (Collection $c) => $c->filter(fn (array $media) => Str::contains(Str::lower($media['nama'].' '.$media['folder']), $keyword)))
+            ->values();
+
+        return response()->json([
+            'items' => $disaring->forPage($halaman, self::PER_HALAMAN_PEMILIH)->map(fn (array $media) => [
+                'path' => $media['path'],
+                'nama' => $media['nama'],
+                'folder' => $media['folder'],
+                'url' => $media['url'],
+            ])->values()->all(),
+            'adaLagi' => $disaring->count() > $halaman * self::PER_HALAMAN_PEMILIH,
+        ])->header('Cache-Control', 'private, no-store');
     }
 
     public function store(Request $request): RedirectResponse

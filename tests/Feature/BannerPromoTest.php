@@ -40,6 +40,7 @@ class BannerPromoTest extends TestCase
             'foto' => UploadedFile::fake()->image('promo.jpg', 800, 1000),
             'tautan' => '/toko',
             'label_tombol' => 'Belanja Sekarang',
+            'tampilkan_tombol' => 1,
             'target' => 'semua',
             'frekuensi' => 'sekali',
             'tunda_detik' => 3,
@@ -208,5 +209,168 @@ class BannerPromoTest extends TestCase
         $this->actingAs($biasa)->put("/superadmin/banner-promo/{$banner->id}", $this->data())->assertForbidden();
         $this->actingAs($biasa)->delete("/superadmin/banner-promo/{$banner->id}")->assertForbidden();
         $this->assertSame(1, BannerPromo::count());
+    }
+
+    private function fileMedia(string $nama = 'media/pilih.jpg'): string
+    {
+        Storage::disk('public')->putFileAs(dirname($nama), UploadedFile::fake()->image(basename($nama)), basename($nama));
+
+        return $nama;
+    }
+
+    public function test_banner_memakai_gambar_dari_pustaka_media_tanpa_upload(): void
+    {
+        Storage::fake('public');
+        $path = $this->fileMedia();
+
+        $this->actingAs($this->superadmin())->post('/superadmin/banner-promo', $this->data(['foto' => null, 'media_path' => $path]))->assertSessionHasNoErrors();
+
+        $banner = BannerPromo::firstOrFail();
+        $this->assertSame(asset('storage/'.$path), $banner->foto_url);
+        $this->assertSame([$path], Storage::disk('public')->allFiles('media'));
+        $this->assertCount(0, Storage::disk('public')->allFiles('banner'));
+    }
+
+    public function test_upload_dipakai_ketika_gambar_dan_pilihan_media_dikirim_bersamaan(): void
+    {
+        Storage::fake('public');
+        $path = $this->fileMedia();
+
+        $this->actingAs($this->superadmin())->post('/superadmin/banner-promo', $this->data(['media_path' => $path]))->assertSessionHasNoErrors();
+
+        $this->assertStringContainsString('/storage/banner/', BannerPromo::firstOrFail()->foto_url);
+    }
+
+    public function test_gambar_wajib_dari_salah_satu_sumber_saat_tambah(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->superadmin())->post('/superadmin/banner-promo', $this->data(['foto' => null]))->assertSessionHasErrors('foto');
+    }
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function mediaTidakValid(): array
+    {
+        return [
+            'tidak ada di disk' => ['media/hilang.jpg'],
+            'keluar folder' => ['../.env'],
+            'bukan format yang diizinkan' => ['media/logo.svg'],
+            'bukan gambar' => ['media/catatan.txt'],
+        ];
+    }
+
+    #[DataProvider('mediaTidakValid')]
+    public function test_media_path_tidak_valid_ditolak(string $path): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('media/logo.svg', '<svg/>');
+        Storage::disk('public')->put('media/catatan.txt', 'x');
+
+        $this->actingAs($this->superadmin())->post('/superadmin/banner-promo', $this->data(['foto' => null, 'media_path' => $path]))->assertSessionHasErrors('media_path');
+        $this->assertSame(0, BannerPromo::count());
+    }
+
+    public function test_mengganti_ke_gambar_media_menghapus_upload_lama_tapi_file_media_tidak_dihapus(): void
+    {
+        Storage::fake('public');
+        $admin = $this->superadmin();
+        $path = $this->fileMedia();
+        $this->actingAs($admin)->post('/superadmin/banner-promo', $this->data());
+        $banner = BannerPromo::firstOrFail();
+        $unggahan = basename($banner->foto_url);
+
+        $this->actingAs($admin)->put("/superadmin/banner-promo/{$banner->id}", $this->data(['foto' => null, 'media_path' => $path]))->assertSessionHasNoErrors();
+        Storage::disk('public')->assertMissing('banner/'.$unggahan);
+        $this->assertSame(asset('storage/'.$path), $banner->fresh()->foto_url);
+
+        $this->actingAs($admin)->put("/superadmin/banner-promo/{$banner->id}", $this->data(['foto' => UploadedFile::fake()->image('lagi.jpg')]))->assertSessionHasNoErrors();
+        Storage::disk('public')->assertExists($path);
+    }
+
+    public function test_menghapus_banner_tidak_menghapus_file_pustaka_media(): void
+    {
+        Storage::fake('public');
+        $path = $this->fileMedia();
+        $this->actingAs($admin = $this->superadmin())->post('/superadmin/banner-promo', $this->data(['foto' => null, 'media_path' => $path]));
+        $banner = BannerPromo::firstOrFail();
+
+        $this->actingAs($admin)->delete("/superadmin/banner-promo/{$banner->id}")->assertRedirect();
+
+        $this->assertDatabaseMissing('banner_promo', ['id' => $banner->id]);
+        Storage::disk('public')->assertExists($path);
+    }
+
+    public function test_file_banner_yang_dipakai_banner_lain_tidak_ikut_terhapus(): void
+    {
+        Storage::fake('public');
+        $admin = $this->superadmin();
+        $this->actingAs($admin)->post('/superadmin/banner-promo', $this->data());
+        $pertama = BannerPromo::firstOrFail();
+        $kedua = BannerPromo::factory()->create(['foto_url' => $pertama->foto_url]);
+
+        $this->actingAs($admin)->delete("/superadmin/banner-promo/{$pertama->id}")->assertRedirect();
+        Storage::disk('public')->assertExists('banner/'.basename($kedua->foto_url));
+
+        $this->actingAs($admin)->delete("/superadmin/banner-promo/{$kedua->id}")->assertRedirect();
+        Storage::disk('public')->assertMissing('banner/'.basename($kedua->foto_url));
+    }
+
+    public function test_daftar_media_untuk_pemilih_bisa_dicari_dan_dibagi_per_halaman(): void
+    {
+        Storage::fake('public');
+        $this->fileMedia('media/sepatu.jpg');
+        $this->fileMedia('galeri/lapangan.png');
+        foreach (range(1, 18) as $nomor) {
+            $this->fileMedia("media/foto-{$nomor}.jpg");
+        }
+        $admin = $this->superadmin();
+
+        $this->actingAs($admin)->getJson('/superadmin/media/daftar?q=sepatu')->assertOk()->assertJsonCount(1, 'items')->assertJsonPath('items.0.path', 'media/sepatu.jpg')->assertJsonPath('adaLagi', false);
+        $this->actingAs($admin)->getJson('/superadmin/media/daftar?q=galeri')->assertOk()->assertJsonPath('items.0.folder', 'galeri');
+        $this->actingAs($admin)->getJson('/superadmin/media/daftar')->assertOk()->assertJsonCount(18, 'items')->assertJsonPath('adaLagi', true);
+        $this->actingAs($admin)->getJson('/superadmin/media/daftar?page=2')->assertOk()->assertJsonCount(2, 'items')->assertJsonPath('adaLagi', false);
+    }
+
+    public function test_daftar_media_untuk_pemilih_hanya_memuat_format_yang_boleh_jadi_banner(): void
+    {
+        Storage::fake('public');
+        $this->fileMedia('media/bagus.webp');
+        Storage::disk('public')->put('media/vektor.svg', '<svg/>');
+        Storage::disk('public')->put('media/animasi.gif', 'GIF89a');
+
+        $this->actingAs($this->superadmin())->getJson('/superadmin/media/daftar')->assertOk()->assertJsonCount(1, 'items')->assertJsonPath('items.0.nama', 'bagus.webp')->assertJsonPath('adaLagi', false);
+    }
+
+    public function test_daftar_media_hanya_untuk_superadmin(): void
+    {
+        $this->getJson('/superadmin/media/daftar')->assertRedirect();
+        $this->actingAs(User::factory()->create())->getJson('/superadmin/media/daftar')->assertForbidden();
+    }
+
+    public function test_tombol_banner_opsional_dan_menyala_secara_bawaan(): void
+    {
+        $dengan = BannerPromo::factory()->create();
+        $this->get(self::SITUS.'/')->assertInertia(fn (Assert $page) => $page->where('bannerPromo.id', $dengan->id)->where('bannerPromo.tampilkanTombol', true)->where('bannerPromo.tautan', '/toko'));
+
+        $tanpa = BannerPromo::factory()->create(['tampilkan_tombol' => false]);
+        $this->get(self::SITUS.'/')->assertInertia(fn (Assert $page) => $page->where('bannerPromo.id', $tanpa->id)->where('bannerPromo.tampilkanTombol', false)->where('bannerPromo.tautan', '/toko'));
+    }
+
+    public function test_superadmin_mematikan_tombol_banner(): void
+    {
+        Storage::fake('public');
+        $admin = $this->superadmin();
+
+        $this->actingAs($admin)->post('/superadmin/banner-promo', $this->data(['tampilkan_tombol' => 0]))->assertSessionHasNoErrors();
+        $banner = BannerPromo::firstOrFail();
+        $this->assertFalse($banner->tampilkan_tombol);
+
+        $this->actingAs($admin)->put("/superadmin/banner-promo/{$banner->id}", $this->data(['foto' => null, 'tampilkan_tombol' => 1]))->assertSessionHasNoErrors();
+        $this->assertTrue($banner->fresh()->tampilkan_tombol);
+
+        $this->actingAs($admin)->get('/superadmin/banner-promo')->assertInertia(fn (Assert $page) => $page->where('banner.0.tampilkan_tombol', true));
+        $this->actingAs($admin)->post('/superadmin/banner-promo', $this->data(['tampilkan_tombol' => 'mungkin']))->assertSessionHasErrors('tampilkan_tombol');
     }
 }

@@ -205,6 +205,7 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
 
         // Pustaka media: semua aset gambar lintas tenant dan situs korporat.
         Route::get('/media', [MediaAdminController::class, 'index'])->name('media');
+        Route::get('/media/daftar', [MediaAdminController::class, 'daftar'])->name('media.daftar');
         Route::post('/media', [MediaAdminController::class, 'store'])->name('media.store');
         Route::delete('/media', [MediaAdminController::class, 'destroy'])->name('media.destroy');
 

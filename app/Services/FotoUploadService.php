@@ -51,6 +51,28 @@ class FotoUploadService
         return asset('storage/'.$path);
     }
 
+    /**
+     * Alamat publik file di disk upload (kebalikan dari pathDariUrl).
+     */
+    public static function urlDariPath(string $path): string
+    {
+        return self::namaDisk() === 's3' ? Storage::disk('s3')->url($path) : asset('storage/'.$path);
+    }
+
+    /**
+     * Path file di disk upload dari alamat publiknya, atau null kalau alamat itu bukan milik disk ini.
+     */
+    public static function pathDariUrl(?string $url): ?string
+    {
+        if (! $url) {
+            return null;
+        }
+
+        $path = self::namaDisk() === 's3' ? Str::after($url, Storage::disk('s3')->url('')) : Str::after($url, '/storage/');
+
+        return $path !== '' && $path !== $url ? $path : null;
+    }
+
     public function hapus(?string $url): void
     {
         if (! $url) {

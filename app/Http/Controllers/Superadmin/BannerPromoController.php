@@ -30,6 +30,7 @@ class BannerPromoController extends Controller
                 'fotoUrl' => $banner->foto_url,
                 'tautan' => $banner->tautan,
                 'label_tombol' => $banner->label_tombol,
+                'tampilkan_tombol' => $banner->tampilkan_tombol,
                 'mulai_pada' => $banner->mulai_pada?->format('Y-m-d\TH:i'),
                 'berakhir_pada' => $banner->berakhir_pada?->format('Y-m-d\TH:i'),
                 'target' => $banner->target,
@@ -44,8 +45,8 @@ class BannerPromoController extends Controller
 
     public function store(BannerPromoRequest $request): RedirectResponse
     {
-        $data = Arr::except($request->validated(), 'foto');
-        $data['foto_url'] = $this->foto->simpan($request->file('foto'), 'banner');
+        $data = Arr::except($request->validated(), ['foto', 'media_path']);
+        $data['foto_url'] = $this->fotoBaru($request);
 
         $banner = BannerPromo::create($data);
 
@@ -54,11 +55,15 @@ class BannerPromoController extends Controller
 
     public function update(BannerPromoRequest $request, BannerPromo $banner): RedirectResponse
     {
-        $data = Arr::except($request->validated(), 'foto');
+        $data = Arr::except($request->validated(), ['foto', 'media_path']);
 
-        if ($request->hasFile('foto')) {
-            $this->foto->hapus($banner->foto_url);
-            $data['foto_url'] = $this->foto->simpan($request->file('foto'), 'banner');
+        if ($request->hasFile('foto') || $request->filled('media_path')) {
+            $lama = $banner->foto_url;
+            $data['foto_url'] = $this->fotoBaru($request);
+
+            if ($data['foto_url'] !== $lama) {
+                $this->hapusFotoBanner($lama, $banner);
+            }
         }
 
         $banner->update($data);
@@ -69,9 +74,41 @@ class BannerPromoController extends Controller
     public function destroy(BannerPromo $banner): RedirectResponse
     {
         $judul = $banner->judul;
-        $this->foto->hapus($banner->foto_url);
         $banner->delete();
+        $this->hapusFotoBanner($banner->foto_url, $banner);
 
         return back()->with('success', "Banner \"{$judul}\" dihapus.");
+    }
+
+    /**
+     * Alamat gambar dari upload (disimpan di folder banner) atau dari file pustaka Media yang dipilih.
+     */
+    private function fotoBaru(BannerPromoRequest $request): string
+    {
+        if ($request->hasFile('foto')) {
+            return $this->foto->simpan($request->file('foto'), 'banner');
+        }
+
+        return FotoUploadService::urlDariPath((string) $request->input('media_path'));
+    }
+
+    /**
+     * Hanya file yang diupload lewat form banner (folder banner) yang ikut dihapus, dan hanya
+     * kalau tidak dipakai banner lain. File dari pustaka Media bisa dipakai galeri, blog, dan
+     * lainnya, jadi tidak pernah dihapus dari sini.
+     */
+    private function hapusFotoBanner(?string $url, BannerPromo $banner): void
+    {
+        $path = FotoUploadService::pathDariUrl($url);
+
+        if ($path === null || ! str_starts_with($path, 'banner/')) {
+            return;
+        }
+
+        if (BannerPromo::query()->where('foto_url', $url)->whereKeyNot($banner->getKey())->exists()) {
+            return;
+        }
+
+        $this->foto->hapus($url);
     }
 }

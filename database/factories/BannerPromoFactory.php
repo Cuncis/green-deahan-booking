@@ -20,6 +20,7 @@ class BannerPromoFactory extends Factory
             'foto_url' => 'http://greendeahan.com/storage/banner/contoh.jpg',
             'tautan' => '/toko',
             'label_tombol' => null,
+            'tampilkan_tombol' => true,
             'mulai_pada' => null,
             'berakhir_pada' => null,
             'target' => 'semua',

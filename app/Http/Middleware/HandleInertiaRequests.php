@@ -57,6 +57,7 @@ class HandleInertiaRequests extends Middleware
             'fotoUrl' => $banner->foto_url,
             'tautan' => $banner->tautan,
             'labelTombol' => $banner->label_tombol ?: BannerPromo::LABEL_TOMBOL_BAWAAN,
+            'tampilkanTombol' => $banner->tampilkan_tombol,
             'target' => $banner->target,
             'frekuensi' => $banner->frekuensi,
             'tundaDetik' => $banner->tunda_detik,

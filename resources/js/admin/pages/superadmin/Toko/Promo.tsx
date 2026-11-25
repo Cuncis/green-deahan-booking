@@ -131,7 +131,12 @@ export default function PromoPage({ promo }: { promo: Promo[] }) {
                                         <Pencil />
                                         Edit
                                     </Button>
-                                    <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setAkanDihapus(item)}>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                        onClick={() => setAkanDihapus(item)}
+                                    >
                                         <Trash2 />
                                         Hapus
                                     </Button>

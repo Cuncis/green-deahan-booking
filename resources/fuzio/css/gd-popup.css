@@ -15,13 +15,18 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(100%, 480px);
+  width: fit-content;
+  max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 32px);
   overflow: hidden;
   border-radius: 20px;
   background: #f5f5f5;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
   animation: gd-popup-naik 0.3s ease-out;
+}
+
+.gd-popup:focus {
+  outline: none;
 }
 
 .gd-popup > a {
@@ -31,10 +36,11 @@
 
 .gd-popup-gambar {
   display: block;
-  width: 100%;
+  /* Gambar memenuhi seluruh lebar kotak (tanpa pinggiran putih); kotak mengikuti lebar gambar. */
+  width: min(480px, calc(100vw - 32px));
+  height: auto;
   max-height: calc(100dvh - 140px);
-  object-fit: contain;
-  background: #f5f5f5;
+  object-fit: cover;
 }
 
 .gd-popup-aksi {
@@ -57,8 +63,8 @@
 
 .gd-popup-tutup {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -67,16 +73,30 @@
   height: 44px;
   border: 0;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.62);
-  color: #fff;
+  background: transparent;
+  color: rgba(26, 26, 26, 0.55);
   cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.gd-popup-tutup:hover,
+/* Lingkaran putih tipis di balik ikon supaya tetap terbaca di atas gambar gelap maupun terang. */
+.gd-popup-tutup::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  z-index: -1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.gd-popup-tutup:hover {
+  color: #1a1a1a;
+}
+
 .gd-popup-tutup:focus-visible {
-  background: #000;
-  outline: 2px solid #feb046;
-  outline-offset: 2px;
+  outline: 2px solid #006400;
+  outline-offset: -2px;
+  color: #1a1a1a;
 }
 
 @keyframes gd-popup-masuk {

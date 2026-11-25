@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
     'foto_url',
     'tautan',
     'label_tombol',
+    'tampilkan_tombol',
     'mulai_pada',
     'berakhir_pada',
     'target',
@@ -47,6 +48,7 @@ class BannerPromo extends Model
         return [
             'mulai_pada' => 'datetime',
             'berakhir_pada' => 'datetime',
+            'tampilkan_tombol' => 'boolean',
             'tunda_detik' => 'integer',
             'status_aktif' => 'boolean',
         ];
