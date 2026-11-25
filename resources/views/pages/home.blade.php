@@ -357,8 +357,8 @@
 
                     <div class="reveal space-y-5">
                         <img
-                            src="https://cdn.libradigital.id/site-assets/hero-img2.png"
-                            alt="Tim Green Deahan Sedang Bekerja"
+                            src="https://cdn.libradigital.id/site-assets/office2026.png"
+                            alt="Kantor Green Deahan Sport"
                             class="aspect-[4/3] w-full rounded-2xl border border-stone-200 object-cover"
                         />
                         <div class="rounded-2xl border border-stone-200 bg-[#f5f5f5] p-5">

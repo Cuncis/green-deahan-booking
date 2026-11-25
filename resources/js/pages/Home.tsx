@@ -24,7 +24,7 @@ export default function Home() {
             <CtaSec />
             <ProductsSec />
             <KalkulatorSec />
-            <TestimonialSec title="Apa Kata Klien Kami?" testimonials={gdTestimonials} media={`${GD_CDN}/hero-img2.png`} mediaAlt="Tim Green Deahan sedang bekerja" />
+            <TestimonialSec title="Apa Kata Klien Kami?" testimonials={gdTestimonials} media={`${GD_CDN}/office2026.png`} mediaAlt="Kantor Green Deahan Sport" />
             <BlogSec />
             <Footer />
             <ScrollToTop />
