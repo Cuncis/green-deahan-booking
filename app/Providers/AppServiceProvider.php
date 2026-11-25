@@ -70,6 +70,9 @@ class AppServiceProvider extends ServiceProvider
         // Tarif ongkir memanggil API Biteship: batasi per IP.
         RateLimiter::for('ongkir-toko', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
 
+        // Menebak kode promo: ketat supaya kode tidak bisa dicari dengan coba-coba.
+        RateLimiter::for('promo-toko', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+
         RateLimiter::for('checkout-toko', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
 
         RateLimiter::for('booking-store', fn (Request $request) => Limit::perMinute(5)

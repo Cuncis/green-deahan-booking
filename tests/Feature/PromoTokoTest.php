@@ -105,9 +105,9 @@ class PromoTokoTest extends TestCase
     public static function promoTidakValid(): array
     {
         return [
-            'nonaktif' => [['is_active' => false], 'tidak ditemukan atau sudah tidak aktif'],
-            'belum mulai' => [['starts_on' => '2099-01-01'], 'belum berlaku'],
-            'sudah berakhir' => [['ends_on' => '2020-01-01'], 'sudah berakhir'],
+            'nonaktif' => [['is_active' => false], 'tidak ditemukan atau sudah tidak berlaku'],
+            'belum mulai' => [['starts_on' => '2099-01-01'], 'tidak ditemukan atau sudah tidak berlaku'],
+            'sudah berakhir' => [['ends_on' => '2020-01-01'], 'tidak ditemukan atau sudah tidak berlaku'],
             'di bawah minimal belanja' => [['min_subtotal' => 500000], 'minimal Rp500.000'],
         ];
     }
@@ -259,5 +259,83 @@ class PromoTokoTest extends TestCase
         $this->actingAs(User::factory()->create())->get('/superadmin/toko/promo')->assertForbidden();
         $this->actingAs(User::factory()->create())->post('/superadmin/toko/promo', ['code' => 'X', 'type' => 'percent', 'value' => 10, 'is_active' => true])->assertForbidden();
         $this->assertSame(0, PromoCode::count());
+    }
+
+    public function test_promo_yang_berakhir_hari_ini_masih_berlaku_dan_pesan_kode_tidak_membedakan_sebabnya(): void
+    {
+        PromoCode::factory()->create(['code' => 'HARIINI', 'ends_on' => now()->toDateString()]);
+        PromoCode::factory()->create(['code' => 'KEMARIN', 'ends_on' => now()->subDay()->toDateString()]);
+        $this->isiKeranjang();
+
+        $this->getJson(self::SITUS.'/checkout/promo?kode=HARIINI')->assertOk();
+
+        $pesanKemarin = $this->getJson(self::SITUS.'/checkout/promo?kode=KEMARIN')->assertStatus(422)->json('message');
+        $pesanAsing = $this->getJson(self::SITUS.'/checkout/promo?kode=TAKADA')->assertStatus(422)->json('message');
+        $this->assertSame($pesanAsing, $pesanKemarin);
+    }
+
+    public function test_pratinjau_dengan_keranjang_kosong_ditolak(): void
+    {
+        PromoCode::factory()->create(['code' => 'ADA', 'min_subtotal' => 500000]);
+
+        $this->getJson(self::SITUS.'/checkout/promo?kode=ADA')->assertStatus(422)->assertJsonPath('message', 'Keranjang kosong.');
+    }
+
+    public function test_pratinjau_dibatasi_sepuluh_percobaan_per_menit(): void
+    {
+        $this->isiKeranjang();
+
+        foreach (range(1, 10) as $ke) {
+            $this->getJson(self::SITUS.'/checkout/promo?kode=TAKADA')->assertStatus(422);
+        }
+
+        $this->getJson(self::SITUS.'/checkout/promo?kode=TAKADA')->assertStatus(429);
+    }
+
+    public function test_diskon_persen_dibulatkan_ke_bawah_dan_seratus_persen_menyisakan_batas_minimal(): void
+    {
+        PromoCode::factory()->create(['code' => 'TIGA', 'value' => 3]);
+        PromoCode::factory()->create(['code' => 'PENUH', 'value' => 100]);
+        $this->isiKeranjang(33333, 1);
+
+        $this->getJson(self::SITUS.'/checkout/promo?kode=TIGA')->assertOk()->assertJsonPath('diskon', 999);
+        $this->getJson(self::SITUS.'/checkout/promo?kode=PENUH')->assertOk()->assertJsonPath('diskon', 33333 - 1000);
+    }
+
+    public function test_kode_tidak_bisa_diganti_saat_edit_supaya_kuota_tidak_terisi_ulang(): void
+    {
+        $admin = $this->superadmin();
+        $promo = PromoCode::factory()->create(['code' => 'ASLI', 'quota' => 5]);
+        Order::factory()->create(['promo_code' => 'ASLI', 'discount' => 1000]);
+
+        $this->actingAs($admin)->put("/superadmin/toko/promo/{$promo->id}", ['code' => 'GANTI', 'type' => 'percent', 'value' => 20, 'quota' => 5, 'is_active' => true])->assertSessionHasNoErrors();
+
+        $promo->refresh();
+        $this->assertSame('ASLI', $promo->code);
+        $this->assertSame(20, $promo->value);
+        $this->actingAs($admin)->get('/superadmin/toko/promo')->assertInertia(fn (Assert $page) => $page->where('promo.0.terpakai', 1));
+    }
+
+    public function test_daftar_admin_menghitung_pemakaian_hanya_dari_pesanan_yang_masih_hidup(): void
+    {
+        PromoCode::factory()->create(['code' => 'RAMAI']);
+        Order::factory()->create(['promo_code' => 'RAMAI', 'status' => OrderStatus::Paid]);
+        Order::factory()->create(['promo_code' => 'RAMAI', 'status' => OrderStatus::PendingPayment]);
+        Order::factory()->create(['promo_code' => 'RAMAI', 'status' => OrderStatus::Cancelled]);
+        Order::factory()->create(['promo_code' => 'RAMAI', 'status' => OrderStatus::Expired]);
+        Order::factory()->create(['promo_code' => null]);
+
+        $this->actingAs($this->superadmin())->get('/superadmin/toko/promo')->assertInertia(fn (Assert $page) => $page->where('promo.0.terpakai', 2));
+    }
+
+    public function test_bukan_superadmin_tidak_bisa_mengubah_atau_menghapus_promo(): void
+    {
+        $promo = PromoCode::factory()->create(['code' => 'AMAN']);
+        $biasa = User::factory()->create();
+
+        $this->actingAs($biasa)->put("/superadmin/toko/promo/{$promo->id}", ['type' => 'percent', 'value' => 99, 'is_active' => true])->assertForbidden();
+        $this->actingAs($biasa)->delete("/superadmin/toko/promo/{$promo->id}")->assertForbidden();
+
+        $this->assertSame(10, $promo->fresh()->value);
     }
 }

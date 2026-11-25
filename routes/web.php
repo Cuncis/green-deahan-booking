@@ -16,6 +16,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SistemBookingController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Superadmin\ArtikelAdminController;
+use App\Http\Controllers\Superadmin\BannerPromoController;
 use App\Http\Controllers\Superadmin\GaleriAdminController;
 use App\Http\Controllers\Superadmin\LogErrorController;
 use App\Http\Controllers\Superadmin\MediaAdminController;
@@ -117,7 +118,7 @@ $situsKorporat = function () {
     // Toko online (dropship), lihat App\Http\Controllers\Toko. Keranjang di
     // session, harga selalu dihitung ulang di server, bayar lewat Mayar.
     Route::get('/checkout/ongkir', [CheckoutController::class, 'ongkir'])->middleware('throttle:ongkir-toko')->name('checkout.ongkir');
-    Route::get('/checkout/promo', [CheckoutController::class, 'promo'])->middleware('throttle:30,1')->name('checkout.promo');
+    Route::get('/checkout/promo', [CheckoutController::class, 'promo'])->middleware('throttle:promo-toko')->name('checkout.promo');
     Route::get('/wilayah', [WilayahController::class, 'index'])->middleware('throttle:120,1')->name('wilayah');
     Route::get('/toko', [TokoController::class, 'index'])->name('toko');
     Route::get('/toko/{slug}', [TokoController::class, 'show'])->name('toko.produk');
@@ -195,6 +196,12 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
         Route::get('/galeri/{galeri}/edit', [GaleriAdminController::class, 'edit'])->name('galeri.edit');
         Route::put('/galeri/{galeri}', [GaleriAdminController::class, 'update'])->name('galeri.update');
         Route::delete('/galeri/{galeri}', [GaleriAdminController::class, 'destroy'])->name('galeri.destroy');
+
+        // Banner pop-up promo situs korporat.
+        Route::get('/banner-promo', [BannerPromoController::class, 'index'])->name('banner');
+        Route::post('/banner-promo', [BannerPromoController::class, 'store'])->name('banner.store');
+        Route::put('/banner-promo/{banner}', [BannerPromoController::class, 'update'])->name('banner.update');
+        Route::delete('/banner-promo/{banner}', [BannerPromoController::class, 'destroy'])->name('banner.destroy');
 
         // Pustaka media: semua aset gambar lintas tenant dan situs korporat.
         Route::get('/media', [MediaAdminController::class, 'index'])->name('media');

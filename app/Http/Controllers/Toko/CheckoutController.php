@@ -130,7 +130,13 @@ class CheckoutController extends Controller
             return response()->json(['message' => $validator->errors()->first('kode')], 422);
         }
 
-        $subtotal = (int) $this->keranjang->isi()->sum(fn (array $baris) => $baris['harga'] * $baris['qty']);
+        $isi = $this->keranjang->isi();
+
+        if ($isi->isEmpty()) {
+            return response()->json(['message' => 'Keranjang kosong.'], 422);
+        }
+
+        $subtotal = (int) $isi->sum(fn (array $baris) => $baris['harga'] * $baris['qty']);
 
         try {
             ['promo' => $promo, 'diskon' => $diskon] = $this->promo->periksa((string) $request->query('kode'), $subtotal);
@@ -149,10 +155,12 @@ class CheckoutController extends Controller
             return redirect()->to(url('/keranjang'))->with('error', 'Keranjang kosong atau produknya sudah tidak tersedia.');
         }
 
-        // Harga, modal, dan total dihitung ulang dari database di sini.
-        $order = DB::transaction(function () use ($request, $isi) {
+        // Harga, modal, dan total dihitung ulang dari database di sini. Data alamat dicari dulu
+        // di luar transaksi supaya kunci baris promo tidak ditahan selama query wilayah.
+        $data = $request->dataPesanan();
+
+        $order = DB::transaction(function () use ($request, $isi, $data) {
             $subtotal = (int) $isi->sum(fn (array $baris) => $baris['harga'] * $baris['qty']);
-            $data = $request->dataPesanan();
             // Ongkir dari layanan kurir yang dihitung ulang di server; ongkir flat kalau Biteship belum aktif.
             $ongkir = (int) ($data['shipping_cost'] ?? config('toko.ongkir_flat'));
 

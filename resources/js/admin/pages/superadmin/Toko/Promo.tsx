@@ -149,13 +149,20 @@ export default function PromoPage({ promo }: { promo: Promo[] }) {
                             <DialogTitle>{diedit === 'baru' ? 'Tambah Kode Promo' : 'Edit Kode Promo'}</DialogTitle>
                             <DialogDescription>Potongan hanya untuk harga barang, ongkir tidak ikut dipotong.</DialogDescription>
                         </DialogHeader>
-                        <Field id="promo-kode" label="Kode" error={form.errors.code} hint="Huruf besar dan angka tanpa spasi, misal HEMAT10." wajib>
+                        <Field
+                            id="promo-kode"
+                            label="Kode"
+                            error={form.errors.code}
+                            hint={diedit === 'baru' ? 'Huruf besar dan angka tanpa spasi, misal HEMAT10.' : 'Kode tidak bisa diganti. Buat kode baru kalau perlu kode lain.'}
+                            wajib
+                        >
                             <Input
                                 id="promo-kode"
                                 value={String(form.data.code)}
                                 onChange={(event) => form.setData('code', event.target.value.toUpperCase().replace(/\s/g, ''))}
                                 maxLength={40}
                                 autoCapitalize="characters"
+                                readOnly={diedit !== 'baru'}
                                 required
                             />
                         </Field>

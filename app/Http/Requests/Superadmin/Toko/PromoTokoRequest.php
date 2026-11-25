@@ -26,11 +26,14 @@ class PromoTokoRequest extends FormRequest
         $tipe = $this->input('type');
 
         return [
-            'code' => ['required', 'string', 'min:3', 'max:40', 'regex:/^[A-Z0-9_-]+$/', Rule::unique('promo_codes', 'code')->ignore($this->route('promo'))],
+            // Saat edit, kode lama dipertahankan (lihat PromoTokoController::update), jadi hanya dicek pada pembuatan.
+            'code' => $this->route('promo') === null
+                ? ['required', 'string', 'min:3', 'max:40', 'regex:/^[A-Z0-9_-]+$/', Rule::unique('promo_codes', 'code')]
+                : ['nullable', 'string', 'max:40'],
             'description' => ['nullable', 'string', 'max:150'],
             'type' => ['required', Rule::in(PromoCode::TIPE)],
             'value' => ['required', 'integer', 'min:1', $tipe === PromoCode::PERCENT ? 'max:100' : 'max:100000000'],
-            'max_discount' => ['nullable', 'integer', 'min:1', 'max:100000000'],
+            'max_discount' => ['exclude_unless:type,percent', 'nullable', 'integer', 'min:1', 'max:100000000'],
             'min_subtotal' => ['nullable', 'integer', 'min:0', 'max:1000000000'],
             'quota' => ['nullable', 'integer', 'min:1', 'max:1000000'],
             'starts_on' => ['nullable', 'date'],

@@ -18,6 +18,8 @@ class PromoTokoService
     /** Subtotal setelah diskon tidak boleh kurang dari ini, supaya tagihan tidak nol. */
     public const SISA_MINIMAL = 1000;
 
+    public const PESAN_TIDAK_BERLAKU = 'Kode promo tidak ditemukan atau sudah tidak berlaku.';
+
     /**
      * @return array{promo: PromoCode, diskon: int}
      *
@@ -57,22 +59,36 @@ class PromoTokoService
     }
 
     /**
+     * Jumlah pemakaian semua kode sekaligus (satu query), untuk daftar admin.
+     *
+     * @return array<string, int>
+     */
+    public function terpakaiSemua(): array
+    {
+        return Order::query()
+            ->whereNotNull('promo_code')
+            ->whereNotIn('status', [OrderStatus::Cancelled, OrderStatus::Expired])
+            ->selectRaw('promo_code, count(*) as jumlah')
+            ->groupBy('promo_code')
+            ->pluck('jumlah', 'promo_code')
+            ->map(fn ($jumlah) => (int) $jumlah)
+            ->all();
+    }
+
+    /**
      * @return array{promo: PromoCode, diskon: int}
      */
     private function terapkan(?PromoCode $promo, int $subtotal): array
     {
-        if ($promo === null || ! $promo->is_active) {
-            throw new PromoTokoException('Kode promo tidak ditemukan atau sudah tidak aktif.');
-        }
-
         $hariIni = now()->startOfDay();
 
-        if ($promo->starts_on !== null && $hariIni->lt($promo->starts_on)) {
-            throw new PromoTokoException('Kode promo ini belum berlaku, mulai '.$promo->starts_on->translatedFormat('j F Y').'.');
-        }
-
-        if ($promo->ends_on !== null && $hariIni->gt($promo->ends_on)) {
-            throw new PromoTokoException('Kode promo ini sudah berakhir.');
+        // Satu pesan untuk semua sebab "kode ini tidak bisa dipakai sekarang", supaya
+        // tebakan kode tidak membocorkan mana yang ada, kedaluwarsa, atau belum mulai.
+        if ($promo === null
+            || ! $promo->is_active
+            || ($promo->starts_on !== null && $hariIni->lt($promo->starts_on))
+            || ($promo->ends_on !== null && $hariIni->gt($promo->ends_on))) {
+            throw new PromoTokoException(self::PESAN_TIDAK_BERLAKU);
         }
 
         if ($subtotal < $promo->min_subtotal) {

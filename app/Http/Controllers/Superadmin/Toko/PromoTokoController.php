@@ -7,6 +7,7 @@ use App\Http\Requests\Superadmin\Toko\PromoTokoRequest;
 use App\Models\PromoCode;
 use App\Services\PromoTokoService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,6 +18,8 @@ class PromoTokoController extends Controller
 {
     public function index(PromoTokoService $layanan): Response
     {
+        $terpakai = $layanan->terpakaiSemua();
+
         return Inertia::render('superadmin/Toko/Promo', [
             'promo' => PromoCode::query()->latest('id')->get()->map(fn (PromoCode $promo) => [
                 'id' => $promo->id,
@@ -30,7 +33,7 @@ class PromoTokoController extends Controller
                 'starts_on' => $promo->starts_on?->toDateString(),
                 'ends_on' => $promo->ends_on?->toDateString(),
                 'is_active' => $promo->is_active,
-                'terpakai' => $layanan->terpakai($promo),
+                'terpakai' => $terpakai[$promo->code] ?? 0,
                 'ringkasan' => $promo->ringkasan(),
             ])->all(),
         ]);
@@ -45,7 +48,8 @@ class PromoTokoController extends Controller
 
     public function update(PromoTokoRequest $request, PromoCode $promo): RedirectResponse
     {
-        $promo->update($request->dataPromo());
+        // Kode tidak bisa diganti: pemakaian dihitung per kode di pesanan, jadi mengganti kode akan mengosongkan kuota.
+        $promo->update(Arr::except($request->dataPromo(), 'code'));
 
         return back()->with('success', "Kode promo {$promo->code} diperbarui.");
     }
