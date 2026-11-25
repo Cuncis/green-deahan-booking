@@ -129,7 +129,7 @@ export default function PopupBanner() {
                 )}
                 {bannerPromo.tautan && bannerPromo.tampilkanTombol && (
                     <div className="gd-popup-aksi">
-                        <a href={bannerPromo.tautan} className="btn btn-primary" onClick={() => setTerbuka(false)} {...tautanProps}>
+                        <a href={bannerPromo.tautan} className="btn btn-primary btn-cta" onClick={() => setTerbuka(false)} {...tautanProps}>
                             {bannerPromo.labelTombol}
                         </a>
                     </div>

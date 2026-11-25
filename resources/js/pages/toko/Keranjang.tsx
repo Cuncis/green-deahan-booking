@@ -160,7 +160,7 @@ export default function Keranjang({ keranjang, maksQty }: { keranjang: DataKeran
                                         </tbody>
                                     </table>
                                     <div className="text-center mt-4">
-                                        <a href="/checkout" className="btn btn-primary d-block">
+                                        <a href="/checkout" className="btn btn-primary btn-cta d-block">
                                             Lanjut ke Checkout
                                         </a>
                                     </div>

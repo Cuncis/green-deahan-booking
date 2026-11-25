@@ -170,7 +170,7 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                                         <button type="button" className="btn gd-btn-keranjang" onClick={() => tambah(false)} disabled={memproses !== null || perluPilih}>
                                             {memproses === 'keranjang' ? 'Menambahkan...' : 'Tambah ke Keranjang'}
                                         </button>
-                                        <button type="button" className="btn btn-primary" onClick={() => tambah(true)} disabled={memproses !== null || perluPilih}>
+                                        <button type="button" className="btn btn-primary btn-cta" onClick={() => tambah(true)} disabled={memproses !== null || perluPilih}>
                                             {memproses === 'beli' ? 'Memproses...' : 'Beli Sekarang'}
                                         </button>
                                     </div>

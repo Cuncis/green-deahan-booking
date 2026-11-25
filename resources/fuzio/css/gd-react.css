@@ -140,7 +140,7 @@ header.header .top-bar .top-meta {
 .contact2-sec .contact-form {
   background-color: #f5f5f5;
   border: 1px solid #e7e5e4;
-  border-radius: 24px;
+  border-radius: var(--gd-r-kartu);
   box-shadow: 0 12px 32px rgba(0, 77, 0, 0.06);
   padding: 40px 40px 36px;
 }
@@ -161,7 +161,7 @@ header.header .top-bar .top-meta {
 @media (max-width: 575.98px) {
   .contact2-sec .contact-form {
     padding: 24px 16px 20px;
-    border-radius: 20px;
+    border-radius: var(--gd-r-kartu);
   }
 }
 
@@ -250,7 +250,7 @@ header.header .top-bar a,
   .feature-sec .feature-entry {
     background-color: #fafafa;
     border: 1px solid #dfeedf;
-    border-radius: 16px;
+    border-radius: var(--gd-r-kartu);
     padding: 28px 24px;
     margin-bottom: 16px;
   }
@@ -390,7 +390,7 @@ button.gd-dd-toggle:hover {
   list-style: none;
   background-color: #fafafa;
   border: 1px solid #e7e5e4;
-  border-radius: 18px;
+  border-radius: var(--gd-r-kartu);
   box-shadow: 0 16px 36px rgba(0, 40, 0, 0.18);
   animation: gdDropdownIn 0.14s ease-out;
 }
@@ -402,7 +402,7 @@ button.gd-dd-toggle:hover {
   gap: 12px;
   min-height: 44px;
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: var(--gd-r-kontrol);
   color: var(--headings-color);
   font-size: 16px;
   line-height: 1.3;
@@ -456,12 +456,12 @@ button.gd-dd-toggle:hover {
 
 .gd-form .form-control:not(textarea) {
   height: 60px;
-  border-radius: 32px;
+  border-radius: var(--gd-r-kontrol);
 }
 
 .gd-form textarea.form-control {
   padding: 16px 20px;
-  border-radius: 24px;
+  border-radius: var(--gd-r-kontrol);
   resize: vertical;
 }
 
@@ -517,7 +517,7 @@ button.gd-dd-toggle:hover {
 .gd-tip {
   background-color: #fafafa;
   border: 1px solid #e7e5e4;
-  border-radius: 16px;
+  border-radius: var(--gd-r-kartu);
   padding: 24px;
 }
 .gd-langkah-perawatan .nomor {
@@ -654,7 +654,7 @@ button.gd-dd-toggle:hover {
 .gd-addon {
   padding: 24px;
   border: 1px dashed #d6d3d1;
-  border-radius: 16px;
+  border-radius: var(--gd-r-kartu);
   background-color: #fafafa;
 }
 .gd-addon h3 {
@@ -683,7 +683,7 @@ button.gd-dd-toggle:hover {
 .gd-tabel-fitur {
   overflow-x: auto;
   border: 1px solid #e7e5e4;
-  border-radius: 16px;
+  border-radius: var(--gd-r-kartu);
   background-color: #fafafa;
 }
 .gd-tabel-fitur table {
@@ -731,7 +731,7 @@ button.gd-dd-toggle:hover {
   margin-bottom: 20px;
   padding: 18px 16px;
   border: 1px solid #e7e5e4;
-  border-radius: 16px;
+  border-radius: var(--gd-r-kartu);
   background-color: #fafafa;
 }
 .gd-fitur-hp h3 {
@@ -821,7 +821,7 @@ header.header {
   margin-bottom: 0;
   padding: 10px 14px;
   border: 1px solid #e7e5e4;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   background: #f5f5f5;
   font-size: 16px;
 }
@@ -855,7 +855,7 @@ header.header {
   margin: 0;
   padding: 16px 16px 16px 46px;
   border: 1px solid #e7e5e4;
-  border-radius: 14px;
+  border-radius: var(--gd-r-kartu);
   background: #f5f5f5;
   font-weight: 400;
   cursor: pointer;
@@ -917,7 +917,7 @@ header.header {
   display: flex;
   align-items: center;
   border: 1px solid #e7e5e4;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   background: #f5f5f5;
 }
 .gd-subdomain:focus-within {
@@ -943,7 +943,7 @@ header.header {
   margin: 0;
   padding: 12px 16px;
   border: 1px dashed #f59f24;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   background: #fff6e6;
   color: #7a4b00;
 }
@@ -952,7 +952,7 @@ header.header {
 .gd-estimasi {
   padding: 16px 20px;
   border: 1px solid #e7e5e4;
-  border-radius: 12px;
+  border-radius: var(--gd-r-kontrol);
   background: #f5f5f5;
 }
 .gd-estimasi > div {
@@ -974,7 +974,7 @@ header.header {
 }
 .gd-daftar .gd-pembayaran {
   padding: 14px 16px;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   background-color: #e8f2e8;
   color: #004d00;
   font-size: 15px;
@@ -1009,7 +1009,7 @@ header.header {
 /* /upgrade-lapangan: the owner benefit under each upgrade card */
 .gd-manfaat-upgrade {
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   background: #e8f2e8;
   color: #004d00;
   font-size: 15px;
@@ -1041,7 +1041,7 @@ header.header {
 }
 .gd-durasi-lapangan {
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   background: #e8f2e8;
   color: #004d00;
   font-size: 14px;
@@ -1052,7 +1052,7 @@ header.header {
   margin: 0 auto;
   background: #fafafa;
   border: 1px solid #e7e5e4;
-  border-radius: 20px;
+  border-radius: var(--gd-r-kartu);
   overflow: hidden;
   box-shadow: 0 12px 32px rgba(0, 77, 0, 0.1);
 }

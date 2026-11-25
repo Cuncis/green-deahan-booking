@@ -64,7 +64,7 @@
   flex-direction: column;
   padding: 16px;
   border: 1px solid #e7e5e4;
-  border-radius: 16px;
+  border-radius: var(--gd-r-kartu);
   background: #fafafa;
   box-shadow: 0 16px 40px rgba(0, 40, 0, 0.18);
   color: #1a1a1a;
@@ -136,7 +136,7 @@
   height: 52px;
   overflow: hidden;
   border: 1px solid #e7e5e4;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   background: #eef5ee;
 }
 .gd-mini-foto img {
@@ -244,7 +244,7 @@
   min-height: 44px;
   padding: 0 20px;
   border: 1px solid #e7e5e4;
-  border-radius: 999px;
+  border-radius: var(--gd-r-kontrol);
   background: #fafafa;
   color: #3a3a3a;
   font-weight: 600;
@@ -264,7 +264,7 @@
   flex-direction: column;
   background: #fafafa;
   border: 1px solid #e7e5e4;
-  border-radius: 16px;
+  border-radius: var(--gd-r-kartu);
   overflow: hidden;
   box-shadow: none !important;
 }
@@ -333,7 +333,7 @@
   margin-top: 10px;
   min-height: 44px;
   border: 1px solid #006400;
-  border-radius: 999px;
+  border-radius: var(--gd-r-kontrol);
   background: #f5f5f5;
   overflow: hidden;
 }
@@ -409,7 +409,7 @@
 /* Product detail */
 .gd-toko-detail-media {
   aspect-ratio: 1 / 1;
-  border-radius: 20px;
+  border-radius: var(--gd-r-kartu);
   overflow: hidden;
   border: 1px solid #e7e5e4;
   background: #fafafa;
@@ -434,7 +434,7 @@
   padding: 0;
   overflow: hidden;
   border: 2px solid #e7e5e4;
-  border-radius: 12px;
+  border-radius: var(--gd-r-kontrol);
   background: #fafafa;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -515,7 +515,7 @@
 .gd-kartu {
   background: #fafafa;
   border: 1px solid #e7e5e4;
-  border-radius: 16px;
+  border-radius: var(--gd-r-kartu);
   padding: 24px;
 }
 @media (max-width: 575px) {
@@ -542,7 +542,7 @@
 .gd-keranjang-baris .thumb {
   width: 72px;
   height: 72px;
-  border-radius: 12px;
+  border-radius: var(--gd-r-kontrol);
   overflow: hidden;
 }
 .gd-keranjang-baris .thumb img {
@@ -628,7 +628,7 @@
   min-height: 48px;
   padding: 10px 14px;
   border: 1px solid #e7e5e4;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   background: #f5f5f5;
   font-size: 16px;
 }
@@ -659,7 +659,7 @@
   padding: 12px 16px;
   margin-bottom: 24px;
   border: 1px dashed #f59f24;
-  border-radius: 12px;
+  border-radius: var(--gd-r-kontrol);
   background: #fff6e6;
   color: #7a4b00;
   font-weight: 600;
@@ -667,7 +667,7 @@
 .gd-pesan {
   padding: 12px 16px;
   margin-bottom: 20px;
-  border-radius: 12px;
+  border-radius: var(--gd-r-kontrol);
   font-weight: 600;
 }
 .gd-pesan.sukses {
@@ -802,7 +802,7 @@
   padding: 40px 20px;
   text-align: center;
   background-color: #f4faf4;
-  border-radius: 12px;
+  border-radius: var(--gd-r-kontrol);
 }
 .layanan-cta p {
   margin-bottom: 16px;
@@ -815,11 +815,14 @@
   background-color: #fafafa;
   border-color: #e7e5e4;
   min-height: 48px;
+  /* Tombol cari menempel di kanan: sudut kanan input lurus, sudut luar kelompok mengikuti token. */
+  border-radius: var(--gd-r-kontrol) 0 0 var(--gd-r-kontrol);
 }
 .gd-toko .widget.search-widget button {
   min-width: 48px;
   min-height: 48px;
   color: #fff;
+  border-radius: 0 var(--gd-r-kontrol) var(--gd-r-kontrol) 0;
 }
 
 /* Sort select */
@@ -827,7 +830,7 @@
   min-height: 44px;
   padding: 8px 40px 8px 16px;
   border: 1px solid #e7e5e4;
-  border-radius: 8px;
+  border-radius: var(--gd-r-kontrol);
   background-color: #fafafa;
   font-weight: 500;
 }
@@ -896,7 +899,7 @@
   padding: 0;
   background-color: #fafafa;
   border: 1px solid #e7e5e4;
-  border-radius: 999px;
+  border-radius: var(--gd-r-kontrol);
 }
 .gd-tabel-keranjang {
   background-color: #fafafa;
@@ -913,7 +916,7 @@
   width: 72px;
   height: 72px;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
 }
 .gd-thumb-kecil img {
   width: 100%;
@@ -970,7 +973,7 @@
 }
 .gd-pembayaran {
   padding: 14px 16px;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   background-color: #e8f2e8;
   color: #004d00;
   font-size: 15px;
@@ -1082,7 +1085,7 @@ form.form.checkout-form.gd-form-toko select:disabled {
 .gd-form-toko .gd-paket-kirim {
   margin-top: 10px;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   background: #fafafa;
   border: 1px solid rgba(0, 0, 0, 0.08);
   font-size: 13px;
@@ -1114,7 +1117,7 @@ form.form.checkout-form.gd-form-toko select:disabled {
   margin: 0 0 10px;
   padding: 12px 14px;
   border: 1px solid #e7e5e4;
-  border-radius: 12px;
+  border-radius: var(--gd-r-kontrol);
   background: #f5f5f5;
   font-weight: 400;
   cursor: pointer;
@@ -1176,7 +1179,7 @@ form.form.checkout-form.gd-form-toko select:disabled {
   min-height: 44px;
   padding: 8px 16px;
   border: 1px solid #c9c9c9;
-  border-radius: 8px;
+  border-radius: var(--gd-r-kontrol);
   background: #fafafa;
   color: #1b1b1b;
   font-size: 15px;
@@ -1301,64 +1304,21 @@ form.form.checkout-form.gd-form-toko select:disabled {
   }
 }
 
-/* Hover tombol toko: oranye brand (#feb046) dengan teks gelap, bukan hijau lebih tua. */
-.gd-toko .btn-primary:hover:not(:disabled),
-.gd-toko .btn-primary:focus-visible,
-.gd-toko .btn-primary:active,
-.gd-mini-panel .btn-primary:hover:not(:disabled),
-.gd-mini-panel .btn-primary:focus-visible,
-.gd-mini-panel .btn-primary:active,
-.gd-toko .btn-outline-primary:hover:not(:disabled),
-.gd-toko .btn-outline-primary:focus-visible,
-.gd-toko .btn-outline-primary:active,
-.gd-mini-panel .btn-outline-primary:hover:not(:disabled) {
-  background: #feb046;
-  border-color: #feb046;
-  color: #1a1a1a;
-}
-
-/* Tombol "Tambah ke Keranjang" (kartu dan detail produk) tetap hijau saat hover. */
-.gd-toko .product-entry .gd-tambah-kartu:hover:not(:disabled),
-.gd-toko .product-entry .gd-tambah-kartu:focus-visible,
-.gd-toko .product-entry .gd-tambah-kartu:active,
-.gd-toko .cart-cta .btn.gd-btn-keranjang:hover:not(:disabled) {
-  background: #006400;
-  border-color: #006400;
+/* Hover tombol toko: aturannya global (lihat bagian "Token UI" di brand-greendeahan.css).
+   Hijau menggelap, outline terisi hijau, oranye hanya untuk tombol .btn-cta. */
+.gd-toko .product-entry .gd-qty-kartu button:hover:not(:disabled) {
+  background: var(--gd-green-dark);
   color: #fff;
 }
 
-.gd-toko .product-entry .gd-tambah-kartu:hover:not(:disabled),
-.gd-toko .product-entry .gd-tambah-kartu:focus-visible,
-.gd-toko .product-entry .gd-tambah-kartu:active {
-  background: #004d00;
-  border-color: #004d00;
-}
-
-.gd-toko .product-entry .gd-qty-kartu button:hover:not(:disabled) {
-  background: #feb046;
-  color: #1a1a1a;
-}
-
-.gd-toko .gd-varian-tombol:hover:not(:disabled),
-.gd-toko .gd-varian-tombol.aktif {
-  border-color: #feb046;
-}
-
-.gd-toko .gd-varian-tombol.aktif {
-  background: #fff3df;
-  color: #1a1a1a;
-  box-shadow: 0 0 0 1px #feb046;
+.gd-toko .gd-varian-tombol:hover:not(:disabled) {
+  border-color: var(--gd-green);
 }
 
 .gd-toko .gd-opsi-kirim:hover,
 .gd-toko-kategori a:hover,
 .toko-kategori a:hover {
-  border-color: #feb046;
-}
-
-.gd-toko-kategori a:hover,
-.toko-kategori a:hover {
-  color: #b86e00;
+  border-color: var(--gd-green);
 }
 
 .gd-toko .btn,
@@ -1378,7 +1338,7 @@ form.form.checkout-form.gd-form-toko select:disabled {
   flex: 0 0 56px;
   width: 56px;
   height: 56px;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   overflow: hidden;
   background: #e8f2e8;
 }
@@ -1450,7 +1410,7 @@ form.form.checkout-form.gd-form-toko select:disabled {
   min-height: 46px;
   padding: 0 14px;
   border: 1px solid #d6d3d1;
-  border-radius: 999px;
+  border-radius: var(--gd-r-kontrol);
   background: #fff;
   font-size: 16px;
   letter-spacing: 0.04em;
@@ -1463,9 +1423,9 @@ form.form.checkout-form.gd-form-toko select:disabled {
 }
 
 .gd-promo-isian input:focus {
-  outline: 2px solid #feb046;
+  outline: 2px solid var(--gd-green);
   outline-offset: 1px;
-  border-color: #feb046;
+  border-color: var(--gd-green);
 }
 
 .gd-promo-isian input.is-invalid {
@@ -1486,7 +1446,7 @@ form.form.checkout-form.gd-form-toko select:disabled {
   gap: 12px;
   padding: 10px 14px;
   border: 1px dashed #006400;
-  border-radius: 12px;
+  border-radius: var(--gd-r-kontrol);
   background: #e8f2e8;
   color: #004d00;
   font-size: 15px;

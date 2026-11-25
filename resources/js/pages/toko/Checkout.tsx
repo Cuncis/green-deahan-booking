@@ -672,7 +672,7 @@ export default function Checkout({
                                         <div className="text-center mt-4">
                                             <button
                                                 type="submit"
-                                                className="btn btn-primary d-block w-100"
+                                                className="btn btn-primary btn-cta d-block w-100"
                                                 disabled={form.processing || !wilayahTersedia || (ongkirDinamis && !layananDipilih)}
                                             >
                                                 {form.processing ? 'Membuat pembayaran...' : ongkirDinamis && !layananDipilih ? 'Pilih pengiriman dulu' : `Bayar ${rupiah(total)}`}

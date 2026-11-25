@@ -492,17 +492,17 @@ body:has(header.header-football) .btn-dark {
 
 /* 9. WhatsApp buttons: brand green #006400 with white text + icon
 ---------------------------------------------------------------
-   white on #006400 is ~7.5:1 contrast; hover goes darker (#004d00). */
+   white on #006400 is ~7.5:1 contrast; hover turns orange like the other primary actions (.btn-cta). */
 .btn.btn-whatsapp {
   --bs-btn-color: #fff;
   --bs-btn-bg: #006400;
   --bs-btn-border-color: #006400;
-  --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #004d00;
-  --bs-btn-hover-border-color: #004d00;
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #004d00;
-  --bs-btn-active-border-color: #004d00;
+  --bs-btn-hover-color: #1a1a1a;
+  --bs-btn-hover-bg: #feb046;
+  --bs-btn-hover-border-color: #feb046;
+  --bs-btn-active-color: #1a1a1a;
+  --bs-btn-active-bg: #feb046;
+  --bs-btn-active-border-color: #feb046;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -511,8 +511,9 @@ body:has(header.header-football) .btn-dark {
 .btn.btn-whatsapp:hover,
 .btn.btn-whatsapp:focus,
 .btn.btn-whatsapp:active {
-  background-color: #004d00;
-  color: #fff;
+  background-color: #feb046;
+  border-color: #feb046;
+  color: #1a1a1a;
 }
 
 .btn.btn-whatsapp svg {
@@ -630,7 +631,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 /* 17. About "Cakupan Wilayah" tab: Indonesia map with project markers */
 .wilayah-map-canvas {
   background-color: #f4faf4;
-  border-radius: var(--bs-border-radius-xl, 1rem);
+  border-radius: var(--gd-r-kartu);
   padding: 6% 4%;
 }
 
@@ -697,7 +698,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   left: 50%;
   transform: translateX(-50%);
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: var(--gd-r-kontrol);
   background-color: #004d00;
   color: #fff;
   font-size: 13px;
@@ -772,7 +773,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   --kerja-badge: 48px;
   padding: 20px 20px 20px 12px;
   background-color: #f4faf4;
-  border-radius: var(--bs-border-radius-xl, 1rem);
+  border-radius: var(--gd-r-kartu);
 }
 
 .kerja-road-inner {
@@ -866,7 +867,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   margin-left: 6px;
   padding: 10px 14px;
   background-color: #fff;
-  border-radius: 10px;
+  border-radius: var(--gd-r-kontrol);
   box-shadow: 0 2px 10px rgba(0, 77, 0, 0.1);
 }
 
@@ -934,7 +935,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 .compare-card {
   padding: 20px;
   background-color: #f4faf4;
-  border-radius: var(--bs-border-radius-xl, 1rem);
+  border-radius: var(--gd-r-kartu);
 }
 
 .compare-table {
@@ -942,7 +943,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   border-collapse: separate;
   border-spacing: 0;
   background-color: #fff;
-  border-radius: 12px;
+  border-radius: var(--gd-r-kartu);
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 77, 0, 0.1);
 }
@@ -1105,7 +1106,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 /* quote box: template blockquote (green panel + quote mark), white text */
 .single-post .post-body blockquote {
   background-color: var(--primary);
-  border-radius: var(--bs-border-radius-lg, 0.5rem);
+  border-radius: var(--gd-r-kontrol);
   color: #fff;
   font-size: 19px;
   line-height: 1.6;
@@ -1137,7 +1138,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   padding: 30px 20px;
   background-color: #f4faf4;
   border: 1px solid #c8e6c9;
-  border-radius: var(--bs-border-radius-xl, 1rem);
+  border-radius: var(--gd-r-kartu);
 }
 
 .single-post .post-cta p {
@@ -1241,7 +1242,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   height: 100%;
   padding: 0;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--gd-r-kartu);
   overflow: hidden;
   background-color: #c8e6c9;
   cursor: zoom-in;
@@ -1308,7 +1309,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   padding: 30px 20px;
   background-color: #f4faf4;
   border: 1px solid #c8e6c9;
-  border-radius: var(--bs-border-radius-xl, 1rem);
+  border-radius: var(--gd-r-kartu);
 }
 
 .galeri-cta p {
@@ -1407,7 +1408,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   max-width: 1180px;
   max-height: calc(100vh - 48px);
   overflow: hidden;
-  border-radius: 18px;
+  border-radius: var(--gd-r-modal);
   background-color: #fff;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
   animation: gm-pop 0.3s ease-out both;
@@ -1581,7 +1582,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   flex: 0 0 auto;
   padding: 0;
   border: 3px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--gd-r-kontrol);
   overflow: hidden;
   background: none;
   opacity: 0.6;
@@ -1624,7 +1625,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
     flex-direction: column;
     max-height: none;
     height: 100%;
-    border-radius: 0;
+    border-radius: var(--gd-r-modal);
     overflow-y: auto;
   }
 
@@ -1704,7 +1705,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 .calc-box {
   padding: 32px 28px 20px;
   background-color: #fff;
-  border-radius: var(--bs-border-radius-xl, 1rem);
+  border-radius: var(--gd-r-kartu);
   color: var(--bs-body-color);
 }
 
@@ -1728,7 +1729,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 
 .calc-box .form-control {
   height: 60px;
-  border-radius: 32px;
+  border-radius: var(--gd-r-kontrol);
   background-color: var(--mute);
 }
 
@@ -1756,7 +1757,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   flex-direction: column;
   padding: 32px 28px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--bs-border-radius-xl, 1rem);
+  border-radius: var(--gd-r-kartu);
   background-color: rgba(0, 0, 0, 0.25);
   color: #fff;
 }
@@ -1849,7 +1850,7 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 .calc-step {
   padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--bs-border-radius-xl, 1rem);
+  border-radius: var(--gd-r-kartu);
   background-color: rgba(255, 255, 255, 0.06);
 }
 
@@ -1898,4 +1899,83 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
   .calc-list > div {
     font-size: 15px;
   }
+}
+
+
+/* 12. Token UI: satu sumber untuk sudut, warna, dan hover
+---------------------------------------------------------------
+   Semua file gd-*.css memakai variabel ini, jadi mengubah gaya situs
+   cukup dari sini.
+   Sudut:  kontrol (tombol, input, thumbnail kecil) 12px, kartu dan gambar
+           16px, modal dan pop-up 20px, pil hanya untuk lencana, penghitung,
+           dan titik langkah.
+   Hover:  tombol hijau menggelap (#004d00), tombol outline terisi hijau,
+           oranye (#feb046) hanya untuk tombol aksi utama (.btn-cta) dan
+           tombol WhatsApp. */
+:root {
+  --gd-green: #006400;
+  --gd-green-dark: #004d00;
+  --gd-orange: #feb046;
+  --gd-orange-dark: #f59f24;
+  --gd-ink: #1a1a1a;
+
+  --gd-r-kontrol: 12px;
+  --gd-r-kartu: 16px;
+  --gd-r-modal: 20px;
+  --gd-r-pil: 999px;
+}
+
+/* Template Fuzio membulatkan tombol dan isian hampir penuh (32px); disamakan dengan kontrol. */
+.btn,
+.form-control,
+.form-select,
+.nice-select,
+textarea,
+.contact-form textarea,
+.contact-form .nice-select,
+.contact-form .form-control {
+  border-radius: var(--gd-r-kontrol);
+}
+
+/* Tombol aksi utama: hijau, lalu oranye saat hover. */
+.btn-cta:hover:not(:disabled),
+.btn-cta:focus-visible,
+.btn-cta:active {
+  --bs-btn-hover-bg: var(--gd-orange);
+  --bs-btn-hover-border-color: var(--gd-orange);
+  --bs-btn-hover-color: var(--gd-ink);
+  background-color: var(--gd-orange);
+  border-color: var(--gd-orange);
+  color: var(--gd-ink);
+}
+
+/* Utilitas Bootstrap (.rounded-2, .rounded-3, ...) dan komponen yang memakai variabelnya ikut token. */
+:root,
+[data-bs-theme='light'] {
+  --bs-border-radius-sm: var(--gd-r-kontrol);
+  --bs-border-radius: var(--gd-r-kartu);
+  --bs-border-radius-lg: var(--gd-r-kartu);
+  --bs-border-radius-xl: var(--gd-r-kartu);
+  --bs-border-radius-xxl: var(--gd-r-modal);
+}
+
+.dropdown-menu {
+  border-radius: var(--gd-r-kontrol);
+}
+
+.badge {
+  border-radius: var(--gd-r-pil);
+}
+
+.faq-item,
+.contact-card {
+  border-radius: var(--gd-r-kartu);
+}
+
+.pricing-card .btn,
+.widget input[type='text'],
+.widget input[type='search'],
+.subs-form input,
+.subs-form .btn {
+  border-radius: var(--gd-r-kontrol);
 }

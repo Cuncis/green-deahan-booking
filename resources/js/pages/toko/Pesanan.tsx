@@ -97,7 +97,7 @@ export default function PesananToko({ pesanan, langkah }: Props) {
                                         Kami menunggu pembayaran kamu. Halaman ini otomatis berubah begitu pembayaran diterima.
                                         {pesanan.linkBayar && (
                                             <div className="mt-3">
-                                                <a href={pesanan.linkBayar} className="btn btn-primary">
+                                                <a href={pesanan.linkBayar} className="btn btn-primary btn-cta">
                                                     Bayar Sekarang
                                                 </a>
                                             </div>
