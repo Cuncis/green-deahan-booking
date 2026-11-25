@@ -285,6 +285,7 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
                             .filter(Boolean)
                             .join(', ') || 'tidak ada'}
                         . Harga hanya saran dan bisa diubah, berat belum diisi. Produk dibuat Disembunyikan sampai Anda mengubahnya.
+                        {impor.supplierId && impor.dikirimDari ? ` Supplier dipilih dari kota pengirim (${impor.dikirimDari}), cek lagi kalau ada beberapa outlet di kota itu.` : ''}
                         {!impor.supplierId && (impor.namaSupplier || impor.dikirimDari)
                             ? ` Supplier belum terpilih otomatis${impor.dikirimDari ? ` (dikirim dari ${impor.dikirimDari})` : ''}, pilih manual di bagian Supplier.`
                             : ''}

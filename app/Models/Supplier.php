@@ -22,8 +22,9 @@ class Supplier extends Model
     /**
      * Supplier untuk isian awal form produk hasil impor HTML: nama toko
      * Shopee yang sama persis, kalau tidak ada maka outlet yang areanya
-     * sama dengan kota "Dikirim Dari". Hanya dipilih bila hasilnya satu,
-     * kalau ada beberapa outlet di kota itu pilihan diserahkan ke admin.
+     * sama dengan kota "Dikirim Dari". Kalau area tidak sama persis,
+     * dicari outlet yang areanya atau namanya memuat kota itu. Bila ada beberapa
+     * outlet di kota yang sama, diambil yang pertama (admin bisa menggantinya).
      */
     public static function cocokDariImpor(?string $namaToko, ?string $dikirimDari): ?self
     {
@@ -41,21 +42,22 @@ class Supplier extends Model
             return null;
         }
 
-        $kandidat = self::whereNotNull('origin_postal_code')->get(['id', 'name', 'notes', 'origin_postal_code']);
+        $kandidat = self::whereNotNull('origin_postal_code')->orderBy('id')->get(['id', 'name', 'notes', 'origin_postal_code']);
+        $memuat = fn (string $teks) => (bool) preg_match('/(?<![\p{L}\d])'.preg_quote($kota, '/').'(?![\p{L}\d])/u', $teks);
 
-        $areaSama = $kandidat->filter(fn (self $supplier) => $supplier->areaTercatat() === $kota);
+        foreach ([
+            fn (self $supplier) => $supplier->areaTercatat() === $kota,
+            fn (self $supplier) => $memuat($supplier->areaTercatat()),
+            fn (self $supplier) => $memuat(self::normalisasiKota($supplier->name)),
+        ] as $cocok) {
+            $hasil = $kandidat->first($cocok);
 
-        if ($areaSama->count() === 1) {
-            return $areaSama->first();
+            if ($hasil) {
+                return $hasil;
+            }
         }
 
-        if ($areaSama->count() > 1) {
-            return null;
-        }
-
-        $namaMengandung = $kandidat->filter(fn (self $supplier) => str_contains(self::normalisasiKota($supplier->name), $kota));
-
-        return $namaMengandung->count() === 1 ? $namaMengandung->first() : null;
+        return null;
     }
 
     /** Area outlet dari baris "Area: ..." di catatan, sudah dinormalisasi. */
@@ -67,7 +69,7 @@ class Supplier extends Model
     private static function normalisasiKota(?string $teks): string
     {
         $teks = mb_strtolower(trim((string) $teks));
-        $teks = preg_replace('/\b(kota adm\.?|kota|kabupaten|kab\.?|administrasi)\b/u', ' ', $teks) ?? '';
+        $teks = preg_replace('/\b(kota|kabupaten|kab|administrasi|adm)\b\.?/u', ' ', $teks) ?? '';
 
         return trim(preg_replace('/\s+/u', ' ', $teks) ?? '');
     }

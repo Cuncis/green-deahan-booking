@@ -410,11 +410,12 @@ class ImporProdukHtmlTest extends TestCase
         $this->assertSame(Supplier::where('name', 'RANK Sports Bekasi, Kota Bekasi')->first()->id, Supplier::cocokDariImpor(null, 'Kota Bekasi')->id);
     }
 
-    public function test_impor_tidak_menebak_bila_kota_punya_banyak_outlet_atau_tak_dikenal(): void
+    public function test_impor_memilih_outlet_pertama_bila_kota_banyak_outlet_dan_null_bila_tak_dikenal(): void
     {
         $this->seed(SupplierOutletSeeder::class);
 
-        $this->assertNull(Supplier::cocokDariImpor(null, 'KOTA ADM. JAKARTA BARAT'));
+        $this->assertSame('RANK Sports Green Lake City, Jakarta Barat', Supplier::cocokDariImpor(null, 'KOTA ADM. JAKARTA BARAT')->name);
+        $this->assertSame('RANK Sports Condet, Jakarta Selatan', Supplier::cocokDariImpor(null, 'KOTA JAKARTA TIMUR')->name);
         $this->assertNull(Supplier::cocokDariImpor(null, 'Kota Antah Berantah'));
         $this->assertNull(Supplier::cocokDariImpor(null, null));
     }
