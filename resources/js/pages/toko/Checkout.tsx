@@ -378,7 +378,7 @@ export default function Checkout({
                                                 value={form.data.address}
                                                 onChange={(event) => form.setData('address', event.target.value)}
                                                 autoComplete="street-address"
-                                                placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, kecamatan"
+                                                placeholder="Nama jalan, nomor rumah, RT/RW"
                                                 className={form.errors.address ? 'is-invalid' : ''}
                                                 aria-invalid={Boolean(form.errors.address)}
                                             />
