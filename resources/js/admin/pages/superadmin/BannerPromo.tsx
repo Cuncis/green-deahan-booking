@@ -1,6 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
+import AksiKartu from '../../components/AksiKartu';
 import Field from '../../components/form/Field';
 import PilihGambar from '../../components/form/PilihGambar';
 import type { MediaPilihan } from '../../components/form/PilihMedia';
@@ -161,21 +162,7 @@ export default function BannerPromoPage({ banner }: { banner: Banner[] }) {
                                     </div>
                                     {item.tautan && <div className="truncate">Tautan: {item.tautan}</div>}
                                 </dl>
-                                <div className="mt-auto flex flex-wrap gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => buka(item)}>
-                                        <Pencil />
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                        onClick={() => setAkanDihapus(item)}
-                                    >
-                                        <Trash2 />
-                                        Hapus
-                                    </Button>
-                                </div>
+                                <AksiKartu onEdit={() => buka(item)} onHapus={() => setAkanDihapus(item)} />
                             </div>
                         </Card>
                     ))}
@@ -183,7 +170,7 @@ export default function BannerPromoPage({ banner }: { banner: Banner[] }) {
             )}
 
             <Dialog open={diedit !== null} onOpenChange={(terbuka) => !terbuka && setDiedit(null)}>
-                <DialogContent className="max-h-[90dvh] overflow-y-auto">
+                <DialogContent>
                     <form onSubmit={simpan} className="grid gap-4">
                         <DialogHeader>
                             <DialogTitle>{diedit === 'baru' ? 'Tambah Banner Promo' : 'Edit Banner Promo'}</DialogTitle>

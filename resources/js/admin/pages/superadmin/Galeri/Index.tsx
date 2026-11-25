@@ -1,7 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ImageOff, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ImageOff, Plus } from 'lucide-react';
 import { useState } from 'react';
 import KonfirmasiDialog from '../../../components/KonfirmasiDialog';
+import AksiKartu from '../../../components/AksiKartu';
 import AdminLayout from '../../../components/layout/AdminLayout';
 import { Badge } from '../../../components/ui/badge';
 import { Button } from '../../../components/ui/button';
@@ -108,23 +109,7 @@ export default function Index({ item, filterKategori, pilihanKategori }: Props) 
                                     {foto.kategori}, {foto.kota}
                                     {foto.besar && ', tampil besar'}
                                 </p>
-                                <div className="mt-auto grid grid-cols-2 gap-2">
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href={foto.editUrl}>
-                                            <Pencil />
-                                            Edit
-                                        </Link>
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                        onClick={() => setAkanDihapus(foto)}
-                                    >
-                                        <Trash2 />
-                                        Hapus
-                                    </Button>
-                                </div>
+                                <AksiKartu editHref={foto.editUrl} onHapus={() => setAkanDihapus(foto)} />
                             </div>
                         </Card>
                     ))}

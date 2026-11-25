@@ -17,6 +17,7 @@ use App\Http\Controllers\SistemBookingController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Superadmin\ArtikelAdminController;
 use App\Http\Controllers\Superadmin\BannerPromoController;
+use App\Http\Controllers\Superadmin\CatatanPromosiController;
 use App\Http\Controllers\Superadmin\GaleriAdminController;
 use App\Http\Controllers\Superadmin\LogErrorController;
 use App\Http\Controllers\Superadmin\MediaAdminController;
@@ -202,6 +203,12 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
         Route::post('/banner-promo', [BannerPromoController::class, 'store'])->name('banner.store');
         Route::put('/banner-promo/{banner}', [BannerPromoController::class, 'update'])->name('banner.update');
         Route::delete('/banner-promo/{banner}', [BannerPromoController::class, 'destroy'])->name('banner.destroy');
+
+        // Catatan promosi dan iklan (rencana Google Ads, prompt gambar).
+        Route::get('/catatan-promosi', [CatatanPromosiController::class, 'index'])->name('catatan');
+        Route::post('/catatan-promosi', [CatatanPromosiController::class, 'store'])->name('catatan.store');
+        Route::put('/catatan-promosi/{catatan}', [CatatanPromosiController::class, 'update'])->name('catatan.update');
+        Route::delete('/catatan-promosi/{catatan}', [CatatanPromosiController::class, 'destroy'])->name('catatan.destroy');
 
         // Pustaka media: semua aset gambar lintas tenant dan situs korporat.
         Route::get('/media', [MediaAdminController::class, 'index'])->name('media');

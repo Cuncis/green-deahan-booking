@@ -1,7 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ExternalLink, ImageOff, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ExternalLink, ImageOff, Plus } from 'lucide-react';
 import { useState } from 'react';
 import KonfirmasiDialog from '../../../../components/KonfirmasiDialog';
+import AksiKartu from '../../../../components/AksiKartu';
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import { Badge } from '../../../../components/ui/badge';
 import { Button } from '../../../../components/ui/button';
@@ -52,27 +53,22 @@ export default function Index({ produk }: { produk: ProdukBaris[] }) {
             },
         });
 
-    const aksi = (item: ProdukBaris) => (
-        <>
-            <Button asChild variant="outline" size="sm">
-                <Link href={item.editUrl}>
-                    <Pencil />
-                    Edit
-                </Link>
-            </Button>
-            {item.linkSupplier && (
-                <Button asChild variant="ghost" size="sm">
-                    <a href={item.linkSupplier} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink />
-                        Supplier
-                    </a>
-                </Button>
-            )}
-            <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setAkanDihapus(item)}>
-                <Trash2 />
-                Hapus
-            </Button>
-        </>
+    const aksi = (item: ProdukBaris, className?: string) => (
+        <AksiKartu
+            className={className}
+            kiri={
+                item.linkSupplier ? (
+                    <Button asChild variant="ghost" size="sm">
+                        <a href={item.linkSupplier} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink />
+                            Supplier
+                        </a>
+                    </Button>
+                ) : undefined
+            }
+            editHref={item.editUrl}
+            onHapus={() => setAkanDihapus(item)}
+        />
     );
 
     return (
@@ -137,9 +133,7 @@ export default function Index({ produk }: { produk: ProdukBaris[] }) {
                                             <TableCell>
                                                 <Badge variant={item.aktif ? 'confirmed' : 'info'}>{item.aktif ? 'Dijual' : 'Disembunyikan'}</Badge>
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="flex gap-1">{aksi(item)}</div>
-                                            </TableCell>
+                                            <TableCell>{aksi(item, 'mt-0 flex-nowrap')}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -165,7 +159,7 @@ export default function Index({ produk }: { produk: ProdukBaris[] }) {
                                             {item.aktif ? 'Dijual' : 'Sembunyi'}
                                         </Badge>
                                     </div>
-                                    <div className="mt-3 flex flex-wrap gap-2">{aksi(item)}</div>
+                                    {aksi(item, 'mt-3')}
                                 </li>
                             ))}
                         </ul>

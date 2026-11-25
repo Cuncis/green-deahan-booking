@@ -1,7 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ExternalLink, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { ExternalLink, Plus, Search } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import KonfirmasiDialog from '../../../components/KonfirmasiDialog';
+import AksiKartu from '../../../components/AksiKartu';
 import AdminLayout from '../../../components/layout/AdminLayout';
 import { Badge } from '../../../components/ui/badge';
 import { Button } from '../../../components/ui/button';
@@ -65,25 +66,20 @@ export default function Index({ artikel, cari }: Props) {
         });
     };
 
-    const tombolAksi = (item: ArtikelBaris) => (
-        <>
-            <Button asChild variant="outline" size="sm">
-                <Link href={item.editUrl}>
-                    <Pencil />
-                    Edit
-                </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-                <a href={item.publikUrl} target="_blank" rel="noreferrer">
-                    <ExternalLink />
-                    Lihat
-                </a>
-            </Button>
-            <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setAkanDihapus(item)}>
-                <Trash2 />
-                Hapus
-            </Button>
-        </>
+    const tombolAksi = (item: ArtikelBaris, className?: string) => (
+        <AksiKartu
+            className={className}
+            kiri={
+                <Button asChild variant="ghost" size="sm">
+                    <a href={item.publikUrl} target="_blank" rel="noreferrer">
+                        <ExternalLink />
+                        Lihat
+                    </a>
+                </Button>
+            }
+            editHref={item.editUrl}
+            onHapus={() => setAkanDihapus(item)}
+        />
     );
 
     return (
@@ -151,9 +147,7 @@ export default function Index({ artikel, cari }: Props) {
                                             <TableCell>
                                                 <StatusArtikel aktif={item.aktif} />
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="flex gap-1">{tombolAksi(item)}</div>
-                                            </TableCell>
+                                            <TableCell>{tombolAksi(item, 'mt-0 flex-nowrap')}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -177,7 +171,7 @@ export default function Index({ artikel, cari }: Props) {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="mt-3 grid grid-cols-3 gap-2">{tombolAksi(item)}</div>
+                                    {tombolAksi(item, 'mt-3')}
                                 </li>
                             ))}
                         </ul>

@@ -22,6 +22,7 @@ import {
     Menu,
     Newspaper,
     Megaphone,
+    NotebookPen,
     SearchCheck,
     Settings,
     TicketPercent,
@@ -63,6 +64,7 @@ const IKON: Record<string, LucideIcon> = {
     'folder-open': FolderOpen,
     'search-check': SearchCheck,
     megaphone: Megaphone,
+    'notebook-pen': NotebookPen,
     'shopping-bag': ShoppingBag,
     package: Package,
     truck: Truck,
@@ -241,7 +243,7 @@ function JamSekarang() {
     return (
         <div className="flex flex-col items-end leading-tight" aria-label={`Waktu sekarang ${tanggal} ${jam} WIB`}>
             <span className="font-mono text-sm font-semibold tabular-nums">
-                {jam} <span className="text-[0.65rem] font-medium text-muted-foreground">WIB</span>
+                {jam} <span className="hidden text-[0.65rem] font-medium text-muted-foreground sm:inline">WIB</span>
             </span>
             <span className="hidden text-[0.7rem] text-muted-foreground sm:block">{tanggal}</span>
         </div>

@@ -75,7 +75,7 @@ export default function PilihMedia({ terbuka, onTutup, onPilih, terpilih = null 
 
     return (
         <Dialog open={terbuka} onOpenChange={(buka) => !buka && onTutup()}>
-            <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+            <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>Pilih dari Media</DialogTitle>
                     <DialogDescription>Gambar yang sudah ada di pustaka Media. Format JPG, PNG, atau WebP.</DialogDescription>

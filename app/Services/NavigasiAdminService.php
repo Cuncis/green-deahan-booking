@@ -26,7 +26,7 @@ class NavigasiAdminService
      *
      * @var array<int, string>
      */
-    private const RUTE_REACT_SUPERADMIN = ['superadmin.dashboard', 'superadmin.tenants', 'superadmin.tenants.create', 'superadmin.galeri', 'superadmin.banner', 'superadmin.artikel', 'superadmin.media', 'superadmin.seo', 'superadmin.toko.pesanan', 'superadmin.toko.produk', 'superadmin.toko.supplier', 'superadmin.toko.promo', 'superadmin.log-error', 'superadmin.notifikasi.pengaturan'];
+    private const RUTE_REACT_SUPERADMIN = ['superadmin.dashboard', 'superadmin.tenants', 'superadmin.tenants.create', 'superadmin.galeri', 'superadmin.banner', 'superadmin.catatan', 'superadmin.artikel', 'superadmin.media', 'superadmin.seo', 'superadmin.toko.pesanan', 'superadmin.toko.produk', 'superadmin.toko.supplier', 'superadmin.toko.promo', 'superadmin.log-error', 'superadmin.notifikasi.pengaturan'];
 
     /**
      * @return array<int, array{grup: string|null, item: array<int, array{label: string, href: string, ikon: string, rute: string|null, inertia: bool}>}>
@@ -94,6 +94,7 @@ class NavigasiAdminService
             ['grup' => 'Situs Korporat', 'item' => [
                 $this->item('Galeri', 'superadmin.galeri', 'images', self::RUTE_REACT_SUPERADMIN),
                 $this->item('Banner Promo', 'superadmin.banner', 'megaphone', self::RUTE_REACT_SUPERADMIN),
+                $this->item('Catatan Promosi', 'superadmin.catatan', 'notebook-pen', self::RUTE_REACT_SUPERADMIN),
                 $this->item('Blog', 'superadmin.artikel', 'newspaper', self::RUTE_REACT_SUPERADMIN),
                 $this->item('Media', 'superadmin.media', 'folder-open', self::RUTE_REACT_SUPERADMIN),
                 $this->item('SEO dan Analytics', 'superadmin.seo', 'search-check', self::RUTE_REACT_SUPERADMIN),

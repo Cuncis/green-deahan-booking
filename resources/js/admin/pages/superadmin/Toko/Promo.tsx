@@ -1,6 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
+import AksiKartu from '../../../components/AksiKartu';
 import Field from '../../../components/form/Field';
 import KonfirmasiDialog from '../../../components/KonfirmasiDialog';
 import AdminLayout from '../../../components/layout/AdminLayout';
@@ -126,21 +127,7 @@ export default function PromoPage({ promo }: { promo: Promo[] }) {
                                             : 'Berlaku tanpa batas waktu'}
                                     </div>
                                 </dl>
-                                <div className="mt-auto flex flex-wrap gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => buka(item)}>
-                                        <Pencil />
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                        onClick={() => setAkanDihapus(item)}
-                                    >
-                                        <Trash2 />
-                                        Hapus
-                                    </Button>
-                                </div>
+                                <AksiKartu onEdit={() => buka(item)} onHapus={() => setAkanDihapus(item)} />
                             </Card>
                         );
                     })}
@@ -148,7 +135,7 @@ export default function PromoPage({ promo }: { promo: Promo[] }) {
             )}
 
             <Dialog open={diedit !== null} onOpenChange={(terbuka) => !terbuka && setDiedit(null)}>
-                <DialogContent className="max-h-[90dvh] overflow-y-auto">
+                <DialogContent>
                     <form onSubmit={simpan} className="grid gap-4">
                         <DialogHeader>
                             <DialogTitle>{diedit === 'baru' ? 'Tambah Kode Promo' : 'Edit Kode Promo'}</DialogTitle>

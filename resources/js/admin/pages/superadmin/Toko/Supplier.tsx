@@ -1,6 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { ExternalLink, MessageCircle, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ExternalLink, MessageCircle, Plus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
+import AksiKartu from '../../../components/AksiKartu';
 import Field from '../../../components/form/Field';
 import KonfirmasiDialog from '../../../components/KonfirmasiDialog';
 import AdminLayout from '../../../components/layout/AdminLayout';
@@ -84,30 +85,34 @@ export default function SupplierPage({ supplier, pilihanPlatform }: { supplier: 
                                 {item.jumlahProduk} produk{item.origin_postal_code ? `, kirim dari kode pos ${item.origin_postal_code}` : ''}
                             </p>
                             {item.notes && <p className="mb-3 text-sm text-ink-mid">{item.notes}</p>}
-                            <div className="mt-auto flex flex-wrap gap-2">
-                                {item.shop_url && (
-                                    <Button asChild variant="outline" size="sm">
-                                        <a href={item.shop_url} target="_blank" rel="noopener noreferrer">
-                                            <ExternalLink />
-                                            Toko
-                                        </a>
-                                    </Button>
-                                )}
-                                {item.whatsapp && (
-                                    <Button variant="outline" size="sm" onClick={() => bukaChatWhatsApp(`https://wa.me/${item.whatsapp!.replace(/\D/g, '').replace(/^0/, '62')}`)}>
-                                        <MessageCircle />
-                                        Chat
-                                    </Button>
-                                )}
-                                <Button variant="ghost" size="sm" onClick={() => buka(item)}>
-                                    <Pencil />
-                                    Edit
-                                </Button>
-                                <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setAkanDihapus(item)}>
-                                    <Trash2 />
-                                    Hapus
-                                </Button>
-                            </div>
+                            <AksiKartu
+                                className="mt-auto"
+                                kiri={
+                                    <>
+                                        {item.shop_url && (
+                                            <Button asChild variant="outline" size="sm">
+                                                <a href={item.shop_url} target="_blank" rel="noopener noreferrer" aria-label="Buka toko supplier">
+                                                    <ExternalLink />
+                                                    <span className="hidden sm:inline">Toko</span>
+                                                </a>
+                                            </Button>
+                                        )}
+                                        {item.whatsapp && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => bukaChatWhatsApp(`https://wa.me/${item.whatsapp!.replace(/\D/g, '').replace(/^0/, '62')}`)}
+                                                aria-label="Chat WhatsApp supplier"
+                                            >
+                                                <MessageCircle />
+                                                <span className="hidden sm:inline">Chat</span>
+                                            </Button>
+                                        )}
+                                    </>
+                                }
+                                onEdit={() => buka(item)}
+                                onHapus={() => setAkanDihapus(item)}
+                            />
                         </Card>
                     ))}
                 </div>
