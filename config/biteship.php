@@ -65,6 +65,11 @@ return [
      */
     'cache_menit' => (int) env('BITESHIP_CACHE_MENIT', 10),
 
+    /*
+     * Biaya per permintaan tarif (rupiah), hanya untuk perkiraan biaya di dashboard superadmin.
+     */
+    'tarif_per_permintaan' => (int) env('BITESHIP_TARIF_PER_PERMINTAAN', 5),
+
     'timeout' => (int) env('BITESHIP_TIMEOUT', 15),
 
 ];

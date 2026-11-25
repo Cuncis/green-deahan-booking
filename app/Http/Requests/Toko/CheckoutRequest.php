@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Toko;
 
-use App\Exceptions\BiteshipException;
+use App\Exceptions\OngkirGagalException;
 use App\Models\PromoCode;
 use App\Models\Wilayah;
 use App\Services\KeranjangService;
@@ -47,7 +47,7 @@ class CheckoutRequest extends FormRequest
             'wilayah_kode' => ['required', 'string', Rule::exists('wilayah', 'kode')->where('level', Wilayah::LEVEL_KELURAHAN)],
             // Dipakai hanya kalau kelurahan yang dipilih belum punya kode pos di data.
             'postal_code' => ['nullable', 'digits:5'],
-            // "kodekurir:kodelayanan" dari daftar ongkir; dicek ulang ke Biteship di after().
+            // "kodekurir:kodelayanan" dari daftar ongkir; dicek ulang ke penyedia ongkir di after().
             'layanan' => ['nullable', 'string', 'max:80', 'regex:/^[a-z0-9_]+:[a-z0-9_]+$/i'],
             // Diperiksa dan dihitung ulang di CheckoutController saat pesanan dibuat.
             'promo_code' => ['nullable', 'string', 'max:40'],
@@ -84,14 +84,14 @@ class CheckoutRequest extends FormRequest
     }
 
     /**
-     * Ongkir dihitung ulang dari Biteship di server. Yang diterima dari browser
+     * Ongkir dihitung ulang dari RajaOngkir atau Biteship di server. Yang diterima dari browser
      * hanya kode layanan, bukan harganya.
      */
     private function validasiLayanan(Validator $validator): void
     {
         $ongkir = app(OngkirTokoService::class);
 
-        // Ongkir flat (Biteship belum dikonfigurasi) atau keranjang kosong (controller yang mengalihkan).
+        // Ongkir flat (belum ada penyedia ongkir) atau keranjang kosong (controller yang mengalihkan).
         if (! $ongkir->aktif() || app(KeranjangService::class)->isi()->isEmpty()) {
             return;
         }
@@ -104,7 +104,7 @@ class CheckoutRequest extends FormRequest
 
         try {
             $this->layananTerpilih = $ongkir->pilih((string) $this->input('layanan'), $this->kodePosTujuan());
-        } catch (BiteshipException $galat) {
+        } catch (OngkirGagalException $galat) {
             report($galat);
             $validator->errors()->add('layanan', 'Ongkir belum bisa dihitung, coba lagi sebentar lagi.');
 

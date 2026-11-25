@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Exceptions\BiteshipException;
+use App\Exceptions\OngkirGagalException;
 use App\Models\Product;
 use App\Models\Wilayah;
 use Illuminate\Support\Collection;
 
 /**
- * Ongkir keranjang toko dari Biteship. Barang dikirim langsung oleh supplier,
+ * Ongkir keranjang toko dari RajaOngkir (gratis sampai batas harian) dengan Biteship sebagai cadangan (lihat PenyediaOngkirToko). Barang dikirim langsung oleh supplier,
  * jadi keranjang dibagi per kode pos asal supplier, tiap kelompok dihitung
  * sendiri, dan layanan kurir yang ditawarkan hanya yang tersedia di semua
  * kelompok (ongkirnya dijumlahkan). Harga tidak pernah diterima dari browser:
@@ -16,17 +16,17 @@ use Illuminate\Support\Collection;
  */
 class OngkirTokoService
 {
-    /** Kode layanan "ongkir tetap" saat Biteship gagal; mengikuti format kurir:layanan. */
+    /** Kode layanan "ongkir tetap" saat penyedia ongkir gagal; mengikuti format kurir:layanan. */
     public const KODE_DARURAT = 'darurat:tetap';
 
     public function __construct(
-        private readonly BiteshipService $biteship,
+        private readonly PenyediaOngkirToko $penyedia,
         private readonly KeranjangService $keranjang,
     ) {}
 
     public function aktif(): bool
     {
-        return $this->biteship->aktif();
+        return $this->penyedia->aktif();
     }
 
     /**
@@ -36,7 +36,7 @@ class OngkirTokoService
      *
      * @return array<int, array{kode: string, courier_code: string, courier_name: string, service_code: string, service_name: string, label: string, duration: string, price: int, paket: array<int, array{asal: string, kodePos: string, barang: array<int, string>, price: int}>}>
      *
-     * @throws BiteshipException
+     * @throws OngkirGagalException
      */
     public function opsi(string $kodePosTujuan): array
     {
@@ -49,7 +49,7 @@ class OngkirTokoService
         $kelompokTarif = [];
 
         foreach ($isi->groupBy(fn (array $baris) => $this->kodePosAsal($baris['product'])) as $kodePosAsal => $kelompok) {
-            $tarif = $this->biteship->tarif((string) $kodePosAsal, $kodePosTujuan, $kelompok->map(fn (array $baris) => [
+            $tarif = $this->penyedia->tarif((string) $kodePosAsal, $kodePosTujuan, $kelompok->map(fn (array $baris) => [
                 'name' => $baris['variant'] ? "{$baris['product']->name} ({$baris['variant']->name})" : $baris['product']->name,
                 'value' => (int) $baris['harga'],
                 'weight' => $baris['product']->weight_gram > 0 ? (int) $baris['product']->weight_gram : (int) config('biteship.berat_bawaan'),
@@ -97,7 +97,7 @@ class OngkirTokoService
     }
 
     /**
-     * Cadangan kalau tarif Biteship tidak bisa diambil: satu pilihan ongkir
+     * Cadangan kalau tarif tidak bisa diambil dari penyedia manapun: satu pilihan ongkir
      * tetap (TOKO_ONGKIR_FLAT), kurirnya dipilih toko saat mengirim. Null kalau dimatikan.
      *
      * @return array<string, mixed>|null
@@ -126,7 +126,7 @@ class OngkirTokoService
      *
      * @return array<string, mixed>|null
      *
-     * @throws BiteshipException
+     * @throws OngkirGagalException
      */
     public function pilih(string $kode, string $kodePosTujuan): ?array
     {
@@ -138,7 +138,7 @@ class OngkirTokoService
     }
 
     /**
-     * Ongkir tetap hanya sah selama tarif Biteship memang masih tidak bisa
+     * Ongkir tetap hanya sah selama tarif memang masih tidak bisa
      * diambil. Kalau tarif sudah normal, pembeli diminta memilih ulang supaya
      * ongkir tetap tidak dipakai untuk menghindari ongkir yang sebenarnya.
      *
@@ -148,7 +148,7 @@ class OngkirTokoService
     {
         try {
             $this->opsi($kodePosTujuan);
-        } catch (BiteshipException) {
+        } catch (OngkirGagalException) {
             return $this->opsiDarurat();
         }
 
@@ -162,7 +162,7 @@ class OngkirTokoService
         $kodePos = $product->origin_postal_code ?: $product->supplier?->origin_postal_code ?: config('biteship.origin_postal_code');
 
         if (! is_string($kodePos) || ! preg_match('/^\d{5}$/', $kodePos)) {
-            throw new BiteshipException("Kode pos asal pengiriman untuk \"{$product->name}\" belum diatur.");
+            throw new OngkirGagalException("Kode pos asal pengiriman untuk \"{$product->name}\" belum diatur.");
         }
 
         return $kodePos;

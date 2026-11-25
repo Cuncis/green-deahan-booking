@@ -70,6 +70,8 @@ class BiteshipService
      */
     private function ambilTarif(array $badan): array
     {
+        $this->catatPemakaian();
+
         try {
             $respons = Http::baseUrl((string) config('biteship.base_url'))
                 ->withHeaders(['Authorization' => (string) config('biteship.api_key')])
@@ -118,6 +120,43 @@ class BiteshipService
         usort($hasil, fn (array $a, array $b) => $a['price'] <=> $b['price']);
 
         return $hasil;
+    }
+
+    /**
+     * Permintaan ke Biteship hari ini dan bulan ini (WIB), untuk memantau biaya (Rp5 per permintaan).
+     * Hasil yang di cache tidak dihitung karena tidak memanggil API.
+     *
+     * @return array{hariIni: int, bulanIni: int, tarifPerPermintaan: int, biayaBulanIni: int}
+     */
+    public function pemakaian(): array
+    {
+        $bulanIni = (int) Cache::get($this->kunciBulan(), 0);
+        $tarif = (int) config('biteship.tarif_per_permintaan');
+
+        return [
+            'hariIni' => (int) Cache::get($this->kunciHari(), 0),
+            'bulanIni' => $bulanIni,
+            'tarifPerPermintaan' => $tarif,
+            'biayaBulanIni' => $bulanIni * $tarif,
+        ];
+    }
+
+    private function catatPemakaian(): void
+    {
+        foreach ([[$this->kunciHari(), now('Asia/Jakarta')->endOfDay()->addHour()], [$this->kunciBulan(), now('Asia/Jakarta')->endOfMonth()->addDays(2)]] as [$kunci, $berakhir]) {
+            Cache::add($kunci, 0, $berakhir);
+            Cache::increment($kunci);
+        }
+    }
+
+    private function kunciHari(): string
+    {
+        return 'biteship:pemakaian:'.now('Asia/Jakarta')->toDateString();
+    }
+
+    private function kunciBulan(): string
+    {
+        return 'biteship:pemakaian-bulan:'.now('Asia/Jakarta')->format('Y-m');
     }
 
     /**

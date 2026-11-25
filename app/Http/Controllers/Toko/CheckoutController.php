@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Toko;
 
 use App\Enums\OrderStatus;
-use App\Exceptions\BiteshipException;
 use App\Exceptions\MayarException;
+use App\Exceptions\OngkirGagalException;
 use App\Exceptions\PromoTokoException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Toko\CheckoutRequest;
@@ -60,7 +60,7 @@ class CheckoutController extends Controller
 
     /**
      * Layanan kurir dan ongkirnya untuk isi keranjang ke kelurahan tujuan,
-     * dari Biteship. Hanya untuk ditampilkan: saat bayar, ongkir dihitung
+     * dari RajaOngkir atau Biteship. Hanya untuk ditampilkan: saat bayar, ongkir dihitung
      * ulang dari layanan yang dipilih.
      */
     public function ongkir(Request $request): JsonResponse
@@ -90,10 +90,10 @@ class CheckoutController extends Controller
 
         try {
             $opsi = $this->ongkir->opsi($kodePos);
-        } catch (BiteshipException $galat) {
+        } catch (OngkirGagalException $galat) {
             report($galat);
 
-            // Alasan sebenarnya (pesan Biteship tidak pernah memuat API key) hanya tampil saat APP_DEBUG menyala.
+            // Alasan sebenarnya (pesan galat penyedia ongkir tidak pernah memuat API key) hanya tampil saat APP_DEBUG menyala.
             $detail = config('app.debug') ? $galat->getMessage() : null;
 
             if ($darurat = $this->ongkir->opsiDarurat()) {
@@ -161,7 +161,7 @@ class CheckoutController extends Controller
 
         $order = DB::transaction(function () use ($request, $isi, $data) {
             $subtotal = (int) $isi->sum(fn (array $baris) => $baris['harga'] * $baris['qty']);
-            // Ongkir dari layanan kurir yang dihitung ulang di server; ongkir flat kalau Biteship belum aktif.
+            // Ongkir dari layanan kurir yang dihitung ulang di server; ongkir flat kalau belum ada penyedia ongkir aktif.
             $ongkir = (int) ($data['shipping_cost'] ?? config('toko.ongkir_flat'));
 
             $kodePromo = (string) $request->input('promo_code', '');

@@ -15,7 +15,7 @@ class KeranjangService
 {
     private const KUNCI = 'toko.keranjang';
 
-    public function __construct(private readonly BiteshipService $biteship) {}
+    public function __construct(private readonly PenyediaOngkirToko $penyedia) {}
 
     /**
      * Kunci baris: "12" untuk produk tanpa varian, "12:5" untuk produk 12 varian 5.
@@ -174,8 +174,8 @@ class KeranjangService
     {
         $isi = $this->isi();
         $subtotal = (int) $isi->sum(fn (array $baris) => $baris['harga'] * $baris['qty']);
-        // Dengan Biteship aktif ongkir baru diketahui setelah alamat dan kurir dipilih di checkout.
-        $ongkirDinamis = $this->biteship->aktif();
+        // Dengan penyedia ongkir aktif (RajaOngkir atau Biteship) ongkir baru diketahui setelah alamat dan kurir dipilih di checkout.
+        $ongkirDinamis = $this->penyedia->aktif();
         $ongkir = $isi->isEmpty() ? 0 : ($ongkirDinamis ? null : (int) config('toko.ongkir_flat'));
 
         return [

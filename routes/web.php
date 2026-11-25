@@ -25,6 +25,7 @@ use App\Http\Controllers\Superadmin\NotifikasiController;
 use App\Http\Controllers\Superadmin\PengaturanNotifikasiController;
 use App\Http\Controllers\Superadmin\SeoAdminController;
 use App\Http\Controllers\Superadmin\SuperadminController;
+use App\Http\Controllers\Superadmin\Toko\PengaturanOngkirController;
 use App\Http\Controllers\Superadmin\Toko\PesananTokoAdminController;
 use App\Http\Controllers\Superadmin\Toko\ProdukTokoController;
 use App\Http\Controllers\Superadmin\Toko\PromoTokoController;
@@ -257,6 +258,12 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
             Route::post('/supplier', [SupplierTokoController::class, 'store'])->name('supplier.store');
             Route::put('/supplier/{supplier}', [SupplierTokoController::class, 'update'])->name('supplier.update');
             Route::delete('/supplier/{supplier}', [SupplierTokoController::class, 'destroy'])->name('supplier.destroy');
+
+            Route::get('/ongkir', [PengaturanOngkirController::class, 'edit'])->name('ongkir');
+            Route::put('/ongkir', [PengaturanOngkirController::class, 'update'])->name('ongkir.simpan');
+            Route::post('/ongkir/uji', [PengaturanOngkirController::class, 'uji'])->middleware('throttle:10,1')->name('ongkir.uji');
+            Route::post('/ongkir/coba-lagi', [PengaturanOngkirController::class, 'cobaLagi'])->name('ongkir.coba-lagi');
+            Route::post('/ongkir/setel-ulang', [PengaturanOngkirController::class, 'setelUlang'])->name('ongkir.setel-ulang');
 
             Route::get('/promo', [PromoTokoController::class, 'index'])->name('promo');
             Route::post('/promo', [PromoTokoController::class, 'store'])->name('promo.store');

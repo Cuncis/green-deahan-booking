@@ -36,6 +36,7 @@
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <env name="BITESHIP_API_KEY" value=""/>
+        <env name="RAJAONGKIR_API_KEY" value=""/>
         <env name="BITESHIP_ORIGIN_POSTAL_CODE" value=""/>
         <env name="MAYAR_BASE_URL" value="https://api.mayar.io"/>
         <env name="MAYAR_ENV" value="sandbox"/>

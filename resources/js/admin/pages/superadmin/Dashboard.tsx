@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import StatistikPengunjung, { type Statistik } from '../../components/StatistikPengunjung';
+import PemakaianOngkir, { type DataOngkir } from '../../components/toko/PemakaianOngkir';
 import RingkasanToko, { type DataRingkasanToko } from '../../components/toko/RingkasanToko';
 import { Badge, varianPaket } from '../../components/ui/badge';
 import { Card, CardHeader, CardTitle } from '../../components/ui/card';
@@ -27,6 +28,7 @@ interface Props {
     tenantTerbaru: TenantRingkas[];
     semuaTenantUrl: string;
     toko: DataRingkasanToko;
+    ongkir: DataOngkir & { url: string };
     pesananTokoUrl: string;
 }
 
@@ -43,7 +45,7 @@ function StatusTenant({ aktif }: { aktif: boolean }) {
     return <Badge variant={aktif ? 'confirmed' : 'cancelled'}>{aktif ? 'Aktif' : 'Nonaktif'}</Badge>;
 }
 
-export default function Dashboard({ statistikPengunjung, ringkasan, tenantTerbaru, semuaTenantUrl, toko, pesananTokoUrl }: Props) {
+export default function Dashboard({ statistikPengunjung, ringkasan, tenantTerbaru, semuaTenantUrl, toko, pesananTokoUrl, ongkir }: Props) {
     return (
         <AdminLayout judul="Dashboard" deskripsi="Ringkasan seluruh tenant dan pengunjung website di platform.">
             <Head title="Dashboard" />
@@ -57,6 +59,17 @@ export default function Dashboard({ statistikPengunjung, ringkasan, tenantTerbar
             </div>
 
             <RingkasanToko data={toko} pesananUrl={pesananTokoUrl} />
+
+            <Card className="mb-6 overflow-hidden">
+                <CardHeader className="flex-row items-center justify-between gap-3 border-b border-border py-4">
+                    <CardTitle className="text-xs uppercase tracking-wide text-green">Ongkir hari ini</CardTitle>
+                    <Link href={ongkir.url} className="inline-flex min-h-10 items-center gap-1 text-xs font-semibold text-plum hover:underline">
+                        Atur batas
+                        <ArrowRight className="size-3.5" />
+                    </Link>
+                </CardHeader>
+                <PemakaianOngkir data={ongkir} />
+            </Card>
 
             <section className="mb-6" aria-labelledby="judul-statistik-pengunjung">
                 <StatistikPengunjung data={statistikPengunjung} />
