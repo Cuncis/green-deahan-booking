@@ -32,10 +32,6 @@ export default function SinglePost({ artikel, terkait }: SinglePostProps) {
                 )}
                 <div className="entry-meta mt-3 d-sm-flex mb-5">
                     <span>
-                        <i className="feather-icon icon-calendar me-2"></i>
-                        {artikel.tanggal}
-                    </span>
-                    <span>
                         <i className="feather-icon icon-file-text me-2"></i>
                         <a href={BLOG_PATH}>{artikel.kategori}</a>
                     </span>
