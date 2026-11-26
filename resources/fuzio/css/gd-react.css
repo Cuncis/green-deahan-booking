@@ -1184,3 +1184,134 @@ header.header {
     color: #004d00;
   }
 }
+
+/* Halaman legal (pages/Legal.tsx) */
+.gd-legal-nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: sticky;
+  top: 110px;
+}
+.gd-legal-nav li + li {
+  margin-top: 4px;
+}
+.gd-legal-nav a {
+  display: block;
+  padding: 10px 14px;
+  border-radius: var(--gd-r-kontrol, 12px);
+  color: var(--gd-ink, #1a1a1a);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+.gd-legal-nav a:hover {
+  background: #e8f2e8;
+  color: var(--gd-green-dark, #004d00);
+}
+.gd-legal-nav a[aria-current='page'] {
+  background: var(--gd-green, #006400);
+  color: #fff;
+}
+.gd-legal-isi {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--body-color);
+  line-height: 1.75;
+}
+.gd-legal-tanggal {
+  font-size: 14px;
+  color: #6b6b6b;
+  margin-bottom: 8px;
+}
+.gd-legal-pembuka {
+  font-size: 17px;
+  margin-bottom: 28px;
+}
+.gd-legal-isi section + section {
+  margin-top: 28px;
+}
+.gd-legal-isi h2 {
+  font-size: 22px;
+  color: var(--gd-green, #006400);
+  margin-bottom: 12px;
+  text-transform: none;
+}
+.gd-legal-isi ul {
+  padding-left: 22px;
+  margin-bottom: 14px;
+}
+.gd-legal-isi li {
+  list-style: disc;
+  margin-bottom: 6px;
+}
+.gd-legal-isi li::marker {
+  color: var(--gd-green, #006400);
+}
+@media (max-width: 991.98px) {
+  .gd-legal-nav {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .gd-legal-nav li + li {
+    margin-top: 0;
+  }
+  .gd-legal-nav a {
+    padding: 8px 12px;
+    font-size: 14px;
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+  }
+}
+
+/* Tautan legal di footer dan persetujuan checkout */
+.footer .gd-footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 20px;
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+.footer .gd-footer-legal a {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+.footer .gd-footer-legal a:hover {
+  color: #fff;
+}
+.gd-setuju-legal {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--body-color);
+}
+.gd-form-toko .gd-setuju-legal label {
+  display: flex;
+  font-weight: 400;
+  color: inherit;
+  font-size: 14px;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  margin: 0;
+}
+form.form.checkout-form.gd-form-toko .gd-setuju-legal input[type='checkbox'] {
+  flex: 0 0 auto;
+  width: 20px;
+  min-height: 0;
+  height: 20px;
+  margin: 1px 0 0;
+  padding: 0;
+  accent-color: var(--gd-green, #006400);
+  cursor: pointer;
+}
+.gd-setuju-legal .galat {
+  margin-top: 6px;
+}
+.gd-setuju-legal a {
+  color: var(--gd-green, #006400);
+  text-decoration: underline;
+}

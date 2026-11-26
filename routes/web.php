@@ -115,6 +115,19 @@ $situsKorporat = function () {
     // paket di sana mengarah ke /daftar (TenantRegistrationController).
     Route::permanentRedirect('/harga', '/sistem-booking#paket');
 
+    // Halaman legal, isi di resources/js/data/legal.ts.
+    foreach ([
+        'kebijakan-privasi' => ['Kebijakan Privasi', 'Data pribadi yang dikumpulkan Green Deahan Sport, penggunaannya, pihak penerima, dan hak Anda sesuai UU Pelindungan Data Pribadi.'],
+        'syarat-ketentuan' => ['Syarat & Ketentuan', 'Syarat dan ketentuan penggunaan situs, toko online, pembayaran, dan Sistem Booking Green Deahan Sport.'],
+        'pengiriman-pengembalian' => ['Pengiriman & Pengembalian', 'Ketentuan pengiriman, komplain barang, penukaran, dan pengembalian dana pesanan toko online Green Deahan Sport.'],
+        'kebijakan-cookie' => ['Kebijakan Cookie', 'Cookie dan penyimpanan browser yang dipakai situs Green Deahan Sport serta cara mengaturnya.'],
+    ] as $slug => [$judul, $deskripsi]) {
+        Route::get('/'.$slug, fn () => Inertia::render('Legal', [
+            'slug' => $slug,
+            'meta' => ['title' => $judul.' - Green Deahan Sport', 'description' => $deskripsi],
+        ]))->name('legal.'.$slug);
+    }
+
     Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
     // Toko online (dropship), lihat App\Http\Controllers\Toko. Keranjang di

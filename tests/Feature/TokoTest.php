@@ -74,11 +74,22 @@ class TokoTest extends TestCase
 
         return array_merge([
             'customer_name' => 'Budi Santoso',
+            'setuju' => '1',
             'phone' => '0812-3456-7890',
             'email' => 'Budi@Contoh.com',
             'address' => 'Jl. Melati No. 10, RT 01/RW 02, Kebayoran',
             'wilayah_kode' => '31.74.01.1001',
         ], $override);
+    }
+
+    public function test_checkout_tanpa_centang_persetujuan_ditolak_dan_tidak_membuat_pesanan(): void
+    {
+        $this->post(self::SITUS.'/keranjang', ['product_id' => $this->produk()->id, 'qty' => 1]);
+
+        $this->post(self::SITUS.'/checkout', $this->dataPengiriman(['setuju' => '']))->assertSessionHasErrors('setuju');
+        $this->post(self::SITUS.'/checkout', array_diff_key($this->dataPengiriman(), ['setuju' => true]))->assertSessionHasErrors('setuju');
+
+        $this->assertSame(0, Order::count());
     }
 
     public function test_halaman_toko_menampilkan_produk_aktif_tanpa_data_privat(): void

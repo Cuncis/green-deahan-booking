@@ -47,6 +47,7 @@ class WilayahCheckoutTest extends TestCase
     {
         return array_merge([
             'customer_name' => 'Budi Santoso',
+            'setuju' => '1',
             'phone' => '081234567890',
             'email' => 'budi@contoh.com',
             'address' => 'Jl. Melati No. 10, RT 01/RW 02',

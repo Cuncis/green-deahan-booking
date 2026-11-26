@@ -10,7 +10,7 @@ import PesanFlash from '../../components/fuzio/toko/PesanFlash';
 import { rupiah, type Keranjang } from '../../components/fuzio/toko/types';
 import { GD_CDN } from '../../data/greendeahan';
 
-type Kolom = 'customer_name' | 'phone' | 'email' | 'address' | 'wilayah_kode' | 'postal_code' | 'layanan' | 'promo_code';
+type Kolom = 'customer_name' | 'phone' | 'email' | 'address' | 'wilayah_kode' | 'postal_code' | 'layanan' | 'promo_code' | 'setuju';
 
 interface OpsiKirim {
     kode: string;
@@ -280,7 +280,7 @@ export default function Checkout({
     ongkirUrl: string;
     promoUrl: string;
 }) {
-    const form = useForm<Record<Kolom, string>>({ customer_name: '', phone: '', email: '', address: '', wilayah_kode: '', postal_code: '', layanan: '', promo_code: '' });
+    const form = useForm<Record<Kolom, string>>({ customer_name: '', phone: '', email: '', address: '', wilayah_kode: '', postal_code: '', layanan: '', promo_code: '', setuju: '' });
     const [provinsi, setProvinsi] = useState('');
     const [kota, setKota] = useState('');
     const [kecamatan, setKecamatan] = useState('');
@@ -669,7 +669,41 @@ export default function Checkout({
                                             </p>
                                         </div>
 
-                                        <div className="text-center mt-4">
+                                        <div className="gd-setuju-legal mt-4">
+                                            <label htmlFor="setuju">
+                                                <input
+                                                    id="setuju"
+                                                    type="checkbox"
+                                                    required
+                                                    checked={form.data.setuju === '1'}
+                                                    onChange={(event) => form.setData('setuju', event.target.checked ? '1' : '')}
+                                                    aria-invalid={Boolean(form.errors.setuju)}
+                                                    aria-describedby={form.errors.setuju ? 'setuju-galat' : undefined}
+                                                />
+                                                <span>
+                                                    Saya sudah membaca dan menyetujui{' '}
+                                                    <a href="/syarat-ketentuan" target="_blank" rel="noopener">
+                                                        Syarat &amp; Ketentuan
+                                                    </a>
+                                                    ,{' '}
+                                                    <a href="/pengiriman-pengembalian" target="_blank" rel="noopener">
+                                                        Pengiriman &amp; Pengembalian
+                                                    </a>
+                                                    , dan{' '}
+                                                    <a href="/kebijakan-privasi" target="_blank" rel="noopener">
+                                                        Kebijakan Privasi
+                                                    </a>
+                                                    .
+                                                </span>
+                                            </label>
+                                            {form.errors.setuju && (
+                                                <div id="setuju-galat" className="galat" role="alert">
+                                                    {form.errors.setuju}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="text-center mt-3">
                                             <button
                                                 type="submit"
                                                 className="btn btn-primary btn-cta d-block w-100"

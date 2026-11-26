@@ -15,8 +15,8 @@ interface BannerPromo {
     tundaDetik: number;
 }
 
-/** Halaman transaksi dan pendaftaran tidak pernah diganggu pop-up. */
-const HALAMAN_BEBAS = ['/checkout', '/keranjang', '/pesanan', '/daftar'];
+/** Halaman transaksi, pendaftaran, dan legal tidak pernah diganggu pop-up. */
+const HALAMAN_BEBAS = ['/checkout', '/keranjang', '/pesanan', '/daftar', '/kebijakan-privasi', '/syarat-ketentuan', '/pengiriman-pengembalian', '/kebijakan-cookie'];
 
 /** Untuk frekuensi "selalu": tampil sekali per pemuatan halaman, bukan di tiap perpindahan halaman. */
 let sudahTampilDiMuatan = false;

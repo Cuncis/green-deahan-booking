@@ -357,7 +357,7 @@ class RajaOngkirTest extends TestCase
         $this->isiKeranjang($this->produk());
 
         $this->post(self::SITUS.'/checkout', [
-            'customer_name' => 'Budi Santoso', 'phone' => '081234567890', 'email' => 'budi@contoh.com',
+            'customer_name' => 'Budi Santoso', 'setuju' => '1', 'phone' => '081234567890', 'email' => 'budi@contoh.com',
             'address' => 'Jl. Melati No. 10, RT 01/RW 02', 'wilayah_kode' => '31.74.01.1001',
             'layanan' => 'jne:reg', 'shipping_cost' => 1,
         ])->assertRedirect('https://testingmayar.myr.id/pl/abc');
@@ -375,7 +375,7 @@ class RajaOngkirTest extends TestCase
         $this->isiKeranjang($this->produk());
 
         $this->post(self::SITUS.'/checkout', [
-            'customer_name' => 'Budi Santoso', 'phone' => '081234567890', 'email' => 'budi@contoh.com',
+            'customer_name' => 'Budi Santoso', 'setuju' => '1', 'phone' => '081234567890', 'email' => 'budi@contoh.com',
             'address' => 'Jl. Melati No. 10, RT 01/RW 02', 'wilayah_kode' => '31.74.01.1001', 'layanan' => 'jne:yes',
         ])->assertSessionHasErrors('layanan');
 

@@ -38,6 +38,10 @@ class SeoMetaHalamanTest extends TestCase
             'sistem booking' => ['/sistem-booking'],
             'daftar' => ['/daftar'],
             'toko' => ['/toko'],
+            'kebijakan privasi' => ['/kebijakan-privasi'],
+            'syarat ketentuan' => ['/syarat-ketentuan'],
+            'pengiriman pengembalian' => ['/pengiriman-pengembalian'],
+            'kebijakan cookie' => ['/kebijakan-cookie'],
         ];
     }
 
@@ -50,5 +54,19 @@ class SeoMetaHalamanTest extends TestCase
                 ->where('meta.title', fn (string $judul) => mb_strlen($judul) <= self::MAKS_JUDUL)
                 ->where('meta.description', fn (string $deskripsi) => mb_strlen($deskripsi) <= self::MAKS_DESKRIPSI)
             );
+    }
+
+    public function test_halaman_legal_merender_dokumen_sesuai_slug_dan_masuk_sitemap(): void
+    {
+        foreach (['kebijakan-privasi', 'syarat-ketentuan', 'pengiriman-pengembalian', 'kebijakan-cookie'] as $slug) {
+            $this->get('http://greendeahan.com/'.$slug)
+                ->assertOk()
+                ->assertInertia(fn (Assert $page) => $page->component('Legal')->where('slug', $slug));
+        }
+
+        $this->get('http://greendeahan.com/sitemap.xml')
+            ->assertOk()
+            ->assertSee('http://greendeahan.com/kebijakan-privasi', false)
+            ->assertSee('http://greendeahan.com/kebijakan-cookie', false);
     }
 }

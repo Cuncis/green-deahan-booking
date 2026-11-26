@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import PopupBanner from './PopupBanner';
 import WhatsAppIcon from './elements/WhatsAppIcon';
+import { tautanLegal } from '../../data/legal';
 import { GD_EMAIL, GD_HOURS, GD_PHONE_DISPLAY, menuFooter, menuFooterLayanan, socialLinks, waLink } from '../../data/greendeahan';
 
 /** Port of Fuzio's Footer, as customized in the Fuzio clone. */
@@ -95,6 +96,13 @@ export default function Footer() {
                     </div>
                     <div className="row pt-5 my-0 mt-5">
                         <div className="col-lg-12 pt-4 copy-right">
+                            <ul className="gd-footer-legal">
+                                {tautanLegal.map((item) => (
+                                    <li key={item.path}>
+                                        <a href={item.path}>{item.label}</a>
+                                    </li>
+                                ))}
+                            </ul>
                             <p className="m-0 text-center">Copyright © 2026 Green Deahan Sport. Seluruh hak cipta dilindungi.</p>
                         </div>
                     </div>

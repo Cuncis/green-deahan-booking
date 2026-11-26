@@ -51,6 +51,8 @@ class CheckoutRequest extends FormRequest
             'layanan' => ['nullable', 'string', 'max:80', 'regex:/^[a-z0-9_]+:[a-z0-9_]+$/i'],
             // Diperiksa dan dihitung ulang di CheckoutController saat pesanan dibuat.
             'promo_code' => ['nullable', 'string', 'max:40'],
+            // Persetujuan Syarat & Ketentuan, Pengiriman & Pengembalian, dan Kebijakan Privasi.
+            'setuju' => ['accepted'],
         ];
     }
 
@@ -186,6 +188,7 @@ class CheckoutRequest extends FormRequest
             'layanan.regex' => 'Pilihan pengiriman tidak valid.',
             'wilayah_kode.required' => 'Pilih provinsi, kota/kabupaten, kecamatan, dan kelurahan.',
             'wilayah_kode.exists' => 'Kelurahan yang dipilih tidak dikenal, pilih ulang dari daftar.',
+            'setuju.accepted' => 'Centang persetujuan Syarat & Ketentuan, Pengiriman & Pengembalian, dan Kebijakan Privasi.',
             'address.min' => 'Tulis alamat lengkap (jalan, nomor rumah, RT/RW, kelurahan).',
         ];
     }

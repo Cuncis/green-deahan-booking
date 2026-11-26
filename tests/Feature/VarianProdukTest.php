@@ -178,7 +178,7 @@ class VarianProdukTest extends TestCase
         $this->post(self::SITUS.'/keranjang', ['product_id' => $produk->id, 'variant_id' => $putih->id, 'qty' => 1]);
 
         $this->post(self::SITUS.'/checkout', [
-            'customer_name' => 'Budi Santoso', 'phone' => '081234567890', 'email' => 'budi@contoh.com',
+            'customer_name' => 'Budi Santoso', 'setuju' => '1', 'phone' => '081234567890', 'email' => 'budi@contoh.com',
             'address' => 'Jl. Melati No. 10, RT 01/RW 02', 'wilayah_kode' => '31.74.01.1001',
         ])->assertRedirect('https://testingmayar.myr.id/pl/abc');
 
