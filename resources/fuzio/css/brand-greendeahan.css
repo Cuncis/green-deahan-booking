@@ -1205,26 +1205,44 @@ body:has(header.header-football) .single-entry2:hover .btn-link {
 
 .galeri-filter button .count {
   display: inline-block;
-  min-width: 24px;
+  min-width: 26px;
   margin-left: 4px;
-  padding: 1px 7px;
+  padding: 1px 8px;
   border-radius: 50rem;
-  background-color: #f4faf4;
+  background-color: #d7ead7;
+  color: #004d00;
   font-size: 12px;
+  line-height: 1.6;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .galeri-filter button:hover {
   border-color: var(--primary);
+  background-color: #e8f2e8;
+  color: #004d00;
 }
 
-.galeri-filter button.active {
+.galeri-filter button:hover .count {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.galeri-filter button:focus-visible {
+  outline: 2px solid #004d00;
+  outline-offset: 2px;
+}
+
+.galeri-filter button.active,
+.galeri-filter button.active:hover {
   background-color: var(--primary);
   border-color: var(--primary);
   color: #fff;
 }
 
-.galeri-filter button.active .count {
-  background-color: rgba(255, 255, 255, 0.2);
+.galeri-filter button.active .count,
+.galeri-filter button.active:hover .count {
+  background-color: #fff;
+  color: #004d00;
 }
 
 .galeri-grid {
