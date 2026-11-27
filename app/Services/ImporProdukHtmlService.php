@@ -35,7 +35,7 @@ class ImporProdukHtmlService
             'spesifikasi' => $this->spesifikasi($xpath),
             'varian' => $this->varian($xpath),
             'dikirimDari' => $this->dikirimDari($xpath),
-            'kategori' => $this->kategori($xpath),
+            'kategori' => $this->kategori($xpath, $this->nama($xpath)),
             'linkSupplier' => $this->linkSupplier($xpath),
             'namaSupplier' => $this->namaSupplier($xpath),
             'gambarUrl' => $this->gambarUrls($xpath)[0] ?? null,
@@ -270,11 +270,23 @@ class ImporProdukHtmlService
         return $baris;
     }
 
-    private function kategori(DOMXPath $xpath): ?string
+    /**
+     * Kategori ditebak dari merek di nama produk atau di tautan kategori
+     * Shopee. Tidak ada yang cocok: dibiarkan kosong, admin memilih sendiri.
+     */
+    private function kategori(DOMXPath $xpath, ?string $nama): ?string
     {
+        $teks = [$nama ?? ''];
+
         foreach ($xpath->query("//a[contains(@href,'-cat.')]") as $tautan) {
-            if (preg_match('/olahraga/iu', $tautan->textContent) && array_key_exists('olahraga', Product::KATEGORI)) {
-                return 'olahraga';
+            $teks[] = $tautan->textContent;
+        }
+
+        $teks = implode(' ', $teks);
+
+        foreach (['ortuseight', 'adidas', 'nike', 'saucony', 'pangsuma', 'trijee', 'reusch', 'juaraga'] as $merek) {
+            if (preg_match('/\b'.$merek.'\b/iu', $teks)) {
+                return $merek;
             }
         }
 

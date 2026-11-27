@@ -239,7 +239,7 @@ class VarianProdukTest extends TestCase
      */
     private function dasarProduk(): array
     {
-        return ['name' => 'Kaos Kaki Helios', 'slug' => 'kaos-kaki-helios', 'category' => 'olahraga', 'unit' => 'pcs', 'sell_price' => 38000, 'cost_price' => 24000, 'weight_gram' => 120, 'is_active' => '1'];
+        return ['name' => 'Kaos Kaki Helios', 'slug' => 'kaos-kaki-helios', 'category' => 'rank-product', 'unit' => 'pcs', 'sell_price' => 38000, 'cost_price' => 24000, 'weight_gram' => 120, 'is_active' => '1'];
     }
 
     public function test_admin_menyimpan_varian_baris_kosong_dibuang_dan_harga_kosong_jadi_null(): void

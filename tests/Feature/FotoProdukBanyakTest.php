@@ -38,7 +38,7 @@ class FotoProdukBanyakTest extends TestCase
         return array_merge([
             'name' => 'Jonas Knee Pad',
             'slug' => '',
-            'category' => 'olahraga',
+            'category' => 'rank-product',
             'unit' => 'pcs',
             'sell_price' => 199800,
             'cost_price' => 175310,

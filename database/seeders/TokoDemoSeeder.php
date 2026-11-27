@@ -30,12 +30,12 @@ class TokoDemoSeeder extends Seeder
 {
     /** @var array<string, string> warna foto placeholder per kategori */
     private const WARNA = [
-        'olahraga' => '#006400',
-        'rumput' => '#2E7D32',
-        'lantai' => '#455A64',
-        'pencahayaan' => '#F9A825',
-        'perlengkapan' => '#37474F',
-        'perawatan' => '#6D4C41',
+        'rank-product' => '#006400',
+        'ortuseight' => '#2E7D32',
+        'adidas' => '#455A64',
+        'saucony' => '#F9A825',
+        'nike' => '#37474F',
+        'reusch' => '#6D4C41',
     ];
 
     /** @var array<string, array<int, array{nama: string, nilai: string}>> spesifikasi contoh per produk */
@@ -124,19 +124,19 @@ class TokoDemoSeeder extends Seeder
     {
         // [kunci, nama, kategori, satuan, jual, coret, modal, berat gram, badge, aktif, supplier, jumlah foto, deskripsi]
         $daftar = [
-            ['bola-padel', 'Bola Padel Premium (Tabung Isi 3)', 'olahraga', 'tabung', 119000, 135000, 92000, 260, 'Terlaris', true, 'a', 3, "Satu tabung berisi 3 bola padel bertekanan, pantulan stabil untuk latihan dan pertandingan.\n\nCocok untuk lapangan padel indoor maupun outdoor."],
-            ['overgrip', 'Overgrip Raket Padel dan Badminton (Isi 6)', 'olahraga', 'pak', 45000, null, 28000, 90, null, true, 'a', 2, 'Enam overgrip anti licin dan menyerap keringat, mudah dipasang di raket padel maupun badminton.'],
-            ['deker', 'Deker Futsal Pelindung Tulang Kering', 'olahraga', 'pcs', 69000, 85000, 45000, 220, 'Promo', true, 'a', 2, 'Pelindung tulang kering ringan dengan bantalan busa, nyaman dipakai selama pertandingan.'],
-            ['kaos-kaki', 'Kaos Kaki Bola Anti Selip', 'olahraga', 'pcs', 39000, null, 24000, 120, 'Baru', true, 'a', 1, 'Kaos kaki panjang dengan grip anti selip di telapak, bahan cepat kering.'],
-            ['knee-pad', 'Knee Pad Busa Classic', 'olahraga', 'pcs', 89000, null, 60000, 180, null, true, 'a', 1, 'Pelindung lutut berbahan busa tebal untuk kiper futsal dan pemain padel.'],
-            ['botol', 'Botol Minum Olahraga 1 Liter', 'olahraga', 'pcs', 55000, null, 33000, 250, null, true, 'a', 1, 'Botol 1 liter bebas BPA dengan penanda volume dan tutup anti bocor.'],
-            ['rumput-futsal', 'Rumput Sintetis Futsal 40mm', 'rumput', 'm²', 185000, 210000, 150000, 4500, 'Terlaris', true, 'b', 3, "Rumput sintetis tinggi 40mm dengan serat padat, tahan gesekan untuk lapangan futsal.\n\nHarga per meter persegi."],
-            ['rumput-padel', 'Rumput Sintetis Padel 12mm', 'rumput', 'm²', 165000, null, 130000, 3200, 'Baru', true, 'b', 1, 'Rumput sintetis 12mm dengan permukaan rata dan kecepatan bola yang konsisten untuk lapangan padel.'],
-            ['interlock', 'Lantai Interlock Futsal', 'lantai', 'm²', 275000, 300000, 220000, 6000, null, true, 'b', 2, 'Lantai modular interlock tahan benturan, mudah dipasang tanpa lem.'],
-            ['lampu', 'Lampu Sorot LED 200W', 'pencahayaan', 'unit', 1250000, 1400000, 1000000, 2800, 'Promo', true, 'c', 2, 'Lampu sorot LED 200W tahan cuaca, terang merata untuk lapangan outdoor.'],
-            ['net-padel', 'Net Padel Standar', 'perlengkapan', 'set', 1900000, null, 1550000, 2200, null, true, 'c', 1, 'Net padel standar lengkap dengan tali penegang.'],
-            ['pasir', 'Pasir Silika (Sak)', 'perawatan', 'sak', 65000, null, 48000, 25000, null, true, 'b', 1, 'Pasir silika untuk pengisi rumput sintetis, per sak 25 kg.'],
-            ['gawang', 'Gawang Futsal Standar', 'perlengkapan', 'pasang', 4500000, null, 3700000, 18000, null, false, 'c', 0, 'Produk nonaktif contoh: tidak tampil di toko.'],
+            ['bola-padel', 'Bola Padel Premium (Tabung Isi 3)', 'rank-product', 'tabung', 119000, 135000, 92000, 260, 'Terlaris', true, 'a', 3, "Satu tabung berisi 3 bola padel bertekanan, pantulan stabil untuk latihan dan pertandingan.\n\nCocok untuk lapangan padel indoor maupun outdoor."],
+            ['overgrip', 'Overgrip Raket Padel dan Badminton (Isi 6)', 'rank-product', 'pak', 45000, null, 28000, 90, null, true, 'a', 2, 'Enam overgrip anti licin dan menyerap keringat, mudah dipasang di raket padel maupun badminton.'],
+            ['deker', 'Deker Futsal Pelindung Tulang Kering', 'rank-product', 'pcs', 69000, 85000, 45000, 220, 'Promo', true, 'a', 2, 'Pelindung tulang kering ringan dengan bantalan busa, nyaman dipakai selama pertandingan.'],
+            ['kaos-kaki', 'Kaos Kaki Bola Anti Selip', 'rank-product', 'pcs', 39000, null, 24000, 120, 'Baru', true, 'a', 1, 'Kaos kaki panjang dengan grip anti selip di telapak, bahan cepat kering.'],
+            ['knee-pad', 'Knee Pad Busa Classic', 'rank-product', 'pcs', 89000, null, 60000, 180, null, true, 'a', 1, 'Pelindung lutut berbahan busa tebal untuk kiper futsal dan pemain padel.'],
+            ['botol', 'Botol Minum Olahraga 1 Liter', 'rank-product', 'pcs', 55000, null, 33000, 250, null, true, 'a', 1, 'Botol 1 liter bebas BPA dengan penanda volume dan tutup anti bocor.'],
+            ['rumput-futsal', 'Rumput Sintetis Futsal 40mm', 'ortuseight', 'm²', 185000, 210000, 150000, 4500, 'Terlaris', true, 'b', 3, "Rumput sintetis tinggi 40mm dengan serat padat, tahan gesekan untuk lapangan futsal.\n\nHarga per meter persegi."],
+            ['rumput-padel', 'Rumput Sintetis Padel 12mm', 'ortuseight', 'm²', 165000, null, 130000, 3200, 'Baru', true, 'b', 1, 'Rumput sintetis 12mm dengan permukaan rata dan kecepatan bola yang konsisten untuk lapangan padel.'],
+            ['interlock', 'Lantai Interlock Futsal', 'adidas', 'm²', 275000, 300000, 220000, 6000, null, true, 'b', 2, 'Lantai modular interlock tahan benturan, mudah dipasang tanpa lem.'],
+            ['lampu', 'Lampu Sorot LED 200W', 'saucony', 'unit', 1250000, 1400000, 1000000, 2800, 'Promo', true, 'c', 2, 'Lampu sorot LED 200W tahan cuaca, terang merata untuk lapangan outdoor.'],
+            ['net-padel', 'Net Padel Standar', 'nike', 'set', 1900000, null, 1550000, 2200, null, true, 'c', 1, 'Net padel standar lengkap dengan tali penegang.'],
+            ['pasir', 'Pasir Silika (Sak)', 'reusch', 'sak', 65000, null, 48000, 25000, null, true, 'b', 1, 'Pasir silika untuk pengisi rumput sintetis, per sak 25 kg.'],
+            ['gawang', 'Gawang Futsal Standar', 'nike', 'pasang', 4500000, null, 3700000, 18000, null, false, 'c', 0, 'Produk nonaktif contoh: tidak tampil di toko.'],
         ];
 
         $hasil = [];

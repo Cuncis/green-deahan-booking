@@ -62,7 +62,7 @@ class TokoAdminTest extends TestCase
         $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
             'name' => 'Bola Padel Isi 3',
             'slug' => '',
-            'category' => 'olahraga',
+            'category' => 'rank-product',
             'unit' => 'tabung',
             'badge' => 'Baru',
             'description' => 'Tabung isi 3.',
@@ -93,7 +93,7 @@ class TokoAdminTest extends TestCase
     public function test_spesifikasi_produk_disimpan_baris_kosong_dibuang_dan_bisa_dikosongkan(): void
     {
         $admin = $this->superadmin();
-        $dasar = ['name' => 'Kaos Kaki', 'slug' => 'kaos-kaki', 'category' => 'olahraga', 'unit' => 'pcs', 'sell_price' => 45000, 'cost_price' => 30000, 'weight_gram' => 120, 'is_active' => '1'];
+        $dasar = ['name' => 'Kaos Kaki', 'slug' => 'kaos-kaki', 'category' => 'rank-product', 'unit' => 'pcs', 'sell_price' => 45000, 'cost_price' => 30000, 'weight_gram' => 120, 'is_active' => '1'];
 
         $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'specs' => [
             ['nama' => ' Merek ', 'nilai' => 'Ortuseight'],
@@ -115,7 +115,7 @@ class TokoAdminTest extends TestCase
     public function test_spesifikasi_wajib_lengkap_dan_dibatasi(): void
     {
         $admin = $this->superadmin();
-        $dasar = ['name' => 'Kaos Kaki', 'slug' => 'kaos-kaki', 'category' => 'olahraga', 'unit' => 'pcs', 'sell_price' => 45000, 'cost_price' => 30000, 'weight_gram' => 120, 'is_active' => '1'];
+        $dasar = ['name' => 'Kaos Kaki', 'slug' => 'kaos-kaki', 'category' => 'rank-product', 'unit' => 'pcs', 'sell_price' => 45000, 'cost_price' => 30000, 'weight_gram' => 120, 'is_active' => '1'];
 
         $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'specs' => [['nama' => 'Merek', 'nilai' => '']]])->assertSessionHasErrors('specs.0.nilai');
         $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'specs' => [['nama' => '', 'nilai' => 'Nilon']]])->assertSessionHasErrors('specs.0.nama');
@@ -129,7 +129,7 @@ class TokoAdminTest extends TestCase
     public function test_kode_pos_asal_produk_opsional_harus_5_angka(): void
     {
         $admin = $this->superadmin();
-        $dasar = ['name' => 'Deker', 'slug' => 'deker', 'category' => 'olahraga', 'unit' => 'pcs', 'sell_price' => 50000, 'cost_price' => 30000, 'weight_gram' => 200, 'is_active' => '1'];
+        $dasar = ['name' => 'Deker', 'slug' => 'deker', 'category' => 'rank-product', 'unit' => 'pcs', 'sell_price' => 50000, 'cost_price' => 30000, 'weight_gram' => 200, 'is_active' => '1'];
 
         $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'origin_postal_code' => '6011'])->assertSessionHasErrors('origin_postal_code');
         $this->actingAs($admin)->post('/superadmin/toko/produk', [...$dasar, 'origin_postal_code' => 'abcde'])->assertSessionHasErrors('origin_postal_code');
@@ -466,7 +466,7 @@ class TokoAdminTest extends TestCase
         $admin = $this->superadmin();
 
         $this->actingAs($admin)->put("/superadmin/toko/produk/{$produk->id}", [
-            'name' => 'Baru', 'slug' => 'lama', 'category' => 'perlengkapan', 'unit' => 'set', 'sell_price' => 120000, 'cost_price' => 80000, 'weight_gram' => 0, 'is_active' => '0',
+            'name' => 'Baru', 'slug' => 'lama', 'category' => 'nike', 'unit' => 'set', 'sell_price' => 120000, 'cost_price' => 80000, 'weight_gram' => 0, 'is_active' => '0',
         ])->assertRedirect(route('superadmin.toko.produk'));
         $this->assertSame(['Baru', 120000, false], [$produk->fresh()->name, $produk->fresh()->sell_price, $produk->fresh()->is_active]);
 
@@ -478,7 +478,7 @@ class TokoAdminTest extends TestCase
     public function test_validasi_satuan_dan_harga_coret(): void
     {
         $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
-            'name' => 'Rumput', 'category' => 'rumput', 'unit' => 'karung-ajaib', 'sell_price' => 185000, 'compare_price' => 100000, 'cost_price' => 0, 'weight_gram' => 0, 'is_active' => '1',
+            'name' => 'Rumput', 'category' => 'ortuseight', 'unit' => 'karung-ajaib', 'sell_price' => 185000, 'compare_price' => 100000, 'cost_price' => 0, 'weight_gram' => 0, 'is_active' => '1',
         ])->assertSessionHasErrors(['unit', 'compare_price']);
 
         $this->assertSame(0, Product::count());

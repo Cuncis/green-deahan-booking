@@ -48,12 +48,16 @@ class Product extends Model
      * @var array<string, string>
      */
     public const KATEGORI = [
-        'rumput' => 'Rumput Sintetis',
-        'lantai' => 'Lantai Interlock',
-        'perlengkapan' => 'Perlengkapan Lapangan',
-        'pencahayaan' => 'Pencahayaan',
-        'perawatan' => 'Material Perawatan',
-        'olahraga' => 'Perlengkapan Olahraga',
+        'promo-sale' => 'Promo & Sale',
+        'ortuseight' => 'Ortuseight',
+        'adidas' => 'Adidas',
+        'nike' => 'Nike',
+        'saucony' => 'Saucony',
+        'pangsuma' => 'Pangsuma Official Merchandise',
+        'trijee' => 'Trijee Sportswear',
+        'reusch' => 'Reusch',
+        'rank-product' => 'Rank Product',
+        'juaraga' => 'Juaraga',
     ];
 
     /**

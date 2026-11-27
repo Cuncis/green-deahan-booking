@@ -94,7 +94,7 @@ class TokoTest extends TestCase
 
     public function test_halaman_toko_menampilkan_produk_aktif_tanpa_data_privat(): void
     {
-        $produk = $this->produk(['name' => 'Bola Padel', 'category' => 'olahraga', 'unit' => 'tabung', 'badge' => 'Terlaris', 'compare_price' => 110000]);
+        $produk = $this->produk(['name' => 'Bola Padel', 'category' => 'rank-product', 'unit' => 'tabung', 'badge' => 'Terlaris', 'compare_price' => 110000]);
         $this->produk(['name' => 'Produk Disembunyikan', 'is_active' => false]);
 
         $this->get(self::SITUS.'/toko')
@@ -110,7 +110,7 @@ class TokoTest extends TestCase
                 ->missing('produk.data.0.cost_price')
                 ->missing('produk.data.0.supplier_product_url')
                 ->missing('produk.data.0.supplier_id')
-                ->has('kategori', 6)
+                ->has('kategori', 10)
                 ->where('totalProduk', 1)
             )
             ->assertDontSee('rahasia-supplier')
@@ -150,14 +150,14 @@ class TokoTest extends TestCase
 
     public function test_filter_kategori_dan_produk_nonaktif_404(): void
     {
-        $this->produk(['category' => 'rumput']);
-        $this->produk(['category' => 'olahraga']);
-        $nonaktif = $this->produk(['is_active' => false, 'category' => 'rumput']);
+        $this->produk(['category' => 'ortuseight']);
+        $this->produk(['category' => 'rank-product']);
+        $nonaktif = $this->produk(['is_active' => false, 'category' => 'ortuseight']);
 
-        $this->get(self::SITUS.'/toko?kategori=olahraga')->assertInertia(fn (Assert $page) => $page
-            ->where('filter.kategori', 'olahraga')
+        $this->get(self::SITUS.'/toko?kategori=rank-product')->assertInertia(fn (Assert $page) => $page
+            ->where('filter.kategori', 'rank-product')
             ->where('produk.total', 1)
-            ->where('kategori', fn ($daftar) => collect($daftar)->firstWhere('nilai', 'rumput')['jumlah'] === 1)
+            ->where('kategori', fn ($daftar) => collect($daftar)->firstWhere('nilai', 'ortuseight')['jumlah'] === 1)
         );
         $this->get(self::SITUS.'/toko?kategori=tidak-ada')->assertInertia(fn (Assert $page) => $page->where('filter.kategori', null)->where('produk.total', 2));
         $this->get(self::SITUS.'/toko/'.$nonaktif->slug)->assertNotFound();
@@ -165,9 +165,9 @@ class TokoTest extends TestCase
 
     public function test_cari_urutkan_dan_halaman_produk(): void
     {
-        $this->produk(['name' => 'Rumput Sintetis Futsal', 'sell_price' => 185000, 'category' => 'rumput']);
-        $this->produk(['name' => 'Rumput Sintetis Padel', 'sell_price' => 165000, 'category' => 'rumput']);
-        $this->produk(['name' => 'Lampu LED', 'sell_price' => 1250000, 'category' => 'pencahayaan']);
+        $this->produk(['name' => 'Rumput Sintetis Futsal', 'sell_price' => 185000, 'category' => 'ortuseight']);
+        $this->produk(['name' => 'Rumput Sintetis Padel', 'sell_price' => 165000, 'category' => 'ortuseight']);
+        $this->produk(['name' => 'Lampu LED', 'sell_price' => 1250000, 'category' => 'saucony']);
 
         $this->get(self::SITUS.'/toko?q=rumput&urut=murah')->assertInertia(fn (Assert $page) => $page
             ->where('filter.q', 'rumput')
@@ -178,7 +178,7 @@ class TokoTest extends TestCase
         $this->get(self::SITUS.'/toko?urut=mahal')->assertInertia(fn (Assert $page) => $page->where('produk.data.0.name', 'Lampu LED'));
         $this->get(self::SITUS.'/toko?urut=ngawur')->assertInertia(fn (Assert $page) => $page->where('filter.urut', 'bawaan'));
 
-        Product::factory()->count(8)->create(['category' => 'olahraga']);
+        Product::factory()->count(8)->create(['category' => 'rank-product']);
         $this->get(self::SITUS.'/toko')->assertInertia(fn (Assert $page) => $page->where('produk.total', 11)->has('produk.data', 9)->where('produk.last_page', 2));
         $this->get(self::SITUS.'/toko?page=2')->assertInertia(fn (Assert $page) => $page->has('produk.data', 2));
     }

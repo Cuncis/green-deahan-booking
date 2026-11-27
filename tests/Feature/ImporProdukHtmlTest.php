@@ -48,7 +48,7 @@ class ImporProdukHtmlTest extends TestCase
         $hasil = (new ImporProdukHtmlService)->baca($this->html());
 
         $this->assertSame('Jonas Knee Pad / Knee Busa Classic V2 - Black', $hasil['nama']);
-        $this->assertSame('olahraga', $hasil['kategori']);
+        $this->assertNull($hasil['kategori']);
         $this->assertSame('https://shopee.co.id/product/119935350/7422104174', $hasil['linkSupplier']);
         $this->assertSame('RANK Sports Official', $hasil['namaSupplier']);
         $this->assertSame(self::GAMBAR, $hasil['gambarUrl']);
@@ -165,6 +165,15 @@ class ImporProdukHtmlTest extends TestCase
         $this->assertStringNotContainsString('sangat nyaman', $json);
     }
 
+    public function test_kategori_ditebak_dari_merek_di_nama_produk(): void
+    {
+        $service = new ImporProdukHtmlService;
+
+        $this->assertSame('ortuseight', $service->baca('<h1>Ortuseight Sepatu Futsal Zenith IN</h1>')['kategori']);
+        $this->assertSame('nike', $service->baca('<h1>Sepatu Bola NIKE Mercurial</h1>')['kategori']);
+        $this->assertNull($service->baca('<h1>Sepatu Futsal Tanpa Merek Dikenal</h1>')['kategori']);
+    }
+
     public function test_bagian_yang_tidak_ada_dikembalikan_null_bukan_galat(): void
     {
         $hasil = (new ImporProdukHtmlService)->baca('<h1>Hanya Judul</h1>');
@@ -228,7 +237,7 @@ class ImporProdukHtmlTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('superadmin/Toko/Produk/Form')
                 ->where('impor.nama', 'Jonas Knee Pad / Knee Busa Classic V2 - Black')
-                ->where('impor.kategori', 'olahraga')
+                ->where('impor.kategori', null)
                 ->where('impor.supplierId', $supplier->id)
                 ->where('impor.hargaShopee', 175310)
                 ->where('impor.hargaRetail', 199800)
@@ -269,7 +278,7 @@ class ImporProdukHtmlTest extends TestCase
 
         $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
             'name' => 'Jonas Knee Pad',
-            'category' => 'olahraga',
+            'category' => 'rank-product',
             'unit' => 'pcs',
             'sell_price' => 199000,
             'cost_price' => 150000,
@@ -293,7 +302,7 @@ class ImporProdukHtmlTest extends TestCase
 
         $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
             'name' => 'Jonas Knee Pad',
-            'category' => 'olahraga',
+            'category' => 'rank-product',
             'unit' => 'pcs',
             'sell_price' => 199000,
             'cost_price' => 150000,
@@ -313,7 +322,7 @@ class ImporProdukHtmlTest extends TestCase
 
         $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
             'name' => 'Jonas Knee Pad',
-            'category' => 'olahraga',
+            'category' => 'rank-product',
             'unit' => 'pcs',
             'sell_price' => 199000,
             'cost_price' => 150000,
@@ -331,7 +340,7 @@ class ImporProdukHtmlTest extends TestCase
         Storage::fake('public');
         $data = [
             'name' => 'Jonas Knee Pad',
-            'category' => 'olahraga',
+            'category' => 'rank-product',
             'unit' => 'pcs',
             'sell_price' => 199000,
             'cost_price' => 150000,
@@ -361,7 +370,7 @@ class ImporProdukHtmlTest extends TestCase
 
         $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', [
             'name' => 'Jonas Knee Pad',
-            'category' => 'olahraga',
+            'category' => 'rank-product',
             'unit' => 'pcs',
             'sell_price' => 199000,
             'cost_price' => 150000,
@@ -381,7 +390,7 @@ class ImporProdukHtmlTest extends TestCase
         $data = [
             'name' => 'Jonas Knee Pad / Knee Busa Classic V2 - Black',
             'slug' => '',
-            'category' => 'olahraga',
+            'category' => 'rank-product',
             'unit' => 'pcs',
             'sell_price' => 199800,
             'cost_price' => 175310,
