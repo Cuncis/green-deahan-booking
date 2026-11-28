@@ -3,7 +3,7 @@ import * as React from 'react';
 import { cn } from '../../lib/utils';
 
 /** Same colors as the Blade <x-badge> and <x-paket-badge> components. */
-const badgeVariants = cva('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold', {
+const badgeVariants = cva('inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-bold', {
     variants: {
         variant: {
             confirmed: 'bg-green-pale text-green',

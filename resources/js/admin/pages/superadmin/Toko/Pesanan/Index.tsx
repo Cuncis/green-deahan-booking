@@ -56,6 +56,19 @@ function TombolEmailUlang({ item }: { item: PesananBaris }) {
     );
 }
 
+/** "Kabupaten Banyuwangi" -> "Kab. Banyuwangi", "Kota Administrasi Jakarta Selatan" -> "Jakarta Selatan". */
+const singkatKota = (kota: string) => kota.replace(/^Kota Administrasi\s+/i, '').replace(/^Kabupaten\s+/i, 'Kab. ');
+
+/** Status badge, with the refund badge stacked under it instead of squeezed beside it. */
+function StatusPesanan({ item }: { item: PesananBaris }) {
+    return (
+        <div className="flex flex-col items-start gap-1">
+            <Badge variant={varianStatusPesanan(item.status)}>{item.statusLabel}</Badge>
+            {item.perluRefund && <Badge variant="pending">Perlu refund</Badge>}
+        </div>
+    );
+}
+
 function TombolKabari({ item }: { item: PesananBaris }) {
     return (
         <div className="flex items-center justify-center gap-1.5">
@@ -165,45 +178,42 @@ export default function Index({ pesanan, filterStatus, pilihanStatus, bypassBaya
                     <p className="px-5 py-6 text-center text-sm text-muted-foreground">Tidak ada pesanan dengan status ini.</p>
                 ) : (
                     <>
-                        <div className="hidden md:block">
+                        <div className="hidden xl:block">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Kode</TableHead>
+                                        <TableHead>Pesanan</TableHead>
                                         <TableHead>Pelanggan</TableHead>
-                                        <TableHead className="text-right">Total</TableHead>
-                                        <TableHead className="text-right">Untung</TableHead>
                                         <TableHead>Status</TableHead>
-                                        <TableHead>Tanggal</TableHead>
-                                        <TableHead className="text-center">Kabari</TableHead>
+                                        <TableHead className="text-right">Total</TableHead>
+                                        <TableHead className="w-28 text-center">Kabari</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {pesanan.data.map((item) => (
                                         <TableRow key={item.id}>
-                                            <TableCell>
-                                                <Link href={item.url} className="font-bold hover:text-green hover:underline">
+                                            <TableCell className="whitespace-nowrap py-3.5">
+                                                <Link href={item.url} className="font-bold tracking-tight hover:text-green hover:underline">
                                                     {item.kode}
                                                 </Link>
+                                                <div className="mt-0.5 text-xs text-muted-foreground">{item.tanggal}</div>
                                             </TableCell>
-                                            <TableCell>
-                                                {item.pelanggan}
-                                                <div className="text-xs text-muted-foreground">
-                                                    {item.kota}, {item.jumlahBarang} barang
+                                            <TableCell className="max-w-[16rem] py-3.5">
+                                                <div className="truncate font-medium" title={item.pelanggan}>
+                                                    {item.pelanggan}
+                                                </div>
+                                                <div className="truncate text-xs text-muted-foreground" title={`${item.kota}, ${item.jumlahBarang} barang`}>
+                                                    {singkatKota(item.kota)} · {item.jumlahBarang} barang
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-right tabular-nums">{rupiah(item.total)}</TableCell>
-                                            <TableCell className="text-right tabular-nums font-semibold text-green">{rupiah(item.untung)}</TableCell>
-                                            <TableCell>
-                                                <Badge variant={varianStatusPesanan(item.status)}>{item.statusLabel}</Badge>
-                                                {item.perluRefund && (
-                                                    <Badge variant="pending" className="ml-1.5">
-                                                        Perlu refund
-                                                    </Badge>
-                                                )}
+                                            <TableCell className="py-3.5">
+                                                <StatusPesanan item={item} />
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap text-ink-mid">{item.tanggal}</TableCell>
-                                            <TableCell className="text-center">
+                                            <TableCell className="whitespace-nowrap py-3.5 text-right tabular-nums">
+                                                <div className="font-semibold">{rupiah(item.total)}</div>
+                                                <div className="text-xs font-semibold text-green">untung {rupiah(item.untung)}</div>
+                                            </TableCell>
+                                            <TableCell className="py-3.5">
                                                 <TombolKabari item={item} />
                                             </TableCell>
                                         </TableRow>
@@ -211,22 +221,21 @@ export default function Index({ pesanan, filterStatus, pilihanStatus, bypassBaya
                                 </TableBody>
                             </Table>
                         </div>
-                        <ul className="divide-y divide-cream md:hidden">
+                        <ul className="divide-y divide-cream xl:hidden">
                             {pesanan.data.map((item) => (
-                                <li key={item.id} className="flex items-center gap-2 pr-4">
+                                <li key={item.id} className="flex items-center gap-3 pr-4">
                                     <Link href={item.url} className="block min-w-0 flex-1 px-4 py-3.5 active:bg-muted">
-                                        <div className="flex items-center justify-between gap-3">
-                                            <span className="font-bold">{item.kode}</span>
-                                            <span className="flex items-center gap-1.5">
-                                                <Badge variant={varianStatusPesanan(item.status)}>{item.statusLabel}</Badge>
-                                                {item.perluRefund && <Badge variant="pending">Perlu refund</Badge>}
-                                            </span>
+                                        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                                            <span className="whitespace-nowrap font-bold tracking-tight">{item.kode}</span>
+                                            <StatusPesanan item={item} />
                                         </div>
-                                        <div className="mt-1 text-sm">
-                                            {item.pelanggan}, {item.kota}
+                                        <div className="mt-1 truncate text-sm">
+                                            {item.pelanggan} · {singkatKota(item.kota)}
                                         </div>
-                                        <div className="text-xs text-muted-foreground">
-                                            {item.tanggal}, {rupiah(item.total)}, untung {rupiah(item.untung)}
+                                        <div className="text-xs text-muted-foreground">{item.tanggal}</div>
+                                        <div className="mt-0.5 flex flex-wrap gap-x-2 text-sm tabular-nums">
+                                            <span className="whitespace-nowrap font-semibold">{rupiah(item.total)}</span>
+                                            <span className="whitespace-nowrap text-xs font-semibold leading-5 text-green">untung {rupiah(item.untung)}</span>
                                         </div>
                                     </Link>
                                     <TombolKabari item={item} />
