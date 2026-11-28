@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, Copy, ExternalLink, Mail, Plus, X } from 'lucide-react';
+import { ArrowLeft, Copy, ExternalLink, ImageOff, Mail, Plus, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
 import WhatsAppIcon from '../../../../../components/fuzio/elements/WhatsAppIcon';
@@ -224,7 +224,7 @@ interface Pesanan {
         kodePos: string;
         alamatLengkap: string;
     };
-    items: { id: number; nama: string; varian: string | null; qty: number; harga: number; modal: number; linkSupplier: string | null }[];
+    items: { id: number; nama: string; varian: string | null; qty: number; harga: number; modal: number; linkSupplier: string | null; foto: string | null }[];
     subtotal: number;
     diskon: number;
     kodePromo: string | null;
@@ -350,14 +350,32 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
                         </CardHeader>
                         <ul className="divide-y divide-cream border-t border-border">
                             {pesanan.items.map((item) => (
-                                <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5">
-                                    <div>
-                                        <div className="font-semibold">
-                                            {item.qty} x {item.nama}
-                                            {item.varian && ` (${item.varian})`}
-                                        </div>
-                                        <div className="text-xs text-muted-foreground">
-                                            Jual {rupiah(item.harga)}, modal {rupiah(item.modal)} per barang
+                                <li key={item.id} className="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4">
+                                    <div className="flex min-w-0 flex-1 basis-64 items-center gap-3.5">
+                                        {item.foto ? (
+                                            <a
+                                                href={item.foto}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="size-16 shrink-0 overflow-hidden rounded-xl border border-border bg-muted transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green"
+                                                title="Buka foto ukuran penuh"
+                                            >
+                                                <img src={item.foto} alt={item.nama} className="size-full object-cover" loading="lazy" />
+                                            </a>
+                                        ) : (
+                                            <div className="flex size-16 shrink-0 items-center justify-center rounded-xl border border-border bg-muted" title="Produk tidak punya foto atau sudah dihapus">
+                                                <ImageOff className="size-5 text-muted-foreground" aria-hidden="true" />
+                                            </div>
+                                        )}
+                                        <div className="min-w-0">
+                                            <div className="font-semibold leading-snug">{item.nama}</div>
+                                            <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                                                <span className="rounded-full bg-green px-2 py-0.5 text-xs font-bold text-white">{item.qty} barang</span>
+                                                {item.varian && <span className="rounded-full border border-green-pale bg-green-pale/50 px-2 py-0.5 text-xs font-bold text-green">Varian: {item.varian}</span>}
+                                            </div>
+                                            <div className="mt-1 text-xs text-muted-foreground">
+                                                Jual {rupiah(item.harga)}, modal {rupiah(item.modal)} per barang
+                                            </div>
                                         </div>
                                     </div>
                                     {item.linkSupplier ? (

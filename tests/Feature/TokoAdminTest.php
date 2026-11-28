@@ -448,6 +448,19 @@ class TokoAdminTest extends TestCase
         $this->assertSame(0, $order->shipments()->count());
     }
 
+    public function test_detail_pesanan_menampilkan_foto_produk_tiap_barang(): void
+    {
+        $produk = Product::factory()->create(['image_path' => 'https://cdn.contoh.test/bola-padel.jpg', 'supplier_product_url' => 'https://shopee.co.id/bola']);
+        $order = $this->pesananDibayar();
+        $order->items()->create(['product_id' => $produk->id, 'product_name' => $produk->name, 'variant_name' => 'Kuning', 'unit_price' => 95000, 'unit_cost' => 75000, 'qty' => 1]);
+
+        $this->actingAs($this->superadmin())->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page
+            ->where('pesanan.items.0.foto', null)
+            ->where('pesanan.items.1.foto', 'https://cdn.contoh.test/bola-padel.jpg')
+            ->where('pesanan.items.1.varian', 'Kuning')
+            ->where('pesanan.items.1.linkSupplier', 'https://shopee.co.id/bola'));
+    }
+
     public function test_kirim_ulang_email_hanya_untuk_superadmin(): void
     {
         Mail::fake();

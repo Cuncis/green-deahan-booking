@@ -116,6 +116,7 @@ class PesananTokoAdminController extends Controller
                     'harga' => $item->unit_price,
                     'modal' => $item->unit_cost,
                     'linkSupplier' => $item->product?->supplier_product_url,
+                    'foto' => $item->product?->image_path,
                 ])->all(),
                 'subtotal' => $order->subtotal,
                 'diskon' => $order->discount,
