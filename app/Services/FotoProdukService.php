@@ -62,14 +62,18 @@ class FotoProdukService
      * sesuai urutan baru (id yang bukan milik produk ini diabaikan), foto lama
      * lainnya dihapus. Foto baru ditaruh setelahnya.
      *
+     * Foto utama pilihan admin ($utama) ditaruh paling depan: foto lama lewat
+     * id-nya, foto baru lewat urutannya di $alamatBaru.
+     *
      * @param  array<int, int>|null  $idUrut  null = tidak mengubah foto lama
      * @param  array<int, string>  $alamatBaru
+     * @param  array{jenis: 'ada'|'baru', nilai: int}|null  $utama
      */
-    public function terapkan(Product $product, ?array $idUrut, array $alamatBaru): void
+    public function terapkan(Product $product, ?array $idUrut, array $alamatBaru, ?array $utama = null): void
     {
         $dihapus = [];
 
-        DB::transaction(function () use ($product, $idUrut, $alamatBaru, &$dihapus) {
+        DB::transaction(function () use ($product, $idUrut, $alamatBaru, $utama, &$dihapus) {
             $lama = $product->images()->get()->keyBy('id');
 
             $urutan = $idUrut === null
@@ -84,6 +88,15 @@ class FotoProdukService
             }
 
             $nomor = 0;
+
+            if ($utama !== null && $utama['jenis'] === 'ada' && in_array($utama['nilai'], $urutan, true)) {
+                $urutan = [$utama['nilai'], ...array_values(array_diff($urutan, [$utama['nilai']]))];
+            }
+
+            if ($utama !== null && $utama['jenis'] === 'baru' && isset($alamatBaru[$utama['nilai']])) {
+                $product->images()->create(['path' => $alamatBaru[$utama['nilai']], 'urutan' => $nomor++]);
+                unset($alamatBaru[$utama['nilai']]);
+            }
 
             foreach ($urutan as $id) {
                 $lama[$id]->update(['urutan' => $nomor++]);

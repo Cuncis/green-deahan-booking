@@ -106,6 +106,8 @@ class ProdukRequest extends FormRequest
             'gambar_url' => ['nullable', 'string', 'max:500', $this->aturanAlamatGambar()],
             'gambar_urls' => ['nullable', 'array', 'max:'.FotoProdukService::MAKS_FOTO],
             'gambar_urls.*' => ['string', 'max:500', $this->aturanAlamatGambar()],
+            // Foto pilihan admin sebagai foto utama: foto lama (id), foto impor, atau unggahan baru (urutan di daftarnya).
+            'foto_utama' => ['nullable', 'string', 'regex:/^(ada|impor|baru):\d+$/'],
         ];
     }
 
@@ -150,6 +152,28 @@ class ProdukRequest extends FormRequest
     public function fotoBaru(): array
     {
         return array_values(array_filter([...(array) $this->file('foto_baru'), $this->file('foto')]));
+    }
+
+    /**
+     * Foto utama pilihan admin, dipetakan ke daftar yang dipakai
+     * FotoProdukService::terapkan(): foto lama lewat id-nya, foto baru lewat
+     * urutannya di hasil simpanBaru() (impor Shopee dulu, lalu unggahan).
+     *
+     * @return array{jenis: 'ada'|'baru', nilai: int}|null
+     */
+    public function fotoUtama(): ?array
+    {
+        if (! preg_match('/^(ada|impor|baru):(\d+)$/', (string) $this->input('foto_utama'), $cocok)) {
+            return null;
+        }
+
+        $nilai = (int) $cocok[2];
+
+        return match ($cocok[1]) {
+            'ada' => ['jenis' => 'ada', 'nilai' => $nilai],
+            'impor' => $nilai < count($this->gambarUrl()) ? ['jenis' => 'baru', 'nilai' => $nilai] : null,
+            default => $nilai < count($this->fotoBaru()) ? ['jenis' => 'baru', 'nilai' => count($this->gambarUrl()) + $nilai] : null,
+        };
     }
 
     /**

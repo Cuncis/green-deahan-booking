@@ -203,7 +203,7 @@ class ImporProdukHtmlService
         $hasil = [];
 
         foreach ($this->barisSpesifikasi($xpath) as $nama => $nilai) {
-            if (in_array(mb_strtolower($nama), $dibuang, true) || $nilai === '') {
+            if (in_array(mb_strtolower($nama), $dibuang, true) || Product::nilaiSpesifikasiKosong($nilai)) {
                 continue;
             }
 

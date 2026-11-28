@@ -403,6 +403,22 @@ class TokoTest extends TestCase
             ->where('timeline.1.kunci', 'kedaluwarsa')->where('timeline.1.keadaan', 'batal'));
     }
 
+    public function test_spesifikasi_kosong_atau_strip_tidak_tampil_di_halaman_produk(): void
+    {
+        $produk = $this->produk(['specs' => [
+            ['nama' => 'Merek', 'nilai' => 'ORTUSEIGHT'],
+            ['nama' => 'No.Sertifikat (SNI,K3L,UTTP)', 'nilai' => '-'],
+            ['nama' => 'Garansi', 'nilai' => 'N/A'],
+            ['nama' => 'Catatan', 'nilai' => '  '],
+            ['nama' => 'Jenis Kelamin', 'nilai' => 'Unisex'],
+        ]]);
+
+        $this->get(self::SITUS.'/toko/'.$produk->slug)->assertInertia(fn (Assert $page) => $page
+            ->where('produk.specs', [['nama' => 'Merek', 'nilai' => 'ORTUSEIGHT'], ['nama' => 'Jenis Kelamin', 'nilai' => 'Unisex']]));
+
+        $this->assertCount(5, $produk->fresh()->specs, 'Data asli di admin tetap utuh.');
+    }
+
     public function test_link_status_memakai_token_acak_bukan_kode_pesanan(): void
     {
         $order = Order::factory()->create();

@@ -89,6 +89,94 @@ class FotoProdukBanyakTest extends TestCase
         $this->assertCount(3, Storage::disk('public')->allFiles('produk'));
     }
 
+    /**
+     * Lebar gambar tersimpan, untuk mengenali foto mana yang jadi utama (nama file di storage acak).
+     */
+    private function lebar(string $alamat): int
+    {
+        $path = Storage::disk('public')->path(str_replace(asset('storage').'/', '', $alamat));
+
+        return getimagesize($path)[0];
+    }
+
+    public function test_tambah_produk_memilih_unggahan_ketiga_sebagai_utama(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', $this->data([
+            'foto_baru' => [UploadedFile::fake()->image('a.jpg', 11, 11), UploadedFile::fake()->image('b.jpg', 12, 12), UploadedFile::fake()->image('c.jpg', 13, 13)],
+            'foto_utama' => 'baru:2',
+        ]))->assertRedirect(route('superadmin.toko.produk'));
+
+        $produk = Product::sole();
+        $this->assertSame([13, 11, 12], $produk->images->map(fn ($foto) => $this->lebar($foto->path))->all());
+        $this->assertSame($produk->images->first()->path, $produk->image_path);
+    }
+
+    public function test_edit_memilih_foto_lama_atau_unggahan_baru_sebagai_utama(): void
+    {
+        Storage::fake('public');
+        $admin = $this->superadmin();
+        $this->actingAs($admin)->post('/superadmin/toko/produk', $this->data(['foto_baru' => [$this->jpg('a.jpg'), $this->jpg('b.jpg'), $this->jpg('c.jpg')]]));
+        $produk = Product::sole();
+        [$a, $b, $c] = $produk->images->all();
+
+        $this->actingAs($admin)->put("/superadmin/toko/produk/{$produk->id}", $this->data([
+            'foto_diatur' => '1',
+            'foto_ada' => [$a->id, $b->id, $c->id],
+            'foto_utama' => "ada:{$b->id}",
+        ]))->assertRedirect();
+
+        $produk->refresh();
+        $this->assertSame([$b->id, $a->id, $c->id], $produk->images->pluck('id')->all());
+        $this->assertSame($b->path, $produk->image_path);
+
+        $this->actingAs($admin)->put("/superadmin/toko/produk/{$produk->id}", $this->data([
+            'foto_diatur' => '1',
+            'foto_ada' => [$b->id, $a->id, $c->id],
+            'foto_baru' => [UploadedFile::fake()->image('d.jpg', 17, 17)],
+            'foto_utama' => 'baru:0',
+        ]))->assertRedirect();
+
+        $produk->refresh();
+        $this->assertSame(17, $this->lebar($produk->image_path));
+        $this->assertSame([$b->id, $a->id, $c->id], $produk->images->skip(1)->pluck('id')->values()->all());
+    }
+
+    public function test_foto_impor_bisa_dipilih_sebagai_utama_di_atas_unggahan(): void
+    {
+        Storage::fake('public');
+        $kecil = UploadedFile::fake()->image('x.png', 21, 21)->getContent();
+        $besar = UploadedFile::fake()->image('y.png', 22, 22)->getContent();
+        $satu = 'https://down-id.img.susercontent.com/file/satu';
+        $dua = 'https://down-id.img.susercontent.com/file/dua';
+        Http::fake([$satu => Http::response($kecil, 200, ['Content-Type' => 'image/png']), $dua => Http::response($besar, 200, ['Content-Type' => 'image/png'])]);
+
+        $this->actingAs($this->superadmin())->post('/superadmin/toko/produk', $this->data([
+            'gambar_urls' => [$satu, $dua],
+            'foto_baru' => [UploadedFile::fake()->image('u.jpg', 23, 23)],
+            'foto_utama' => 'impor:1',
+        ]))->assertRedirect();
+
+        $this->assertSame([22, 21, 23], Product::sole()->images->map(fn ($foto) => $this->lebar($foto->path))->all());
+    }
+
+    public function test_pilihan_foto_utama_tidak_valid_ditolak_dan_di_luar_jangkauan_diabaikan(): void
+    {
+        Storage::fake('public');
+        $admin = $this->superadmin();
+
+        $this->actingAs($admin)->post('/superadmin/toko/produk', $this->data(['foto_baru' => [$this->jpg('a.jpg')], 'foto_utama' => 'sembarang']))
+            ->assertSessionHasErrors('foto_utama');
+
+        $this->actingAs($admin)->post('/superadmin/toko/produk', $this->data([
+            'foto_baru' => [UploadedFile::fake()->image('a.jpg', 31, 31), UploadedFile::fake()->image('b.jpg', 32, 32)],
+            'foto_utama' => 'baru:9',
+        ]))->assertRedirect(route('superadmin.toko.produk'));
+
+        $this->assertSame([31, 32], Product::sole()->images->map(fn ($foto) => $this->lebar($foto->path))->all());
+    }
+
     public function test_menghapus_semua_foto_dikenali_walau_daftar_kosong(): void
     {
         Storage::fake('public');

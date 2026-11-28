@@ -222,6 +222,20 @@ class ImporProdukHtmlTest extends TestCase
         $this->assertContains(['nama' => 'Merek', 'nilai' => 'ORTUSEIGHT'], $hasil['spesifikasi']);
     }
 
+    public function test_spesifikasi_bernilai_strip_tidak_ikut_diimpor(): void
+    {
+        $html = '<h1>Sepatu</h1><section><h2>Spesifikasi Produk</h2><div>'
+            .'<div><h3>Merek</h3><a>ORTUSEIGHT</a></div>'
+            .'<div><h3>No.Sertifikat (SNI,K3L,UTTP)</h3><div>-</div></div>'
+            .'<div><h3>Bahan</h3><div>pu syntetic</div></div>'
+            .'</div></section>';
+
+        $this->assertSame(
+            [['nama' => 'Merek', 'nilai' => 'ORTUSEIGHT'], ['nama' => 'Bahan', 'nilai' => 'pu syntetic']],
+            (new ImporProdukHtmlService)->baca($html)['spesifikasi'],
+        );
+    }
+
     public function test_bagian_yang_tidak_ada_dikembalikan_null_bukan_galat(): void
     {
         $hasil = (new ImporProdukHtmlService)->baca('<h1>Hanya Judul</h1>');

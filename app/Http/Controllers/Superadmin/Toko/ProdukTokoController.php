@@ -100,7 +100,7 @@ class ProdukTokoController extends Controller
 
             return $product;
         });
-        $this->fotoProdukService->terapkan($product, [], $alamat);
+        $this->fotoProdukService->terapkan($product, [], $alamat, $request->fotoUtama());
 
         return redirect()->route('superadmin.toko.produk')->with('success', "Produk \"{$product->name}\" ditambahkan.");
     }
@@ -142,7 +142,7 @@ class ProdukTokoController extends Controller
             $product->update($data);
             $this->sinkronVarian($product, $request->validated('variants') ?? []);
         });
-        $this->fotoProdukService->terapkan($product, $request->boolean('foto_diatur') ? $request->input('foto_ada', []) : null, $alamat);
+        $this->fotoProdukService->terapkan($product, $request->boolean('foto_diatur') ? $request->input('foto_ada', []) : null, $alamat, $request->fotoUtama());
 
         return redirect()->route('superadmin.toko.produk')->with('success', "Produk \"{$product->name}\" diperbarui.");
     }

@@ -126,6 +126,30 @@ class Product extends Model
     }
 
     /**
+     * Nilai spesifikasi yang sebenarnya kosong: tidak ada isi, hanya tanda
+     * seperti "-", atau "N/A". Shopee sering mengisi kolom wajib dengan "-"
+     * (misalnya "No.Sertifikat (SNI,K3L,UTTP)"), dan baris seperti itu tidak
+     * berguna bagi pembeli.
+     */
+    public static function nilaiSpesifikasiKosong(string $nilai): bool
+    {
+        return (bool) preg_match('~^[\s_./\-\x{2010}-\x{2015}]*$|^\s*n\s*/?\s*a\s*$~iu', $nilai);
+    }
+
+    /**
+     * Spesifikasi untuk halaman toko, tanpa baris yang nilainya kosong.
+     *
+     * @return array<int, array{nama: string, nilai: string}>
+     */
+    public function spesifikasiTampil(): array
+    {
+        return array_values(array_filter(
+            $this->specs ?? [],
+            fn ($baris) => is_array($baris) && trim((string) ($baris['nama'] ?? '')) !== '' && ! self::nilaiSpesifikasiKosong((string) ($baris['nilai'] ?? '')),
+        ));
+    }
+
+    /**
      * Data aman untuk pelanggan. Jangan pernah kirim model mentah ke halaman toko.
      *
      * @return array{id: int, name: string, slug: string, category: string, categoryLabel: string, unit: string, badge: string|null, description: string|null, specs: array<int, array{nama: string, nilai: string}>, variantLabel: string|null, variants: array<int, array{id: int, name: string, price: int, available: bool}>, imageUrl: string|null, images: array<int, string>, price: int, comparePrice: int|null}
@@ -141,7 +165,7 @@ class Product extends Model
             'unit' => $this->unit,
             'badge' => $this->badge,
             'description' => $this->description,
-            'specs' => $this->specs ?? [],
+            'specs' => $this->spesifikasiTampil(),
             'variantLabel' => $this->variant_label,
             'variants' => $this->variants->map(fn (ProductVariant $varian) => [
                 'id' => $varian->id,
