@@ -37,8 +37,9 @@ export default function PengaturanNotifikasi({ pengaturan, pilihanUser, mailer, 
         <AdminLayout judul="Email & Notifikasi" deskripsi="Atur siapa yang diberi tahu saat aplikasi mencatat error.">
             <Head title="Email & Notifikasi" />
 
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-                <form onSubmit={simpan} className="space-y-5 pb-24 md:pb-0">
+            {/* Bottom padding on the wrapper (not the form) so the fixed save bar never covers the last card on phones. */}
+            <div className="grid gap-5 pb-24 md:pb-0 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+                <form onSubmit={simpan} className="space-y-5">
                     <Card>
                         <CardHeader>
                             <CardTitle>Error baru di aplikasi</CardTitle>
@@ -90,7 +91,7 @@ export default function PengaturanNotifikasi({ pengaturan, pilihanUser, mailer, 
                     </div>
                 </form>
 
-                <div className="space-y-5 pb-24 md:pb-0">
+                <div className="space-y-5">
                     <Card className="p-5 text-sm">
                         <CardTitle className="mb-2">Status</CardTitle>
                         <ul className="space-y-2 text-muted-foreground">

@@ -56,8 +56,9 @@ export default function Seo({ pengaturan, simpanUrl, mediaUrl }: Props) {
         >
             <Head title="SEO dan Analytics" />
 
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-                <form onSubmit={simpan} className="space-y-5 pb-24 md:pb-0">
+            {/* Bottom padding on the wrapper (not the form) so the fixed save bar never covers the last card on phones. */}
+            <div className="grid gap-5 pb-24 md:pb-0 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+                <form onSubmit={simpan} className="space-y-5">
                     <Card>
                         <CardHeader>
                             <CardTitle>SEO Dasar</CardTitle>

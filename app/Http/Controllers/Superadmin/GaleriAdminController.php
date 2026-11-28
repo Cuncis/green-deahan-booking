@@ -58,7 +58,8 @@ class GaleriAdminController extends Controller
                 ])
                 ->all(),
             'filterKategori' => $filterKategori,
-            'pilihanKategori' => $this->pilihanKategori(),
+            'pilihanKategori' => $this->pilihanKategoriDenganJumlah(),
+            'totalItem' => GaleriItem::count(),
         ]);
     }
 
@@ -135,6 +136,18 @@ class GaleriAdminController extends Controller
     private function pilihanKategori(): array
     {
         return collect(self::KATEGORI)->map(fn (string $kategori) => ['nilai' => $kategori, 'label' => self::LABEL_KATEGORI[$kategori]])->all();
+    }
+
+    /**
+     * Pilihan kategori untuk chip filter di daftar, dengan jumlah item tiap kategori.
+     *
+     * @return array<int, array{nilai: string, label: string, jumlah: int}>
+     */
+    private function pilihanKategoriDenganJumlah(): array
+    {
+        $jumlah = GaleriItem::query()->selectRaw('kategori, count(*) as jumlah')->groupBy('kategori')->pluck('jumlah', 'kategori');
+
+        return array_map(fn (array $pilihan) => [...$pilihan, 'jumlah' => (int) ($jumlah[$pilihan['nilai']] ?? 0)], $this->pilihanKategori());
     }
 
     /**

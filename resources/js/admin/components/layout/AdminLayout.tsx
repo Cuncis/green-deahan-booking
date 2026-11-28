@@ -245,7 +245,9 @@ function JamSekarang() {
     return (
         <div className="flex flex-col items-end leading-tight" aria-label={`Waktu sekarang ${tanggal} ${jam} WIB`}>
             <span className="font-mono text-sm font-semibold tabular-nums">
-                {jam} <span className="hidden text-[0.65rem] font-medium text-muted-foreground sm:inline">WIB</span>
+                {/* Phones drop the seconds so the page title keeps its room. */}
+                <span className="sm:hidden">{jam.slice(0, 5)}</span>
+                <span className="hidden sm:inline">{jam}</span> <span className="hidden text-[0.65rem] font-medium text-muted-foreground sm:inline">WIB</span>
             </span>
             <span className="hidden text-[0.7rem] text-muted-foreground sm:block">{tanggal}</span>
         </div>

@@ -47,6 +47,19 @@ class GaleriAdminControllerTest extends TestCase
         );
     }
 
+    public function test_chip_kategori_membawa_jumlah_item_tiap_kategori(): void
+    {
+        GaleriItem::factory()->count(2)->create(['kategori' => 'padel']);
+        GaleriItem::factory()->create(['kategori' => 'futsal']);
+
+        $this->actingAs($this->superadmin())->get(route('superadmin.galeri', ['kategori' => 'padel']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('totalItem', 3)
+                ->has('item', 2)
+                ->where('pilihanKategori', fn ($pilihan) => collect($pilihan)->pluck('jumlah', 'nilai')->only(['padel', 'futsal', 'badminton'])->all() === ['futsal' => 1, 'padel' => 2, 'badminton' => 0])
+            );
+    }
+
     public function test_daftar_galeri_bisa_difilter_kategori(): void
     {
         $superadmin = $this->superadmin();

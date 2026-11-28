@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import ChipFilter from '../../../components/ChipFilter';
 import { ImageOff, Plus } from 'lucide-react';
 import { useState } from 'react';
 import KonfirmasiDialog from '../../../components/KonfirmasiDialog';
@@ -7,8 +8,6 @@ import AdminLayout from '../../../components/layout/AdminLayout';
 import { Badge } from '../../../components/ui/badge';
 import { Button } from '../../../components/ui/button';
 import { Card } from '../../../components/ui/card';
-import { Label } from '../../../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 
 interface ItemGaleri {
     id: number;
@@ -25,13 +24,14 @@ interface ItemGaleri {
 interface Props {
     item: ItemGaleri[];
     filterKategori: string | null;
-    pilihanKategori: { nilai: string; label: string }[];
+    pilihanKategori: { nilai: string; label: string; jumlah: number }[];
+    totalItem: number;
 }
 
 const SEMUA = 'semua';
 
 /** Project portfolio shown on the public /galeri page. */
-export default function Index({ item, filterKategori, pilihanKategori }: Props) {
+export default function Index({ item, filterKategori, pilihanKategori, totalItem }: Props) {
     const [akanDihapus, setAkanDihapus] = useState<ItemGaleri | null>(null);
     const [menghapus, setMenghapus] = useState(false);
 
@@ -66,24 +66,12 @@ export default function Index({ item, filterKategori, pilihanKategori }: Props) 
         >
             <Head title="Galeri" />
 
-            <Card className="mb-5 p-4">
-                <div className="space-y-1.5 sm:w-64">
-                    <Label htmlFor="filter-kategori">Kategori</Label>
-                    <Select value={filterKategori ?? SEMUA} onValueChange={saring}>
-                        <SelectTrigger id="filter-kategori">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={SEMUA}>Semua Kategori</SelectItem>
-                            {pilihanKategori.map((kategori) => (
-                                <SelectItem key={kategori.nilai} value={kategori.nilai}>
-                                    {kategori.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-            </Card>
+            <ChipFilter
+                pilihan={[{ nilai: SEMUA, label: 'Semua', jumlah: totalItem }, ...pilihanKategori]}
+                aktif={filterKategori ?? SEMUA}
+                onPilih={saring}
+                label="Filter kategori galeri"
+            />
 
             {item.length === 0 ? (
                 <Card className="px-5 py-8 text-center text-sm text-muted-foreground">{filterKategori ? 'Belum ada item di kategori ini.' : 'Belum ada item galeri.'}</Card>

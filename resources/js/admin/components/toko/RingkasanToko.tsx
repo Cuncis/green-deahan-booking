@@ -39,29 +39,29 @@ export default function RingkasanToko({ data, pesananUrl }: { data: DataRingkasa
                 ))}
             </div>
             <div className="overflow-x-auto border-t border-border">
-                <table className="w-full min-w-[28rem] text-sm">
+                <table className="w-full text-sm [&_td:first-child]:pl-4 [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4">
                     <thead>
                         <tr className="bg-muted text-left text-xs uppercase tracking-wide text-muted-foreground">
-                            <th className="px-4 py-2.5 font-bold">Tanggal</th>
-                            <th className="px-4 py-2.5 text-right font-bold">Pesanan</th>
-                            <th className="px-4 py-2.5 text-right font-bold">Omzet</th>
-                            <th className="px-4 py-2.5 text-right font-bold">Untung</th>
+                            <th className="whitespace-nowrap px-2 py-2.5 sm:px-4 font-bold">Tanggal</th>
+                            <th className="whitespace-nowrap px-2 py-2.5 sm:px-4 text-right font-bold">Pesanan</th>
+                            <th className="whitespace-nowrap px-2 py-2.5 sm:px-4 text-right font-bold">Omzet</th>
+                            <th className="whitespace-nowrap px-2 py-2.5 sm:px-4 text-right font-bold">Untung</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-cream">
                         {[...data.harian].reverse().map((hari) => (
                             <tr key={hari.tanggal}>
-                                <td className="px-4 py-2.5">{hari.label}</td>
-                                <td className="px-4 py-2.5 text-right tabular-nums">{angka(hari.pesanan)}</td>
-                                <td className="px-4 py-2.5 text-right tabular-nums">{rupiah(hari.omzet)}</td>
-                                <td className="px-4 py-2.5 text-right tabular-nums">{rupiah(hari.untung)}</td>
+                                <td className="whitespace-nowrap px-2 py-2.5 sm:px-4">{hari.label}</td>
+                                <td className="whitespace-nowrap px-2 py-2.5 sm:px-4 text-right tabular-nums">{angka(hari.pesanan)}</td>
+                                <td className="whitespace-nowrap px-2 py-2.5 sm:px-4 text-right tabular-nums">{rupiah(hari.omzet)}</td>
+                                <td className="whitespace-nowrap px-2 py-2.5 sm:px-4 text-right tabular-nums">{rupiah(hari.untung)}</td>
                             </tr>
                         ))}
                         <tr className="font-bold">
-                            <td className="px-4 py-2.5">7 hari</td>
-                            <td className="px-4 py-2.5 text-right tabular-nums">{angka(data.harian.reduce((n, hari) => n + hari.pesanan, 0))}</td>
-                            <td className="px-4 py-2.5 text-right tabular-nums">{rupiah(tujuhHari.omzet)}</td>
-                            <td className="px-4 py-2.5 text-right tabular-nums">{rupiah(tujuhHari.untung)}</td>
+                            <td className="whitespace-nowrap px-2 py-2.5 sm:px-4">7 hari</td>
+                            <td className="whitespace-nowrap px-2 py-2.5 sm:px-4 text-right tabular-nums">{angka(data.harian.reduce((n, hari) => n + hari.pesanan, 0))}</td>
+                            <td className="whitespace-nowrap px-2 py-2.5 sm:px-4 text-right tabular-nums">{rupiah(tujuhHari.omzet)}</td>
+                            <td className="whitespace-nowrap px-2 py-2.5 sm:px-4 text-right tabular-nums">{rupiah(tujuhHari.untung)}</td>
                         </tr>
                     </tbody>
                 </table>

@@ -1,11 +1,10 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Mail, MessageCircle } from 'lucide-react';
+import ChipFilter from '../../../../components/ChipFilter';
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import Pagination, { type Paginated } from '../../../../components/Pagination';
 import { Badge } from '../../../../components/ui/badge';
 import { Card, CardHeader, CardTitle } from '../../../../components/ui/card';
-import { Label } from '../../../../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../../components/ui/table';
 import { rupiah } from '../../../../lib/format';
 import { bukaChatWhatsApp } from '../../../../lib/whatsapp';
@@ -49,7 +48,7 @@ function TombolEmailUlang({ item }: { item: PesananBaris }) {
             onClick={kirim}
             title={`Kirim ulang email ke ${item.email} (status: ${item.statusLabel})`}
             aria-label={`Kirim ulang email status ${item.statusLabel} ke ${item.email}`}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-green text-white shadow-sm transition hover:bg-green-mid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-2"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full xl:h-9 xl:w-9 bg-green text-white shadow-sm transition hover:bg-green-mid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-2"
         >
             <Mail className="h-4 w-4" />
         </button>
@@ -81,7 +80,7 @@ function TombolKabari({ item }: { item: PesananBaris }) {
 function TombolWhatsApp({ item }: { item: PesananBaris }) {
     if (!item.whatsapp) {
         return (
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground" title="Nomor HP pelanggan tidak valid untuk WhatsApp">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full xl:h-9 xl:w-9 bg-muted text-muted-foreground" title="Nomor HP pelanggan tidak valid untuk WhatsApp">
                 <MessageCircle className="h-4 w-4" />
             </span>
         );
@@ -99,7 +98,7 @@ function TombolWhatsApp({ item }: { item: PesananBaris }) {
             onClick={kirim}
             title={`Kabari ${item.pelanggan} lewat WhatsApp (status: ${item.statusLabel})`}
             aria-label={`Kabari ${item.pelanggan} lewat WhatsApp, status ${item.statusLabel}`}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white shadow-sm transition hover:bg-[#1da851] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-2"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full xl:h-9 xl:w-9 bg-[#25D366] text-white shadow-sm transition hover:bg-[#1da851] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-2"
         >
             <MessageCircle className="h-4 w-4" />
         </button>
@@ -126,8 +125,9 @@ export const varianStatusPesanan = (status: string) =>
         }) as const
     )[status as 'paid'] ?? 'info';
 
-/** Shop orders, filtered by status (default: paid, i.e. still to be bought from the supplier). */
+/** Shop orders, all statuses by default, filtered with the status chips. */
 export default function Index({ pesanan, filterStatus, pilihanStatus, bypassBayar }: Props) {
+    const totalSemua = pilihanStatus.filter((item) => item.nilai !== 'perlu_refund').reduce((jumlah, item) => jumlah + item.jumlah, 0);
     const saring = (status: string) => router.get('/superadmin/toko/pesanan', { status }, { preserveState: true, preserveScroll: true, replace: true });
 
     return (
@@ -144,31 +144,19 @@ export default function Index({ pesanan, filterStatus, pilihanStatus, bypassBaya
                     />
                     <span className="space-y-1">
                         <span className="block text-sm font-semibold">Mode uji bayar (lewati Mayar)</span>
-                        <span className="block text-sm text-muted-foreground">
+                        <span className="block text-xs text-muted-foreground sm:text-sm">
                             Selama sandbox Mayar belum bisa dipakai. Saat aktif dan Anda login sebagai superadmin, checkout tidak membuka Mayar dan
                             halaman pesanan menampilkan gelembung oranye di kanan untuk menandai pesanan dibayar. Pengunjung biasa tetap memakai Mayar.
                         </span>
                     </span>
                 </label>
             </Card>
-            <Card className="mb-5 p-4">
-                <div className="space-y-1.5 sm:w-72">
-                    <Label htmlFor="filter-status">Status</Label>
-                    <Select value={filterStatus} onValueChange={saring}>
-                        <SelectTrigger id="filter-status">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="semua">Semua status</SelectItem>
-                            {pilihanStatus.map((item) => (
-                                <SelectItem key={item.nilai} value={item.nilai}>
-                                    {item.label} ({item.jumlah})
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-            </Card>
+            <ChipFilter
+                pilihan={[{ nilai: 'semua', label: 'Semua', jumlah: totalSemua }, ...pilihanStatus]}
+                aktif={filterStatus}
+                onPilih={saring}
+                label="Filter status pesanan"
+            />
 
             <Card className="overflow-hidden">
                 <CardHeader className="border-b border-border py-4">
