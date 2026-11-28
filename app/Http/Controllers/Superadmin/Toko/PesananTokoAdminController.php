@@ -24,8 +24,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Pesanan toko untuk admin: daftar (default status paid = perlu dibeli ke
- * supplier), detail, alur status, dan catatan.
+ * Pesanan toko untuk admin: daftar (default semua status, bisa disaring),
+ * detail, alur status, dan catatan.
  */
 class PesananTokoAdminController extends Controller
 {
@@ -33,9 +33,9 @@ class PesananTokoAdminController extends Controller
 
     public function index(Request $request, BypassBayarToko $bypass, PesanPesananTokoService $pesan): Response
     {
-        $status = $request->query('status', OrderStatus::Paid->value);
+        $status = $request->query('status', 'semua');
         $perluRefund = $status === self::FILTER_PERLU_REFUND;
-        $filter = $status === 'semua' || $perluRefund ? null : OrderStatus::tryFrom((string) $status) ?? OrderStatus::Paid;
+        $filter = $perluRefund ? null : OrderStatus::tryFrom((string) $status);
 
         $pesanan = Order::with('items', 'shipments')
             ->when($perluRefund, fn ($q) => $q->menungguRefund())

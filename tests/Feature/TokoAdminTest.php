@@ -591,7 +591,7 @@ class TokoAdminTest extends TestCase
         $this->assertModelMissing($supplier);
     }
 
-    public function test_daftar_pesanan_default_menampilkan_yang_perlu_dibeli(): void
+    public function test_daftar_pesanan_default_menampilkan_semua_status(): void
     {
         $dibayar = $this->pesananDibayar();
         Order::factory()->create(['status' => OrderStatus::PendingPayment]);
@@ -600,6 +600,11 @@ class TokoAdminTest extends TestCase
         $this->actingAs($this->superadmin())->get('/superadmin/toko/pesanan')
             ->assertInertia(fn (Assert $page) => $page
                 ->component('superadmin/Toko/Pesanan/Index')
+                ->where('filterStatus', 'semua')
+                ->where('pesanan.total', 3));
+
+        $this->actingAs($this->superadmin())->get('/superadmin/toko/pesanan?status=paid')
+            ->assertInertia(fn (Assert $page) => $page
                 ->where('filterStatus', 'paid')
                 ->where('pesanan.total', 1)
                 ->where('pesanan.data.0.kode', $dibayar->code)
@@ -607,6 +612,9 @@ class TokoAdminTest extends TestCase
             );
 
         $this->actingAs($this->superadmin())->get('/superadmin/toko/pesanan?status=semua')
+            ->assertInertia(fn (Assert $page) => $page->where('filterStatus', 'semua')->where('pesanan.total', 3));
+
+        $this->actingAs($this->superadmin())->get('/superadmin/toko/pesanan?status=ngawur')
             ->assertInertia(fn (Assert $page) => $page->where('filterStatus', 'semua')->where('pesanan.total', 3));
     }
 

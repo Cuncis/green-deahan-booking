@@ -118,7 +118,7 @@ export default function Index({ pesanan, filterStatus, pilihanStatus, bypassBaya
     const saring = (status: string) => router.get('/superadmin/toko/pesanan', { status }, { preserveState: true, preserveScroll: true, replace: true });
 
     return (
-        <AdminLayout judul="Pesanan Toko" deskripsi="Pesanan berstatus Dibayar perlu segera dibeli ke supplier.">
+        <AdminLayout judul="Pesanan Toko" deskripsi="Semua pesanan toko. Pesanan berstatus Dibayar perlu segera dibeli ke supplier.">
             <Head title="Pesanan Toko" />
             {/* TEMPORARY (BypassBayarToko): remove once the Mayar sandbox works again. */}
             <Card className={`mb-5 border-2 border-dashed p-4 ${bypassBayar.aktif ? 'border-orange-400 bg-orange-50' : ''}`}>
