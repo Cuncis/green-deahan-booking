@@ -1,18 +1,19 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { Copy, Eye, Pencil, Pin, Plus, Search } from 'lucide-react';
+import { Copy, Eye, Pencil, Pin, Plus, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
 import AksiKartu from '../../components/AksiKartu';
+import ChipFilter from '../../components/ChipFilter';
 import Field from '../../components/form/Field';
 import CatatanPratinjau from '../../components/CatatanPratinjau';
 import KonfirmasiDialog from '../../components/KonfirmasiDialog';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { Button } from '../../components/ui/button';
-import { Card } from '../../components/ui/card';
+import { Card, CardHeader, CardTitle } from '../../components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Input, Textarea } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { cn } from '../../lib/utils';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 
 interface Catatan {
     id: number;
@@ -29,6 +30,13 @@ interface Kategori {
 }
 
 const KOSONG = { judul: '', kategori: 'google-ads', isi: '', disematkan: '0' };
+
+/** Note body flattened to one line, for the truncated preview in the table. */
+const cuplikan = (isi: string) => isi.replace(/\s+/g, ' ').trim();
+
+function LabelKategori({ label }: { label: string }) {
+    return <span className="whitespace-nowrap rounded-full bg-green-pale px-2.5 py-0.5 text-xs font-semibold text-green">{label}</span>;
+}
 
 /** Superadmin notes for promotions and ads: campaign plans, keyword lists, image prompts. Plain text only. */
 export default function CatatanPromosiPage({ catatan, kategori }: { catatan: Catatan[]; kategori: Kategori[] }) {
@@ -84,65 +92,116 @@ export default function CatatanPromosiPage({ catatan, kategori }: { catatan: Cat
         >
             <Head title="Catatan Promosi" />
 
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="relative sm:max-w-xs sm:flex-1">
-                    <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-                    <Input value={kata} onChange={(event) => setKata(event.target.value)} placeholder="Cari judul atau isi" className="pl-9" aria-label="Cari catatan" />
-                </div>
-                <div className="flex flex-wrap gap-2" role="group" aria-label="Filter kategori">
-                    {[{ nilai: 'semua', label: 'Semua' }, ...kategori].map((item) => (
-                        <button
-                            key={item.nilai}
-                            type="button"
-                            onClick={() => setFilter(item.nilai)}
-                            aria-pressed={filter === item.nilai}
-                            className={cn(
-                                'min-h-10 rounded-full border px-4 text-sm font-medium transition-colors',
-                                filter === item.nilai ? 'border-green bg-green text-white' : 'border-border bg-card text-ink-mid hover:bg-accent',
-                            )}
-                        >
-                            {item.label}
-                        </button>
-                    ))}
-                </div>
+            <div className="relative mb-4 sm:max-w-xs">
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+                <Input value={kata} onChange={(event) => setKata(event.target.value)} placeholder="Cari judul atau isi" className="pl-9" aria-label="Cari catatan" />
             </div>
+            <ChipFilter
+                pilihan={[{ nilai: 'semua', label: 'Semua', jumlah: catatan.length }, ...kategori.map((item) => ({ ...item, jumlah: catatan.filter((c) => c.kategori === item.nilai).length }))]}
+                aktif={filter}
+                onPilih={setFilter}
+                label="Filter kategori catatan"
+            />
 
             {catatan.length === 0 ? (
                 <Card className="px-5 py-8 text-center text-sm text-muted-foreground">Belum ada catatan. Tambahkan catatan pertama, misalnya rencana kampanye Google Ads.</Card>
             ) : tampil.length === 0 ? (
                 <Card className="px-5 py-8 text-center text-sm text-muted-foreground">Tidak ada catatan yang cocok.</Card>
             ) : (
-                <div className="grid gap-4 md:grid-cols-2">
-                    {tampil.map((item) => (
-                        <Card key={item.id} className="flex min-w-0 flex-col p-5">
-                            <div className="mb-2 flex items-start justify-between gap-2">
-                                <span className="font-display text-base font-semibold">{item.judul}</span>
-                                {item.disematkan && <Pin className="mt-1 size-4 shrink-0 text-gold" aria-label="Disematkan" />}
-                            </div>
-                            <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                                <span className="rounded-full bg-green-pale px-2.5 py-0.5 font-semibold text-green">{labelKategori[item.kategori] ?? item.kategori}</span>
-                                <span>Diubah {item.diubah}</span>
-                            </div>
-                            <p className="mb-4 line-clamp-6 whitespace-pre-wrap [overflow-wrap:anywhere] text-sm text-ink-mid">{item.isi}</p>
-                            <AksiKartu
-                                kiri={
-                                    <>
-                                        <Button variant="outline" size="sm" onClick={() => setDilihat(item)} aria-label="Pratinjau catatan">
-                                            <Eye />
-                                            <span className="hidden sm:inline">Pratinjau</span>
-                                        </Button>
-                                        <Button variant="outline" size="sm" onClick={() => void salin(item)} aria-label="Salin isi catatan">
-                                            <Copy />
-                                            <span className="hidden sm:inline">Salin</span>
-                                        </Button>
-                                    </>
-                                }
-                                onEdit={() => buka(item)}
-                                onHapus={() => setAkanDihapus(item)}
-                            />
-                        </Card>
-                    ))}
-                </div>
+                <Card className="overflow-hidden">
+                    <CardHeader className="border-b border-border py-4">
+                        <CardTitle className="text-xs uppercase tracking-wide text-green">
+                            {tampil.length === catatan.length ? `${catatan.length} Catatan` : `${tampil.length} dari ${catatan.length} Catatan`}
+                        </CardTitle>
+                    </CardHeader>
+                    <div className="hidden xl:block">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Catatan</TableHead>
+                                    <TableHead className="w-36">Kategori</TableHead>
+                                    <TableHead className="w-36">Diubah</TableHead>
+                                    <TableHead className="w-48 text-right">Aksi</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {tampil.map((item) => (
+                                    <TableRow key={item.id}>
+                                        <TableCell className="max-w-0 py-3.5">
+                                            <button type="button" onClick={() => setDilihat(item)} className="flex max-w-full items-start gap-1.5 text-left font-bold leading-snug hover:text-green hover:underline" title="Pratinjau catatan">
+                                                {item.disematkan && <Pin className="mt-0.5 size-3.5 shrink-0 text-gold" aria-label="Disematkan" />}
+                                                <span className="line-clamp-2">{item.judul}</span>
+                                            </button>
+                                            <p className="mt-0.5 truncate text-xs text-muted-foreground">{cuplikan(item.isi)}</p>
+                                        </TableCell>
+                                        <TableCell className="py-3.5">
+                                            <LabelKategori label={labelKategori[item.kategori] ?? item.kategori} />
+                                        </TableCell>
+                                        <TableCell className="whitespace-nowrap py-3.5 text-sm text-ink-mid">{item.diubah}</TableCell>
+                                        <TableCell className="py-3.5">
+                                            <div className="flex items-center justify-end gap-1.5">
+                                                <Button type="button" variant="outline" size="icon" className="size-9 md:size-9" onClick={() => setDilihat(item)} title="Pratinjau" aria-label={`Pratinjau ${item.judul}`}>
+                                                    <Eye />
+                                                </Button>
+                                                <Button type="button" variant="outline" size="icon" className="size-9 md:size-9" onClick={() => void salin(item)} title="Salin isi" aria-label={`Salin isi ${item.judul}`}>
+                                                    <Copy />
+                                                </Button>
+                                                <Button type="button" variant="outline" size="icon" className="size-9 md:size-9" onClick={() => buka(item)} title="Edit catatan" aria-label={`Edit ${item.judul}`}>
+                                                    <Pencil />
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="icon"
+                                                    className="size-9 text-destructive hover:bg-destructive/10 hover:text-destructive md:size-9"
+                                                    onClick={() => setAkanDihapus(item)}
+                                                    title="Hapus catatan"
+                                                    aria-label={`Hapus ${item.judul}`}
+                                                >
+                                                    <Trash2 />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <ul className="divide-y divide-cream xl:hidden">
+                        {tampil.map((item) => (
+                            <li key={item.id} className="min-w-0 px-4 py-4">
+                                <div className="flex items-start justify-between gap-2">
+                                    <button type="button" onClick={() => setDilihat(item)} className="min-w-0 text-left font-bold leading-snug">
+                                        {item.judul}
+                                    </button>
+                                    {item.disematkan && <Pin className="mt-1 size-4 shrink-0 text-gold" aria-label="Disematkan" />}
+                                </div>
+                                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                                    <LabelKategori label={labelKategori[item.kategori] ?? item.kategori} />
+                                    <span>Diubah {item.diubah}</span>
+                                </div>
+                                <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-sm text-ink-mid [overflow-wrap:anywhere]">{item.isi}</p>
+                                <AksiKartu
+                                    className="mt-3"
+                                    kiri={
+                                        <>
+                                            <Button variant="outline" size="sm" onClick={() => setDilihat(item)} aria-label="Pratinjau catatan">
+                                                <Eye />
+                                                <span className="hidden sm:inline">Pratinjau</span>
+                                            </Button>
+                                            <Button variant="outline" size="sm" onClick={() => void salin(item)} aria-label="Salin isi catatan">
+                                                <Copy />
+                                                <span className="hidden sm:inline">Salin</span>
+                                            </Button>
+                                        </>
+                                    }
+                                    onEdit={() => buka(item)}
+                                    onHapus={() => setAkanDihapus(item)}
+                                />
+                            </li>
+                        ))}
+                    </ul>
+                </Card>
             )}
 
             <Dialog open={dilihat !== null} onOpenChange={(terbuka) => !terbuka && setDilihat(null)}>

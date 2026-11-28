@@ -1,5 +1,5 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import AksiKartu from '../../components/AksiKartu';
 import Field from '../../components/form/Field';
@@ -8,10 +8,11 @@ import type { MediaPilihan } from '../../components/form/PilihMedia';
 import KonfirmasiDialog from '../../components/KonfirmasiDialog';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { Button } from '../../components/ui/button';
-import { Card } from '../../components/ui/card';
+import { Card, CardHeader, CardTitle } from '../../components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { cn } from '../../lib/utils';
 
 interface Banner {
@@ -71,6 +72,37 @@ const waktu = (nilai: string) =>
         hour: '2-digit',
         minute: '2-digit',
     });
+
+const jadwal = (item: Banner) =>
+    item.mulai_pada || item.berakhir_pada
+        ? `${item.mulai_pada ? waktu(item.mulai_pada) : 'Sekarang'} sampai ${item.berakhir_pada ? waktu(item.berakhir_pada) : 'tanpa batas'}`
+        : 'Tanpa batas waktu';
+
+function StatusBanner({ item }: { item: Banner }) {
+    return <span className={cn('shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold', STATUS[item.status].kelas)}>{STATUS[item.status].label}</span>;
+}
+
+/** Whether this banner is the one visitors actually see right now. */
+function Keterangan({ item }: { item: Banner }) {
+    if (item.sedangTampil) return <div className="text-xs font-semibold text-green">Sedang tampil ke pengunjung</div>;
+    if (item.status === 'tayang') return <div className="text-xs text-muted-foreground">Tertutup banner yang lebih baru</div>;
+    return null;
+}
+
+/** Banner image, contained so portrait and landscape artwork both stay whole. */
+function Gambar({ item }: { item: Banner }) {
+    return (
+        <a
+            href={item.fotoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-muted transition hover:opacity-90"
+            title="Buka gambar ukuran penuh"
+        >
+            <img src={item.fotoUrl} alt={item.judul} loading="lazy" className="size-full object-contain" />
+        </a>
+    );
+}
 
 /** Pop-up promo banner shown to first-time visitors of the corporate site. */
 export default function BannerPromoPage({ banner }: { banner: Banner[] }) {
@@ -138,35 +170,96 @@ export default function BannerPromoPage({ banner }: { banner: Banner[] }) {
             {banner.length === 0 ? (
                 <Card className="px-5 py-8 text-center text-sm text-muted-foreground">Belum ada banner promo.</Card>
             ) : (
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {banner.map((item) => (
-                        <Card key={item.id} className="flex flex-col overflow-hidden">
-                            <div className="relative aspect-[4/3] bg-muted">
-                                <img src={item.fotoUrl} alt={item.judul} className="size-full object-contain" loading="lazy" />
-                                <span className={cn('absolute left-3 top-3 rounded-full px-2.5 py-0.5 text-xs font-semibold shadow-sm', STATUS[item.status].kelas)}>
-                                    {STATUS[item.status].label}
-                                </span>
-                            </div>
-                            <div className="flex flex-1 flex-col p-4">
-                                <span className="font-display text-base font-semibold">{item.judul}</span>
-                                {item.sedangTampil && <span className="mt-0.5 text-xs font-semibold text-green">Sedang tampil ke pengunjung</span>}
-                                {item.status === 'tayang' && !item.sedangTampil && <span className="mt-0.5 text-xs text-muted-foreground">Tertutup banner yang lebih baru</span>}
-                                <dl className="my-3 space-y-0.5 text-xs text-muted-foreground">
-                                    <div>
-                                        {item.mulai_pada || item.berakhir_pada
-                                            ? `${item.mulai_pada ? waktu(item.mulai_pada) : 'Sekarang'} sampai ${item.berakhir_pada ? waktu(item.berakhir_pada) : 'tanpa batas'}`
-                                            : 'Tanpa batas waktu'}
+                <Card className="overflow-hidden">
+                    <CardHeader className="border-b border-border py-4">
+                        <CardTitle className="text-xs uppercase tracking-wide text-green">{banner.length} Banner</CardTitle>
+                    </CardHeader>
+                    <div className="hidden xl:block">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Banner</TableHead>
+                                    <TableHead className="w-80">Jadwal</TableHead>
+                                    <TableHead className="w-28">Status</TableHead>
+                                    <TableHead className="w-28 text-right">Aksi</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {banner.map((item) => (
+                                    <TableRow key={item.id}>
+                                        <TableCell className="max-w-0 py-3">
+                                            <div className="flex items-center gap-4">
+                                                <Gambar item={item} />
+                                                <div className="min-w-0">
+                                                    <div className="line-clamp-2 font-bold leading-snug" title={item.judul}>
+                                                        {item.judul}
+                                                    </div>
+                                                    <Keterangan item={item} />
+                                                    {item.tautan && (
+                                                        <div className="truncate text-xs text-muted-foreground" title={item.tautan}>
+                                                            Tautan: {item.tautan}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="py-3 text-sm text-ink-mid">
+                                            <div className="whitespace-nowrap">{jadwal(item)}</div>
+                                            <div className="text-xs text-muted-foreground">
+                                                {LABEL_TARGET[item.target]}, {LABEL_FREKUENSI[item.frekuensi].toLowerCase()}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="py-3">
+                                            <StatusBanner item={item} />
+                                        </TableCell>
+                                        <TableCell className="py-3">
+                                            <div className="flex items-center justify-end gap-1.5">
+                                                <Button type="button" variant="outline" size="icon" className="size-9 md:size-9" onClick={() => buka(item)} title="Edit banner" aria-label={`Edit ${item.judul}`}>
+                                                    <Pencil />
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="icon"
+                                                    className="size-9 text-destructive hover:bg-destructive/10 hover:text-destructive md:size-9"
+                                                    onClick={() => setAkanDihapus(item)}
+                                                    title="Hapus banner"
+                                                    aria-label={`Hapus ${item.judul}`}
+                                                >
+                                                    <Trash2 />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <ul className="divide-y divide-cream xl:hidden">
+                        {banner.map((item) => (
+                            <li key={item.id} className="px-4 py-4">
+                                <div className="flex gap-3">
+                                    <Gambar item={item} />
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <span className="min-w-0 font-bold leading-snug">{item.judul}</span>
+                                            <StatusBanner item={item} />
+                                        </div>
+                                        <Keterangan item={item} />
                                     </div>
+                                </div>
+                                <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+                                    <div>{jadwal(item)}</div>
                                     <div>
                                         {LABEL_TARGET[item.target]}, {LABEL_FREKUENSI[item.frekuensi].toLowerCase()}
                                     </div>
                                     {item.tautan && <div className="truncate">Tautan: {item.tautan}</div>}
-                                </dl>
-                                <AksiKartu onEdit={() => buka(item)} onHapus={() => setAkanDihapus(item)} />
-                            </div>
-                        </Card>
-                    ))}
-                </div>
+                                </div>
+                                <AksiKartu className="mt-3" onEdit={() => buka(item)} onHapus={() => setAkanDihapus(item)} />
+                            </li>
+                        ))}
+                    </ul>
+                </Card>
             )}
 
             <Dialog open={diedit !== null} onOpenChange={(terbuka) => !terbuka && setDiedit(null)}>
