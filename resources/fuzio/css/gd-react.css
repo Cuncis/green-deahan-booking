@@ -1318,3 +1318,69 @@ form.form.checkout-form.gd-form-toko .gd-setuju-legal input[type='checkbox'] {
   color: var(--gd-green, #006400);
   text-decoration: underline;
 }
+
+/* SEMENTARA: gelembung mode uji bayar (BypassBayarToko), hapus setelah sandbox Mayar hidup. */
+.gd-uji-bayar {
+  position: fixed;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: min(260px, calc(100vw - 32px));
+}
+.gd-uji-bayar-tombol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 16px;
+  border: 2px dashed #f57c00;
+  border-radius: 16px;
+  background: #fff8e1;
+  color: #5d4037;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.gd-uji-bayar-tombol:hover:not(:disabled):not(.info) {
+  transform: translateX(-3px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+}
+.gd-uji-bayar-tombol:focus-visible {
+  outline: 3px solid #006400;
+  outline-offset: 2px;
+}
+.gd-uji-bayar-tombol:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+.gd-uji-bayar-tombol.info {
+  cursor: default;
+}
+.gd-uji-bayar-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e65100;
+}
+.gd-uji-bayar-pesan {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #e8f2e8;
+  color: #004d00;
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+.gd-uji-bayar-pesan.galat {
+  background: #fdecea;
+  color: #b71c1c;
+}

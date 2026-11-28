@@ -39,7 +39,7 @@ class MayarService
             'mobile' => $order->phone,
             'description' => $order->items->map(fn ($item) => "{$item->qty}x {$item->namaLengkap()}")->implode(', ').', ongkir',
             // Domain yang sedang dipakai pelanggan (greendeahan.com, www, atau lokal).
-            'redirectUrl' => url('/pesanan/'.$order->code),
+            'redirectUrl' => url($order->pathStatus()),
             'expiredAt' => now()->addHours((int) config('toko.jam_kedaluwarsa'))->toIso8601String(),
             'extraData' => ['tipe' => 'toko', 'kode' => $order->code],
         ]));

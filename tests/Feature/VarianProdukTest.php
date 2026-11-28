@@ -227,7 +227,7 @@ class VarianProdukTest extends TestCase
         $order = Order::factory()->create(['status' => OrderStatus::Paid, 'paid_at' => now()]);
         $order->items()->create(['product_id' => null, 'product_name' => 'Kaos Kaki Helios', 'variant_name' => 'HITAM', 'unit_price' => 38000, 'unit_cost' => 24000, 'qty' => 2]);
 
-        $this->get(self::SITUS."/pesanan/{$order->code}")->assertInertia(fn (Assert $page) => $page->where('pesanan.items.0.varian', 'HITAM'));
+        $this->get(self::SITUS.$order->pathStatus())->assertInertia(fn (Assert $page) => $page->where('pesanan.items.0.varian', 'HITAM'));
         $this->actingAs($this->superadmin())->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page->where('pesanan.items.0.varian', 'HITAM'));
         (new PesananTokoDibayar($order->fresh()))->assertSeeInHtml('Kaos Kaki Helios (HITAM)');
     }

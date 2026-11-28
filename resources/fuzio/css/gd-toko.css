@@ -683,57 +683,213 @@
   padding: 48px 16px;
 }
 
-/* Order status steps */
-.gd-langkah {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-  margin: 8px 0 24px;
-  padding: 0;
-  list-style: none;
-}
-.gd-langkah li {
+/* Order status: header and vertical timeline */
+.gd-status-kepala {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: #888;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e7e5e4;
 }
-.gd-langkah .titik {
-  width: 36px;
-  height: 36px;
+.gd-status-kode-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b6b6b;
+}
+.gd-toko .gd-status-kode {
+  margin: 2px 0 0;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+}
+.gd-status-layanan {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #555;
+}
+.gd-timeline {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.gd-timeline-langkah {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  column-gap: 16px;
+  padding-bottom: 24px;
+}
+.gd-timeline-langkah:last-child {
+  padding-bottom: 0;
+}
+/* Connector line between dots; green once the step is done. */
+.gd-timeline-langkah:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 34px;
+  bottom: 2px;
+  width: 2px;
+  border-radius: 2px;
+  background: #e0dedc;
+}
+.gd-timeline-langkah.selesai:not(:last-child)::before {
+  background: #006400;
+}
+.gd-timeline-titik {
+  position: relative;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e7e5e4;
-  color: #666;
+  background: #fafafa;
+  border: 2px solid #d6d3d1;
+  color: #fff;
+}
+.gd-timeline-langkah.selesai .gd-timeline-titik {
+  background: #006400;
+  border-color: #006400;
+}
+.gd-timeline-langkah.sekarang .gd-timeline-titik {
+  border-color: #006400;
+  box-shadow: 0 0 0 5px rgba(0, 100, 0, 0.14);
+}
+.gd-timeline-langkah.sekarang .gd-timeline-titik::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #006400;
+  animation: gd-denyut 1.6s ease-in-out infinite;
+}
+.gd-timeline-langkah.batal .gd-timeline-titik {
+  background: #b71c1c;
+  border-color: #b71c1c;
+}
+@keyframes gd-denyut {
+  50% {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gd-timeline-langkah.sekarang .gd-timeline-titik::after {
+    animation: none;
+  }
+}
+.gd-timeline-isi {
+  min-width: 0;
+  padding-top: 4px;
+}
+.gd-timeline-judul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.gd-toko .gd-timeline-judul h3 {
+  margin: 0;
+  font-family: var(--bs-body-font-family);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #1a1a1a;
+}
+.gd-timeline-langkah.nanti .gd-timeline-judul h3 {
+  color: #8a8a8a;
+  font-weight: 600;
+}
+.gd-timeline-langkah.batal .gd-timeline-judul h3 {
+  color: #b71c1c;
+}
+.gd-timeline-sekarang {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #e8f2e8;
+  color: #004d00;
+  font-size: 12px;
   font-weight: 700;
 }
-.gd-langkah li.selesai .titik {
+.gd-timeline-waktu {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: #6b6b6b;
+}
+.gd-timeline-isi p {
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #4a4a4a;
+}
+.gd-resi-daftar {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.gd-toko .gd-resi-catatan {
+  margin: 0;
+  font-size: 14px;
+}
+.gd-resi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e0e8e0;
+  border-radius: 12px;
+  background: #fafafa;
+}
+.gd-resi-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.gd-resi-kurir {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+.gd-resi-asal {
+  font-weight: 400;
+}
+.gd-resi-nomor {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #004d00;
+  word-break: break-all;
+}
+.gd-resi-salin {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid #006400;
+  border-radius: 999px;
+  background: transparent;
+  color: #006400;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.gd-resi-salin:hover {
   background: #006400;
   color: #fff;
 }
-.gd-langkah li.selesai,
-.gd-langkah li.sekarang {
-  color: #004d00;
-}
-.gd-langkah li.sekarang .titik {
-  background: #feb046;
-  color: #1a1a1a;
-}
-@media (max-width: 575px) {
-  .gd-langkah {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  .gd-langkah li {
-    flex-direction: row;
-    text-align: left;
-  }
+.gd-resi-salin:focus-visible {
+  outline: 3px solid rgba(0, 100, 0, 0.35);
+  outline-offset: 2px;
 }
 .gd-status-badge {
   display: inline-block;

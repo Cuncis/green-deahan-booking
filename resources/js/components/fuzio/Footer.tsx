@@ -97,6 +97,11 @@ export default function Footer() {
                     <div className="row pt-5 my-0 mt-5">
                         <div className="col-lg-12 pt-4 copy-right">
                             <ul className="gd-footer-legal">
+                                {tokoPublik && (
+                                    <li>
+                                        <a href="/lacak-pesanan">Lacak Pesanan</a>
+                                    </li>
+                                )}
                                 {tautanLegal.map((item) => (
                                     <li key={item.path}>
                                         <a href={item.path}>{item.label}</a>

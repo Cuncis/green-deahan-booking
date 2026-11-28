@@ -182,6 +182,16 @@ export default function Index({ produk, kategori, totalProduk, filter, pilihanUr
                                 </div>
 
                                 <div className="widget">
+                                    <h3 className="widget-title">Sudah Pesan?</h3>
+                                    <div className="widget-inner p-4 rounded-2">
+                                        <p>Cek status pesananmu memakai kode pesanan dan email atau nomor HP.</p>
+                                        <a href="/lacak-pesanan" className="btn btn-outline-primary w-100">
+                                            Lacak Pesanan
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div className="widget">
                                     <h3 className="widget-title">Butuh Bantuan?</h3>
                                     <div className="widget-inner layanan-cta p-4 rounded-2">
                                         <p>Bingung pilih material atau butuh jumlah banyak? Tanya tim kami.</p>

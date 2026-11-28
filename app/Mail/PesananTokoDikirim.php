@@ -33,7 +33,7 @@ class PesananTokoDikirim extends Mailable implements ShouldQueue
             'order' => $this->order->loadMissing('items', 'shipments'),
             'pengiriman' => $this->order->daftarPengiriman(),
             'tambahan' => $this->tambahan,
-            'urlPesanan' => route('toko.pesanan', $this->order->code),
+            'urlPesanan' => $this->order->urlStatus(),
         ]);
     }
 }

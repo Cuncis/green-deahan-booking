@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Toko\CheckoutRequest;
 use App\Models\Order;
 use App\Models\Wilayah;
+use App\Services\BypassBayarToko;
 use App\Services\KeranjangService;
 use App\Services\MayarService;
 use App\Services\OngkirTokoService;
@@ -36,6 +37,7 @@ class CheckoutController extends Controller
         private readonly MayarService $mayar,
         private readonly OngkirTokoService $ongkir,
         private readonly PromoTokoService $promo,
+        private readonly BypassBayarToko $bypass,
     ) {}
 
     public function create(): Response|RedirectResponse
@@ -49,6 +51,8 @@ class CheckoutController extends Controller
         return Inertia::render('toko/Checkout', [
             'keranjang' => $ringkasan,
             'sandbox' => $this->mayar->modeSandbox(),
+            // SEMENTARA (BypassBayarToko): hapus setelah sandbox Mayar hidup.
+            'bypassBayar' => $this->bypass->bolehDipakai(request()->user()),
             // Dropdown alamat butuh data dari `php artisan wilayah:impor`; tanpa itu form menampilkan pemberitahuan.
             'wilayahTersedia' => Wilayah::query()->exists(),
             'wilayahUrl' => url('/wilayah'),
@@ -201,6 +205,13 @@ class CheckoutController extends Controller
 
             return $order;
         });
+
+        // SEMENTARA (BypassBayarToko): mode uji untuk superadmin, Mayar dilewati. Hapus setelah sandbox Mayar hidup.
+        if ($this->bypass->bolehDipakai($request->user())) {
+            $this->keranjang->kosongkan();
+
+            return redirect()->to(url($order->pathStatus()))->with('success', 'Mode uji: pesanan dibuat tanpa Mayar. Klik gelembung di kanan untuk menandai dibayar.');
+        }
 
         // Panggilan ke Mayar di LUAR transaksi supaya database tidak terkunci selama menunggu jaringan.
         try {

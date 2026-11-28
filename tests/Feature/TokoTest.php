@@ -270,7 +270,7 @@ class TokoTest extends TestCase
             && $request['amount'] === 205000
             && $request['email'] === 'budi@contoh.com'
             && $request['extraData'] === ['tipe' => 'toko', 'kode' => $order->code]
-            && $request['redirectUrl'] === self::SITUS.'/pesanan/'.$order->code);
+            && $request['redirectUrl'] === self::SITUS.$order->pathStatus());
 
         $this->get(self::SITUS.'/keranjang')->assertInertia(fn (Assert $page) => $page->where('jumlahKeranjang', 0));
     }
@@ -346,7 +346,7 @@ class TokoTest extends TestCase
         $order->shipments()->create(['courier' => 'JNE', 'tracking_number' => 'JNE123']);
         $order->items()->create(['product_id' => null, 'product_name' => 'Bola Futsal', 'unit_price' => 95000, 'unit_cost' => 70000, 'qty' => 1]);
 
-        $this->get(self::SITUS.'/pesanan/'.$order->code)
+        $this->get(self::SITUS.$order->pathStatus())
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('toko/Pesanan')
@@ -354,11 +354,68 @@ class TokoTest extends TestCase
                 ->where('pesanan.pengiriman.0.resi', 'JNE123')->where('pesanan.pengiriman.0.kurir', 'JNE')
                 ->where('pesanan.linkBayar', null)
                 ->missing('pesanan.items.0.modal')
-                ->has('langkah', 5)
+                ->has('timeline', 5)
+                ->where('timeline.3.kunci', 'dikirim')->where('timeline.3.keadaan', 'sekarang')
+                ->where('timeline.4.keadaan', 'nanti')
             )
             ->assertDontSee('70000');
 
         $this->get(self::SITUS.'/pesanan/GD-20260101-TIDAKA')->assertNotFound();
+    }
+
+    public function test_timeline_menunggu_bayar_menandai_pembayaran_sebagai_langkah_sekarang(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::PendingPayment, 'paid_at' => null, 'mayar_payment_link' => 'https://mayar.test/pl/1']);
+
+        $this->get(self::SITUS.$order->pathStatus())->assertInertia(fn (Assert $page) => $page
+            ->where('timeline', fn ($langkah) => collect($langkah)->pluck('keadaan', 'kunci')->all() === [
+                'dibuat' => 'selesai', 'dibayar' => 'sekarang', 'diproses' => 'nanti', 'dikirim' => 'nanti', 'selesai' => 'nanti',
+            ])
+            ->where('timeline.0.waktu', fn (?string $waktu) => $waktu !== null)
+            ->where('timeline.1.keterangan', fn (string $teks) => str_contains($teks, 'Menunggu pembayaran'))
+            ->where('timeline.2.keterangan', '')
+            ->where('pesanan.linkBayar', 'https://mayar.test/pl/1'));
+    }
+
+    public function test_timeline_pesanan_selesai_semua_langkah_selesai(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::Completed, 'paid_at' => now()]);
+
+        $this->get(self::SITUS.$order->pathStatus())->assertInertia(fn (Assert $page) => $page
+            ->where('timeline', fn ($langkah) => collect($langkah)->every(fn ($item) => $item['keadaan'] === 'selesai')));
+    }
+
+    public function test_timeline_pesanan_dibatalkan_menampilkan_langkah_tercapai_lalu_batal(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::Cancelled, 'paid_at' => now(), 'supplier_order_ref' => null, 'cancel_reason' => 'Stok supplier habis', 'cancelled_at' => now()]);
+
+        $this->get(self::SITUS.$order->pathStatus())->assertInertia(fn (Assert $page) => $page
+            ->has('timeline', 3)
+            ->where('timeline.0.kunci', 'dibuat')
+            ->where('timeline.1.kunci', 'dibayar')->where('timeline.1.keadaan', 'selesai')
+            ->where('timeline.2.kunci', 'dibatalkan')->where('timeline.2.keadaan', 'batal')
+            ->where('timeline.2.keterangan', 'Alasan: Stok supplier habis'));
+
+        $kedaluwarsa = Order::factory()->create(['status' => OrderStatus::Expired, 'paid_at' => null]);
+
+        $this->get(self::SITUS.$kedaluwarsa->pathStatus())->assertInertia(fn (Assert $page) => $page
+            ->has('timeline', 2)
+            ->where('timeline.1.kunci', 'kedaluwarsa')->where('timeline.1.keadaan', 'batal'));
+    }
+
+    public function test_link_status_memakai_token_acak_bukan_kode_pesanan(): void
+    {
+        $order = Order::factory()->create();
+        $lain = Order::factory()->create();
+
+        $this->assertMatchesRegularExpression('/^[A-Za-z0-9]{40}$/', $order->status_token);
+        $this->assertNotSame($order->status_token, $lain->status_token);
+        $this->assertStringNotContainsString($order->code, $order->urlStatus());
+        $this->assertSame('http://greendeahan.com/pesanan/'.$order->status_token, $order->urlStatus());
+
+        $this->get(self::SITUS.'/pesanan/'.$order->code)->assertNotFound();
+        $this->get(self::SITUS.'/pesanan/'.str_repeat('a', 40))->assertNotFound();
+        $this->get(self::SITUS.$order->pathStatus())->assertOk();
     }
 
     public function test_pesanan_kedaluwarsa_setelah_24_jam(): void

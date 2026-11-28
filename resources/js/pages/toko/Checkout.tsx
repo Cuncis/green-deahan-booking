@@ -6,6 +6,7 @@ import Header from '../../components/fuzio/Header';
 import PageHeader from '../../components/fuzio/PageHeader';
 import ScrollToTop from '../../components/fuzio/elements/ScrollToTop';
 import GambarProduk from '../../components/fuzio/toko/GambarProduk';
+import GelembungUjiBayar from '../../components/fuzio/toko/GelembungUjiBayar';
 import PesanFlash from '../../components/fuzio/toko/PesanFlash';
 import { rupiah, type Keranjang } from '../../components/fuzio/toko/types';
 import { GD_CDN } from '../../data/greendeahan';
@@ -272,6 +273,7 @@ export default function Checkout({
     wilayahUrl,
     ongkirUrl,
     promoUrl,
+    bypassBayar = false,
 }: {
     keranjang: Keranjang;
     sandbox: boolean;
@@ -279,6 +281,7 @@ export default function Checkout({
     wilayahUrl: string;
     ongkirUrl: string;
     promoUrl: string;
+    bypassBayar?: boolean;
 }) {
     const form = useForm<Record<Kolom, string>>({ customer_name: '', phone: '', email: '', address: '', wilayah_kode: '', postal_code: '', layanan: '', promo_code: '', setuju: '' });
     const [provinsi, setProvinsi] = useState('');
@@ -349,10 +352,16 @@ export default function Checkout({
 
             <section className="checkout-section sec-padding gd-toko">
                 <div className="container">
-                    {sandbox && (
+                    {bypassBayar ? (
                         <div className="gd-sandbox" role="note">
-                            MODE SANDBOX: pembayaran hanya uji coba, tidak ada uang asli yang diproses.
+                            MODE UJI: Mayar dilewati. Pesanan dibuat tanpa pembayaran, lalu tandai dibayar lewat gelembung di kanan.
                         </div>
+                    ) : (
+                        sandbox && (
+                            <div className="gd-sandbox" role="note">
+                                MODE SANDBOX: pembayaran hanya uji coba, tidak ada uang asli yang diproses.
+                            </div>
+                        )
                     )}
                     <PesanFlash />
 
@@ -720,6 +729,7 @@ export default function Checkout({
                 </div>
             </section>
 
+            {bypassBayar && <GelembungUjiBayar />}
             <Footer />
             <ScrollToTop />
         </div>

@@ -146,7 +146,11 @@ $situsKorporat = function () {
     });
     Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:checkout-toko')->name('checkout.store');
-    Route::get('/pesanan/{code}', [PesananTokoController::class, 'show'])->name('toko.pesanan');
+    Route::get('/lacak-pesanan', [PesananTokoController::class, 'lacak'])->name('toko.lacak');
+    Route::post('/lacak-pesanan', [PesananTokoController::class, 'cari'])->middleware('throttle:10,1')->name('toko.lacak.cari');
+    Route::get('/pesanan/{token}', [PesananTokoController::class, 'show'])->where('token', '[A-Za-z0-9]{40}')->name('toko.pesanan');
+    // SEMENTARA: mode uji bayar (BypassBayarToko), hapus setelah sandbox Mayar hidup.
+    Route::post('/pesanan/{token}/bypass-bayar', [PesananTokoController::class, 'bypassBayar'])->middleware(['auth', 'throttle:30,1'])->where('token', '[A-Za-z0-9]{40}')->name('toko.pesanan.bypass');
 };
 
 Route::withoutMiddleware(IdentifikasiTenant::class)->middleware(CatatKunjungan::class)->domain('greendeahan.com')->group($situsKorporat);
@@ -252,10 +256,13 @@ Route::middleware(['auth', 'verified', 'check.superadmin'])
         Route::prefix('toko')->name('toko.')->group(function () {
             Route::get('/pesanan', [PesananTokoAdminController::class, 'index'])->name('pesanan');
             Route::get('/pesanan/{order}', [PesananTokoAdminController::class, 'show'])->name('pesanan.show');
+            // SEMENTARA: saklar mode uji bayar (BypassBayarToko), hapus setelah sandbox Mayar hidup.
+            Route::put('/bypass-bayar', [PesananTokoAdminController::class, 'aturBypassBayar'])->name('bypass-bayar');
             Route::post('/pesanan/{order}/status', [PesananTokoAdminController::class, 'ubahStatus'])->name('pesanan.status');
             Route::post('/pesanan/{order}/resi', [PesananTokoAdminController::class, 'tambahResi'])->name('pesanan.resi.tambah');
             Route::delete('/pesanan/{order}/resi/{shipment}', [PesananTokoAdminController::class, 'hapusResi'])->name('pesanan.resi.hapus');
             Route::post('/pesanan/{order}/pesan', [PesananTokoAdminController::class, 'kirimPesan'])->name('pesanan.pesan');
+            Route::post('/pesanan/{order}/email-ulang', [PesananTokoAdminController::class, 'kirimUlangEmail'])->middleware('throttle:20,1')->name('pesanan.email-ulang');
             Route::post('/pesanan/{order}/refund', [PesananTokoAdminController::class, 'refundSelesai'])->name('pesanan.refund');
             Route::put('/pesanan/{order}/catatan', [PesananTokoAdminController::class, 'simpanCatatan'])->name('pesanan.catatan');
 

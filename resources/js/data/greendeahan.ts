@@ -68,7 +68,7 @@ export interface MenuItem {
 
 /** Same pages as the Blade site nav (resources/views/components/site-nav.blade.php). */
 /** Shop pages; the "Toko" menu item and cart icon only appear when the shop is public (TOKO_PUBLIK). */
-export const PATH_TOKO = ['/toko', '/keranjang', '/checkout', '/pesanan'];
+export const PATH_TOKO = ['/toko', '/keranjang', '/checkout', '/pesanan', '/lacak-pesanan'];
 
 /** Main menu. "Sistem Booking" and "Toko" are filtered out by menuSitus() until they are public. */
 export const menuData: MenuItem[] = [

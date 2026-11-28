@@ -29,7 +29,7 @@ class PesananTokoDibatalkan extends Mailable implements ShouldQueue
     {
         return new Content(markdown: 'mail.toko.pesanan-dibatalkan', with: [
             'order' => $this->order,
-            'urlPesanan' => route('toko.pesanan', $this->order->code),
+            'urlPesanan' => $this->order->urlStatus(),
         ]);
     }
 }

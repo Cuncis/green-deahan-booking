@@ -27,10 +27,11 @@ class UbahStatusPesananRequest extends FormRequest
             'status' => ['required', Rule::enum(OrderStatus::class)],
             'supplier_order_ref' => ['nullable', 'required_if:status,ordered_to_supplier', 'string', 'max:150'],
             'cancel_reason' => ['nullable', 'required_if:status,cancelled', 'string', 'max:255'],
-            'pengiriman' => ['nullable', 'required_if:status,shipped', 'array', 'min:1', 'max:10'],
-            'pengiriman.*.courier' => ['required', 'string', 'max:50'],
-            'pengiriman.*.tracking_number' => ['required', 'string', 'max:100'],
-            'pengiriman.*.shipped_from' => ['nullable', 'string', 'max:120'],
+            // Form admin selalu membawa baris paket (kosong) untuk semua status; abaikan kecuali tujuan "dikirim".
+            'pengiriman' => ['exclude_unless:status,shipped', 'required', 'array', 'min:1', 'max:10'],
+            'pengiriman.*.courier' => ['exclude_unless:status,shipped', 'required', 'string', 'max:50'],
+            'pengiriman.*.tracking_number' => ['exclude_unless:status,shipped', 'required', 'string', 'max:100'],
+            'pengiriman.*.shipped_from' => ['exclude_unless:status,shipped', 'nullable', 'string', 'max:120'],
         ];
     }
 
@@ -58,7 +59,7 @@ class UbahStatusPesananRequest extends FormRequest
         return [
             'supplier_order_ref.required_if' => 'Isi nomor pesanan di supplier.',
             'cancel_reason.required_if' => 'Isi alasan pembatalan, pelanggan akan membacanya.',
-            'pengiriman.required_if' => 'Isi minimal satu paket (kurir dan nomor resi).',
+            'pengiriman.required' => 'Isi minimal satu paket (kurir dan nomor resi).',
             'pengiriman.*.courier.required' => 'Isi nama kurir.',
             'pengiriman.*.tracking_number.required' => 'Isi nomor resi.',
         ];

@@ -140,6 +140,34 @@ class Order extends Model
     }
 
     /**
+     * Setiap pesanan baru langsung dapat token link halaman status.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Order $order) {
+            $order->status_token ??= Str::random(40);
+        });
+    }
+
+    /**
+     * Path halaman status untuk pelanggan, memakai token acak (bukan kode
+     * pesanan) supaya alamat dan nomor HP tidak bisa dibuka orang yang hanya
+     * tahu kodenya. Pakai url() untuk domain yang sedang dibuka.
+     */
+    public function pathStatus(): string
+    {
+        return '/pesanan/'.$this->status_token;
+    }
+
+    /**
+     * Link halaman status untuk email dan WhatsApp (domain utama situs).
+     */
+    public function urlStatus(): string
+    {
+        return route('toko.pesanan', $this->status_token);
+    }
+
+    /**
      * GD-20261111-K7M2QX: tanggal untuk admin, 6 karakter acak (31^6, sekitar
      * 887 juta kemungkinan per hari) supaya halaman pesanan tidak bisa ditebak.
      */

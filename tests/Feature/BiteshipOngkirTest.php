@@ -493,6 +493,6 @@ class BiteshipOngkirTest extends TestCase
             'status' => OrderStatus::Paid, 'courier_service_name' => 'JNE Reguler', 'shipping_duration' => '2 - 3 hari',
         ]);
 
-        $this->get(self::SITUS.'/pesanan/'.$order->code)->assertInertia(fn (Assert $page) => $page->where('pesanan.layanan', 'JNE Reguler (2 - 3 hari)'));
+        $this->get(self::SITUS.$order->pathStatus())->assertInertia(fn (Assert $page) => $page->where('pesanan.layanan', 'JNE Reguler (2 - 3 hari)'));
     }
 }

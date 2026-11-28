@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
 use App\Mail\PesananTokoDibayar;
+use App\Mail\PesananTokoDiterima;
 use App\Models\MayarWebhookLog;
 use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -67,6 +68,8 @@ class WebhookTokoTest extends TestCase
         $this->assertSame(OrderStatus::Paid, $order->status);
         $this->assertNotNull($order->paid_at);
         Mail::assertQueued(PesananTokoDibayar::class, fn (PesananTokoDibayar $mail) => $mail->hasTo('admin@greendeahan.test') && $mail->order->is($order));
+        Mail::assertQueued(PesananTokoDiterima::class, fn (PesananTokoDiterima $mail) => $mail->hasTo($order->email) && $mail->order->is($order));
+        $this->assertDatabaseHas('order_messages', ['order_id' => $order->id, 'channel' => 'email', 'template' => 'diterima', 'user_id' => null]);
         $this->assertDatabaseHas('mayar_webhook_logs', ['order_id' => $order->id, 'event' => 'payment.received', 'result' => 'diproses']);
         Http::assertSent(fn ($request) => $request->url() === 'https://api.mayar.io/hl/v2/payments/pay-uuid-123');
     }
@@ -83,6 +86,7 @@ class WebhookTokoTest extends TestCase
 
         $this->assertEquals($dibayarPertama, $order->fresh()->paid_at);
         Mail::assertQueued(PesananTokoDibayar::class, 1);
+        Mail::assertQueued(PesananTokoDiterima::class, 1);
         $this->assertSame(['diproses', 'duplikat'], MayarWebhookLog::orderBy('id')->pluck('result')->all());
     }
 
@@ -176,5 +180,21 @@ class WebhookTokoTest extends TestCase
         $this->postJson(self::URL, $this->webhook())->assertOk();
 
         $this->assertStringNotContainsString('test-mayar-webhook-token', json_encode(MayarWebhookLog::sole()->payload));
+    }
+
+    public function test_email_pembayaran_diterima_berisi_rincian_dan_link_status(): void
+    {
+        $order = Order::factory()->create(['customer_name' => 'Budi Santoso', 'total' => 205000, 'status' => OrderStatus::Paid]);
+        $order->items()->create(['product_name' => 'Bola Padel', 'variant_name' => 'Kuning', 'unit_price' => 95000, 'unit_cost' => 70000, 'qty' => 2]);
+
+        $html = (new PesananTokoDiterima($order))->render();
+
+        $this->assertStringContainsString('Halo Budi Santoso', $html);
+        $this->assertStringContainsString($order->code, $html);
+        $this->assertStringContainsString('Bola Padel', $html);
+        $this->assertStringContainsString('Rp190.000', $html);
+        $this->assertStringContainsString('Rp205.000', $html);
+        $this->assertStringContainsString($order->urlStatus(), $html);
+        $this->assertStringContainsString(route('toko.lacak'), $html);
     }
 }

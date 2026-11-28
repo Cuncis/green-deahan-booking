@@ -207,7 +207,7 @@ class PromoTokoTest extends TestCase
         $this->post(self::SITUS.'/checkout', $this->data(['promo_code' => 'HEMAT10']));
         $order = Order::firstOrFail();
 
-        $this->get(self::SITUS.'/pesanan/'.$order->code)->assertInertia(fn (Assert $page) => $page->where('pesanan.diskon', 20000)->where('pesanan.kodePromo', 'HEMAT10'));
+        $this->get(self::SITUS.$order->pathStatus())->assertInertia(fn (Assert $page) => $page->where('pesanan.diskon', 20000)->where('pesanan.kodePromo', 'HEMAT10'));
     }
 
     public function test_untung_pesanan_memakai_total_setelah_diskon(): void

@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Exceptions\MayarException;
 use App\Mail\PesananTokoDibatalkan;
 use App\Mail\PesananTokoDikirim;
+use App\Mail\PesananTokoDiterima;
 use App\Mail\PesanPesananToko;
 use App\Models\Order;
 use App\Models\Product;
@@ -325,14 +326,14 @@ class TokoAdminTest extends TestCase
     {
         $order = Order::factory()->create(['status' => OrderStatus::Cancelled, 'paid_at' => now(), 'cancel_reason' => 'Stok supplier habis']);
 
-        $this->get("http://greendeahan.com/pesanan/{$order->code}")->assertInertia(fn (Assert $page) => $page
+        $this->get('http://greendeahan.com'.$order->pathStatus())->assertInertia(fn (Assert $page) => $page
             ->where('pesanan.alasanBatal', 'Stok supplier habis')
             ->where('pesanan.statusRefund', 'diproses')
         );
 
         $order->update(['refunded_at' => now()]);
 
-        $this->get("http://greendeahan.com/pesanan/{$order->code}")->assertInertia(fn (Assert $page) => $page->where('pesanan.statusRefund', 'selesai'));
+        $this->get('http://greendeahan.com'.$order->pathStatus())->assertInertia(fn (Assert $page) => $page->where('pesanan.statusRefund', 'selesai'));
     }
 
     public function test_admin_diberi_tanda_untuk_pesanan_dengan_ongkir_tetap(): void
@@ -353,15 +354,108 @@ class TokoAdminTest extends TestCase
 
         $this->actingAs($this->superadmin())->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page
             ->where('pesanan.waNomor', '6281234567890')
-            ->has('pesanan.templatePesan', 6)
-            ->where('pesanan.templatePesan.2.kunci', 'dikirim')
-            ->where('pesanan.templatePesan.2.isi', fn (string $isi) => str_contains($isi, 'Halo Budi Santoso,')
+            ->has('pesanan.templatePesan', 7)
+            ->where('pesanan.templatePesan.3.kunci', 'dikirim')
+            ->where('pesanan.templatePesan.3.isi', fn (string $isi) => str_contains($isi, 'Halo Budi Santoso,')
                 && str_contains($isi, 'Paket 1: JNE JNE123 (dari RANK Sports Bekasi)')
                 && str_contains($isi, 'Paket 2: J&T JT456')
                 && str_contains($isi, '2 paket')
-                && str_contains($isi, route('toko.pesanan', $order->code)))
-            ->where('pesanan.templatePesan.0.subjek', "Pesanan {$order->code} sudah kami terima")
+                && str_contains($isi, $order->urlStatus()))
+            ->where('pesanan.templatePesan.1.subjek', "Pesanan {$order->code} sudah kami terima")
         );
+    }
+
+    public function test_daftar_pesanan_punya_tombol_whatsapp_dengan_pesan_sesuai_status(): void
+    {
+        $dibayar = $this->pesananDibayar(['customer_name' => 'Budi Santoso', 'phone' => '0812-3456-7890']);
+        $menunggu = $this->pesananDibayar(['status' => OrderStatus::PendingPayment, 'paid_at' => null, 'phone' => '081298765432', 'total' => 150000]);
+        $nomorSalah = $this->pesananDibayar(['phone' => '123']);
+
+        $this->actingAs($this->superadmin())->get('/superadmin/toko/pesanan?status=semua')->assertInertia(function (Assert $page) use ($dibayar, $menunggu, $nomorSalah) {
+            $baris = collect($page->toArray()['props']['pesanan']['data'])->keyBy('kode');
+
+            $wa = $baris[$dibayar->code]['whatsapp'];
+            $this->assertSame('diterima', $wa['template']);
+            $this->assertStringStartsWith('https://wa.me/6281234567890?text=', $wa['url']);
+            $this->assertStringContainsString('Halo Budi Santoso,', $wa['isi']);
+            $this->assertStringContainsString($dibayar->urlStatus(), $wa['isi']);
+            $this->assertSame(rawurldecode(substr($wa['url'], strlen('https://wa.me/6281234567890?text='))), $wa['isi']);
+            $this->assertSame(route('superadmin.toko.pesanan.pesan', $dibayar), $baris[$dibayar->code]['pesanUrl']);
+
+            $this->assertSame('menunggu', $baris[$menunggu->code]['whatsapp']['template']);
+            $this->assertStringContainsString('belum dibayar', $baris[$menunggu->code]['whatsapp']['isi']);
+            $this->assertStringContainsString('Rp150.000', $baris[$menunggu->code]['whatsapp']['isi']);
+
+            $this->assertNull($baris[$nomorSalah->code]['whatsapp']);
+        });
+    }
+
+    public function test_whatsapp_dari_daftar_dicatat_di_riwayat_dengan_template_menunggu(): void
+    {
+        $order = $this->pesananDibayar(['status' => OrderStatus::PendingPayment, 'paid_at' => null]);
+
+        $this->actingAs($this->superadmin())->post("/superadmin/toko/pesanan/{$order->id}/pesan", ['channel' => 'whatsapp', 'template' => 'menunggu', 'body' => 'Halo, pesananmu belum dibayar.'])
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('order_messages', ['order_id' => $order->id, 'channel' => 'whatsapp', 'template' => 'menunggu']);
+    }
+
+    public function test_kirim_ulang_email_sesuai_status_dan_dicatat(): void
+    {
+        Mail::fake();
+        $admin = $this->superadmin();
+
+        $dibayar = $this->pesananDibayar(['email' => 'budi@contoh.com']);
+        $this->actingAs($admin)->post("/superadmin/toko/pesanan/{$dibayar->id}/email-ulang")->assertSessionHas('success');
+        Mail::assertQueued(PesananTokoDiterima::class, fn (PesananTokoDiterima $mail) => $mail->hasTo('budi@contoh.com') && $mail->order->is($dibayar));
+        $this->assertDatabaseHas('order_messages', ['order_id' => $dibayar->id, 'channel' => 'email', 'template' => 'diterima', 'user_id' => $admin->id]);
+
+        $dikirim = $this->pesananDibayar(['status' => OrderStatus::Shipped]);
+        $dikirim->shipments()->create(['courier' => 'JNE', 'tracking_number' => 'JNE999']);
+        $this->actingAs($admin)->post("/superadmin/toko/pesanan/{$dikirim->id}/email-ulang");
+        Mail::assertQueued(PesananTokoDikirim::class, fn (PesananTokoDikirim $mail) => $mail->order->is($dikirim));
+
+        $dibatalkan = $this->pesananDibayar(['status' => OrderStatus::Cancelled, 'cancel_reason' => 'Stok habis']);
+        $this->actingAs($admin)->post("/superadmin/toko/pesanan/{$dibatalkan->id}/email-ulang");
+        Mail::assertQueued(PesananTokoDibatalkan::class, fn (PesananTokoDibatalkan $mail) => $mail->order->is($dibatalkan));
+
+        $diproses = $this->pesananDibayar(['status' => OrderStatus::OrderedToSupplier]);
+        $this->actingAs($admin)->post("/superadmin/toko/pesanan/{$diproses->id}/email-ulang");
+        Mail::assertQueued(PesanPesananToko::class, fn (PesanPesananToko $mail) => $mail->order->is($diproses)
+            && $mail->subjek === "Pesanan {$diproses->code} sedang diproses"
+            && str_contains($mail->isi, $diproses->urlStatus()));
+        $this->assertDatabaseHas('order_messages', ['order_id' => $diproses->id, 'template' => 'diproses']);
+
+        $menunggu = $this->pesananDibayar(['status' => OrderStatus::PendingPayment, 'paid_at' => null]);
+        $this->actingAs($admin)->post("/superadmin/toko/pesanan/{$menunggu->id}/email-ulang");
+        Mail::assertQueued(PesanPesananToko::class, fn (PesanPesananToko $mail) => $mail->order->is($menunggu) && str_contains($mail->isi, 'belum dibayar'));
+    }
+
+    public function test_tandai_diproses_tidak_terganggu_baris_paket_kosong_dari_form(): void
+    {
+        $order = $this->pesananDibayar();
+
+        $this->actingAs($this->superadmin())->post("/superadmin/toko/pesanan/{$order->id}/status", [
+            'status' => 'ordered_to_supplier',
+            'supplier_order_ref' => '2411270ABCDEF',
+            'cancel_reason' => '',
+            'pengiriman' => [['courier' => '', 'tracking_number' => '', 'shipped_from' => '']],
+        ])->assertSessionHasNoErrors()->assertSessionHas('success');
+
+        $order->refresh();
+        $this->assertSame(OrderStatus::OrderedToSupplier, $order->status);
+        $this->assertSame('2411270ABCDEF', $order->supplier_order_ref);
+        $this->assertSame(0, $order->shipments()->count());
+    }
+
+    public function test_kirim_ulang_email_hanya_untuk_superadmin(): void
+    {
+        Mail::fake();
+        $order = $this->pesananDibayar();
+
+        $this->actingAs(User::factory()->create())->post("/superadmin/toko/pesanan/{$order->id}/email-ulang")->assertForbidden();
+        Mail::assertNothingQueued();
+        $this->assertDatabaseCount('order_messages', 0);
     }
 
     public function test_template_dikirim_tanpa_resi_mengingatkan_admin_dan_dibatalkan_memuat_alasan(): void
@@ -369,8 +463,8 @@ class TokoAdminTest extends TestCase
         $order = $this->pesananDibayar(['cancel_reason' => 'Stok supplier habis', 'total' => 205000]);
 
         $this->actingAs($this->superadmin())->get("/superadmin/toko/pesanan/{$order->id}")->assertInertia(fn (Assert $page) => $page
-            ->where('pesanan.templatePesan.2.isi', fn (string $isi) => str_contains($isi, 'Nomor resi belum diisi'))
-            ->where('pesanan.templatePesan.4.isi', fn (string $isi) => str_contains($isi, 'Stok supplier habis') && str_contains($isi, 'Rp205.000'))
+            ->where('pesanan.templatePesan.3.isi', fn (string $isi) => str_contains($isi, 'Nomor resi belum diisi'))
+            ->where('pesanan.templatePesan.5.isi', fn (string $isi) => str_contains($isi, 'Stok supplier habis') && str_contains($isi, 'Rp205.000'))
         );
     }
 

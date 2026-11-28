@@ -1,11 +1,14 @@
 import '../../../fuzio/css/fuzio.css';
 import { usePoll } from '@inertiajs/react';
+import { useState } from 'react';
 import Footer from '../../components/fuzio/Footer';
 import Header from '../../components/fuzio/Header';
 import PageHeader from '../../components/fuzio/PageHeader';
 import ScrollToTop from '../../components/fuzio/elements/ScrollToTop';
+import WhatsAppIcon from '../../components/fuzio/elements/WhatsAppIcon';
+import GelembungUjiBayar from '../../components/fuzio/toko/GelembungUjiBayar';
 import { rupiah } from '../../components/fuzio/toko/types';
-import { GD_CDN } from '../../data/greendeahan';
+import { GD_CDN, waLink } from '../../data/greendeahan';
 
 interface Pesanan {
     kode: string;
@@ -28,21 +31,72 @@ interface Pesanan {
     dibayar: string | null;
 }
 
+interface LangkahTimeline {
+    kunci: string;
+    judul: string;
+    keterangan: string;
+    waktu: string | null;
+    keadaan: 'selesai' | 'sekarang' | 'nanti' | 'batal';
+}
+
 interface Props {
     pesanan: Pesanan;
-    langkah: { nilai: string; label: string }[];
+    timeline: LangkahTimeline[];
+    bypassBayarUrl?: string | null;
 }
 
 const STATUS_BATAL = ['cancelled', 'expired'];
 
-/** /pesanan/{code}: order status for the customer. Refreshes itself while waiting for payment. */
-export default function PesananToko({ pesanan, langkah }: Props) {
+const IkonCentang = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M20 6 9 17l-5-5" />
+    </svg>
+);
+
+const IkonSilang = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+);
+
+/** Tracking number with a copy button, so customers can paste it on the courier's site. */
+function Resi({ paket, nomor }: { paket: Pesanan['pengiriman'][number]; nomor: number | null }) {
+    const [tersalin, setTersalin] = useState(false);
+
+    const salin = async () => {
+        try {
+            await navigator.clipboard.writeText(paket.resi);
+            setTersalin(true);
+            window.setTimeout(() => setTersalin(false), 2000);
+        } catch {
+            // Clipboard blocked: the number is still visible to copy by hand.
+        }
+    };
+
+    return (
+        <div className="gd-resi">
+            <div className="gd-resi-info">
+                <span className="gd-resi-kurir">
+                    {nomor !== null && `Paket ${nomor}: `}
+                    {paket.kurir}
+                    {paket.dikirimDari && <span className="gd-resi-asal"> dari {paket.dikirimDari}</span>}
+                </span>
+                <span className="gd-resi-nomor">{paket.resi}</span>
+            </div>
+            <button type="button" className="gd-resi-salin" onClick={salin} aria-label={`Salin nomor resi ${paket.resi}`}>
+                {tersalin ? 'Tersalin' : 'Salin'}
+            </button>
+        </div>
+    );
+}
+
+/** /pesanan/{token}: order status for the customer. Refreshes itself while waiting for payment. */
+export default function PesananToko({ pesanan, timeline, bypassBayarUrl }: Props) {
     const menungguBayar = pesanan.status === 'pending_payment';
     const batal = STATUS_BATAL.includes(pesanan.status);
-    const posisi = langkah.findIndex((item) => item.nilai === pesanan.status);
 
     // The payment webhook updates the order; check again every 5 seconds while unpaid.
-    usePoll(5000, { only: ['pesanan'] }, { autoStart: menungguBayar });
+    usePoll(5000, { only: ['pesanan', 'timeline'] }, { autoStart: menungguBayar });
 
     return (
         <div className="App">
@@ -54,98 +108,71 @@ export default function PesananToko({ pesanan, langkah }: Props) {
                     <div className="row g-4 align-items-start">
                         <div className="col-lg-7">
                             <div className="gd-kartu">
-                                <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                                    <h2 className="mb-0">Pesanan {pesanan.kode}</h2>
+                                <div className="gd-status-kepala">
+                                    <div>
+                                        <span className="gd-status-kode-label">Kode pesanan</span>
+                                        <h2 className="gd-status-kode">{pesanan.kode}</h2>
+                                    </div>
                                     <span className={`gd-status-badge${batal ? ' batal' : ''}`}>{pesanan.statusLabel}</span>
                                 </div>
 
-                                {!batal && (
-                                    <ol className="gd-langkah" aria-label="Tahap pesanan">
-                                        {langkah.map((item, index) => (
-                                            <li
-                                                key={item.nilai}
-                                                className={index < posisi ? 'selesai' : index === posisi ? (index === langkah.length - 1 ? 'selesai' : 'sekarang') : ''}
-                                                aria-current={index === posisi ? 'step' : undefined}
-                                            >
-                                                <span className="titik">
-                                                    {index < posisi || (index === posisi && index === langkah.length - 1) ? (
-                                                        <svg
-                                                            width="16"
-                                                            height="16"
-                                                            viewBox="0 0 24 24"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            strokeWidth="3"
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            aria-hidden="true"
-                                                        >
-                                                            <path d="M20 6 9 17l-5-5" />
-                                                        </svg>
-                                                    ) : (
-                                                        index + 1
-                                                    )}
-                                                </span>
-                                                {item.label}
-                                            </li>
-                                        ))}
-                                    </ol>
-                                )}
-
-                                {menungguBayar && (
-                                    <div className="gd-pesan sukses" role="status" aria-live="polite">
-                                        Kami menunggu pembayaran kamu. Halaman ini otomatis berubah begitu pembayaran diterima.
-                                        {pesanan.linkBayar && (
-                                            <div className="mt-3">
-                                                <a href={pesanan.linkBayar} className="btn btn-primary btn-cta">
-                                                    Bayar Sekarang
-                                                </a>
+                                <ol className="gd-timeline" aria-label="Perjalanan pesanan">
+                                    {timeline.map((langkah) => (
+                                        <li key={langkah.kunci} className={`gd-timeline-langkah ${langkah.keadaan}`} aria-current={langkah.keadaan === 'sekarang' ? 'step' : undefined}>
+                                            <span className="gd-timeline-titik">
+                                                {langkah.keadaan === 'selesai' && <IkonCentang />}
+                                                {langkah.keadaan === 'batal' && <IkonSilang />}
+                                            </span>
+                                            <div className="gd-timeline-isi">
+                                                <div className="gd-timeline-judul">
+                                                    <h3>{langkah.judul}</h3>
+                                                    {langkah.keadaan === 'sekarang' && <span className="gd-timeline-sekarang">Sekarang</span>}
+                                                </div>
+                                                {langkah.waktu && <time className="gd-timeline-waktu">{langkah.waktu}</time>}
+                                                {langkah.keterangan && <p aria-live={langkah.kunci === 'dibayar' ? 'polite' : undefined}>{langkah.keterangan}</p>}
+                                                {langkah.kunci === 'dibayar' && langkah.keadaan === 'sekarang' && pesanan.linkBayar && (
+                                                    <a href={pesanan.linkBayar} className="btn btn-primary btn-cta mt-3">
+                                                        Bayar Sekarang {rupiah(pesanan.total)}
+                                                    </a>
+                                                )}
+                                                {langkah.kunci === 'dikirim' && langkah.keadaan !== 'nanti' && pesanan.pengiriman.length > 0 && (
+                                                    <div className="gd-resi-daftar">
+                                                        {pesanan.pengiriman.length > 1 && (
+                                                            <p className="gd-resi-catatan">
+                                                                Dikirim dalam {pesanan.pengiriman.length} paket dari lokasi berbeda, jadi bisa tiba di hari yang berbeda.
+                                                            </p>
+                                                        )}
+                                                        {pesanan.pengiriman.map((paket, indeks) => (
+                                                            <Resi key={`${paket.resi}-${indeks}`} paket={paket} nomor={pesanan.pengiriman.length > 1 ? indeks + 1 : null} />
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                )}
-                                {batal && (
-                                    <div className="gd-pesan galat">
-                                        <p className="mb-1">Pesanan ini {pesanan.statusLabel.toLowerCase()}. Silakan pesan ulang dari toko.</p>
-                                        {pesanan.alasanBatal && (
-                                            <p className="mb-1">
-                                                <strong>Alasan:</strong> {pesanan.alasanBatal}
-                                            </p>
-                                        )}
-                                        {pesanan.statusRefund === 'diproses' && (
-                                            <p className="mb-0">
+                                        </li>
+                                    ))}
+                                </ol>
+
+                                {batal && pesanan.statusRefund && (
+                                    <div className="gd-pesan galat mt-3 mb-0">
+                                        {pesanan.statusRefund === 'diproses' ? (
+                                            <>
                                                 Pembayaranmu sebesar {rupiah(pesanan.total)} sedang kami proses pengembaliannya. Hubungi kami lewat WhatsApp kalau dana belum
                                                 diterima dalam beberapa hari.
-                                            </p>
+                                            </>
+                                        ) : (
+                                            <>Dana {rupiah(pesanan.total)} sudah kami kembalikan ke metode pembayaranmu.</>
                                         )}
-                                        {pesanan.statusRefund === 'selesai' && <p className="mb-0">Dana {rupiah(pesanan.total)} sudah kami kembalikan ke metode pembayaranmu.</p>}
                                     </div>
                                 )}
-                                {pesanan.pengiriman.length > 0 && (
-                                    <div className="gd-pesan sukses">
-                                        {pesanan.pengiriman.length > 1 && (
-                                            <p className="mb-1">
-                                                Pesananmu dikirim dalam {pesanan.pengiriman.length} paket dari lokasi berbeda, jadi paket bisa tiba di hari yang berbeda.
-                                            </p>
-                                        )}
-                                        {pesanan.pengiriman.map((paket, indeks) => (
-                                            <p key={`${paket.resi}-${indeks}`} className="mb-0">
-                                                {pesanan.pengiriman.length > 1 && <>Paket {indeks + 1}: </>}
-                                                Dikirim lewat <strong>{paket.kurir}</strong>, nomor resi <strong>{paket.resi}</strong>
-                                                {paket.dikirimDari && <> (dari {paket.dikirimDari})</>}.
-                                            </p>
-                                        ))}
-                                    </div>
-                                )}
+                            </div>
 
+                            <div className="gd-kartu mt-4">
+                                <h2>Alamat Pengiriman</h2>
                                 <p className="mb-1">
-                                    <strong>Dikirim ke:</strong> {pesanan.nama}
+                                    <strong>{pesanan.nama}</strong>
                                 </p>
-                                <p className="mb-1">{pesanan.alamat}</p>
-                                <p className="mb-0" style={{ fontSize: 14, color: '#555' }}>
-                                    Dipesan {pesanan.dibuat}
-                                    {pesanan.dibayar && `, dibayar ${pesanan.dibayar}`}
-                                </p>
+                                <p className="mb-0">{pesanan.alamat}</p>
+                                {pesanan.layanan && <p className="gd-status-layanan">Kurir: {pesanan.layanan}</p>}
                             </div>
                         </div>
                         <div className="col-lg-5">
@@ -182,11 +209,26 @@ export default function PesananToko({ pesanan, langkah }: Props) {
                                     Simpan link halaman ini untuk mengecek status pesanan.
                                 </p>
                             </aside>
+
+                            <aside className="gd-kartu mt-4">
+                                <h2>Butuh Bantuan?</h2>
+                                <p>Ada pertanyaan soal pesanan ini? Chat tim kami dan sebutkan kode pesananmu.</p>
+                                <a
+                                    href={waLink(`Halo Green Deahan, saya mau tanya soal pesanan ${pesanan.kode}.`)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn btn-primary btn-whatsapp w-100"
+                                >
+                                    <WhatsAppIcon className="me-2" />
+                                    Chat WhatsApp
+                                </a>
+                            </aside>
                         </div>
                     </div>
                 </div>
             </section>
 
+            {bypassBayarUrl && <GelembungUjiBayar url={bypassBayarUrl} />}
             <Footer />
             <ScrollToTop />
         </div>

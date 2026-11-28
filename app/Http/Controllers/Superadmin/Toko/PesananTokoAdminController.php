@@ -14,6 +14,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderMessage;
 use App\Models\OrderShipment;
+use App\Services\BypassBayarToko;
 use App\Services\PesanPesananTokoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,13 +31,13 @@ class PesananTokoAdminController extends Controller
 {
     private const FILTER_PERLU_REFUND = 'perlu_refund';
 
-    public function index(Request $request): Response
+    public function index(Request $request, BypassBayarToko $bypass, PesanPesananTokoService $pesan): Response
     {
         $status = $request->query('status', OrderStatus::Paid->value);
         $perluRefund = $status === self::FILTER_PERLU_REFUND;
         $filter = $status === 'semua' || $perluRefund ? null : OrderStatus::tryFrom((string) $status) ?? OrderStatus::Paid;
 
-        $pesanan = Order::with('items')
+        $pesanan = Order::with('items', 'shipments')
             ->when($perluRefund, fn ($q) => $q->menungguRefund())
             ->when($filter, fn ($q, OrderStatus $filter) => $q->where('status', $filter))
             ->latest()
@@ -55,6 +56,10 @@ class PesananTokoAdminController extends Controller
                 'perluRefund' => $order->perluRefund(),
                 'tanggal' => $order->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i'),
                 'url' => route('superadmin.toko.pesanan.show', $order),
+                'whatsapp' => $pesan->whatsAppStatus($order),
+                'pesanUrl' => route('superadmin.toko.pesanan.pesan', $order),
+                'emailUlangUrl' => route('superadmin.toko.pesanan.email-ulang', $order),
+                'email' => $order->email,
             ]);
 
         return Inertia::render('superadmin/Toko/Pesanan/Index', [
@@ -65,7 +70,20 @@ class PesananTokoAdminController extends Controller
                 'label' => $s->label(),
                 'jumlah' => Order::where('status', $s)->count(),
             ])->push(['nilai' => self::FILTER_PERLU_REFUND, 'label' => 'Perlu refund', 'jumlah' => Order::menungguRefund()->count()])->all(),
+            // SEMENTARA (BypassBayarToko): hapus setelah sandbox Mayar hidup.
+            'bypassBayar' => ['aktif' => $bypass->aktif(), 'url' => route('superadmin.toko.bypass-bayar')],
         ]);
+    }
+
+    /**
+     * SEMENTARA (BypassBayarToko): nyalakan/matikan mode uji bayar toko.
+     */
+    public function aturBypassBayar(Request $request, BypassBayarToko $bypass): RedirectResponse
+    {
+        $aktif = $request->validate(['aktif' => ['required', 'boolean']])['aktif'];
+        $bypass->atur((bool) $aktif);
+
+        return back()->with('success', $aktif ? 'Mode uji bayar aktif. Ingat matikan lagi setelah selesai menguji.' : 'Mode uji bayar dimatikan.');
     }
 
     public function show(Order $order, PesanPesananTokoService $pesan): Response
@@ -136,7 +154,7 @@ class PesananTokoAdminController extends Controller
                 'langkahBerikutnya' => collect($order->status->langkahBerikutnya())->map(fn (OrderStatus $s) => ['nilai' => $s->value, 'label' => $s->label()])->all(),
                 'statusUrl' => route('superadmin.toko.pesanan.status', $order),
                 'catatanUrl' => route('superadmin.toko.pesanan.catatan', $order),
-                'publikUrl' => route('toko.pesanan', $order->code),
+                'publikUrl' => $order->urlStatus(),
             ],
             'kembaliUrl' => route('superadmin.toko.pesanan'),
         ]);
@@ -237,6 +255,28 @@ class PesananTokoAdminController extends Controller
         }
 
         return back()->with('success', $email ? 'Email dikirim ke pelanggan.' : 'Pesan WhatsApp dicatat di riwayat.');
+    }
+
+    /**
+     * Kirim ulang email status saat ini ke pelanggan (misal pelanggan bilang
+     * emailnya tidak masuk). Dicatat di riwayat kabar.
+     */
+    public function kirimUlangEmail(Request $request, Order $order, PesanPesananTokoService $pesan): RedirectResponse
+    {
+        $email = $pesan->emailStatus($order);
+        $template = $pesan->templateUntukStatus($order);
+
+        Mail::to($order->email)->queue($email);
+
+        $order->messages()->create([
+            'user_id' => $request->user()->id,
+            'channel' => 'email',
+            'template' => $template,
+            'subject' => $email->envelope()->subject,
+            'body' => 'Kirim ulang email status ('.PesanPesananTokoService::TEMPLATE[$template].') ke '.$order->email.'.',
+        ]);
+
+        return back()->with('success', "Email status dikirim ulang ke {$order->email}.");
     }
 
     public function refundSelesai(Order $order): RedirectResponse

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enums\OrderStatus;
 use App\Exceptions\MayarException;
 use App\Mail\PesananTokoDibayar;
+use App\Mail\PesananTokoDiterima;
 use App\Models\MayarWebhookLog;
 use App\Models\Order;
 use App\Services\MayarService;
@@ -98,6 +99,13 @@ class ProsesPembayaranToko implements ShouldQueue
         $this->catat($log, 'diproses', 'Pesanan ditandai dibayar.');
 
         Mail::to(config('toko.email_admin'))->queue(new PesananTokoDibayar($order->fresh('items')));
+        Mail::to($order->email)->queue(new PesananTokoDiterima($order->fresh('items')));
+        $order->messages()->create([
+            'channel' => 'email',
+            'template' => 'diterima',
+            'subject' => "Pembayaran diterima, pesanan {$order->code} segera kami proses",
+            'body' => 'Email otomatis: konfirmasi pembayaran diterima, berisi rincian pesanan dan link status.',
+        ]);
     }
 
     private function catat(MayarWebhookLog $log, string $hasil, string $pesan): void

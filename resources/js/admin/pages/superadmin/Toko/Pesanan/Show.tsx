@@ -31,7 +31,7 @@ interface RiwayatPesan {
 }
 
 /** Template that fits the order's current status, so the common case needs no choosing. */
-const TEMPLATE_STATUS: Record<string, string> = { paid: 'diterima', ordered_to_supplier: 'diproses', shipped: 'dikirim', completed: 'selesai', cancelled: 'dibatalkan' };
+const TEMPLATE_STATUS: Record<string, string> = { pending_payment: 'menunggu', paid: 'diterima', ordered_to_supplier: 'diproses', shipped: 'dikirim', completed: 'selesai', cancelled: 'dibatalkan' };
 
 /**
  * Manual status update to the customer: pick a template filled from the order,
@@ -285,7 +285,16 @@ export default function Show({ pesanan, kembaliUrl }: { pesanan: Pesanan; kembal
 
     const ubahStatus = (event?: FormEvent, tujuan?: string) => {
         event?.preventDefault();
-        status.transform((data) => ({ ...data, status: tujuan ?? data.status }));
+        // Send only the fields the target status needs, so hidden empty inputs can never block it.
+        status.transform((data) => {
+            const target = tujuan ?? data.status;
+            return {
+                status: target,
+                ...(target === 'ordered_to_supplier' ? { supplier_order_ref: data.supplier_order_ref } : {}),
+                ...(target === 'cancelled' ? { cancel_reason: data.cancel_reason } : {}),
+                ...(target === 'shipped' ? { pengiriman: data.pengiriman } : {}),
+            };
+        });
         status.post(pesanan.statusUrl, { preserveScroll: true, onSuccess: () => setKonfirmasiBatal(false) });
     };
 
