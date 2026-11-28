@@ -22,17 +22,21 @@ class ImporProdukHtmlService
     /** Batas teks deskripsi, sama dengan batas di ProdukRequest. */
     public const MAKS_DESKRIPSI = 3000;
 
+    public const NAMA_TOKO = 'Green Deahan Sport';
+
     /**
      * @return array{nama: ?string, deskripsi: ?string, spesifikasi: array<int, array{nama: string, nilai: string}>, varian: array{label: ?string, opsi: array<int, array{nama: string, tersedia: bool}>}, dikirimDari: ?string, kategori: ?string, linkSupplier: ?string, namaSupplier: ?string, gambarUrl: ?string, gambarUrls: array<int, string>, hargaShopee: ?int, hargaRetail: ?int}
      */
     public function baca(string $html): array
     {
         $xpath = $this->muat($html);
+        $nama = $this->nama($xpath);
+        $deskripsi = $this->deskripsi($xpath);
 
         return [
-            'nama' => $this->nama($xpath),
-            'deskripsi' => $this->deskripsi($xpath),
-            'spesifikasi' => $this->spesifikasi($xpath),
+            'nama' => $nama === null ? null : self::gantiNamaToko($nama),
+            'deskripsi' => $deskripsi === null ? null : self::gantiNamaToko($deskripsi),
+            'spesifikasi' => array_map(fn (array $baris) => ['nama' => $baris['nama'], 'nilai' => self::gantiNamaToko($baris['nilai'])], $this->spesifikasi($xpath)),
             'varian' => $this->varian($xpath),
             'dikirimDari' => $this->dikirimDari($xpath),
             'kategori' => $this->kategori($xpath, $this->nama($xpath)),
@@ -43,6 +47,21 @@ class ImporProdukHtmlService
             'hargaShopee' => $this->hargaShopee($xpath),
             'hargaRetail' => $this->hargaRetail($xpath),
         ];
+    }
+
+    /**
+     * Nama toko penjual di Shopee (RANK Sports dan sapaan pelanggannya)
+     * diganti nama toko kita, supaya pelanggan tidak membaca toko lain di
+     * produk kita. Merek barang tidak diubah: "RANK Jersey" tetap, karena
+     * tulisan di barangnya memang RANK.
+     */
+    public static function gantiNamaToko(string $teks): string
+    {
+        $teks = preg_replace('/#\s*Sobat\s*RANK\b|\bSobat\s*RANK\b/iu', 'Sobat Green Deahan', $teks) ?? $teks;
+        $teks = preg_replace('/\s*#LevelUpYourGame\b/iu', '', $teks) ?? $teks;
+        $teks = preg_replace('/\bRANK[\s_]*Sports?(?:\s+Official(?:\s+Store)?)?\b/iu', self::NAMA_TOKO, $teks) ?? $teks;
+
+        return $teks;
     }
 
     /**
@@ -108,18 +127,29 @@ class ImporProdukHtmlService
 
     /**
      * Membuang bagian khas toko Shopee yang tidak berlaku di toko kita:
-     * blok "Note" (keaslian, garansi, penukaran), daftar outlet penjual,
-     * harga retail, hashtag, dan salam penjual. Teks tentang produknya sendiri dipertahankan.
+     * daftar outlet penjual, harga, hashtag, ajakan "stok terbatas", dan salam
+     * penjual. Blok "Note" (keaslian, penukaran, komplain) dipertahankan
+     * sebagai "Catatan:"; nama toko penjual di dalamnya diganti nama toko kita
+     * oleh gantiNamaToko(). Klaim "original" di luar blok itu tetap dibuang
+     * karena hanya slogan dan sudah tercakup di catatan.
      *
      * @param  array<int, string>  $baris
      */
     private function susunDeskripsi(array $baris): string
     {
         $dipakai = [];
+        $diCatatan = false;
 
         foreach ($baris as $teks) {
-            if (preg_match('/^(note|catatan|perhatian|ketentuan)\s*:/iu', $teks)) {
-                break;
+            if (preg_match('/^(note|catatan|perhatian|ketentuan)\s*:\s*(.*)$/iu', $teks, $cocok)) {
+                $diCatatan = true;
+                $dipakai[] = '';
+                $dipakai[] = 'Catatan:';
+                $teks = trim($cocok[2]);
+
+                if ($teks === '') {
+                    continue;
+                }
             }
 
             // Daftar outlet/cabang penjual (tersebar di banyak kota) tidak berguna bagi pembeli: buang dari sini sampai akhir.
@@ -133,9 +163,19 @@ class ImporProdukHtmlService
                 || preg_match('/\bRp\.?\s*\d/iu', $teks)
                 // "harga bandrol 40.000", "harga normal 1.250.000": harga Shopee tanpa awalan Rp.
                 || preg_match('/\bharga\b.*\d{1,3}(?:\.\d{3})+/iu', $teks)
-                || preg_match('/original\s*100\s*%|100\s*%\s*original|uang\s+kembali/iu', $teks)
+                || (! $diCatatan && preg_match('/original\s*100\s*%|100\s*%\s*original|uang\s+kembali/iu', $teks))
                 || preg_match('/happy\s+shopping|stok\s+terbatas|jangan\s+sampai\s+kehabisan/iu', $teks)) {
+                // Satu baris kosong di dalam catatan tidak memutus catatannya.
                 $dipakai[] = '';
+                $diCatatan = $diCatatan && $teks !== '' ? false : $diCatatan;
+
+                continue;
+            }
+
+            // Di catatan, poin yang terpotong ke baris baru ("... jika produk tidak" / "original.") digabung lagi.
+            $sebelumnya = end($dipakai);
+            if ($diCatatan && $sebelumnya !== false && str_starts_with($sebelumnya, '- ') && ! preg_match('/^[-•*]/u', $teks) && ! preg_match('/[.!?:]$/u', $sebelumnya)) {
+                $dipakai[array_key_last($dipakai)] = "{$sebelumnya} {$teks}";
 
                 continue;
             }

@@ -19,17 +19,6 @@ interface Props {
 
 type Tab = 'deskripsi' | 'info';
 
-/** First paragraph, shortened at a word boundary: the full text lives in the Deskripsi tab. */
-function ringkasan(teks: string, batas = 180): string {
-    const awal = teks
-        .split(/\n\s*\n/)[0]
-        .replace(/\s*\n\s*/g, ' ')
-        .trim();
-    if (awal.length <= batas) return awal;
-
-    return `${awal.slice(0, awal.lastIndexOf(' ', batas) > 0 ? awal.lastIndexOf(' ', batas) : batas).trimEnd()}...`;
-}
-
 /**
  * /toko/{slug}: port of Fuzio's single-product page (ProductReview +
  * ProductDetails): image, price per unit, quantity, add to cart / buy now,
@@ -52,6 +41,16 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
     const aturQty = (nilai: number) => setQty(Math.min(maksQty, Math.max(1, Number.isFinite(nilai) ? Math.floor(nilai) : 1)));
 
     const perluPilih = adaVarian && varian === null;
+    const hargaTampil = hargaBeda ? Math.min(...hargaVarian) : hargaSatuan;
+    const diskon = produk.comparePrice && produk.comparePrice > hargaTampil ? Math.round(((produk.comparePrice - hargaTampil) / produk.comparePrice) * 100) : null;
+    const merek = produk.specs.find((spek) => /^merek|^brand/i.test(spek.nama))?.nilai ?? null;
+    const spekRingkas = produk.specs.filter((spek) => spek.nilai !== merek || !/^merek|^brand/i.test(spek.nama)).slice(0, 4);
+
+    // "Lihat semua spesifikasi" switches to the Info Tambahan tab and scrolls to it.
+    const bukaInfo = () => {
+        setTab('info');
+        window.requestAnimationFrame(() => document.getElementById('tab-info')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    };
 
     const tambah = (langsungBeli: boolean) =>
         router.post(
@@ -109,64 +108,92 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                             )}
                         </div>
                         <div className="col-xl-6">
-                            <div className="product-info ps-lg-4">
+                            <div className="product-info gd-detail-info ps-lg-4">
+                                <p className="gd-detail-eyebrow">
+                                    <a href={produk.kategoriUrl}>{produk.categoryLabel}</a>
+                                    {merek && (
+                                        <>
+                                            <span aria-hidden="true"> · </span>
+                                            <span>{merek}</span>
+                                        </>
+                                    )}
+                                </p>
                                 <h2>{produk.name}</h2>
-                                <h3 className="product-price">
-                                    {hargaBeda && <small>mulai </small>}
-                                    {rupiah(hargaBeda ? Math.min(...hargaVarian) : hargaSatuan)} <small>/{produk.unit}</small>
-                                    {produk.comparePrice && produk.comparePrice > (hargaBeda ? Math.min(...hargaVarian) : hargaSatuan) && <del>{rupiah(produk.comparePrice)}</del>}
-                                </h3>
-                                {produk.description && <p className="gd-deskripsi-ringkas">{ringkasan(produk.description)}</p>}
+                                <div className="gd-detail-harga">
+                                    {hargaBeda && <span className="gd-detail-mulai">mulai</span>}
+                                    <span className="gd-detail-angka">{rupiah(hargaTampil)}</span>
+                                    <span className="gd-detail-satuan">/{produk.unit}</span>
+                                    {diskon !== null && produk.comparePrice && (
+                                        <>
+                                            <del>{rupiah(produk.comparePrice)}</del>
+                                            <span className="gd-detail-diskon">-{diskon}%</span>
+                                        </>
+                                    )}
+                                </div>
 
-                                {adaVarian && (
-                                    <div className="gd-varian my-3" role="radiogroup" aria-label={produk.variantLabel ?? 'Varian'}>
-                                        <span className="gd-varian-judul">
-                                            {produk.variantLabel ?? 'Varian'}
-                                            {varian && <strong>: {varian.name}</strong>}
-                                        </span>
-                                        <div className="gd-varian-pilihan">
-                                            {produk.variants.map((item) => (
-                                                <button
-                                                    key={item.id}
-                                                    type="button"
-                                                    role="radio"
-                                                    aria-checked={item.id === varianId}
-                                                    className={`gd-varian-tombol${item.id === varianId ? ' aktif' : ''}`}
-                                                    disabled={!item.available}
-                                                    onClick={() => setVarianId(item.id === varianId ? null : item.id)}
-                                                >
-                                                    {item.name}
-                                                    {!item.available && <small> (habis)</small>}
+                                <div className="gd-detail-beli cart-cta">
+                                    {adaVarian && (
+                                        <div className="gd-varian" role="radiogroup" aria-label={produk.variantLabel ?? 'Varian'}>
+                                            <span className="gd-varian-judul">
+                                                {produk.variantLabel ?? 'Varian'}
+                                                {varian && <strong>: {varian.name}</strong>}
+                                            </span>
+                                            <div className="gd-varian-pilihan">
+                                                {produk.variants.map((item) => (
+                                                    <button
+                                                        key={item.id}
+                                                        type="button"
+                                                        role="radio"
+                                                        aria-checked={item.id === varianId}
+                                                        className={`gd-varian-tombol${item.id === varianId ? ' aktif' : ''}`}
+                                                        disabled={!item.available}
+                                                        onClick={() => setVarianId(item.id === varianId ? null : item.id)}
+                                                    >
+                                                        {item.name}
+                                                        {!item.available && <small> (habis)</small>}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="gd-detail-jumlah">
+                                        <div className="cart-number">
+                                            <label htmlFor="jumlah-produk">Jumlah ({produk.unit})</label>
+                                            <div className="d-flex align-items-center cart-counter mt-2">
+                                                <button type="button" className="qty-minus" onClick={() => aturQty(qty - 1)} disabled={qty <= 1} aria-label="Kurangi jumlah">
+                                                    <i className="feather-icon icon-minus" aria-hidden="true"></i>
                                                 </button>
-                                            ))}
+                                                <input
+                                                    id="jumlah-produk"
+                                                    className="qty-count"
+                                                    type="number"
+                                                    inputMode="numeric"
+                                                    min={1}
+                                                    max={maksQty}
+                                                    value={qty}
+                                                    onChange={(event) => aturQty(Number(event.target.value))}
+                                                    onFocus={(event) => event.currentTarget.select()}
+                                                />
+                                                <button type="button" className="qty-plus" onClick={() => aturQty(qty + 1)} disabled={qty >= maksQty} aria-label="Tambah jumlah">
+                                                    <i className="feather-icon icon-plus" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
                                         </div>
+                                        {!perluPilih && (
+                                            <div className="gd-detail-subtotal" aria-live="polite">
+                                                <span>Subtotal</span>
+                                                <strong>{rupiah(hargaSatuan * qty)}</strong>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
 
-                                <div className="my-4 cart-cta">
-                                    <div className="cart-number">
-                                        <label htmlFor="jumlah-produk">Jumlah ({produk.unit})</label>
-                                        <div className="d-flex align-items-center cart-counter mt-2">
-                                            <button type="button" className="qty-minus" onClick={() => aturQty(qty - 1)} disabled={qty <= 1} aria-label="Kurangi jumlah">
-                                                <i className="feather-icon icon-minus" aria-hidden="true"></i>
-                                            </button>
-                                            <input
-                                                id="jumlah-produk"
-                                                className="qty-count"
-                                                type="number"
-                                                inputMode="numeric"
-                                                min={1}
-                                                max={maksQty}
-                                                value={qty}
-                                                onChange={(event) => aturQty(Number(event.target.value))}
-                                                onFocus={(event) => event.currentTarget.select()}
-                                            />
-                                            <button type="button" className="qty-plus" onClick={() => aturQty(qty + 1)} disabled={qty >= maksQty} aria-label="Tambah jumlah">
-                                                <i className="feather-icon icon-plus" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="d-flex flex-wrap gap-2 mt-3">
+                                    {perluPilih && (
+                                        <p className="gd-petunjuk-varian" role="status">
+                                            Pilih {labelVarian} dulu untuk menambahkan ke keranjang.
+                                        </p>
+                                    )}
+                                    <div className="gd-detail-tombol">
                                         <button type="button" className="btn gd-btn-keranjang" onClick={() => tambah(false)} disabled={memproses !== null || perluPilih}>
                                             {memproses === 'keranjang' ? 'Menambahkan...' : 'Tambah ke Keranjang'}
                                         </button>
@@ -175,28 +202,46 @@ export default function Produk({ produk, lainnya, maksQty }: Props) {
                                         </button>
                                     </div>
                                 </div>
-                                {perluPilih && <p className="gd-petunjuk-varian">Pilih {labelVarian} dulu untuk menambahkan ke keranjang.</p>}
-                                <p className="gd-subtotal-produk">
-                                    Subtotal: <strong>{perluPilih ? '-' : rupiah(hargaSatuan * qty)}</strong>
-                                </p>
 
-                                <div className="product-meta mt-4">
-                                    <p className="sku">
-                                        <strong>Kategori:</strong> <a href={produk.kategoriUrl}>{produk.categoryLabel}</a>
-                                    </p>
-                                    {produk.specs.slice(0, 3).map((spek) => (
-                                        <p key={spek.nama} className="sku">
-                                            <strong>{spek.nama}:</strong> {spek.nilai}
-                                        </p>
-                                    ))}
-                                    <p className="sku">
-                                        <strong>Satuan:</strong> per {produk.unit}
-                                    </p>
-                                    <p className="sku">
-                                        <i className="feather-icon icon-truck me-2" aria-hidden="true"></i>
-                                        <strong>Pengiriman:</strong> ke seluruh Indonesia, nomor resi dikirim lewat email
-                                    </p>
-                                </div>
+                                <ul className="gd-detail-jaminan">
+                                    <li>
+                                        <i className="feather-icon icon-truck" aria-hidden="true"></i>
+                                        <span>
+                                            <strong>Kirim ke seluruh Indonesia</strong>
+                                            Ongkir dihitung saat checkout
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <i className="feather-icon icon-mail" aria-hidden="true"></i>
+                                        <span>
+                                            <strong>Resi dikirim lewat email</strong>
+                                            Status pesanan bisa dicek kapan saja
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <i className="feather-icon icon-shield" aria-hidden="true"></i>
+                                        <span>
+                                            <strong>Pembayaran aman</strong>
+                                            QRIS, virtual account, e-wallet
+                                        </span>
+                                    </li>
+                                </ul>
+
+                                {spekRingkas.length > 0 && (
+                                    <div className="gd-detail-spek">
+                                        <dl>
+                                            {spekRingkas.map((spek) => (
+                                                <div key={spek.nama}>
+                                                    <dt>{spek.nama}</dt>
+                                                    <dd>{spek.nilai}</dd>
+                                                </div>
+                                            ))}
+                                        </dl>
+                                        <button type="button" className="gd-detail-spek-semua" onClick={bukaInfo}>
+                                            Lihat semua spesifikasi
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

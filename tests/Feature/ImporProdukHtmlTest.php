@@ -69,9 +69,31 @@ class ImporProdukHtmlTest extends TestCase
         $this->assertStringContainsString('aman dari benturan lantai', $deskripsi);
         $this->assertStringContainsString("\n\n", $deskripsi);
 
-        foreach (['Rp', 'RETAIL', 'ORIGINAL', 'Note', 'jaminan uang kembali', 'unboxing', '#LevelUp', 'LevelUp', 'HAPPY', 'Stok terbatas', "\u{00A0}"] as $dilarang) {
+        foreach (['Rp', 'RETAIL', 'ORIGINAL 100%', 'Note', 'RANK', '#LevelUp', 'LevelUp', 'HAPPY', 'Stok terbatas', "\u{00A0}"] as $dilarang) {
             $this->assertStringNotContainsString($dilarang, $deskripsi, "Deskripsi masih memuat {$dilarang}");
         }
+
+        // Blok "Note" dipertahankan sebagai catatan toko kita, poin yang terpotong digabung lagi.
+        $this->assertStringContainsString("Catatan:\n- Produk di Green Deahan Sport 100% original, jaminan uang kembali jika produk tidak original.\n- Untuk produk yang rusak, mohon sertakan video unboxing saat komplain.", $deskripsi);
+    }
+
+    public function test_catatan_penjual_dipertahankan_dan_penutup_promosi_dibuang(): void
+    {
+        $html = '<h1>Ortuseight Sepatu Futsal Zenith IN</h1><section><h2>Deskripsi Produk</h2><div><div><div>'
+            .'<p>ORIGINAL 100%</p><p> </p><p>HARGA RETAIL Rp.329.000,-  </p><p> </p><p>Detail Size :</p><p>37  : 24.1 cm</p><p>38  : 24.5 cm</p><p> </p>'
+            .'<p>Note : </p><p>- Produk di RANK Sports 100% original, jaminan uang kembali jika produk tidak original.</p>'
+            .'<p>- Jika ragu ingin memilih size, dapat konsultasi ke admin mengenai detail size.</p>'
+            .'<p>- Penukaran produk jika pengiriman TIDAK SESUAI DENGAN PESANAN. </p><p> </p>'
+            .'<p>Stok terbatas jangan sampai kehabisan !! #LevelUpYourGame</p><p> </p><p>HAPPY SHOPPING SOB :)</p>'
+            .'</div></div></div></section>';
+
+        $this->assertSame(
+            "Detail Size :\n37 : 24.1 cm\n38 : 24.5 cm\n\nCatatan:\n"
+            ."- Produk di Green Deahan Sport 100% original, jaminan uang kembali jika produk tidak original.\n"
+            ."- Jika ragu ingin memilih size, dapat konsultasi ke admin mengenai detail size.\n"
+            .'- Penukaran produk jika pengiriman TIDAK SESUAI DENGAN PESANAN.',
+            (new ImporProdukHtmlService)->baca($html)['deskripsi'],
+        );
     }
 
     public function test_spesifikasi_dan_dikirim_dari_dibaca_dari_halaman_shopee(): void
@@ -172,6 +194,32 @@ class ImporProdukHtmlTest extends TestCase
         $this->assertSame('ortuseight', $service->baca('<h1>Ortuseight Sepatu Futsal Zenith IN</h1>')['kategori']);
         $this->assertSame('nike', $service->baca('<h1>Sepatu Bola NIKE Mercurial</h1>')['kategori']);
         $this->assertNull($service->baca('<h1>Sepatu Futsal Tanpa Merek Dikenal</h1>')['kategori']);
+    }
+
+    public function test_nama_toko_penjual_diganti_nama_toko_kita_tapi_merek_barang_tetap(): void
+    {
+        $this->assertSame('Produk di Green Deahan Sport 100% original', ImporProdukHtmlService::gantiNamaToko('Produk di RANK Sports 100% original'));
+        $this->assertSame('Dijual oleh Green Deahan Sport', ImporProdukHtmlService::gantiNamaToko('Dijual oleh rank sport'));
+        $this->assertSame('Green Deahan Sport', ImporProdukHtmlService::gantiNamaToko('RANK Sports Official'));
+        $this->assertSame('Untuk Sobat Green Deahan', ImporProdukHtmlService::gantiNamaToko('Untuk #SobatRANK #LevelUpYourGame'));
+        $this->assertSame('RANK Jersey Futsal Pro', ImporProdukHtmlService::gantiNamaToko('RANK Jersey Futsal Pro'));
+    }
+
+    public function test_impor_mengganti_rank_sports_di_nama_deskripsi_dan_spesifikasi(): void
+    {
+        $html = <<<'HTML'
+            <h1>Kaos Kaki Futsal Eksklusif RANK Sports</h1>
+            <section><h2>Spesifikasi Produk</h2><div><div><h3>Merek</h3><div>ORTUSEIGHT</div></div><div><h3>Penjual</h3><div>RANK Sports Official</div></div></div></section>
+            <section><h2>Deskripsi Produk</h2><div><p>Kaos kaki nyaman dari RANK Sports untuk latihan.</p><p></p><p>Bahan katun.</p></div></section>
+            HTML;
+
+        $hasil = (new ImporProdukHtmlService)->baca($html);
+
+        $this->assertSame('Kaos Kaki Futsal Eksklusif Green Deahan Sport', $hasil['nama']);
+        $this->assertStringContainsString('Kaos kaki nyaman dari Green Deahan Sport untuk latihan.', (string) $hasil['deskripsi']);
+        $this->assertStringNotContainsStringIgnoringCase('rank', (string) $hasil['deskripsi']);
+        $this->assertContains(['nama' => 'Penjual', 'nilai' => 'Green Deahan Sport'], $hasil['spesifikasi']);
+        $this->assertContains(['nama' => 'Merek', 'nilai' => 'ORTUSEIGHT'], $hasil['spesifikasi']);
     }
 
     public function test_bagian_yang_tidak_ada_dikembalikan_null_bukan_galat(): void
