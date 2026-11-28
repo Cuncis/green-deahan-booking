@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ExternalLink, ImageOff, Plus } from 'lucide-react';
+import { ExternalLink, ImageOff, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import KonfirmasiDialog from '../../../../components/KonfirmasiDialog';
 import AksiKartu from '../../../../components/AksiKartu';
@@ -33,6 +33,42 @@ function Foto({ src, alt }: { src: string | null; alt: string }) {
     return (
         <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted">
             {src ? <img src={src} alt={alt} className="size-full object-cover" loading="lazy" /> : <ImageOff className="size-5 text-muted-foreground" aria-hidden="true" />}
+        </div>
+    );
+}
+
+/** Compact icon actions for the wide table, so the product name keeps the room. */
+function AksiIkon({ item, onHapus }: { item: ProdukBaris; onHapus: () => void }) {
+    const kelas = 'size-9 md:size-9';
+    return (
+        <div className="flex items-center justify-end gap-1.5">
+            {item.linkSupplier ? (
+                <Button asChild variant="outline" size="icon" className={kelas}>
+                    <a href={item.linkSupplier} target="_blank" rel="noopener noreferrer" title="Buka link supplier" aria-label={`Buka link supplier ${item.name}`}>
+                        <ExternalLink />
+                    </a>
+                </Button>
+            ) : (
+                <span className={`${kelas} inline-flex items-center justify-center text-muted-foreground/40`} title="Link supplier belum diisi">
+                    <ExternalLink className="size-4" aria-hidden="true" />
+                </span>
+            )}
+            <Button asChild variant="outline" size="icon" className={kelas}>
+                <Link href={item.editUrl} title="Edit produk" aria-label={`Edit ${item.name}`}>
+                    <Pencil />
+                </Link>
+            </Button>
+            <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className={`${kelas} text-destructive hover:bg-destructive/10 hover:text-destructive`}
+                onClick={onHapus}
+                title="Hapus produk"
+                aria-label={`Hapus ${item.name}`}
+            >
+                <Trash2 />
+            </Button>
         </div>
     );
 }
@@ -93,53 +129,61 @@ export default function Index({ produk }: { produk: ProdukBaris[] }) {
                     <p className="px-5 py-6 text-center text-sm text-muted-foreground">Belum ada produk.</p>
                 ) : (
                     <>
-                        <div className="hidden lg:block">
+                        <div className="hidden xl:block">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Produk</TableHead>
-                                        <TableHead className="text-right">Jual</TableHead>
-                                        <TableHead className="text-right">Modal</TableHead>
-                                        <TableHead className="text-right">Margin</TableHead>
-                                        <TableHead>Supplier</TableHead>
+                                        <TableHead className="text-right">Harga</TableHead>
                                         <TableHead>Status</TableHead>
-                                        <TableHead>Aksi</TableHead>
+                                        <TableHead className="w-36 text-right">Aksi</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {produk.map((item) => (
                                         <TableRow key={item.id}>
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
+                                            <TableCell className="py-3.5">
+                                                <div className="flex items-center gap-3.5">
                                                     <Foto src={item.imageUrl} alt={item.name} />
                                                     <div className="min-w-0">
-                                                        <a href={item.publikUrl} target="_blank" rel="noreferrer" className="font-bold hover:text-green hover:underline">
+                                                        <a
+                                                            href={item.publikUrl}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="line-clamp-2 font-bold leading-snug hover:text-green hover:underline"
+                                                            title={item.name}
+                                                        >
                                                             {item.name}
                                                         </a>
-                                                        <div className="text-xs text-muted-foreground">
-                                                            {item.kategori}
-                                                            {item.badge && `, badge ${item.badge}`}
+                                                        <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
+                                                            <span>{item.kategori}</span>
+                                                            <span aria-hidden="true">·</span>
+                                                            <span>{item.supplier ?? 'Tanpa supplier'}</span>
+                                                            {item.badge && <Badge variant="info">{item.badge}</Badge>}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-right tabular-nums">
-                                                {rupiah(item.hargaJual)}
-                                                <div className="text-xs text-muted-foreground">per {item.satuan}</div>
+                                            <TableCell className="whitespace-nowrap py-3.5 text-right tabular-nums">
+                                                <div className="font-semibold">
+                                                    {rupiah(item.hargaJual)}
+                                                    <span className="text-xs font-normal text-muted-foreground">/{item.satuan}</span>
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">modal {rupiah(item.hargaModal)}</div>
+                                                <div className="text-xs font-semibold text-green">untung {rupiah(item.margin)}</div>
                                             </TableCell>
-                                            <TableCell className="text-right tabular-nums text-ink-mid">{rupiah(item.hargaModal)}</TableCell>
-                                            <TableCell className="text-right tabular-nums font-semibold text-green">{rupiah(item.margin)}</TableCell>
-                                            <TableCell className="text-ink-mid">{item.supplier ?? '-'}</TableCell>
-                                            <TableCell>
+                                            <TableCell className="py-3.5">
                                                 <Badge variant={item.aktif ? 'confirmed' : 'info'}>{item.aktif ? 'Dijual' : 'Disembunyikan'}</Badge>
                                             </TableCell>
-                                            <TableCell>{aksi(item, 'mt-0 flex-nowrap')}</TableCell>
+                                            <TableCell className="py-3.5">
+                                                <AksiIkon item={item} onHapus={() => setAkanDihapus(item)} />
+                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
                         </div>
-                        <ul className="divide-y divide-cream lg:hidden">
+                        <ul className="divide-y divide-cream xl:hidden">
                             {produk.map((item) => (
                                 <li key={item.id} className="px-4 py-4">
                                     <div className="flex gap-3">

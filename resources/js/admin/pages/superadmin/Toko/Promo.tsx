@@ -1,15 +1,16 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import AksiKartu from '../../../components/AksiKartu';
 import Field from '../../../components/form/Field';
 import KonfirmasiDialog from '../../../components/KonfirmasiDialog';
 import AdminLayout from '../../../components/layout/AdminLayout';
 import { Button } from '../../../components/ui/button';
-import { Card } from '../../../components/ui/card';
+import { Card, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../../components/ui/dialog';
 import { Input } from '../../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table';
 import { rupiah } from '../../../lib/format';
 import { cn } from '../../../lib/utils';
 
@@ -45,7 +46,28 @@ function statusPromo(promo: Promo): { label: string; kelas: string } {
     return { label: 'Aktif', kelas: 'bg-green-pale text-green' };
 }
 
-/** Shop promo codes: list with an add/edit dialog. Customers apply them at checkout. */
+const masaBerlaku = (promo: Promo) =>
+    promo.starts_on || promo.ends_on
+        ? `${promo.starts_on ? tanggal(promo.starts_on) : 'Sekarang'} sampai ${promo.ends_on ? tanggal(promo.ends_on) : 'tanpa batas'}`
+        : 'Tanpa batas waktu';
+
+/** Times used, with a small bar when the code has a quota. */
+function Pemakaian({ item }: { item: Promo }) {
+    const persen = item.quota ? Math.min(100, Math.round((item.terpakai / item.quota) * 100)) : null;
+    return (
+        <div className="text-xs text-muted-foreground">
+            <span className="font-semibold tabular-nums text-ink">{item.terpakai}</span>
+            {item.quota !== null ? ` dari ${item.quota}` : ''} kali
+            {persen !== null && (
+                <div className="mt-1 h-1.5 w-full max-w-32 overflow-hidden rounded-full bg-muted" role="presentation">
+                    <div className={cn('h-full rounded-full', persen >= 100 ? 'bg-muted-foreground' : 'bg-green')} style={{ width: `${persen}%` }} />
+                </div>
+            )}
+        </div>
+    );
+}
+
+/** Shop promo codes: table (list on smaller screens) with an add/edit dialog. Customers apply them at checkout. */
 export default function PromoPage({ promo }: { promo: Promo[] }) {
     const [diedit, setDiedit] = useState<Promo | 'baru' | null>(null);
     const [akanDihapus, setAkanDihapus] = useState<Promo | null>(null);
@@ -104,34 +126,89 @@ export default function PromoPage({ promo }: { promo: Promo[] }) {
             {promo.length === 0 ? (
                 <Card className="px-5 py-8 text-center text-sm text-muted-foreground">Belum ada kode promo.</Card>
             ) : (
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {promo.map((item) => {
-                        const status = statusPromo(item);
-
-                        return (
-                            <Card key={item.id} className="flex flex-col p-5">
-                                <div className="mb-1 flex items-start justify-between gap-2">
-                                    <span className="break-all font-mono text-base font-bold tracking-wide">{item.code}</span>
-                                    <span className={cn('shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold', status.kelas)}>{status.label}</span>
-                                </div>
-                                <p className="mb-1 text-sm font-semibold text-green">{item.ringkasan}</p>
-                                {item.description && <p className="mb-2 text-sm text-ink-mid">{item.description}</p>}
-                                <dl className="mb-3 space-y-0.5 text-xs text-muted-foreground">
-                                    <div>
-                                        Dipakai {item.terpakai}
-                                        {item.quota !== null ? ` dari ${item.quota}` : ''} kali
+                <Card className="overflow-hidden">
+                    <CardHeader className="border-b border-border py-4">
+                        <CardTitle className="text-xs uppercase tracking-wide text-green">{promo.length} Kode Promo</CardTitle>
+                    </CardHeader>
+                    <div className="hidden xl:block">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Promo</TableHead>
+                                    <TableHead className="w-36">Dipakai</TableHead>
+                                    <TableHead className="w-52">Berlaku</TableHead>
+                                    <TableHead className="w-28">Status</TableHead>
+                                    <TableHead className="w-28 text-right">Aksi</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {promo.map((item) => {
+                                    const status = statusPromo(item);
+                                    return (
+                                        <TableRow key={item.id}>
+                                            <TableCell className="max-w-0 py-3.5">
+                                                <div className="truncate font-mono font-bold tracking-wide" title={item.code}>
+                                                    {item.code}
+                                                </div>
+                                                <div className="text-sm font-semibold text-green">{item.ringkasan}</div>
+                                                {item.description && (
+                                                    <div className="truncate text-xs text-muted-foreground" title={item.description}>
+                                                        {item.description}
+                                                    </div>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="py-3.5">
+                                                <Pemakaian item={item} />
+                                            </TableCell>
+                                            <TableCell className="whitespace-nowrap py-3.5 text-sm text-ink-mid">{masaBerlaku(item)}</TableCell>
+                                            <TableCell className="py-3.5">
+                                                <span className={cn('whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold', status.kelas)}>{status.label}</span>
+                                            </TableCell>
+                                            <TableCell className="py-3.5">
+                                                <div className="flex items-center justify-end gap-1.5">
+                                                    <Button type="button" variant="outline" size="icon" className="size-9 md:size-9" onClick={() => buka(item)} title="Edit kode promo" aria-label={`Edit ${item.code}`}>
+                                                        <Pencil />
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="icon"
+                                                        className="size-9 text-destructive hover:bg-destructive/10 hover:text-destructive md:size-9"
+                                                        onClick={() => setAkanDihapus(item)}
+                                                        title="Hapus kode promo"
+                                                        aria-label={`Hapus ${item.code}`}
+                                                    >
+                                                        <Trash2 />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <ul className="divide-y divide-cream xl:hidden">
+                        {promo.map((item) => {
+                            const status = statusPromo(item);
+                            return (
+                                <li key={item.id} className="px-4 py-4">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <span className="min-w-0 break-all font-mono font-bold tracking-wide">{item.code}</span>
+                                        <span className={cn('shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold', status.kelas)}>{status.label}</span>
                                     </div>
-                                    <div>
-                                        {item.starts_on || item.ends_on
-                                            ? `Berlaku ${item.starts_on ? tanggal(item.starts_on) : 'sekarang'} sampai ${item.ends_on ? tanggal(item.ends_on) : 'tanpa batas'}`
-                                            : 'Berlaku tanpa batas waktu'}
+                                    <p className="mt-0.5 text-sm font-semibold text-green">{item.ringkasan}</p>
+                                    {item.description && <p className="mt-0.5 line-clamp-2 text-sm text-ink-mid">{item.description}</p>}
+                                    <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                                        <Pemakaian item={item} />
+                                        <div className="text-xs text-muted-foreground">{masaBerlaku(item)}</div>
                                     </div>
-                                </dl>
-                                <AksiKartu onEdit={() => buka(item)} onHapus={() => setAkanDihapus(item)} />
-                            </Card>
-                        );
-                    })}
-                </div>
+                                    <AksiKartu className="mt-3" onEdit={() => buka(item)} onHapus={() => setAkanDihapus(item)} />
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </Card>
             )}
 
             <Dialog open={diedit !== null} onOpenChange={(terbuka) => !terbuka && setDiedit(null)}>
