@@ -8,15 +8,17 @@ interface FieldProps {
     error?: string;
     hint?: string;
     wajib?: boolean;
+    /** Keep the label for screen readers only, when a card title already names the field. */
+    labelTersembunyi?: boolean;
     className?: string;
     children: ReactNode;
 }
 
 /** Label above the control, optional hint, and the server validation error below it. */
-export default function Field({ id, label, error, hint, wajib, className, children }: FieldProps) {
+export default function Field({ id, label, error, hint, wajib, labelTersembunyi = false, className, children }: FieldProps) {
     return (
         <div className={cn('space-y-1.5', className)}>
-            <Label htmlFor={id}>
+            <Label htmlFor={id} className={labelTersembunyi ? 'sr-only' : undefined}>
                 {label}
                 {wajib && <span className="text-destructive"> *</span>}
             </Label>

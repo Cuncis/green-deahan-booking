@@ -2,7 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { Plus, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import Field from '../../../../components/form/Field';
-import UnggahFotoBanyak, { type FotoAda } from '../../../../components/form/UnggahFotoBanyak';
+import UnggahFotoBanyak, { fotoUtamaUntukServer, type FotoAda } from '../../../../components/form/UnggahFotoBanyak';
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import { Button } from '../../../../components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '../../../../components/ui/card';
@@ -65,7 +65,10 @@ interface DataImpor {
     kategori: string | null;
     linkSupplier: string | null;
     spesifikasi: Spek[];
-    varian: { label: string | null; opsi: { nama: string; tersedia: boolean }[] };
+    varian: {
+        label: string | null;
+        opsi: { nama: string; tersedia: boolean }[];
+    };
     dikirimDari: string | null;
     namaSupplier: string | null;
     gambarUrl: string | null;
@@ -141,6 +144,9 @@ export default function Form(props: Props) {
     return <FormProduk key={props.impor ? `${props.impor.nama}|${props.impor.linkSupplier}` : 'baru'} {...props} />;
 }
 
+/** Same limit as ProdukRequest and ImporProdukHtmlService::MAKS_DESKRIPSI. */
+const MAKS_DESKRIPSI = 3000;
+
 function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSatuan, pilihanSupplier, simpanUrl, kembaliUrl, maksFoto }: Props) {
     const edit = produk !== null;
     const imporForm = useForm({ html: '' });
@@ -168,7 +174,13 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
                   cost_price: varian.cost_price === null ? '' : String(varian.cost_price),
                   is_available: varian.is_available,
               }))
-            : (impor?.varian?.opsi ?? []).map((opsi) => ({ id: null, name: opsi.nama, sell_price: '', cost_price: '', is_available: opsi.tersedia }))) as Varian[],
+            : (impor?.varian?.opsi ?? []).map((opsi) => ({
+                  id: null,
+                  name: opsi.nama,
+                  sell_price: '',
+                  cost_price: '',
+                  is_available: opsi.tersedia,
+              }))) as Varian[],
         is_active: produk ? (produk.is_active ? '1' : '0') : impor ? '0' : '1',
         fotoAda: produk?.fotos ?? ([] as FotoAda[]),
         gambar_urls: impor?.gambarUrls ?? ([] as string[]),
@@ -182,6 +194,8 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
     // markupAktif keeps the selling price following cost changes after the markup was typed.
     const [markup, setMarkup] = useState(() => markupDari(jual, modal));
     const [markupAktif, setMarkupAktif] = useState(false);
+    // Key of the photo picked as main photo; null keeps the current first photo.
+    const [fotoUtama, setFotoUtama] = useState<string | null>(null);
 
     const ubahMarkup = (nilai: string) => {
         setMarkup(nilai);
@@ -196,7 +210,11 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
         const modalBaru = Number(nilai) || 0;
         const persen = Number(markup);
         if (markupAktif && markup !== '' && Number.isFinite(persen) && modalBaru > 0) {
-            form.setData((data) => ({ ...data, cost_price: nilai, sell_price: String(hargaDariMarkup(modalBaru, persen)) }));
+            form.setData((data) => ({
+                ...data,
+                cost_price: nilai,
+                sell_price: String(hargaDariMarkup(modalBaru, persen)),
+            }));
         } else {
             form.setData('cost_price', nilai);
             setMarkup(markupDari(jual, modalBaru));
@@ -229,10 +247,15 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
             // Blank rows are dropped by the server; an empty list clears the saved specs.
             specs: data.specs.filter((spek) => spek.nama.trim() !== '' || spek.nilai.trim() !== ''),
             // The server keeps a variant's id (carts stay valid), drops blank names and turns blank prices into "same as product".
-            variants: data.variants.map((varian) => ({ ...varian, id: varian.id ?? '', is_available: varian.is_available ? '1' : '0' })),
+            variants: data.variants.map((varian) => ({
+                ...varian,
+                id: varian.id ?? '',
+                is_available: varian.is_available ? '1' : '0',
+            })),
             // Sent even when empty, so removing every saved photo is understood by the server.
             foto_diatur: '1',
             foto_ada: fotoAda.map((foto) => foto.id),
+            foto_utama: fotoUtamaUntukServer(fotoUtama, fotoAda, data.gambar_urls, data.foto_baru) ?? '',
             ...(edit ? { _method: 'put' } : {}),
         }));
         form.post(edit ? produk.updateUrl : simpanUrl, { forceFormData: true });
@@ -285,7 +308,9 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
                             .filter(Boolean)
                             .join(', ') || 'tidak ada'}
                         . Harga hanya saran dan bisa diubah, berat belum diisi. Produk dibuat Disembunyikan sampai Anda mengubahnya.
-                        {impor.supplierId && impor.dikirimDari ? ` Supplier dipilih dari kota pengirim (${impor.dikirimDari}), cek lagi kalau ada beberapa outlet di kota itu.` : ''}
+                        {impor.supplierId && impor.dikirimDari
+                            ? ` Supplier dipilih dari kota pengirim (${impor.dikirimDari}), cek lagi kalau ada beberapa outlet di kota itu.`
+                            : ''}
                         {!impor.supplierId && (impor.namaSupplier || impor.dikirimDari)
                             ? ` Supplier belum terpilih otomatis${impor.dikirimDari ? ` (dikirim dari ${impor.dikirimDari})` : ''}, pilih manual di bagian Supplier.`
                             : ''}
@@ -293,272 +318,374 @@ function FormProduk({ produk, impor = null, imporUrl, pilihanKategori, pilihanSa
                 </div>
             )}
             <form onSubmit={simpan} className="grid gap-5 pb-24 md:pb-0 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-                <Card className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 md:p-6">
-                    <Field id="name" label="Nama produk" error={form.errors.name} wajib className="md:col-span-2">
-                        <Input id="name" value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} required />
-                    </Field>
-                    <Field id="category" label="Kategori" error={form.errors.category} wajib>
-                        <Select value={form.data.category} onValueChange={(nilai) => form.setData('category', nilai)}>
-                            <SelectTrigger id="category">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {pilihanKategori.map((item) => (
-                                    <SelectItem key={item.nilai} value={item.nilai}>
-                                        {item.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </Field>
-                    <Field id="unit" label="Satuan jual" error={form.errors.unit} wajib hint="Harga jual dihitung per satuan ini.">
-                        <Select value={form.data.unit} onValueChange={(nilai) => form.setData('unit', nilai)}>
-                            <SelectTrigger id="unit">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {pilihanSatuan.map((satuan) => (
-                                    <SelectItem key={satuan} value={satuan}>
-                                        per {satuan}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </Field>
-                    <Field id="badge" label="Badge" error={form.errors.badge} hint="Opsional, misal Terlaris, Baru, Promo.">
-                        <Input id="badge" value={form.data.badge} maxLength={30} onChange={(event) => form.setData('badge', event.target.value)} />
-                    </Field>
-                    <Field id="weight" label="Berat (gram)" error={form.errors.weight_gram}>
-                        <Input
-                            id="weight"
-                            type="number"
-                            inputMode="numeric"
-                            min={0}
-                            value={form.data.weight_gram}
-                            onChange={(event) => form.setData('weight_gram', event.target.value)}
-                        />
-                    </Field>
-                    <Field
-                        id="origin"
-                        label="Kode pos asal pengiriman"
-                        error={form.errors.origin_postal_code}
-                        hint={`Opsional. Isi kode pos kota 'Dikirim dari' di Shopee${impor?.dikirimDari ? ` (halaman ini: ${impor.dikirimDari})` : ''}. Kosong = pakai kode pos supplier, lalu kode pos bawaan toko. Dipakai untuk menghitung ongkir perkiraan.`}
-                    >
-                        <Input
-                            id="origin"
-                            inputMode="numeric"
-                            maxLength={5}
-                            value={form.data.origin_postal_code}
-                            onChange={(event) => form.setData('origin_postal_code', event.target.value.replace(/\D/g, ''))}
-                        />
-                    </Field>
-                    <div className="grid gap-3 md:col-span-2">
-                        <div>
-                            <p className="text-sm font-medium">Spesifikasi</p>
-                            <p className="text-xs text-muted-foreground">
-                                Opsional. Tampil di halaman produk, misalnya Merek: Ortuseight, Bahan: Nilon, Asal produk: Indonesia. Diisi otomatis saat impor dari Shopee.
-                            </p>
-                        </div>
-                        {form.data.specs.map((spek, indeks) => (
-                            <div key={indeks} className="grid grid-cols-[1fr_1.5fr_auto] items-start gap-2">
-                                <Field id={`spek-nama-${indeks}`} label={indeks === 0 ? 'Nama' : ''} error={galat[`specs.${indeks}.nama`]}>
-                                    <Input
-                                        id={`spek-nama-${indeks}`}
-                                        value={spek.nama}
-                                        maxLength={60}
-                                        aria-label={`Nama spesifikasi ${indeks + 1}`}
-                                        onChange={(event) =>
-                                            form.setData(
-                                                'specs',
-                                                form.data.specs.map((item, urutan) => (urutan === indeks ? { ...item, nama: event.target.value } : item)),
-                                            )
-                                        }
-                                    />
-                                </Field>
-                                <Field id={`spek-nilai-${indeks}`} label={indeks === 0 ? 'Isi' : ''} error={galat[`specs.${indeks}.nilai`]}>
-                                    <Input
-                                        id={`spek-nilai-${indeks}`}
-                                        value={spek.nilai}
-                                        maxLength={150}
-                                        aria-label={`Isi spesifikasi ${indeks + 1}`}
-                                        onChange={(event) =>
-                                            form.setData(
-                                                'specs',
-                                                form.data.specs.map((item, urutan) => (urutan === indeks ? { ...item, nilai: event.target.value } : item)),
-                                            )
-                                        }
-                                    />
-                                </Field>
+                <div className="min-w-0 space-y-5">
+                    <Card className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 md:p-6">
+                        <CardHeader className="p-0 pb-1 md:col-span-2">
+                            <CardTitle>Informasi Produk</CardTitle>
+                            <CardDescription>Nama, kategori, dan alamat halaman di toko.</CardDescription>
+                        </CardHeader>
+                        <Field id="name" label="Nama produk" error={form.errors.name} wajib className="md:col-span-2">
+                            <Input id="name" value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} required />
+                        </Field>
+                        <Field id="category" label="Kategori" error={form.errors.category} wajib>
+                            <Select value={form.data.category} onValueChange={(nilai) => form.setData('category', nilai)}>
+                                <SelectTrigger id="category">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {pilihanKategori.map((item) => (
+                                        <SelectItem key={item.nilai} value={item.nilai}>
+                                            {item.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field id="unit" label="Satuan jual" error={form.errors.unit} wajib hint="Harga jual dihitung per satuan ini.">
+                            <Select value={form.data.unit} onValueChange={(nilai) => form.setData('unit', nilai)}>
+                                <SelectTrigger id="unit">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {pilihanSatuan.map((satuan) => (
+                                        <SelectItem key={satuan} value={satuan}>
+                                            per {satuan}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field id="badge" label="Badge" error={form.errors.badge} hint="Opsional, misal Terlaris, Baru, Promo.">
+                            <Input id="badge" value={form.data.badge} maxLength={30} onChange={(event) => form.setData('badge', event.target.value)} />
+                        </Field>
+                        <Field
+                            id="slug"
+                            label="Alamat halaman (slug)"
+                            error={form.errors.slug}
+                            hint="Kosongkan untuk dibuat otomatis dari nama. Kalau sudah dipakai produk lain, ditambah angka di belakangnya."
+                            className="md:col-span-2"
+                        >
+                            <div className="flex gap-2">
+                                <Input
+                                    id="slug"
+                                    value={form.data.slug}
+                                    onChange={(event) => form.setData('slug', event.target.value)}
+                                    placeholder="bola-padel-isi-3"
+                                    autoCapitalize="none"
+                                />
                                 <Button
                                     type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className={indeks === 0 ? 'mt-6' : undefined}
-                                    aria-label={`Hapus spesifikasi ${indeks + 1}`}
-                                    onClick={() =>
-                                        form.setData(
-                                            'specs',
-                                            form.data.specs.filter((_, urutan) => urutan !== indeks),
-                                        )
-                                    }
+                                    variant="outline"
+                                    className="shrink-0"
+                                    disabled={form.data.name.trim() === ''}
+                                    onClick={() => form.setData('slug', buatSlug(form.data.name))}
                                 >
-                                    <X />
+                                    Buat dari nama
                                 </Button>
                             </div>
-                        ))}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="justify-self-start"
-                            disabled={form.data.specs.length >= MAKS_SPEK}
-                            onClick={() => form.setData('specs', [...form.data.specs, { nama: '', nilai: '' }])}
+                        </Field>
+                    </Card>
+                    <Card className="grid grid-cols-1 gap-4 p-4 md:p-6">
+                        <CardHeader className="p-0 pb-1">
+                            <CardTitle>Foto Produk</CardTitle>
+                            <CardDescription>Foto utama tampil di toko dan daftar produk. Pilih foto lain dengan tombol "Jadikan utama".</CardDescription>
+                        </CardHeader>
+                        <Field
+                            id="foto"
+                            label="Foto"
+                            labelTersembunyi
+                            error={galatFoto}
+                            hint={
+                                form.data.gambar_urls.length > 0
+                                    ? 'Foto dari Shopee diunduh ke toko saat disimpan. Anda bisa menghapus atau menambah foto sendiri.'
+                                    : form.data.fotoAda.length + form.data.foto_baru.length === 0
+                                      ? 'Tanpa foto, halaman toko memakai gambar placeholder.'
+                                      : undefined
+                            }
                         >
-                            <Plus />
-                            Tambah spesifikasi
-                        </Button>
-                    </div>
-                    <div className="grid gap-3 md:col-span-2">
-                        <div>
-                            <p className="text-sm font-medium">Varian (warna, ukuran)</p>
-                            <p className="text-xs text-muted-foreground">
-                                Opsional. Pembeli wajib memilih satu varian sebelum membeli. Harga kosong berarti sama dengan harga produk. Hilangkan centang "Tersedia" kalau
-                                varian habis di supplier. Diisi otomatis saat impor dari Shopee.
-                            </p>
-                        </div>
-                        {form.data.variants.length > 0 && (
-                            <Field id="variant-label" label="Judul pilihan" error={form.errors.variant_label} hint="Misalnya Warna, Ukuran, atau Warna / Ukuran.">
-                                <Input id="variant-label" value={form.data.variant_label} maxLength={30} onChange={(event) => form.setData('variant_label', event.target.value)} />
-                            </Field>
-                        )}
-                        {galat.variants && <p className="text-sm text-destructive">{galat.variants}</p>}
-                        {form.data.variants.map((varian, indeks) => {
-                            const ubahVarian = (perubahan: Partial<Varian>) =>
-                                form.setData(
-                                    'variants',
-                                    form.data.variants.map((item, urutan) => (urutan === indeks ? { ...item, ...perubahan } : item)),
-                                );
-
-                            return (
-                                <div
-                                    key={varian.id ?? `baru-${indeks}`}
-                                    className="grid gap-2 rounded-md border border-border p-3 md:grid-cols-[2fr_1fr_1fr_auto_auto] md:items-start"
-                                >
-                                    <Field id={`varian-nama-${indeks}`} label="Nama varian" error={galat[`variants.${indeks}.name`]}>
-                                        <Input id={`varian-nama-${indeks}`} value={varian.name} maxLength={80} onChange={(event) => ubahVarian({ name: event.target.value })} />
-                                    </Field>
-                                    <Field id={`varian-jual-${indeks}`} label="Harga jual" error={galat[`variants.${indeks}.sell_price`]}>
+                            <UnggahFotoBanyak
+                                id="foto"
+                                fotoAda={form.data.fotoAda}
+                                onFotoAda={(foto) => form.setData('fotoAda', foto)}
+                                alamatImpor={form.data.gambar_urls}
+                                onAlamatImpor={(alamat) => form.setData('gambar_urls', alamat)}
+                                fotoBaru={form.data.foto_baru}
+                                onFotoBaru={(file) => form.setData('foto_baru', file)}
+                                maks={maksFoto}
+                                utama={fotoUtama}
+                                onUtama={setFotoUtama}
+                            />
+                        </Field>
+                    </Card>
+                    <Card className="grid grid-cols-1 gap-4 p-4 md:p-6">
+                        <CardHeader className="p-0 pb-1">
+                            <CardTitle>Deskripsi</CardTitle>
+                        </CardHeader>
+                        <Field
+                            id="description"
+                            label="Deskripsi produk"
+                            labelTersembunyi
+                            error={form.errors.description}
+                            hint="Tampil apa adanya di tab Deskripsi halaman produk. Pakai baris kosong untuk memisahkan paragraf."
+                        >
+                            <Textarea
+                                id="description"
+                                rows={16}
+                                maxLength={MAKS_DESKRIPSI}
+                                className="min-h-[24rem] resize-y leading-relaxed"
+                                value={form.data.description}
+                                onChange={(event) => form.setData('description', event.target.value)}
+                            />
+                        </Field>
+                        <p
+                            className={`-mt-2 text-right text-xs tabular-nums ${form.data.description.length > MAKS_DESKRIPSI * 0.9 ? 'font-semibold text-amber' : 'text-muted-foreground'}`}
+                        >
+                            {form.data.description.length.toLocaleString('id-ID')} / {MAKS_DESKRIPSI.toLocaleString('id-ID')} karakter
+                        </p>
+                    </Card>
+                    <Card className="grid grid-cols-1 gap-4 p-4 md:p-6">
+                        <div className="grid gap-3">
+                            <div>
+                                <h3 className="text-sm font-bold leading-none text-foreground">Spesifikasi</h3>
+                                <p className="text-xs text-muted-foreground">
+                                    Opsional. Tampil di halaman produk, misalnya Merek: Ortuseight, Bahan: Nilon, Asal produk: Indonesia. Diisi otomatis saat impor dari Shopee.
+                                </p>
+                            </div>
+                            {form.data.specs.map((spek, indeks) => (
+                                <div key={indeks} className="grid grid-cols-[1fr_1.5fr_auto] items-start gap-2">
+                                    <Field id={`spek-nama-${indeks}`} label={indeks === 0 ? 'Nama' : ''} error={galat[`specs.${indeks}.nama`]}>
                                         <Input
-                                            id={`varian-jual-${indeks}`}
-                                            type="number"
-                                            inputMode="numeric"
-                                            min={0}
-                                            value={varian.sell_price}
-                                            placeholder="sama"
-                                            onChange={(event) => ubahVarian({ sell_price: event.target.value })}
+                                            id={`spek-nama-${indeks}`}
+                                            value={spek.nama}
+                                            maxLength={60}
+                                            aria-label={`Nama spesifikasi ${indeks + 1}`}
+                                            onChange={(event) =>
+                                                form.setData(
+                                                    'specs',
+                                                    form.data.specs.map((item, urutan) =>
+                                                        urutan === indeks
+                                                            ? {
+                                                                  ...item,
+                                                                  nama: event.target.value,
+                                                              }
+                                                            : item,
+                                                    ),
+                                                )
+                                            }
                                         />
                                     </Field>
-                                    <Field id={`varian-modal-${indeks}`} label="Harga modal" error={galat[`variants.${indeks}.cost_price`]}>
+                                    <Field id={`spek-nilai-${indeks}`} label={indeks === 0 ? 'Isi' : ''} error={galat[`specs.${indeks}.nilai`]}>
                                         <Input
-                                            id={`varian-modal-${indeks}`}
-                                            type="number"
-                                            inputMode="numeric"
-                                            min={0}
-                                            value={varian.cost_price}
-                                            placeholder="sama"
-                                            onChange={(event) => ubahVarian({ cost_price: event.target.value })}
+                                            id={`spek-nilai-${indeks}`}
+                                            value={spek.nilai}
+                                            maxLength={150}
+                                            aria-label={`Isi spesifikasi ${indeks + 1}`}
+                                            onChange={(event) =>
+                                                form.setData(
+                                                    'specs',
+                                                    form.data.specs.map((item, urutan) =>
+                                                        urutan === indeks
+                                                            ? {
+                                                                  ...item,
+                                                                  nilai: event.target.value,
+                                                              }
+                                                            : item,
+                                                    ),
+                                                )
+                                            }
                                         />
                                     </Field>
-                                    <label className="flex min-h-10 items-center gap-2 text-sm md:mt-6">
-                                        <input type="checkbox" checked={varian.is_available} onChange={(event) => ubahVarian({ is_available: event.target.checked })} />
-                                        Tersedia
-                                    </label>
                                     <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
-                                        className="md:mt-6"
-                                        aria-label={`Hapus varian ${indeks + 1}`}
+                                        className={indeks === 0 ? 'mt-6' : undefined}
+                                        aria-label={`Hapus spesifikasi ${indeks + 1}`}
                                         onClick={() =>
                                             form.setData(
-                                                'variants',
-                                                form.data.variants.filter((_, urutan) => urutan !== indeks),
+                                                'specs',
+                                                form.data.specs.filter((_, urutan) => urutan !== indeks),
                                             )
                                         }
                                     >
                                         <X />
                                     </Button>
                                 </div>
-                            );
-                        })}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="justify-self-start"
-                            disabled={form.data.variants.length >= MAKS_VARIAN}
-                            onClick={() => form.setData('variants', [...form.data.variants, { id: null, name: '', sell_price: '', cost_price: '', is_available: true }])}
-                        >
-                            <Plus />
-                            Tambah varian
-                        </Button>
-                    </div>
-                    <Field id="description" label="Deskripsi" error={form.errors.description} className="md:col-span-2">
-                        <Textarea id="description" rows={4} value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} />
-                    </Field>
-                    <Field
-                        id="slug"
-                        label="Alamat halaman (slug)"
-                        error={form.errors.slug}
-                        hint="Kosongkan untuk dibuat otomatis dari nama. Kalau sudah dipakai produk lain, ditambah angka di belakangnya."
-                        className="md:col-span-2"
-                    >
-                        <div className="flex gap-2">
-                            <Input
-                                id="slug"
-                                value={form.data.slug}
-                                onChange={(event) => form.setData('slug', event.target.value)}
-                                placeholder="bola-padel-isi-3"
-                                autoCapitalize="none"
-                            />
+                            ))}
                             <Button
                                 type="button"
                                 variant="outline"
-                                className="shrink-0"
-                                disabled={form.data.name.trim() === ''}
-                                onClick={() => form.setData('slug', buatSlug(form.data.name))}
+                                size="sm"
+                                className="justify-self-start"
+                                disabled={form.data.specs.length >= MAKS_SPEK}
+                                onClick={() => form.setData('specs', [...form.data.specs, { nama: '', nilai: '' }])}
                             >
-                                Buat dari nama
+                                <Plus />
+                                Tambah spesifikasi
                             </Button>
                         </div>
-                    </Field>
-                    <Field
-                        id="foto"
-                        label="Foto"
-                        error={galatFoto}
-                        hint={
-                            form.data.gambar_urls.length > 0
-                                ? 'Foto dari Shopee diunduh ke toko saat disimpan. Anda bisa menghapus atau menambah foto sendiri.'
-                                : form.data.fotoAda.length + form.data.foto_baru.length === 0
-                                  ? 'Tanpa foto, halaman toko memakai gambar placeholder.'
-                                  : undefined
-                        }
-                        className="md:col-span-2"
-                    >
-                        <UnggahFotoBanyak
-                            id="foto"
-                            fotoAda={form.data.fotoAda}
-                            onFotoAda={(foto) => form.setData('fotoAda', foto)}
-                            alamatImpor={form.data.gambar_urls}
-                            onAlamatImpor={(alamat) => form.setData('gambar_urls', alamat)}
-                            fotoBaru={form.data.foto_baru}
-                            onFotoBaru={(file) => form.setData('foto_baru', file)}
-                            maks={maksFoto}
-                        />
-                    </Field>
-                </Card>
+                    </Card>
+                    <Card className="grid grid-cols-1 gap-4 p-4 md:p-6">
+                        <div className="grid gap-3">
+                            <div>
+                                <h3 className="text-sm font-bold leading-none text-foreground">Varian (warna, ukuran)</h3>
+                                <p className="text-xs text-muted-foreground">
+                                    Opsional. Pembeli wajib memilih satu varian sebelum membeli. Harga kosong berarti sama dengan harga produk. Hilangkan centang "Tersedia" kalau
+                                    varian habis di supplier. Diisi otomatis saat impor dari Shopee.
+                                </p>
+                            </div>
+                            {form.data.variants.length > 0 && (
+                                <Field id="variant-label" label="Judul pilihan" error={form.errors.variant_label} hint="Misalnya Warna, Ukuran, atau Warna / Ukuran.">
+                                    <Input
+                                        id="variant-label"
+                                        value={form.data.variant_label}
+                                        maxLength={30}
+                                        onChange={(event) => form.setData('variant_label', event.target.value)}
+                                    />
+                                </Field>
+                            )}
+                            {galat.variants && <p className="text-sm text-destructive">{galat.variants}</p>}
+                            {form.data.variants.map((varian, indeks) => {
+                                const ubahVarian = (perubahan: Partial<Varian>) =>
+                                    form.setData(
+                                        'variants',
+                                        form.data.variants.map((item, urutan) => (urutan === indeks ? { ...item, ...perubahan } : item)),
+                                    );
 
-                <div className="space-y-5">
+                                return (
+                                    <div
+                                        key={varian.id ?? `baru-${indeks}`}
+                                        className="grid gap-2 rounded-md border border-border p-3 md:grid-cols-[2fr_1fr_1fr_auto_auto] md:items-start"
+                                    >
+                                        <Field id={`varian-nama-${indeks}`} label="Nama varian" error={galat[`variants.${indeks}.name`]}>
+                                            <Input
+                                                id={`varian-nama-${indeks}`}
+                                                value={varian.name}
+                                                maxLength={80}
+                                                onChange={(event) =>
+                                                    ubahVarian({
+                                                        name: event.target.value,
+                                                    })
+                                                }
+                                            />
+                                        </Field>
+                                        <Field id={`varian-jual-${indeks}`} label="Harga jual" error={galat[`variants.${indeks}.sell_price`]}>
+                                            <Input
+                                                id={`varian-jual-${indeks}`}
+                                                type="number"
+                                                inputMode="numeric"
+                                                min={0}
+                                                value={varian.sell_price}
+                                                placeholder="sama"
+                                                onChange={(event) =>
+                                                    ubahVarian({
+                                                        sell_price: event.target.value,
+                                                    })
+                                                }
+                                            />
+                                        </Field>
+                                        <Field id={`varian-modal-${indeks}`} label="Harga modal" error={galat[`variants.${indeks}.cost_price`]}>
+                                            <Input
+                                                id={`varian-modal-${indeks}`}
+                                                type="number"
+                                                inputMode="numeric"
+                                                min={0}
+                                                value={varian.cost_price}
+                                                placeholder="sama"
+                                                onChange={(event) =>
+                                                    ubahVarian({
+                                                        cost_price: event.target.value,
+                                                    })
+                                                }
+                                            />
+                                        </Field>
+                                        <label className="flex min-h-10 items-center gap-2 text-sm md:mt-6">
+                                            <input
+                                                type="checkbox"
+                                                checked={varian.is_available}
+                                                onChange={(event) =>
+                                                    ubahVarian({
+                                                        is_available: event.target.checked,
+                                                    })
+                                                }
+                                            />
+                                            Tersedia
+                                        </label>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="md:mt-6"
+                                            aria-label={`Hapus varian ${indeks + 1}`}
+                                            onClick={() =>
+                                                form.setData(
+                                                    'variants',
+                                                    form.data.variants.filter((_, urutan) => urutan !== indeks),
+                                                )
+                                            }
+                                        >
+                                            <X />
+                                        </Button>
+                                    </div>
+                                );
+                            })}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="justify-self-start"
+                                disabled={form.data.variants.length >= MAKS_VARIAN}
+                                onClick={() =>
+                                    form.setData('variants', [
+                                        ...form.data.variants,
+                                        {
+                                            id: null,
+                                            name: '',
+                                            sell_price: '',
+                                            cost_price: '',
+                                            is_available: true,
+                                        },
+                                    ])
+                                }
+                            >
+                                <Plus />
+                                Tambah varian
+                            </Button>
+                        </div>
+                    </Card>
+                    <Card className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 md:p-6">
+                        <CardHeader className="p-0 pb-1 md:col-span-2">
+                            <CardTitle>Pengiriman</CardTitle>
+                            <CardDescription>Dipakai untuk menghitung ongkir perkiraan saat checkout.</CardDescription>
+                        </CardHeader>
+                        <Field id="weight" label="Berat (gram)" error={form.errors.weight_gram}>
+                            <Input
+                                id="weight"
+                                type="number"
+                                inputMode="numeric"
+                                min={0}
+                                value={form.data.weight_gram}
+                                onChange={(event) => form.setData('weight_gram', event.target.value)}
+                            />
+                        </Field>
+                        <Field
+                            id="origin"
+                            label="Kode pos asal pengiriman"
+                            error={form.errors.origin_postal_code}
+                            hint={`Opsional. Isi kode pos kota 'Dikirim dari' di Shopee${impor?.dikirimDari ? ` (halaman ini: ${impor.dikirimDari})` : ''}. Kosong = pakai kode pos supplier, lalu kode pos bawaan toko. Dipakai untuk menghitung ongkir perkiraan.`}
+                        >
+                            <Input
+                                id="origin"
+                                inputMode="numeric"
+                                maxLength={5}
+                                value={form.data.origin_postal_code}
+                                onChange={(event) => form.setData('origin_postal_code', event.target.value.replace(/\D/g, ''))}
+                            />
+                        </Field>
+                    </Card>
+                </div>
+
+                <div className="space-y-5 lg:sticky lg:top-20">
                     <Card>
                         <CardHeader>
                             <CardTitle>Harga</CardTitle>
