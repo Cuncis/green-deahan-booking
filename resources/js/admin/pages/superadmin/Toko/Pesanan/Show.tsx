@@ -67,7 +67,8 @@ function KabariPelanggan({ pesanan }: { pesanan: Pesanan }) {
                 <CardTitle>Kabari pelanggan</CardTitle>
                 <CardDescription>Pilih template, edit kalau perlu, lalu kirim lewat email atau WhatsApp.</CardDescription>
             </CardHeader>
-            <div className="grid gap-3 px-5 pb-5">
+            {/* grid-cols-1 = minmax(0, 1fr): long unbroken text (status links) must not widen the fields. */}
+            <div className="grid grid-cols-1 gap-3 px-5 pb-5">
                 <Field id="template-pesan" label="Template">
                     <Select value={form.data.template} onValueChange={pilihTemplate}>
                         <SelectTrigger id="template-pesan">
@@ -104,9 +105,9 @@ function KabariPelanggan({ pesanan }: { pesanan: Pesanan }) {
                 {pesanan.riwayatPesan.length > 0 && (
                     <div className="border-t border-border pt-3">
                         <p className="mb-2 text-sm font-medium">Riwayat kabar</p>
-                        <ul className="grid gap-2 text-sm">
+                        <ul className="grid grid-cols-1 gap-2 text-sm">
                             {pesanan.riwayatPesan.map((item) => (
-                                <li key={item.id} className="rounded-md bg-muted/50 px-3 py-2">
+                                <li key={item.id} className="min-w-0 rounded-md bg-muted/50 px-3 py-2">
                                     <details>
                                         <summary className="cursor-pointer">
                                             <strong>{item.saluran === 'email' ? 'Email' : 'WhatsApp'}</strong>, {item.template}
@@ -115,7 +116,7 @@ function KabariPelanggan({ pesanan }: { pesanan: Pesanan }) {
                                                 {item.oleh && `, oleh ${item.oleh}`}
                                             </span>
                                         </summary>
-                                        <p className="mt-2 whitespace-pre-line text-xs text-muted-foreground">{item.isi}</p>
+                                        <p className="mt-2 whitespace-pre-line text-xs text-muted-foreground [overflow-wrap:anywhere]">{item.isi}</p>
                                     </details>
                                 </li>
                             ))}
