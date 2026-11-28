@@ -1,7 +1,8 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, Copy, ExternalLink, Plus, X } from 'lucide-react';
+import { ArrowLeft, Copy, ExternalLink, Mail, Plus, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
+import WhatsAppIcon from '../../../../../components/fuzio/elements/WhatsAppIcon';
 import Field from '../../../../components/form/Field';
 import KonfirmasiDialog from '../../../../components/KonfirmasiDialog';
 import AdminLayout from '../../../../components/layout/AdminLayout';
@@ -91,9 +92,11 @@ function KabariPelanggan({ pesanan }: { pesanan: Pesanan }) {
                 </Field>
                 <div className="flex flex-wrap gap-2">
                     <Button type="button" disabled={form.processing || kosong} onClick={kirimEmail}>
+                        <Mail />
                         Kirim email
                     </Button>
                     <Button type="button" variant="outline" disabled={form.processing || kosong || !pesanan.waNomor} onClick={bukaWhatsApp}>
+                        <WhatsAppIcon size={16} className="text-[#25D366]" />
                         Buka WhatsApp
                     </Button>
                 </div>

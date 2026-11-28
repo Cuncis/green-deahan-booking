@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Mail, MessageCircle } from 'lucide-react';
+import { Mail } from 'lucide-react';
+import WhatsAppIcon from '../../../../../components/fuzio/elements/WhatsAppIcon';
 import ChipFilter from '../../../../components/ChipFilter';
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import Pagination, { type Paginated } from '../../../../components/Pagination';
@@ -81,7 +82,7 @@ function TombolWhatsApp({ item }: { item: PesananBaris }) {
     if (!item.whatsapp) {
         return (
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-full xl:h-9 xl:w-9 bg-muted text-muted-foreground" title="Nomor HP pelanggan tidak valid untuk WhatsApp">
-                <MessageCircle className="h-4 w-4" />
+                <WhatsAppIcon size={18} />
             </span>
         );
     }
@@ -100,7 +101,7 @@ function TombolWhatsApp({ item }: { item: PesananBaris }) {
             aria-label={`Kabari ${item.pelanggan} lewat WhatsApp, status ${item.statusLabel}`}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full xl:h-9 xl:w-9 bg-[#25D366] text-white shadow-sm transition hover:bg-[#1da851] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green focus-visible:ring-offset-2"
         >
-            <MessageCircle className="h-4 w-4" />
+            <WhatsAppIcon size={18} />
         </button>
     );
 }
